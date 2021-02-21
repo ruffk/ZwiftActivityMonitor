@@ -1,14 +1,5 @@
 ﻿# ZwiftActivityMonitor
-
-<!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and licence info here --->
-![GitHub repo size](https://img.shields.io/github/repo-size/ruffk/ZwiftActivityMonitor)
-![GitHub contributors](https://img.shields.io/github/contributors/ruffk/ZwiftActivityMonitor)
-![GitHub stars](https://img.shields.io/github/stars/ruffk/ZwiftActivityMonitor?style=social)
-![GitHub forks](https://img.shields.io/github/forks/ruffk/ZwiftActivityMonitor?style=social)
-
 This project allows Zwift users to monitor their power and heartrate average in real-time.
-
-Additional line of information text about what the project does. Your introduction should be around 2 or 3 sentences. Don't go overboard, people won't read it.
 
 ## Prerequisites
 
