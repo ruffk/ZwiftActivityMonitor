@@ -40,43 +40,97 @@ namespace ZwiftActivityMonitor
         {
             private Label m_lblAvgPower;
             private Label m_lblMaxPower;
+            private Label m_lblFtpPower;
             private Label m_lblAvgHR;
-            private Label m_lblMaxHR;
             private Label m_lblMA;
+            private Collector m_collector;
 
-            public LabelHelper(Label lblMA, Label lblAvgPower, Label lblMaxPower, Label lblAvgHR, Label lblMaxHR)
+            public LabelHelper(Label lblMA, Label lblAvgPower, Label lblMaxPower, Label lblFtpPower, Label lblAvgHR)
             {
                 m_lblAvgPower = lblAvgPower;
                 m_lblMaxPower = lblMaxPower;
-                m_lblAvgHR    = lblAvgHR;
-                m_lblMaxHR    = lblMaxHR;
-                m_lblMA       = lblMA;
+                m_lblFtpPower = lblFtpPower;
+                m_lblAvgHR = lblAvgHR;
+                m_lblMA = lblMA;
             }
 
             public void ClearLabels()
             {
                 m_lblAvgPower.Text = "";
                 m_lblMaxPower.Text = "";
+                m_lblFtpPower.Text = "";
                 m_lblAvgHR.Text = "";
-                m_lblMaxHR.Text = "";
                 m_lblMA.Text = "";
             }
 
             public Label AvgPower { get { return m_lblAvgPower; } }
             public Label MaxPower { get { return m_lblMaxPower; } }
             public Label AvgHR { get { return m_lblAvgHR; } }
-            public Label MaxHR { get { return m_lblMaxHR; } }
+            public Label FtpPower { get { return m_lblFtpPower; } }
             public Label MA { get { return m_lblMA; } }
+            public Collector Collector
+            {
+                get { return m_collector; }
+                set { m_collector = value; }
+            }
+        }
+
+        internal class Collector
+        {
+            private string m_label;
+            private MovingAverage.DurationTypes m_type;
+            private bool m_displayDefault;
+            private FieldUomType m_fieldAvg;
+            private FieldUomType m_fieldAvgMax;
+            private FieldUomType m_fieldFtp;
+            private bool m_maxDurationTriggered;
+
+            public enum FieldUomType
+            {
+                None,
+                Watts,
+                Wkg
+            }
+
+            public Collector(string durationLabel, string displayDefault, string fieldAvgUom, string fieldAvgMaxUom, string fieldFtpUom)
+            {
+                m_label = durationLabel;
+
+                m_type = MovingAverage.GetType(durationLabel);
+
+                if (!bool.TryParse(displayDefault, out m_displayDefault))
+                    throw new ArgumentException($"Invalid display default: {displayDefault}, Use [true | false]");
+
+                if (!Enum.TryParse<FieldUomType>(fieldAvgUom, true, out m_fieldAvg))
+                    throw new ArgumentException($"Invalid FieldAvgUom: {fieldAvgUom}, Use [None | Watts | Wkg]");
+                
+                if (!Enum.TryParse<FieldUomType>(fieldAvgMaxUom, true, out m_fieldAvgMax))
+                    throw new ArgumentException($"Invalid FieldAvgMaxUom: {fieldAvgMaxUom}, Use [None | Watts | Wkg]");
+
+                if (!Enum.TryParse<FieldUomType>(fieldFtpUom, true, out m_fieldFtp))
+                    throw new ArgumentException($"Invalid fieldFtpUom: {fieldFtpUom}, Use [None | Watts | Wkg]");
+            }
+
+            public string Label { get { return m_label; } }
+            public MovingAverage.DurationTypes Type { get { return m_type; } }
+            public bool DisplayDefault { get { return m_displayDefault; } }
+            public FieldUomType FieldAvg { get { return m_fieldAvg; } }
+            public FieldUomType FieldAvgMax { get { return m_fieldAvgMax; } }
+            public FieldUomType FieldFtp { get { return m_fieldFtp; } }
+            public bool MaxDurationTriggered { get { return m_maxDurationTriggered; } set { m_maxDurationTriggered = value; } }
         }
         #endregion
 
         private List<LabelHelper> m_labelHelpers;
 
         private Dictionary<MovingAverage.DurationTypes, MovingAverageWrapper> m_maCollection;
+        private Dictionary<string, string> m_labelUnits;
+        private Dictionary<MovingAverage.DurationTypes, Collector> m_collectors;
 
         private Dispatcher m_dispatcher;
 
         private DateTime m_timerCompletion;
+        private double m_ZwifterWeightKgs;
 
         public MonitorStatistics(ILogger<MonitorStatistics> logger, IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService)
         {
@@ -85,23 +139,54 @@ namespace ZwiftActivityMonitor
             m_configuration = configuration;
             m_zpMonitorService = zpMonitorService;
             m_maCollection = new Dictionary<MovingAverage.DurationTypes, MovingAverageWrapper>();
+            m_labelUnits = new Dictionary<string, string>();
+            m_collectors = new Dictionary<MovingAverage.DurationTypes, Collector>();
+
             m_labelHelpers = new List<LabelHelper>();
 
             InitializeComponent();
         }
+
+        #region Form Events
+
+        /// <summary>
+        /// On initial load, the desired collection durations are load from configuration.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MonitorStatistics_Load(object sender, EventArgs e)
         {
             m_dispatcher = Dispatcher.CurrentDispatcher;
 
-            m_labelHelpers.Add(new LabelHelper(lblMA1, lblAvgPower1, lblMaxPower1, lblAvgHR1, lblMaxHR1));
-            m_labelHelpers.Add(new LabelHelper(lblMA2, lblAvgPower2, lblMaxPower2, lblAvgHR2, lblMaxHR2));
-            m_labelHelpers.Add(new LabelHelper(lblMA3, lblAvgPower3, lblMaxPower3, lblAvgHR3, lblMaxHR3));
+            m_labelHelpers.Add(new LabelHelper(lblMA1, lblAvgPower1, lblMaxPower1, lblFtpPower1, lblAvgHR1));
+            m_labelHelpers.Add(new LabelHelper(lblMA2, lblAvgPower2, lblMaxPower2, lblFtpPower2, lblAvgHR2));
+            m_labelHelpers.Add(new LabelHelper(lblMA3, lblAvgPower3, lblMaxPower3, lblFtpPower3, lblAvgHR3));
 
-            foreach (var child in m_configuration.GetSection("MovingAverage:Collect").GetChildren())
+
+            double weight = Convert.ToDouble(m_configuration["ZwiftActivityMonitor:Weight"]);
+            string uom = m_configuration["ZwiftActivityMonitor:UnitOfMeasure"];
+
+            switch(uom)
             {
-                m_logger.LogInformation($"MovingAverage:Collect Key: {child.Key} Value: {child.Value}");
+                case "kgs":
+                    m_ZwifterWeightKgs = weight;
+                    break;
 
-                if (child.Value == "true")
+                case "lbs":
+                    m_ZwifterWeightKgs = weight / 2.205;
+                    break;
+            }
+
+            m_logger.LogInformation($"Weight: {m_ZwifterWeightKgs} kgs");
+
+            foreach (var child in m_configuration.GetSection("MovingAverage:Collector").GetChildren())
+            {
+                m_logger.LogInformation($"MovingAverage:Collector Duration: {child["Duration"]} Display: {child["Display"]}");
+
+                Collector c = new Collector(child["Duration"], child["Display"], child["FieldAvgUom"], child["FieldAvgMaxUom"], child["FieldFtpUom"]);
+                m_collectors.Add(c.Type, c);
+
+                if (c.DisplayDefault)
                 {
                     // check the menu items based on configuration
                     foreach (ToolStripItem mi in tsmiCollect.DropDownItems)
@@ -109,8 +194,11 @@ namespace ZwiftActivityMonitor
                         ToolStripMenuItem tsmi = mi as ToolStripMenuItem;
                         if (tsmi == null) continue;
 
-                        if (tsmi.Text == child.Key)
+                        if (tsmi.Text.ToLower() == c.Label.ToLower())
+                        {
                             tsmi.Checked = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -120,6 +208,12 @@ namespace ZwiftActivityMonitor
 
         }
 
+        /// <summary>
+        /// Handle the case when form is being shown, either reopened or newly opened.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
         private void MonitorStatistics_VisibleChanged(object sender, EventArgs e)
         {
             if (this.Visible)
@@ -128,6 +222,7 @@ namespace ZwiftActivityMonitor
                 tsmiStop.Enabled = false;
 
                 tsmiStopTimer.Enabled = false;
+                tsmiSetupTimer.Enabled = true;
 
                 // Load collectors for whatever is defined in by the checked menu items
                 LoadMovingAverageCollection();
@@ -136,18 +231,63 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        private void MonitorStatistics_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Collection_OnStop();
+ 
+            m_maCollection.Clear();
+
+            m_logger.LogInformation("Closing");
+        }
+
+        #endregion
+
+        #region Menu item events
 
         private void tsmiStart_Click(object sender, EventArgs e)
         {
-            OnStart();
+            Collection_OnStart();
+        }
+        private void tsmiStop_Click(object sender, EventArgs e)
+        {
+            Collection_OnStop();
         }
 
-        private void OnStart()
+        /// <summary>
+        /// Handle the File:Exit menuitem.  Exiting the form this way will preserve duration choices if re-opened.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tsmiExit_Click(object sender, EventArgs e)
+        {
+            Collection_OnStop();
+
+            this.Hide(); // Hide here instead of close to preserve menu choices
+
+            m_logger.LogInformation("Exiting");
+        }
+
+        private void anyDuration_Click(object sender, EventArgs e)
+        {
+            // The checked status for some item has changed.
+            LoadMovingAverageCollection();
+        }
+
+        #endregion
+
+
+
+
+        /// <summary>
+        /// Starts the data collectors and sets menu item enabled statuses accordingly.
+        /// </summary>
+        private void Collection_OnStart()
         {
             foreach (MovingAverageWrapper maw in m_maCollection.Values)
             {
                 maw.MovingAverage.Start();
             }
+
             tsmiStop.Enabled = true;
             tsmiStart.Enabled = false;
 
@@ -162,20 +302,18 @@ namespace ZwiftActivityMonitor
             tsmiTimer.Enabled = false;
 
             tsslStatus.Text = "Running";
-
         }
 
-        private void tsmiStop_Click(object sender, EventArgs e)
-        {
-            OnStop();
-        }
-
-        private void OnStop()
+        /// <summary>
+        /// Stops the data collectors and sets menu item enabled statuses accordingly.
+        /// </summary>
+        private void Collection_OnStop()
         {
             foreach (MovingAverageWrapper maw in m_maCollection.Values)
             {
                 maw.MovingAverage.Stop();
             }
+
             tsmiStop.Enabled = false;
             tsmiStart.Enabled = true;
 
@@ -189,38 +327,16 @@ namespace ZwiftActivityMonitor
 
             tsmiTimer.Enabled = true;
 
+            countdownTimer.Enabled = false;
+
             tsslStatus.Text = "Ready";
         }
 
-        private void tsmiExit_Click(object sender, EventArgs e)
-        {
-            foreach (MovingAverageWrapper maw in m_maCollection.Values)
-            {
-                maw.MovingAverage.Stop();
-            }
-
-            m_maCollection.Clear();
-            this.Hide();
-
-            m_logger.LogInformation("Closing");
-        }
-
-
-        private void tsmiCollect_DropDownOpening(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tsmiCollect_DropDownClosed(object sender, EventArgs e)
-        {
-        }
-
-        private void anyDuration_Click(object sender, EventArgs e)
-        {
-            // The checked status for some item has changed.
-            LoadMovingAverageCollection();
-        }
-
+        /// <summary>
+        /// Load and initialize the moving average collection wrapper collection based upon the current menu item checked settings.
+        /// 
+        /// This is called on form load and also when menu items change.
+        /// </summary>
         private void LoadMovingAverageCollection()
         {
             // empty the dictionary
@@ -260,6 +376,7 @@ namespace ZwiftActivityMonitor
                             m_maCollection.Add(result, new MovingAverageWrapper(ma, m_labelHelpers[labelSet]));
 
                             m_labelHelpers[labelSet].MA.Text = tsmi.Text;
+                            m_labelHelpers[labelSet].Collector = m_collectors[result];
                         }
                     }
                 }
@@ -267,8 +384,20 @@ namespace ZwiftActivityMonitor
 
         }
 
+        #region Moving average collection event handlers
+
+        /// <summary>
+        /// A delegate used solely by the MovingAverageChangedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private delegate void MovingAverageChangedEventHandlerDelegate(object sender, MovingAverage.MovingAverageChangedEventArgs e);
 
+        /// <summary>
+        /// Occurs each time a collector's moving average changes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MovingAverageChangedEventHandler(object sender, MovingAverage.MovingAverageChangedEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
@@ -280,13 +409,54 @@ namespace ZwiftActivityMonitor
 
             MovingAverageWrapper maw = m_maCollection[e.DurationType];
 
-            maw.LabelHelper.AvgPower.Text = e.AveragePower.ToString();
-            maw.LabelHelper.AvgHR.Text = e.AverageHR.ToString();
+            LabelHelper l = maw.LabelHelper;
+            Collector c = l.Collector;
+
+            switch (c.FieldAvg)
+            {
+                case Collector.FieldUomType.Watts:
+                    l.AvgPower.Text = e.AveragePower.ToString();
+                    break;
+
+                case Collector.FieldUomType.Wkg:
+                    double wkg = e.AveragePower / m_ZwifterWeightKgs;
+                    l.AvgPower.Text = wkg.ToString("#.0#");
+                    break;
+            }
+
+            l.AvgHR.Text = e.AverageHR.ToString();       
+            
+            if (!c.MaxDurationTriggered)
+            {
+                switch (c.FieldFtp)
+                {
+                    case Collector.FieldUomType.Watts:
+                        l.FtpPower.Text = Convert.ToInt32(e.AveragePower * 0.95).ToString();
+                        break;
+
+                    case Collector.FieldUomType.Wkg:
+                        double wkg = (e.AveragePower / m_ZwifterWeightKgs) * 0.95;
+                        l.FtpPower.Text = wkg.ToString("#.0#");
+                        break;
+                }
+
+            }
+
         }
 
 
+        /// <summary>
+        /// A delegate used solely by the MovingAverageMaxChangedEventHandlerDelegate
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private delegate void MovingAverageMaxChangedEventHandlerDelegate(object sender, MovingAverage.MovingAverageMaxChangedEventArgs e);
 
+        /// <summary>
+        /// Occurs each time a collector's moving average max value changes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MovingAverageMaxChangedEventHandler(object sender, MovingAverage.MovingAverageMaxChangedEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
@@ -298,10 +468,48 @@ namespace ZwiftActivityMonitor
 
             MovingAverageWrapper maw = m_maCollection[e.DurationType];
 
-            maw.LabelHelper.MaxPower.Text = e.MaxAvgPower.ToString();
-            maw.LabelHelper.MaxHR.Text = e.MaxAvgHR.ToString();
+            LabelHelper l = maw.LabelHelper;
+            Collector c = l.Collector;
+
+            switch (c.FieldAvgMax)
+            {
+                case Collector.FieldUomType.Watts:
+                    l.MaxPower.Text = e.MaxAvgPower.ToString();
+                    break;
+
+                case Collector.FieldUomType.Wkg:
+                    double wkg = e.MaxAvgPower / m_ZwifterWeightKgs;
+                    l.MaxPower.Text = wkg.ToString("#.0#");
+                    break;
+            }
+
+            c.MaxDurationTriggered = true;
+
+            switch (c.FieldFtp)
+            {
+                case Collector.FieldUomType.Watts:
+                    l.FtpPower.Text = Convert.ToInt32(e.MaxAvgPower * 0.95).ToString();
+                    break;
+
+                case Collector.FieldUomType.Wkg:
+                    double wkg = (e.MaxAvgPower / m_ZwifterWeightKgs) * 0.95;
+                    l.FtpPower.Text = wkg.ToString("#.0#");
+                    break;
+            }
+
+
+            //l.AvgHR.Text = e.AverageHR.ToString();
+
+
+            //maw.LabelHelper.MaxPower.Text = e.MaxAvgPower.ToString();
+            //maw.LabelHelper.MaxHR.Text = e.MaxAvgHR.ToString();
 
         }
+
+        #endregion
+
+
+        #region Timer menu and tick event handling
 
         private void tsmiSetupTimer_Click(object sender, EventArgs e)
         {
@@ -317,10 +525,23 @@ namespace ZwiftActivityMonitor
                 m_logger.LogInformation($"Minutes: {mt.Minutes} Seconds: {mt.Seconds} Completion Time: {m_timerCompletion.ToString()}");
 
                 countdownTimer.Enabled = true;
+
                 tsmiStopTimer.Enabled = true;
+                tsmiSetupTimer.Enabled = false;
 
             }
         }
+
+        private void tsmiStopTimer_Click(object sender, EventArgs e)
+        {
+            countdownTimer.Enabled = false;
+
+            tsmiStopTimer.Enabled = false;
+            tsmiSetupTimer.Enabled = true;
+
+            tsslStatus.Text = "Ready";
+        }
+
 
         private void countdownTimer_Tick(object sender, EventArgs e)
         {
@@ -333,28 +554,14 @@ namespace ZwiftActivityMonitor
                 countdownTimer.Enabled = false;
                 m_logger.LogInformation($"Go! Go! Go!");
                 
-                OnStart();
+                Collection_OnStart();
             }
             else
             {
                 tsslStatus.Text = "Time Remaining: " + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#"); 
             }
-
         }
-
-        private void tsmiStopTimer_Click(object sender, EventArgs e)
-        {
-            OnStopTimer();
-        }
-
-        private void OnStopTimer()
-        {
-            countdownTimer.Enabled = false;
-            tsmiStopTimer.Enabled = false;
-
-            tsslStatus.Text = "Ready";
-
-        }
+        #endregion
 
     }
 }

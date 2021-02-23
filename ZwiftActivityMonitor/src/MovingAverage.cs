@@ -92,9 +92,29 @@ namespace ZwiftActivityMonitor
             not_set
         }
 
-        private static int[] DurationSeconds = { 5, 60, 300, 600, 1200, 3600, 5400 };
+        //static private int[] DurationSeconds = { 5, 60, 300, 600, 1200, 3600, 5400 };
+        static private List<DurationDetail> _durationDetails;
 
         #region Internal Classes
+
+        internal class DurationDetail
+        {
+            private DurationTypes m_type;
+            private string m_label;
+            private int m_seconds;
+
+            public DurationDetail(DurationTypes type, string label, int seconds)
+            {
+                m_type = type;
+                m_label = label;
+                m_seconds = seconds;
+            }
+
+            public DurationTypes Type { get { return m_type; } }
+            public string Label { get { return m_label; } }
+            public int Seconds { get { return m_seconds; } }
+        }
+
         internal class Statistics
         {
             private int m_power;
@@ -132,7 +152,33 @@ namespace ZwiftActivityMonitor
             m_logger = logger;
 
             m_statsQueue = new Queue<Statistics>();
+        }
 
+        static MovingAverage()
+        {
+            _durationDetails = new List<DurationDetail>();
+
+            _durationDetails.Add(new DurationDetail(DurationTypes.five_second, "5 sec", 5));
+            _durationDetails.Add(new DurationDetail(DurationTypes.one_minute, "1 min", 60));
+            _durationDetails.Add(new DurationDetail(DurationTypes.five_minute, "5 min", 300));
+            _durationDetails.Add(new DurationDetail(DurationTypes.ten_minute, "10 min", 600));
+            _durationDetails.Add(new DurationDetail(DurationTypes.twenty_minute, "20 min", 1200));
+            _durationDetails.Add(new DurationDetail(DurationTypes.sixty_minute, "60 min", 3600));
+            _durationDetails.Add(new DurationDetail(DurationTypes.ninety_minute, "90 min", 5400));
+        }
+
+        public static int GetDuration(DurationTypes type)
+        {
+            return _durationDetails[(int)type].Seconds;
+
+        }
+        public static DurationTypes GetType(string label)
+        {
+            foreach (var item in _durationDetails)
+                if (item.Label == label)
+                    return item.Type;
+
+            throw new ArgumentException($"Label {label} not found in Duration Details collection.");
         }
 
         public MovingAverage.DurationTypes DurationType { set { m_durationType = value; } }
@@ -147,7 +193,8 @@ namespace ZwiftActivityMonitor
 
             if (!m_started)
             {
-                m_duration = DurationSeconds[(int)m_durationType];
+                //m_duration = DurationSeconds[(int)m_durationType];
+                m_duration = MovingAverage.GetDuration(m_durationType);
 
                 m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
 

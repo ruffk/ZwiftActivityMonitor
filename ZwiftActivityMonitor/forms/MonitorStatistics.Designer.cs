@@ -31,9 +31,9 @@ namespace ZwiftActivityMonitor
         {
             this.components = new System.ComponentModel.Container();
             this.lblAvgPower1 = new System.Windows.Forms.Label();
-            this.lblAvgHR1 = new System.Windows.Forms.Label();
+            this.lblFtpPower1 = new System.Windows.Forms.Label();
             this.lblMaxPower1 = new System.Windows.Forms.Label();
-            this.lblMaxHR1 = new System.Windows.Forms.Label();
+            this.lblAvgHR1 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -61,14 +61,18 @@ namespace ZwiftActivityMonitor
             this.lblAvgPower3 = new System.Windows.Forms.Label();
             this.lblMaxPower2 = new System.Windows.Forms.Label();
             this.lblMaxPower3 = new System.Windows.Forms.Label();
-            this.lblMaxHR2 = new System.Windows.Forms.Label();
             this.lblAvgHR2 = new System.Windows.Forms.Label();
-            this.lblMaxHR3 = new System.Windows.Forms.Label();
+            this.lblFtpPower2 = new System.Windows.Forms.Label();
             this.lblAvgHR3 = new System.Windows.Forms.Label();
+            this.lblFtpPower3 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslSeparator1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.countdownTimer = new System.Windows.Forms.Timer(this.components);
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -77,50 +81,54 @@ namespace ZwiftActivityMonitor
             // 
             this.lblAvgPower1.AutoSize = true;
             this.lblAvgPower1.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower1.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower1.ForeColor = System.Drawing.Color.White;
-            this.lblAvgPower1.Location = new System.Drawing.Point(73, 54);
+            this.lblAvgPower1.Location = new System.Drawing.Point(73, 64);
             this.lblAvgPower1.Name = "lblAvgPower1";
-            this.lblAvgPower1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgPower1.Size = new System.Drawing.Size(63, 26);
+            this.lblAvgPower1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgPower1.Size = new System.Drawing.Size(60, 24);
             this.lblAvgPower1.TabIndex = 3;
-            this.lblAvgPower1.Text = "999";
+            this.lblAvgPower1.Text = "8.88";
+            this.lblAvgPower1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // lblAvgHR1
+            // lblFtpPower1
             // 
-            this.lblAvgHR1.AutoSize = true;
-            this.lblAvgHR1.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblAvgHR1.ForeColor = System.Drawing.Color.White;
-            this.lblAvgHR1.Location = new System.Drawing.Point(198, 54);
-            this.lblAvgHR1.Name = "lblAvgHR1";
-            this.lblAvgHR1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgHR1.Size = new System.Drawing.Size(63, 26);
-            this.lblAvgHR1.TabIndex = 4;
-            this.lblAvgHR1.Text = "999";
+            this.lblFtpPower1.AutoSize = true;
+            this.lblFtpPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower1.ForeColor = System.Drawing.Color.White;
+            this.lblFtpPower1.Location = new System.Drawing.Point(186, 64);
+            this.lblFtpPower1.Name = "lblFtpPower1";
+            this.lblFtpPower1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblFtpPower1.Size = new System.Drawing.Size(60, 24);
+            this.lblFtpPower1.TabIndex = 4;
+            this.lblFtpPower1.Text = "8.88";
+            this.lblFtpPower1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblMaxPower1
             // 
             this.lblMaxPower1.AutoSize = true;
-            this.lblMaxPower1.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower1.ForeColor = System.Drawing.Color.White;
-            this.lblMaxPower1.Location = new System.Drawing.Point(129, 54);
+            this.lblMaxPower1.Location = new System.Drawing.Point(129, 64);
             this.lblMaxPower1.Name = "lblMaxPower1";
-            this.lblMaxPower1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxPower1.Size = new System.Drawing.Size(63, 26);
+            this.lblMaxPower1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblMaxPower1.Size = new System.Drawing.Size(60, 24);
             this.lblMaxPower1.TabIndex = 5;
-            this.lblMaxPower1.Text = "888";
+            this.lblMaxPower1.Text = "8.88";
+            this.lblMaxPower1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // lblMaxHR1
+            // lblAvgHR1
             // 
-            this.lblMaxHR1.AutoSize = true;
-            this.lblMaxHR1.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblMaxHR1.ForeColor = System.Drawing.Color.White;
-            this.lblMaxHR1.Location = new System.Drawing.Point(255, 54);
-            this.lblMaxHR1.Name = "lblMaxHR1";
-            this.lblMaxHR1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxHR1.Size = new System.Drawing.Size(63, 26);
-            this.lblMaxHR1.TabIndex = 6;
-            this.lblMaxHR1.Text = "888";
+            this.lblAvgHR1.AutoSize = true;
+            this.lblAvgHR1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR1.ForeColor = System.Drawing.Color.White;
+            this.lblAvgHR1.Location = new System.Drawing.Point(255, 64);
+            this.lblAvgHR1.Name = "lblAvgHR1";
+            this.lblAvgHR1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgHR1.Size = new System.Drawing.Size(55, 24);
+            this.lblAvgHR1.TabIndex = 6;
+            this.lblAvgHR1.Text = "888";
+            this.lblAvgHR1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label1
             // 
@@ -128,7 +136,7 @@ namespace ZwiftActivityMonitor
             this.label1.BackColor = System.Drawing.Color.Lime;
             this.label1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(93, 24);
+            this.label1.Location = new System.Drawing.Point(116, 24);
             this.label1.Name = "label1";
             this.label1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.label1.Size = new System.Drawing.Size(88, 24);
@@ -141,7 +149,7 @@ namespace ZwiftActivityMonitor
             this.label2.BackColor = System.Drawing.Color.Lime;
             this.label2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(232, 24);
+            this.label2.Location = new System.Drawing.Point(262, 24);
             this.label2.Name = "label2";
             this.label2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.label2.Size = new System.Drawing.Size(40, 24);
@@ -194,8 +202,6 @@ namespace ZwiftActivityMonitor
             this.tsmiCollect.Name = "tsmiCollect";
             this.tsmiCollect.Size = new System.Drawing.Size(56, 20);
             this.tsmiCollect.Text = "Collect";
-            this.tsmiCollect.DropDownClosed += new System.EventHandler(this.tsmiCollect_DropDownClosed);
-            this.tsmiCollect.DropDownOpening += new System.EventHandler(this.tsmiCollect_DropDownOpening);
             // 
             // tsmiStart
             // 
@@ -313,7 +319,7 @@ namespace ZwiftActivityMonitor
             this.lblMA1.BackColor = System.Drawing.Color.Lime;
             this.lblMA1.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMA1.ForeColor = System.Drawing.Color.White;
-            this.lblMA1.Location = new System.Drawing.Point(4, 59);
+            this.lblMA1.Location = new System.Drawing.Point(4, 69);
             this.lblMA1.Name = "lblMA1";
             this.lblMA1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMA1.Size = new System.Drawing.Size(67, 18);
@@ -326,7 +332,7 @@ namespace ZwiftActivityMonitor
             this.lblMA2.BackColor = System.Drawing.Color.Lime;
             this.lblMA2.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMA2.ForeColor = System.Drawing.Color.White;
-            this.lblMA2.Location = new System.Drawing.Point(4, 93);
+            this.lblMA2.Location = new System.Drawing.Point(4, 98);
             this.lblMA2.Name = "lblMA2";
             this.lblMA2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMA2.Size = new System.Drawing.Size(67, 18);
@@ -339,7 +345,7 @@ namespace ZwiftActivityMonitor
             this.lblMA3.BackColor = System.Drawing.Color.Lime;
             this.lblMA3.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMA3.ForeColor = System.Drawing.Color.White;
-            this.lblMA3.Location = new System.Drawing.Point(4, 128);
+            this.lblMA3.Location = new System.Drawing.Point(4, 127);
             this.lblMA3.Name = "lblMA3";
             this.lblMA3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMA3.Size = new System.Drawing.Size(67, 18);
@@ -350,99 +356,107 @@ namespace ZwiftActivityMonitor
             // 
             this.lblAvgPower2.AutoSize = true;
             this.lblAvgPower2.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower2.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower2.ForeColor = System.Drawing.Color.White;
-            this.lblAvgPower2.Location = new System.Drawing.Point(73, 88);
+            this.lblAvgPower2.Location = new System.Drawing.Point(73, 93);
             this.lblAvgPower2.Name = "lblAvgPower2";
-            this.lblAvgPower2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgPower2.Size = new System.Drawing.Size(63, 26);
+            this.lblAvgPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgPower2.Size = new System.Drawing.Size(60, 24);
             this.lblAvgPower2.TabIndex = 14;
-            this.lblAvgPower2.Text = "999";
+            this.lblAvgPower2.Text = "8.88";
+            this.lblAvgPower2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblAvgPower3
             // 
             this.lblAvgPower3.AutoSize = true;
             this.lblAvgPower3.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower3.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower3.ForeColor = System.Drawing.Color.White;
-            this.lblAvgPower3.Location = new System.Drawing.Point(73, 123);
+            this.lblAvgPower3.Location = new System.Drawing.Point(73, 122);
             this.lblAvgPower3.Name = "lblAvgPower3";
-            this.lblAvgPower3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgPower3.Size = new System.Drawing.Size(63, 26);
+            this.lblAvgPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgPower3.Size = new System.Drawing.Size(60, 24);
             this.lblAvgPower3.TabIndex = 15;
-            this.lblAvgPower3.Text = "999";
+            this.lblAvgPower3.Text = "8.88";
+            this.lblAvgPower3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblMaxPower2
             // 
             this.lblMaxPower2.AutoSize = true;
-            this.lblMaxPower2.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower2.ForeColor = System.Drawing.Color.White;
-            this.lblMaxPower2.Location = new System.Drawing.Point(129, 88);
+            this.lblMaxPower2.Location = new System.Drawing.Point(129, 93);
             this.lblMaxPower2.Name = "lblMaxPower2";
-            this.lblMaxPower2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxPower2.Size = new System.Drawing.Size(63, 26);
+            this.lblMaxPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblMaxPower2.Size = new System.Drawing.Size(60, 24);
             this.lblMaxPower2.TabIndex = 16;
-            this.lblMaxPower2.Text = "888";
+            this.lblMaxPower2.Text = "8.88";
+            this.lblMaxPower2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblMaxPower3
             // 
             this.lblMaxPower3.AutoSize = true;
-            this.lblMaxPower3.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower3.ForeColor = System.Drawing.Color.White;
-            this.lblMaxPower3.Location = new System.Drawing.Point(129, 123);
+            this.lblMaxPower3.Location = new System.Drawing.Point(129, 122);
             this.lblMaxPower3.Name = "lblMaxPower3";
-            this.lblMaxPower3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxPower3.Size = new System.Drawing.Size(63, 26);
+            this.lblMaxPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblMaxPower3.Size = new System.Drawing.Size(60, 24);
             this.lblMaxPower3.TabIndex = 17;
-            this.lblMaxPower3.Text = "888";
-            // 
-            // lblMaxHR2
-            // 
-            this.lblMaxHR2.AutoSize = true;
-            this.lblMaxHR2.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblMaxHR2.ForeColor = System.Drawing.Color.White;
-            this.lblMaxHR2.Location = new System.Drawing.Point(255, 88);
-            this.lblMaxHR2.Name = "lblMaxHR2";
-            this.lblMaxHR2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxHR2.Size = new System.Drawing.Size(63, 26);
-            this.lblMaxHR2.TabIndex = 19;
-            this.lblMaxHR2.Text = "888";
+            this.lblMaxPower3.Text = "8.88";
+            this.lblMaxPower3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblAvgHR2
             // 
             this.lblAvgHR2.AutoSize = true;
-            this.lblAvgHR2.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR2.ForeColor = System.Drawing.Color.White;
-            this.lblAvgHR2.Location = new System.Drawing.Point(198, 88);
+            this.lblAvgHR2.Location = new System.Drawing.Point(255, 93);
             this.lblAvgHR2.Name = "lblAvgHR2";
-            this.lblAvgHR2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgHR2.Size = new System.Drawing.Size(63, 26);
-            this.lblAvgHR2.TabIndex = 18;
-            this.lblAvgHR2.Text = "999";
+            this.lblAvgHR2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgHR2.Size = new System.Drawing.Size(55, 24);
+            this.lblAvgHR2.TabIndex = 19;
+            this.lblAvgHR2.Text = "888";
+            this.lblAvgHR2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // lblMaxHR3
+            // lblFtpPower2
             // 
-            this.lblMaxHR3.AutoSize = true;
-            this.lblMaxHR3.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblMaxHR3.ForeColor = System.Drawing.Color.White;
-            this.lblMaxHR3.Location = new System.Drawing.Point(255, 123);
-            this.lblMaxHR3.Name = "lblMaxHR3";
-            this.lblMaxHR3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMaxHR3.Size = new System.Drawing.Size(63, 26);
-            this.lblMaxHR3.TabIndex = 21;
-            this.lblMaxHR3.Text = "888";
+            this.lblFtpPower2.AutoSize = true;
+            this.lblFtpPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower2.ForeColor = System.Drawing.Color.White;
+            this.lblFtpPower2.Location = new System.Drawing.Point(186, 93);
+            this.lblFtpPower2.Name = "lblFtpPower2";
+            this.lblFtpPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblFtpPower2.Size = new System.Drawing.Size(60, 24);
+            this.lblFtpPower2.TabIndex = 18;
+            this.lblFtpPower2.Text = "8.88";
+            this.lblFtpPower2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblAvgHR3
             // 
             this.lblAvgHR3.AutoSize = true;
-            this.lblAvgHR3.Font = new System.Drawing.Font("Furore", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR3.ForeColor = System.Drawing.Color.White;
-            this.lblAvgHR3.Location = new System.Drawing.Point(198, 123);
+            this.lblAvgHR3.Location = new System.Drawing.Point(255, 122);
             this.lblAvgHR3.Name = "lblAvgHR3";
-            this.lblAvgHR3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblAvgHR3.Size = new System.Drawing.Size(63, 26);
-            this.lblAvgHR3.TabIndex = 20;
-            this.lblAvgHR3.Text = "999";
+            this.lblAvgHR3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblAvgHR3.Size = new System.Drawing.Size(55, 24);
+            this.lblAvgHR3.TabIndex = 21;
+            this.lblAvgHR3.Text = "888";
+            this.lblAvgHR3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblFtpPower3
+            // 
+            this.lblFtpPower3.AutoSize = true;
+            this.lblFtpPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower3.ForeColor = System.Drawing.Color.White;
+            this.lblFtpPower3.Location = new System.Drawing.Point(186, 122);
+            this.lblFtpPower3.Name = "lblFtpPower3";
+            this.lblFtpPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblFtpPower3.Size = new System.Drawing.Size(60, 24);
+            this.lblFtpPower3.TabIndex = 20;
+            this.lblFtpPower3.Text = "8.88";
+            this.lblFtpPower3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // statusStrip1
             // 
@@ -476,18 +490,73 @@ namespace ZwiftActivityMonitor
             this.countdownTimer.Interval = 1000;
             this.countdownTimer.Tick += new System.EventHandler(this.countdownTimer_Tick);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.BackColor = System.Drawing.Color.Lime;
+            this.label3.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label3.ForeColor = System.Drawing.Color.White;
+            this.label3.Location = new System.Drawing.Point(123, 48);
+            this.label3.Name = "label3";
+            this.label3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label3.Size = new System.Drawing.Size(69, 13);
+            this.label3.TabIndex = 23;
+            this.label3.Text = "AVG (MAX)";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.BackColor = System.Drawing.Color.Lime;
+            this.label4.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label4.ForeColor = System.Drawing.Color.White;
+            this.label4.Location = new System.Drawing.Point(198, 48);
+            this.label4.Name = "label4";
+            this.label4.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label4.Size = new System.Drawing.Size(29, 13);
+            this.label4.TabIndex = 24;
+            this.label4.Text = "FTP";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Lime;
+            this.label5.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label5.ForeColor = System.Drawing.Color.White;
+            this.label5.Location = new System.Drawing.Point(86, 48);
+            this.label5.Name = "label5";
+            this.label5.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label5.Size = new System.Drawing.Size(31, 13);
+            this.label5.TabIndex = 25;
+            this.label5.Text = "AVG";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.BackColor = System.Drawing.Color.Lime;
+            this.label6.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label6.ForeColor = System.Drawing.Color.White;
+            this.label6.Location = new System.Drawing.Point(266, 48);
+            this.label6.Name = "label6";
+            this.label6.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label6.Size = new System.Drawing.Size(31, 13);
+            this.label6.TabIndex = 26;
+            this.label6.Text = "AVG";
+            // 
             // MonitorStatistics
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Lime;
             this.ClientSize = new System.Drawing.Size(318, 158);
-            this.ControlBox = false;
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.lblMaxHR3);
             this.Controls.Add(this.lblAvgHR3);
-            this.Controls.Add(this.lblMaxHR2);
+            this.Controls.Add(this.lblFtpPower3);
             this.Controls.Add(this.lblAvgHR2);
+            this.Controls.Add(this.lblFtpPower2);
             this.Controls.Add(this.lblMaxPower3);
             this.Controls.Add(this.lblMaxPower2);
             this.Controls.Add(this.lblAvgPower3);
@@ -497,9 +566,9 @@ namespace ZwiftActivityMonitor
             this.Controls.Add(this.lblMA1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.lblMaxHR1);
-            this.Controls.Add(this.lblMaxPower1);
             this.Controls.Add(this.lblAvgHR1);
+            this.Controls.Add(this.lblMaxPower1);
+            this.Controls.Add(this.lblFtpPower1);
             this.Controls.Add(this.lblAvgPower1);
             this.Controls.Add(this.menuStrip1);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -511,6 +580,7 @@ namespace ZwiftActivityMonitor
             this.Text = "Performance Monitor";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Lime;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MonitorStatistics_FormClosing);
             this.Load += new System.EventHandler(this.MonitorStatistics_Load);
             this.VisibleChanged += new System.EventHandler(this.MonitorStatistics_VisibleChanged);
             this.menuStrip1.ResumeLayout(false);
@@ -524,9 +594,9 @@ namespace ZwiftActivityMonitor
 
         #endregion
         private System.Windows.Forms.Label lblAvgPower1;
-        private System.Windows.Forms.Label lblAvgHR1;
+        private System.Windows.Forms.Label lblFtpPower1;
         private System.Windows.Forms.Label lblMaxPower1;
-        private System.Windows.Forms.Label lblMaxHR1;
+        private System.Windows.Forms.Label lblAvgHR1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -550,10 +620,10 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Label lblAvgPower3;
         private System.Windows.Forms.Label lblMaxPower2;
         private System.Windows.Forms.Label lblMaxPower3;
-        private System.Windows.Forms.Label lblMaxHR2;
         private System.Windows.Forms.Label lblAvgHR2;
-        private System.Windows.Forms.Label lblMaxHR3;
+        private System.Windows.Forms.Label lblFtpPower2;
         private System.Windows.Forms.Label lblAvgHR3;
+        private System.Windows.Forms.Label lblFtpPower3;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsslSeparator1;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
@@ -562,5 +632,9 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmiStopTimer;
         private System.Windows.Forms.ToolStripSeparator tssCollect2;
         private System.Windows.Forms.Timer countdownTimer;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
