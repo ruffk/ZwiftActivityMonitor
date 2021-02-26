@@ -13,11 +13,24 @@ using System.Windows;
 
 namespace ZwiftActivityMonitor
 {
+
+    public enum DurationType
+    {
+        FiveSeconds,
+        OneMinute,
+        FiveMinutes,
+        TenMinutes,
+        TwentyMinutes,
+        SixtyMinutes,
+        NinetyMinutes
+    }
+
     public class MovingAverage
     {
         private readonly ZPMonitorService m_zpMonitorService;
         private readonly ILogger<MovingAverage> m_logger;
         private readonly Queue<Statistics> m_statsQueue;
+        private readonly DurationType m_durationType;
 
         private long m_sumPower;
         private long m_sumHR;
@@ -27,15 +40,15 @@ namespace ZwiftActivityMonitor
         private int m_maxAvgHR;
         private int m_duration; // how long to store recorded readings
         private bool m_started;
-        private DurationTypes m_durationType = DurationTypes.not_set;
 
+        #region EventArgs
         public class MovingAverageChangedEventArgs : EventArgs
         {
             private int m_avgPower;
             private int m_avgHR;
-            private MovingAverage.DurationTypes m_durationType;
+            private DurationType m_durationType;
 
-            public MovingAverageChangedEventArgs(int avgPower, int avgHR, MovingAverage.DurationTypes durationType)
+            public MovingAverageChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
             {
                 m_avgPower = avgPower;
                 m_avgHR = avgHR;
@@ -51,15 +64,15 @@ namespace ZwiftActivityMonitor
                 get { return m_avgHR; }
             }
 
-            public MovingAverage.DurationTypes DurationType { get { return m_durationType; } }
+            public DurationType DurationType { get { return m_durationType; } }
         }
         public class MovingAverageMaxChangedEventArgs : EventArgs
         {
             private int m_avgPower;
             private int m_avgHR;
-            private MovingAverage.DurationTypes m_durationType;
+            private DurationType m_durationType;
 
-            public MovingAverageMaxChangedEventArgs(int avgPower, int avgHR, MovingAverage.DurationTypes durationType)
+            public MovingAverageMaxChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
             {
                 m_avgPower = avgPower;
                 m_avgHR = avgHR;
@@ -74,43 +87,31 @@ namespace ZwiftActivityMonitor
             {
                 get { return m_avgHR; }
             }
-            public MovingAverage.DurationTypes DurationType { get { return m_durationType; } }
+            public DurationType DurationType { get { return m_durationType; } }
         }
 
         public event EventHandler<MovingAverageChangedEventArgs> MovingAverageChangedEvent;
         public event EventHandler<MovingAverageMaxChangedEventArgs> MovingAverageMaxChangedEvent;
+        #endregion
 
-        public enum DurationTypes
-        {
-            five_second,
-            one_minute,
-            five_minute,
-            ten_minute,
-            twenty_minute,
-            sixty_minute,
-            ninety_minute,
-            not_set
-        }
-
-        //static private int[] DurationSeconds = { 5, 60, 300, 600, 1200, 3600, 5400 };
         static private List<DurationDetail> _durationDetails;
 
         #region Internal Classes
 
         internal class DurationDetail
         {
-            private DurationTypes m_type;
+            private DurationType m_type;
             private string m_label;
             private int m_seconds;
 
-            public DurationDetail(DurationTypes type, string label, int seconds)
+            public DurationDetail(DurationType type, string label, int seconds)
             {
                 m_type = type;
                 m_label = label;
                 m_seconds = seconds;
             }
 
-            public DurationTypes Type { get { return m_type; } }
+            public DurationType Type { get { return m_type; } }
             public string Label { get { return m_label; } }
             public int Seconds { get { return m_seconds; } }
         }
@@ -146,33 +147,40 @@ namespace ZwiftActivityMonitor
         #endregion
 
 
-        public MovingAverage(ZPMonitorService zpMonitorService, ILogger<MovingAverage> logger)
+        public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType)
         {
             m_zpMonitorService = zpMonitorService;
-            m_logger = logger;
+            m_logger = loggerFactory.CreateLogger<MovingAverage>();
+            m_durationType = durationType;
 
             m_statsQueue = new Queue<Statistics>();
         }
 
         static MovingAverage()
         {
-            _durationDetails = new List<DurationDetail>();
-
-            _durationDetails.Add(new DurationDetail(DurationTypes.five_second, "5 sec", 5));
-            _durationDetails.Add(new DurationDetail(DurationTypes.one_minute, "1 min", 60));
-            _durationDetails.Add(new DurationDetail(DurationTypes.five_minute, "5 min", 300));
-            _durationDetails.Add(new DurationDetail(DurationTypes.ten_minute, "10 min", 600));
-            _durationDetails.Add(new DurationDetail(DurationTypes.twenty_minute, "20 min", 1200));
-            _durationDetails.Add(new DurationDetail(DurationTypes.sixty_minute, "60 min", 3600));
-            _durationDetails.Add(new DurationDetail(DurationTypes.ninety_minute, "90 min", 5400));
+            _durationDetails = new List<DurationDetail>
+            {
+                new DurationDetail(DurationType.FiveSeconds, "5 sec", 5),
+                new DurationDetail(DurationType.OneMinute, "1 min", 60),
+                new DurationDetail(DurationType.FiveMinutes, "5 min", 300),
+                new DurationDetail(DurationType.TenMinutes, "10 min", 600),
+                new DurationDetail(DurationType.TwentyMinutes, "20 min", 1200),
+                new DurationDetail(DurationType.SixtyMinutes, "60 min", 3600),
+                new DurationDetail(DurationType.NinetyMinutes, "90 min", 5400)
+            };
         }
 
-        public static int GetDuration(DurationTypes type)
+        public static int GetDuration(DurationType type)
         {
             return _durationDetails[(int)type].Seconds;
 
         }
-        public static DurationTypes GetType(string label)
+        /// <summary>
+        /// Find DurationType based upon a duration label (5 sec, 1 min, 5 min, etc.)
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public static DurationType GetType(string label)
         {
             foreach (var item in _durationDetails)
                 if (item.Label == label)
@@ -181,19 +189,10 @@ namespace ZwiftActivityMonitor
             throw new ArgumentException($"Label {label} not found in Duration Details collection.");
         }
 
-        public MovingAverage.DurationTypes DurationType { set { m_durationType = value; } }
-
         public void Start()
         {
-            if (m_durationType == DurationTypes.not_set)
-            {
-                m_logger.LogWarning("A duration type must be set before starting collection.");
-                return;
-            }
-
             if (!m_started)
             {
-                //m_duration = DurationSeconds[(int)m_durationType];
                 m_duration = MovingAverage.GetDuration(m_durationType);
 
                 m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
@@ -211,7 +210,11 @@ namespace ZwiftActivityMonitor
             }
         }
 
-
+        /// <summary>
+        /// Handle player state changes.  Calculates moving averages.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlayerStateEventHandler(object sender, PlayerStateEventArgs e)
         {
             DateTime now = DateTime.Now; // fixed current time
@@ -224,19 +227,23 @@ namespace ZwiftActivityMonitor
             bool calculateMax = false;
             bool triggerMax = false;
 
+            // the Statistics class captures the values we want to measure
             var stats = new Statistics(e.PlayerState.Power, e.PlayerState.Heartrate);
             
+            // Initialize with current max values.  This is so we know if a new max has occurred.
             maxAvgPower = m_maxAvgPower;
             maxAvgHR = m_maxAvgHR;
 
-
+            // Remove any queue items which are older than the set time duration
             while (m_statsQueue.Count > 0)
             {
+                // look at front of queue
                 var peekStats = m_statsQueue.Peek();
 
+                // determine time difference between the newest item and this oldest item
                 oldest = stats.Timestamp - peekStats.Timestamp;
 
-                // is queue at capacity?
+                // if queue isn't at capacity yet, exit loop
                 if (oldest.TotalSeconds <= m_duration)
                     break;
 
@@ -248,15 +255,16 @@ namespace ZwiftActivityMonitor
                 calculateMax = true;  // we have a full sample, calculate maximums
             }
 
-            // add this item to the queue
+            // add this new item to the queue
             m_statsQueue.Enqueue(stats);
             m_sumPower += (long)stats.Power;
             m_sumHR += (long)stats.HeartRate;
 
-
+            // calculate averages
             curAvgPower = (int)(m_sumPower / (long)m_statsQueue.Count);
             curAvgHR = (int)(m_sumHR / (long)m_statsQueue.Count);
 
+            // if queue was full, check to see if we have any new max values
             if (calculateMax)
             {
                 if (curAvgPower > m_maxAvgPower)
@@ -271,7 +279,7 @@ namespace ZwiftActivityMonitor
                 }
             }
 
-            // if either average power or HR changed , trigger event
+            // if either average power or average HR changed, trigger event
             if (curAvgPower != m_curAvgPower || curAvgHR != m_curAvgHR)
             {
                 m_curAvgPower = curAvgPower;
@@ -300,9 +308,10 @@ namespace ZwiftActivityMonitor
                 {
                     handler(this, e);
                 }
-                catch
+                catch(Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    m_logger.LogWarning(ex, ex.ToString());
                 }
             }
         }
@@ -316,9 +325,10 @@ namespace ZwiftActivityMonitor
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    m_logger.LogWarning(ex, ex.ToString());
                 }
             }
         }

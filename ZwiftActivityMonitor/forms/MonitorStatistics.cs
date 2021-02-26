@@ -19,12 +19,21 @@ namespace ZwiftActivityMonitor
         private readonly IConfiguration m_configuration;
         private readonly IServiceProvider m_serviceProvider;
         private readonly ZPMonitorService m_zpMonitorService;
+        private readonly ILoggerFactory m_loggerFactory;
+
+        private readonly List<LabelHelper> m_labelHelpers;
+        private readonly Dictionary<DurationType, MovingAverageWrapper> m_maCollection;
+        private readonly Dictionary<string, string> m_labelUnits;
+        private readonly Dictionary<DurationType, Collector> m_collectors;
 
         #region Internal Classes
+        /// <summary>
+        /// Wrapper class for MovingAverage and LabelHelper.
+        /// </summary>
         internal class MovingAverageWrapper
         {
-            private MovingAverage m_movingAverage;
-            private LabelHelper m_labelHelper;
+            private MovingAverage m_movingAverage; // Calculates the moving average based upon ZPMonitorService events
+            private LabelHelper m_labelHelper; // Encapsulates all the columns in the row that need to be updated 
 
             public MovingAverageWrapper(MovingAverage movingAverage, LabelHelper labelHelper)
             {
@@ -36,6 +45,9 @@ namespace ZwiftActivityMonitor
             public LabelHelper LabelHelper {  get { return m_labelHelper; } }
         }
 
+        /// <summary>
+        /// Column labels for a moving average row.  Contains an associated Collector to get UOM types for field display.
+        /// </summary>
         internal class LabelHelper
         {
             private Label m_lblAvgPower;
@@ -74,11 +86,14 @@ namespace ZwiftActivityMonitor
                 set { m_collector = value; }
             }
         }
-
+        
+        /// <summary>
+        /// Represents the MovingAverage:Collector configuration section
+        /// </summary>
         internal class Collector
         {
             private string m_label;
-            private MovingAverage.DurationTypes m_type;
+            private DurationType m_type;
             private bool m_displayDefault;
             private FieldUomType m_fieldAvg;
             private FieldUomType m_fieldAvgMax;
@@ -96,6 +111,7 @@ namespace ZwiftActivityMonitor
             {
                 m_label = durationLabel;
 
+                // Find DurationType based upon a duration label (5 sec, 1 min, 5 min, etc.)
                 m_type = MovingAverage.GetType(durationLabel);
 
                 if (!bool.TryParse(displayDefault, out m_displayDefault))
@@ -112,7 +128,7 @@ namespace ZwiftActivityMonitor
             }
 
             public string Label { get { return m_label; } }
-            public MovingAverage.DurationTypes Type { get { return m_type; } }
+            public DurationType Type { get { return m_type; } }
             public bool DisplayDefault { get { return m_displayDefault; } }
             public FieldUomType FieldAvg { get { return m_fieldAvg; } }
             public FieldUomType FieldAvgMax { get { return m_fieldAvgMax; } }
@@ -121,26 +137,23 @@ namespace ZwiftActivityMonitor
         }
         #endregion
 
-        private List<LabelHelper> m_labelHelpers;
+        private Dispatcher m_dispatcher; // Current UI thread dispatcher, for marshalling UI calls
 
-        private Dictionary<MovingAverage.DurationTypes, MovingAverageWrapper> m_maCollection;
-        private Dictionary<string, string> m_labelUnits;
-        private Dictionary<MovingAverage.DurationTypes, Collector> m_collectors;
+        private DateTime m_timerCompletion; // Time when timer countdown should complete
+        private DateTime m_collectionStart; // Time when monitor run started
+        private double m_ZwifterWeightKgs; // Zwifter weight from configuration
 
-        private Dispatcher m_dispatcher;
-
-        private DateTime m_timerCompletion;
-        private double m_ZwifterWeightKgs;
-
-        public MonitorStatistics(ILogger<MonitorStatistics> logger, IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService)
+        public MonitorStatistics(IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
         {
-            m_logger = logger;
+            m_logger = loggerFactory.CreateLogger<MonitorStatistics>(); ;
             m_serviceProvider = serviceProvider;
             m_configuration = configuration;
             m_zpMonitorService = zpMonitorService;
-            m_maCollection = new Dictionary<MovingAverage.DurationTypes, MovingAverageWrapper>();
+            m_loggerFactory = loggerFactory;
+
+            m_maCollection = new Dictionary<DurationType, MovingAverageWrapper>();
             m_labelUnits = new Dictionary<string, string>();
-            m_collectors = new Dictionary<MovingAverage.DurationTypes, Collector>();
+            m_collectors = new Dictionary<DurationType, Collector>();
 
             m_labelHelpers = new List<LabelHelper>();
 
@@ -177,12 +190,13 @@ namespace ZwiftActivityMonitor
                     break;
             }
 
-            m_logger.LogInformation($"Weight: {m_ZwifterWeightKgs} kgs");
+            m_logger.LogInformation($"Weight: {m_ZwifterWeightKgs.ToString("#.##")} kgs");
 
             foreach (var child in m_configuration.GetSection("MovingAverage:Collector").GetChildren())
             {
                 m_logger.LogInformation($"MovingAverage:Collector Duration: {child["Duration"]} Display: {child["Display"]}");
 
+                // A Collector captures what is defined in configuration and provides helper methods.
                 Collector c = new Collector(child["Duration"], child["Display"], child["FieldAvgUom"], child["FieldAvgMaxUom"], child["FieldFtpUom"]);
                 m_collectors.Add(c.Type, c);
 
@@ -302,6 +316,9 @@ namespace ZwiftActivityMonitor
             tsmiTimer.Enabled = false;
 
             tsslStatus.Text = "Running";
+
+            m_collectionStart = DateTime.Now;
+            runTimer.Enabled = true;
         }
 
         /// <summary>
@@ -328,6 +345,7 @@ namespace ZwiftActivityMonitor
             tsmiTimer.Enabled = true;
 
             countdownTimer.Enabled = false;
+            runTimer.Enabled = false;
 
             tsslStatus.Text = "Ready";
         }
@@ -347,7 +365,7 @@ namespace ZwiftActivityMonitor
 
             // Loop through the menu items within the Collect menu.
             // If an item is checked, we want to create a collector for it.
-            // The collector duration is determined by a match between the menu item's tag and the DurationTypes Enum.
+            // The collector duration is determined by a match between the menu item's tag and the DurationType Enum.
             // Up to 3 items can be shown.
             // The label on the UI gets the same text as the menu item.
             foreach (ToolStripItem mi in tsmiCollect.DropDownItems)
@@ -357,27 +375,33 @@ namespace ZwiftActivityMonitor
 
                 if (tsmi.Checked)
                 {
-                    MovingAverage.DurationTypes result;
-                    if (Enum.TryParse<MovingAverage.DurationTypes>(tsmi.Tag.ToString(), true, out result))
+                    DurationType result;
+                    if (Enum.TryParse<DurationType>(tsmi.Tag.ToString(), true, out result))
                     {
-                        if (m_maCollection.Count >= 3) // only allow up to 3 collectors
-                            break;
+                        MovingAverage ma = new MovingAverage(m_zpMonitorService, m_loggerFactory, result);
 
-                        MovingAverage ma = m_serviceProvider.GetService<MovingAverage>();
-
-                        ma.DurationType = result;
                         ma.MovingAverageChangedEvent += MovingAverageChangedEventHandler;
                         ma.MovingAverageMaxChangedEvent += MovingAverageMaxChangedEventHandler;
 
+                        // A m_labelHelpers[labelSet] object represents a row on the statistics display
                         int labelSet = m_maCollection.Count;
 
                         if (labelSet < m_labelHelpers.Count)
                         {
                             m_maCollection.Add(result, new MovingAverageWrapper(ma, m_labelHelpers[labelSet]));
 
+                            // Here we row's id text (5 sec, 1 min, etc) and associate the matching Collector.
+                            // All of this makes it easy to update the display as the MovingAverage events fire.
                             m_labelHelpers[labelSet].MA.Text = tsmi.Text;
                             m_labelHelpers[labelSet].Collector = m_collectors[result];
+
+                            if (m_maCollection.Count >= 3) // only allow up to 3 collectors
+                                break;
                         }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Bug: The menuitem tag {tsmi.Tag} did not match any DurationType Enums.");
                     }
                 }
             }
@@ -419,13 +443,19 @@ namespace ZwiftActivityMonitor
                     break;
 
                 case Collector.FieldUomType.Wkg:
-                    double wkg = e.AveragePower / m_ZwifterWeightKgs;
-                    l.AvgPower.Text = wkg.ToString("#.0#");
+                    if (m_ZwifterWeightKgs > 0)
+                    {
+                        double wkg = e.AveragePower / m_ZwifterWeightKgs;
+                        l.AvgPower.Text = wkg.ToString("#.0#");
+                    }
                     break;
             }
 
-            l.AvgHR.Text = e.AverageHR.ToString();       
-            
+            l.AvgHR.Text = e.AverageHR.ToString();
+
+            // The FTP column will track the AvgPower until the time duration is satisfied.
+            // This enables the rider to see what his FTP would be real-time.
+            // Once the time duration is satisfied, we no longer will update using the AvgPower.
             if (!c.MaxDurationTriggered)
             {
                 switch (c.FieldFtp)
@@ -435,8 +465,11 @@ namespace ZwiftActivityMonitor
                         break;
 
                     case Collector.FieldUomType.Wkg:
-                        double wkg = (e.AveragePower / m_ZwifterWeightKgs) * 0.95;
-                        l.FtpPower.Text = wkg.ToString("#.0#");
+                        if (m_ZwifterWeightKgs > 0)
+                        {
+                            double wkg = (e.AveragePower / m_ZwifterWeightKgs) * 0.95;
+                            l.FtpPower.Text = wkg.ToString("#.00");
+                        }
                         break;
                 }
 
@@ -478,13 +511,18 @@ namespace ZwiftActivityMonitor
                     break;
 
                 case Collector.FieldUomType.Wkg:
-                    double wkg = e.MaxAvgPower / m_ZwifterWeightKgs;
-                    l.MaxPower.Text = wkg.ToString("#.0#");
+                    if (m_ZwifterWeightKgs > 0)
+                    {
+                        double wkg = e.MaxAvgPower / m_ZwifterWeightKgs;
+                        l.MaxPower.Text = wkg.ToString("#.00");
+                    }
                     break;
             }
 
+            // Save the fact that this moving average has fulfilled it's time duration
             c.MaxDurationTriggered = true;
 
+            // The FTP column will now track the MaxAvgPower now that the time duration is satisfied.
             switch (c.FieldFtp)
             {
                 case Collector.FieldUomType.Watts:
@@ -492,18 +530,13 @@ namespace ZwiftActivityMonitor
                     break;
 
                 case Collector.FieldUomType.Wkg:
-                    double wkg = (e.MaxAvgPower / m_ZwifterWeightKgs) * 0.95;
-                    l.FtpPower.Text = wkg.ToString("#.0#");
+                    if (m_ZwifterWeightKgs > 0)
+                    {
+                        double wkg = (e.MaxAvgPower / m_ZwifterWeightKgs) * 0.95;
+                        l.FtpPower.Text = wkg.ToString("#.00");
+                    }
                     break;
             }
-
-
-            //l.AvgHR.Text = e.AverageHR.ToString();
-
-
-            //maw.LabelHelper.MaxPower.Text = e.MaxAvgPower.ToString();
-            //maw.LabelHelper.MaxHR.Text = e.MaxAvgHR.ToString();
-
         }
 
         #endregion
@@ -547,7 +580,7 @@ namespace ZwiftActivityMonitor
         {
             TimeSpan ts = m_timerCompletion - DateTime.Now;
 
-            m_logger.LogInformation($"Time remaining: {ts.Minutes}:{ts.Seconds}");
+            //m_logger.LogInformation($"Time remaining: {ts.Minutes}:{ts.Seconds}");
 
             if (ts.TotalSeconds <= 0)
             {
@@ -563,5 +596,13 @@ namespace ZwiftActivityMonitor
         }
         #endregion
 
+        private void runTimer_Tick(object sender, EventArgs e)
+        {
+            TimeSpan ts = DateTime.Now - m_collectionStart;
+
+            //m_logger.LogInformation($"Time running: {ts.Minutes}:{ts.Seconds}");
+
+            tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
+        }
     }
 }

@@ -210,6 +210,10 @@ namespace ZwiftActivityMonitor
                 m_lastPlayerStateUpdate = DateTime.Now;
 
 
+                TimeSpan ts = new TimeSpan(0, 0, 3600);
+                m_logger.LogInformation($"TimeSpan: {ts.ToString()}");
+
+
                 // Do work here
                 OnPlayerStateEvent(e);
             }

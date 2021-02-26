@@ -60,7 +60,7 @@ namespace ZwiftActivityMonitor
                     serviceCollection.AddSingleton<ZPMonitorService>();
 
                     serviceCollection.AddTransient<MonitorStatistics>();
-                    serviceCollection.AddTransient<MovingAverage>();
+                    //serviceCollection.AddTransient<MovingAverage>();
                     serviceCollection.AddSingleton<MonitorTimer>();
                 })
                 .UseWinFormsLifetime()

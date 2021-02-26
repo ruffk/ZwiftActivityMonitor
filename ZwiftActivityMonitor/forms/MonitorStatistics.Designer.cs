@@ -73,15 +73,15 @@ namespace ZwiftActivityMonitor
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.runTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblAvgPower1
             // 
-            this.lblAvgPower1.AutoSize = true;
             this.lblAvgPower1.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower1.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower1.ForeColor = System.Drawing.Color.White;
             this.lblAvgPower1.Location = new System.Drawing.Point(73, 64);
             this.lblAvgPower1.Name = "lblAvgPower1";
@@ -93,8 +93,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblFtpPower1
             // 
-            this.lblFtpPower1.AutoSize = true;
-            this.lblFtpPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower1.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblFtpPower1.ForeColor = System.Drawing.Color.White;
             this.lblFtpPower1.Location = new System.Drawing.Point(186, 64);
             this.lblFtpPower1.Name = "lblFtpPower1";
@@ -106,8 +105,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblMaxPower1
             // 
-            this.lblMaxPower1.AutoSize = true;
-            this.lblMaxPower1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower1.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower1.ForeColor = System.Drawing.Color.White;
             this.lblMaxPower1.Location = new System.Drawing.Point(129, 64);
             this.lblMaxPower1.Name = "lblMaxPower1";
@@ -119,8 +117,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblAvgHR1
             // 
-            this.lblAvgHR1.AutoSize = true;
-            this.lblAvgHR1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR1.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR1.ForeColor = System.Drawing.Color.White;
             this.lblAvgHR1.Location = new System.Drawing.Point(255, 64);
             this.lblAvgHR1.Name = "lblAvgHR1";
@@ -132,22 +129,20 @@ namespace ZwiftActivityMonitor
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Lime;
-            this.label1.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label1.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(116, 24);
+            this.label1.Location = new System.Drawing.Point(121, 24);
             this.label1.Name = "label1";
             this.label1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.label1.Size = new System.Drawing.Size(88, 24);
+            this.label1.Size = new System.Drawing.Size(80, 24);
             this.label1.TabIndex = 8;
             this.label1.Text = "Power";
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Lime;
-            this.label2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label2.ForeColor = System.Drawing.Color.White;
             this.label2.Location = new System.Drawing.Point(262, 24);
             this.label2.Name = "label2";
@@ -255,7 +250,7 @@ namespace ZwiftActivityMonitor
             this.tsmi5sec.CheckOnClick = true;
             this.tsmi5sec.Name = "tsmi5sec";
             this.tsmi5sec.Size = new System.Drawing.Size(110, 22);
-            this.tsmi5sec.Tag = "five_second";
+            this.tsmi5sec.Tag = "FiveSeconds";
             this.tsmi5sec.Text = "5 sec";
             this.tsmi5sec.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -264,7 +259,7 @@ namespace ZwiftActivityMonitor
             this.tsmi1min.CheckOnClick = true;
             this.tsmi1min.Name = "tsmi1min";
             this.tsmi1min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi1min.Tag = "one_minute";
+            this.tsmi1min.Tag = "OneMinute";
             this.tsmi1min.Text = "1 min";
             this.tsmi1min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -273,7 +268,7 @@ namespace ZwiftActivityMonitor
             this.tsmi5min.CheckOnClick = true;
             this.tsmi5min.Name = "tsmi5min";
             this.tsmi5min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi5min.Tag = "five_minute";
+            this.tsmi5min.Tag = "FiveMinutes";
             this.tsmi5min.Text = "5 min";
             this.tsmi5min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -282,7 +277,7 @@ namespace ZwiftActivityMonitor
             this.tsmi10min.CheckOnClick = true;
             this.tsmi10min.Name = "tsmi10min";
             this.tsmi10min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi10min.Tag = "ten_minute";
+            this.tsmi10min.Tag = "TenMinutes";
             this.tsmi10min.Text = "10 min";
             this.tsmi10min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -291,7 +286,7 @@ namespace ZwiftActivityMonitor
             this.tsmi20min.CheckOnClick = true;
             this.tsmi20min.Name = "tsmi20min";
             this.tsmi20min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi20min.Tag = "twenty_minute";
+            this.tsmi20min.Tag = "TwentyMinutes";
             this.tsmi20min.Text = "20 min";
             this.tsmi20min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -300,7 +295,7 @@ namespace ZwiftActivityMonitor
             this.tsmi60min.CheckOnClick = true;
             this.tsmi60min.Name = "tsmi60min";
             this.tsmi60min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi60min.Tag = "sixty_minute";
+            this.tsmi60min.Tag = "SixtyMinutes";
             this.tsmi60min.Text = "60 min";
             this.tsmi60min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
@@ -309,15 +304,14 @@ namespace ZwiftActivityMonitor
             this.tsmi90min.CheckOnClick = true;
             this.tsmi90min.Name = "tsmi90min";
             this.tsmi90min.Size = new System.Drawing.Size(110, 22);
-            this.tsmi90min.Tag = "ninety_minute";
+            this.tsmi90min.Tag = "NinetyMinutes";
             this.tsmi90min.Text = "90 min";
             this.tsmi90min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
             // lblMA1
             // 
-            this.lblMA1.AutoSize = true;
             this.lblMA1.BackColor = System.Drawing.Color.Lime;
-            this.lblMA1.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMA1.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMA1.ForeColor = System.Drawing.Color.White;
             this.lblMA1.Location = new System.Drawing.Point(4, 69);
             this.lblMA1.Name = "lblMA1";
@@ -328,9 +322,8 @@ namespace ZwiftActivityMonitor
             // 
             // lblMA2
             // 
-            this.lblMA2.AutoSize = true;
             this.lblMA2.BackColor = System.Drawing.Color.Lime;
-            this.lblMA2.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMA2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMA2.ForeColor = System.Drawing.Color.White;
             this.lblMA2.Location = new System.Drawing.Point(4, 98);
             this.lblMA2.Name = "lblMA2";
@@ -341,9 +334,8 @@ namespace ZwiftActivityMonitor
             // 
             // lblMA3
             // 
-            this.lblMA3.AutoSize = true;
             this.lblMA3.BackColor = System.Drawing.Color.Lime;
-            this.lblMA3.Font = new System.Drawing.Font("Furore", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMA3.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMA3.ForeColor = System.Drawing.Color.White;
             this.lblMA3.Location = new System.Drawing.Point(4, 127);
             this.lblMA3.Name = "lblMA3";
@@ -354,9 +346,8 @@ namespace ZwiftActivityMonitor
             // 
             // lblAvgPower2
             // 
-            this.lblAvgPower2.AutoSize = true;
             this.lblAvgPower2.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower2.ForeColor = System.Drawing.Color.White;
             this.lblAvgPower2.Location = new System.Drawing.Point(73, 93);
             this.lblAvgPower2.Name = "lblAvgPower2";
@@ -368,9 +359,8 @@ namespace ZwiftActivityMonitor
             // 
             // lblAvgPower3
             // 
-            this.lblAvgPower3.AutoSize = true;
             this.lblAvgPower3.BackColor = System.Drawing.Color.Lime;
-            this.lblAvgPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower3.ForeColor = System.Drawing.Color.White;
             this.lblAvgPower3.Location = new System.Drawing.Point(73, 122);
             this.lblAvgPower3.Name = "lblAvgPower3";
@@ -382,8 +372,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblMaxPower2
             // 
-            this.lblMaxPower2.AutoSize = true;
-            this.lblMaxPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower2.ForeColor = System.Drawing.Color.White;
             this.lblMaxPower2.Location = new System.Drawing.Point(129, 93);
             this.lblMaxPower2.Name = "lblMaxPower2";
@@ -395,8 +384,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblMaxPower3
             // 
-            this.lblMaxPower3.AutoSize = true;
-            this.lblMaxPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMaxPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower3.ForeColor = System.Drawing.Color.White;
             this.lblMaxPower3.Location = new System.Drawing.Point(129, 122);
             this.lblMaxPower3.Name = "lblMaxPower3";
@@ -408,8 +396,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblAvgHR2
             // 
-            this.lblAvgHR2.AutoSize = true;
-            this.lblAvgHR2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR2.ForeColor = System.Drawing.Color.White;
             this.lblAvgHR2.Location = new System.Drawing.Point(255, 93);
             this.lblAvgHR2.Name = "lblAvgHR2";
@@ -421,8 +408,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblFtpPower2
             // 
-            this.lblFtpPower2.AutoSize = true;
-            this.lblFtpPower2.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblFtpPower2.ForeColor = System.Drawing.Color.White;
             this.lblFtpPower2.Location = new System.Drawing.Point(186, 93);
             this.lblFtpPower2.Name = "lblFtpPower2";
@@ -434,8 +420,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblAvgHR3
             // 
-            this.lblAvgHR3.AutoSize = true;
-            this.lblAvgHR3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblAvgHR3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR3.ForeColor = System.Drawing.Color.White;
             this.lblAvgHR3.Location = new System.Drawing.Point(255, 122);
             this.lblAvgHR3.Name = "lblAvgHR3";
@@ -447,8 +432,7 @@ namespace ZwiftActivityMonitor
             // 
             // lblFtpPower3
             // 
-            this.lblFtpPower3.AutoSize = true;
-            this.lblFtpPower3.Font = new System.Drawing.Font("Furore", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblFtpPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblFtpPower3.ForeColor = System.Drawing.Color.White;
             this.lblFtpPower3.Location = new System.Drawing.Point(186, 122);
             this.lblFtpPower3.Name = "lblFtpPower3";
@@ -492,9 +476,8 @@ namespace ZwiftActivityMonitor
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.Lime;
-            this.label3.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(123, 48);
             this.label3.Name = "label3";
@@ -505,9 +488,8 @@ namespace ZwiftActivityMonitor
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
             this.label4.BackColor = System.Drawing.Color.Lime;
-            this.label4.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label4.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label4.ForeColor = System.Drawing.Color.White;
             this.label4.Location = new System.Drawing.Point(198, 48);
             this.label4.Name = "label4";
@@ -518,9 +500,8 @@ namespace ZwiftActivityMonitor
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
             this.label5.BackColor = System.Drawing.Color.Lime;
-            this.label5.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label5.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label5.ForeColor = System.Drawing.Color.White;
             this.label5.Location = new System.Drawing.Point(86, 48);
             this.label5.Name = "label5";
@@ -531,9 +512,8 @@ namespace ZwiftActivityMonitor
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
             this.label6.BackColor = System.Drawing.Color.Lime;
-            this.label6.Font = new System.Drawing.Font("Furore", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label6.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label6.ForeColor = System.Drawing.Color.White;
             this.label6.Location = new System.Drawing.Point(266, 48);
             this.label6.Name = "label6";
@@ -541,6 +521,11 @@ namespace ZwiftActivityMonitor
             this.label6.Size = new System.Drawing.Size(31, 13);
             this.label6.TabIndex = 26;
             this.label6.Text = "AVG";
+            // 
+            // runTimer
+            // 
+            this.runTimer.Interval = 1000;
+            this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
             // MonitorStatistics
             // 
@@ -636,5 +621,6 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Timer runTimer;
     }
 }
