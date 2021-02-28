@@ -142,6 +142,9 @@ namespace ZwiftActivityMonitor
         private DateTime m_timerCompletion; // Time when timer countdown should complete
         private DateTime m_collectionStart; // Time when monitor run started
         private double m_ZwifterWeightKgs; // Zwifter weight from configuration
+        private bool m_zpMonitorAutoStart; // Whether to attempt to auto start the ZwiftPacketMonitor
+        private bool m_isStarted;           // Whether the collectors are currently running
+
 
         public MonitorStatistics(IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
         {
@@ -170,6 +173,32 @@ namespace ZwiftActivityMonitor
         private void MonitorStatistics_Load(object sender, EventArgs e)
         {
             m_dispatcher = Dispatcher.CurrentDispatcher;
+
+            // Determine AutoStart
+            if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_zpMonitorAutoStart))
+            {
+                m_zpMonitorAutoStart = false;
+            }
+
+            m_logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_zpMonitorAutoStart}");
+
+            // Determine window position
+            if (!int.TryParse(m_configuration["ZwiftActivityMonitor:WindowStartupPosition:X"], out int xPos))
+            {
+                xPos = 0;
+            }
+
+            if (!int.TryParse(m_configuration["ZwiftActivityMonitor:WindowStartupPosition:Y"], out int yPos))
+            {
+                yPos = 0;
+            }
+
+            if (xPos > 0 && yPos > 0)
+            {
+                this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+                this.Location = new System.Drawing.Point(xPos, yPos);
+            }
+
 
             m_labelHelpers.Add(new LabelHelper(lblMA1, lblAvgPower1, lblMaxPower1, lblFtpPower1, lblAvgHR1));
             m_labelHelpers.Add(new LabelHelper(lblMA2, lblAvgPower2, lblMaxPower2, lblFtpPower2, lblAvgHR2));
@@ -203,7 +232,7 @@ namespace ZwiftActivityMonitor
                 if (c.DisplayDefault)
                 {
                     // check the menu items based on configuration
-                    foreach (ToolStripItem mi in tsmiCollect.DropDownItems)
+                    foreach (ToolStripItem mi in tsmiAnalyze.DropDownItems)
                     {
                         ToolStripMenuItem tsmi = mi as ToolStripMenuItem;
                         if (tsmi == null) continue;
@@ -232,21 +261,40 @@ namespace ZwiftActivityMonitor
         {
             if (this.Visible)
             {
-                tsmiStart.Enabled = true;
-                tsmiStop.Enabled = false;
-
-                tsmiStopTimer.Enabled = false;
-                tsmiSetupTimer.Enabled = true;
-
-                // Load collectors for whatever is defined in by the checked menu items
-                LoadMovingAverageCollection();
-
-                m_logger.LogInformation("MonitorStatistics Visible");
             }
+            m_logger.LogInformation("MonitorStatistics Visible");
         }
+
+        private void MonitorStatistics_Shown(object sender, EventArgs e)
+        {
+            // Set control statuses
+            OnCollectionStatusChanged();
+
+            // Load collectors for whatever is defined in by the checked menu items
+            LoadMovingAverageCollection();
+
+            // if autostart is false, bring up the AdvancedOptions window.
+            if (!m_zpMonitorAutoStart)
+            {
+                tsmiAdvanced.PerformClick();
+            }
+
+            m_logger.LogInformation("MonitorStatistics Shown");
+        }
+
 
         private void MonitorStatistics_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (m_isStarted)
+            {
+                if (MessageBox.Show("Are you sure you wish to stop monitoring and close the application?", 
+                    "Performance Monitor Running", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
             Collection_OnStop();
  
             m_maCollection.Clear();
@@ -260,6 +308,12 @@ namespace ZwiftActivityMonitor
 
         private void tsmiStart_Click(object sender, EventArgs e)
         {
+            if (!m_zpMonitorService.IsStarted)
+            {
+                MessageBox.Show("Please use the Advanced Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             Collection_OnStart();
         }
         private void tsmiStop_Click(object sender, EventArgs e)
@@ -274,9 +328,10 @@ namespace ZwiftActivityMonitor
         /// <param name="e"></param>
         private void tsmiExit_Click(object sender, EventArgs e)
         {
-            Collection_OnStop();
+            this.Close();
+            //Collection_OnStop();
 
-            this.Hide(); // Hide here instead of close to preserve menu choices
+            //this.Hide(); // Hide here instead of close to preserve menu choices
 
             m_logger.LogInformation("Exiting");
         }
@@ -297,28 +352,21 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void Collection_OnStart()
         {
-            foreach (MovingAverageWrapper maw in m_maCollection.Values)
+            if (!m_isStarted)
             {
-                maw.MovingAverage.Start();
+                foreach (MovingAverageWrapper maw in m_maCollection.Values)
+                {
+                    maw.MovingAverage.Start();
+                }
+
+                m_collectionStart = DateTime.Now;
+                runTimer.Enabled = true;
+
+                m_isStarted = true;
+
+                OnCollectionStatusChanged();
             }
 
-            tsmiStop.Enabled = true;
-            tsmiStart.Enabled = false;
-
-            tsmi10min.Enabled = false;
-            tsmi1min.Enabled = false;
-            tsmi20min.Enabled = false;
-            tsmi5min.Enabled = false;
-            tsmi5sec.Enabled = false;
-            tsmi60min.Enabled = false;
-            tsmi90min.Enabled = false;
-
-            tsmiTimer.Enabled = false;
-
-            tsslStatus.Text = "Running";
-
-            m_collectionStart = DateTime.Now;
-            runTimer.Enabled = true;
         }
 
         /// <summary>
@@ -326,28 +374,76 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void Collection_OnStop()
         {
-            foreach (MovingAverageWrapper maw in m_maCollection.Values)
+            if (m_isStarted)
             {
-                maw.MovingAverage.Stop();
+                foreach (MovingAverageWrapper maw in m_maCollection.Values)
+                {
+                    maw.MovingAverage.Stop();
+                }
+                m_isStarted = false;
+
+                runTimer.Enabled = false;
+
+                OnCollectionStatusChanged();
             }
 
-            tsmiStop.Enabled = false;
-            tsmiStart.Enabled = true;
+        }
 
-            tsmi10min.Enabled = true;
-            tsmi1min.Enabled = true;
-            tsmi20min.Enabled = true;
-            tsmi5min.Enabled = true;
-            tsmi5sec.Enabled = true;
-            tsmi60min.Enabled = true;
-            tsmi90min.Enabled = true;
+        private void OnCollectionStatusChanged()
+        {
+            if (m_isStarted)
+            {
+                tsmiStop.Enabled = true;
+                tsmiStart.Enabled = false;
 
-            tsmiTimer.Enabled = true;
+                tsmi10min.Enabled = false;
+                tsmi1min.Enabled = false;
+                tsmi20min.Enabled = false;
+                tsmi5min.Enabled = false;
+                tsmi5sec.Enabled = false;
+                tsmi60min.Enabled = false;
+                tsmi90min.Enabled = false;
 
-            countdownTimer.Enabled = false;
-            runTimer.Enabled = false;
+                tsmiTimer.Enabled = false;
 
-            tsslStatus.Text = "Ready";
+                tsslStatus.Text = "Running";
+
+                if (m_zpMonitorService.IsStarted && m_zpMonitorService.IsDebugMode)
+                    tsslStatus.Text += " in DEBUG/DEMO mode"
+            }
+            else
+            {
+                tsmiStop.Enabled = false;
+                tsmiStart.Enabled = true;
+
+                tsmi10min.Enabled = true;
+                tsmi1min.Enabled = true;
+                tsmi20min.Enabled = true;
+                tsmi5min.Enabled = true;
+                tsmi5sec.Enabled = true;
+                tsmi60min.Enabled = true;
+                tsmi90min.Enabled = true;
+
+                tsmiTimer.Enabled = true;
+
+                // set Timer menu sub-items
+                if (countdownTimer.Enabled)
+                {
+                    tsmiSetupTimer.Enabled = false;
+                    tsmiStopTimer.Enabled = true;
+                }
+                else
+                {
+                    tsmiSetupTimer.Enabled = true;
+                    tsmiStopTimer.Enabled = false;
+                }
+
+                if (m_zpMonitorService.IsStarted)
+                    tsslStatus.Text = "Ready";
+                else
+                    tsslStatus.Text = "ZPM Service Not Running";
+
+            }
         }
 
         /// <summary>
@@ -368,7 +464,7 @@ namespace ZwiftActivityMonitor
             // The collector duration is determined by a match between the menu item's tag and the DurationType Enum.
             // Up to 3 items can be shown.
             // The label on the UI gets the same text as the menu item.
-            foreach (ToolStripItem mi in tsmiCollect.DropDownItems)
+            foreach (ToolStripItem mi in tsmiAnalyze.DropDownItems)
             {
                 ToolStripMenuItem tsmi = mi as ToolStripMenuItem;
                 if (tsmi == null) continue;
@@ -546,6 +642,12 @@ namespace ZwiftActivityMonitor
 
         private void tsmiSetupTimer_Click(object sender, EventArgs e)
         {
+            if (!m_zpMonitorService.IsStarted)
+            {
+                MessageBox.Show("Please use the Advanced Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             MonitorTimer mt = m_serviceProvider.GetService<MonitorTimer>();
 
             DialogResult result = mt.ShowDialog(this);
@@ -559,9 +661,7 @@ namespace ZwiftActivityMonitor
 
                 countdownTimer.Enabled = true;
 
-                tsmiStopTimer.Enabled = true;
-                tsmiSetupTimer.Enabled = false;
-
+                OnCollectionStatusChanged();
             }
         }
 
@@ -569,10 +669,7 @@ namespace ZwiftActivityMonitor
         {
             countdownTimer.Enabled = false;
 
-            tsmiStopTimer.Enabled = false;
-            tsmiSetupTimer.Enabled = true;
-
-            tsslStatus.Text = "Ready";
+            OnCollectionStatusChanged();
         }
 
 
@@ -603,6 +700,21 @@ namespace ZwiftActivityMonitor
             //m_logger.LogInformation($"Time running: {ts.Minutes}:{ts.Seconds}");
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
+        }
+
+        private void tsmiAdvanced_Click(object sender, EventArgs e)
+        {
+            var form = m_serviceProvider.GetService<AdvancedOptions>();
+
+            DialogResult result = form.ShowDialog(this);
+
+            // Allow menus and status bar to update according to what user just did
+            OnCollectionStatusChanged();
+        }
+
+        private void MonitorStatistics_Move(object sender, EventArgs e)
+        {
+            m_logger.LogInformation($"Screen position {this.Location.ToString()}");
         }
     }
 }

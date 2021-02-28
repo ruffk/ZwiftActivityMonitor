@@ -20,10 +20,12 @@ namespace ZwiftActivityMonitor
         private int m_trackedPlayerId;
         private bool m_debugMode;
         private int m_targetHR;
+        private int m_targetPower;
         private bool m_isStarted;
+        private int m_eventsProcessed;
         private DateTime m_lastPlayerStateUpdate;
-        private long m_lastWorldTime;
-        private PlayerStateEventArgs m_lastPlayerStateEventArgs;
+        //private long m_lastWorldTime;
+        //private PlayerStateEventArgs m_lastPlayerStateEventArgs;
         
         private string m_zpMonitorNetwork;
 
@@ -65,7 +67,7 @@ namespace ZwiftActivityMonitor
             m_logger.LogInformation($"Class {this.GetType()} initialized.");
         }
 
-        public void StartMonitor(bool debugMode, int targetHR = 0)
+        public void StartMonitor(bool debugMode, int targetHR, int targetPower)
         {
             if (m_isStarted)
             {
@@ -75,14 +77,18 @@ namespace ZwiftActivityMonitor
 
             m_debugMode = debugMode;
             m_targetHR = targetHR;
+            m_targetPower = targetPower;
+
             m_lastPlayerStateUpdate = DateTime.Now;
-            m_lastWorldTime = 0;
+            //m_lastWorldTime = 0;
+            m_eventsProcessed = 0;
 
             // Debug mode will operate a little differently than the regular game mode.
-            // When debug mode is on, we'll pick the first INCOMING player's data to use, and will lock
-            // onto that PlayerId to filter out subsequent updates. This makes the testing more consistent. 
+            // When debug mode is on, we'll either pick the first INCOMING player's data to use, or try to match
+            // an INCOMING player's heartrate and power to the targetHR (+-2) and/or targetPower (+-10) parameters.
+            // We will then lock onto that PlayerId to filter out subsequent updates. This makes the testing more consistent. 
             // This way it's possible to test event dispatch w/o having to be on the bike with power meter 
-            // and heart rate strap actually connected and outputting data.  Brad W.
+            // and heart rate strap actually connected and outputting data.  Idea by Brad W.
 
             if (m_debugMode == true)
             {
@@ -126,12 +132,27 @@ namespace ZwiftActivityMonitor
                 m_zpMonitor.OutgoingPlayerEvent -= this.PlayerEventHandler;
             }
 
+            m_debugMode = false;
+            m_targetHR = 0;
+            m_targetPower = 0;
+
             //m_zpMonitor.IncomingPlayerEnteredWorldEvent -= this.PlayerEnteredWorldEventHandler;
 
 
             m_logger.LogInformation($"ZwiftPacketMonitor stopped.");
 
         }
+
+        public bool IsStarted { get { return m_isStarted; } }
+
+        public int EventsProcessed { get { return m_eventsProcessed; } }
+
+        public string Network { get { return m_zpMonitorNetwork; } }
+
+        public bool IsDebugMode { get { return m_debugMode; } } 
+
+        public int TargetHeartrate { get { return m_targetHR; } }
+        public int TargetPower { get { return m_targetPower; } }
 
         private void PlayerEnteredWorldEventHandler(object sender, PlayerEnteredWorldEventArgs e)
         {
@@ -168,20 +189,27 @@ namespace ZwiftActivityMonitor
             {
                 if (m_debugMode)
                 {
-                    //if (m_trackedPlayerId == 0 && (m_targetHR == 0 || m_targetHR == e.PlayerState.Heartrate))
-                    //{
-                    //    m_trackedPlayerId = e.PlayerState.Id;
-                    //    m_logger.LogInformation($"Monitoring player: {m_trackedPlayerId}");
-                    //}
+                    if (m_trackedPlayerId == 0)
+                    {
+                        if (m_targetHR > 0 || m_targetPower > 0) // these will both be zero if randomly choosing a player
+                        {
+                            if ((m_targetHR == 0 || (e.PlayerState.Heartrate >= m_targetHR - 2 && e.PlayerState.Heartrate <= m_targetHR + 2))
+                                && (m_targetPower == 0 || e.PlayerState.Power >= m_targetPower - 10 && e.PlayerState.Power <= m_targetPower + 10))
+                            {
+                                m_trackedPlayerId = e.PlayerState.Id;
+                                m_logger.LogInformation($"Monitoring player: {m_trackedPlayerId}");
+                            }
+                        }
+                        else // randomly choose, not recommended
+                        { 
+                            m_trackedPlayerId = e.PlayerState.Id;
+                        }
+                    }
 
-                    //if (m_trackedPlayerId == e.PlayerState.Id)
-                    //{
-                    //    //m_logger.LogInformation($"TRACING-INCOMING: {e.PlayerState}");
-                    //}
-                    //else
-                    //{
-                    //    return;
-                    //}
+                    if (m_trackedPlayerId != e.PlayerState.Id)
+                    {
+                        return; // not our guy
+                    }
                 }
                 else
                 {
@@ -196,23 +224,21 @@ namespace ZwiftActivityMonitor
                 //    return;
                 //}
 
-                m_lastWorldTime = e.PlayerState.WorldTime;
-                m_lastPlayerStateEventArgs = e;
+                //m_lastWorldTime = e.PlayerState.WorldTime;
+                //m_lastPlayerStateEventArgs = e;
+
 
                 if (m_debugMode)
                 {
-                    if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 250)
+                    if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 1000)
                     {
                         return;
                     }
+                    m_lastPlayerStateUpdate = DateTime.Now;
+                    m_logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}");
                 }
 
-                m_lastPlayerStateUpdate = DateTime.Now;
-
-
-                TimeSpan ts = new TimeSpan(0, 0, 3600);
-                m_logger.LogInformation($"TimeSpan: {ts.ToString()}");
-
+                m_eventsProcessed++;
 
                 // Do work here
                 OnPlayerStateEvent(e);

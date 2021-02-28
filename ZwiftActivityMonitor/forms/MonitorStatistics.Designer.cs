@@ -37,9 +37,7 @@ namespace ZwiftActivityMonitor
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.tsmiFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCollect = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAnalyze = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiStart = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiStop = new System.Windows.Forms.ToolStripMenuItem();
             this.tssCollect1 = new System.Windows.Forms.ToolStripSeparator();
@@ -54,6 +52,8 @@ namespace ZwiftActivityMonitor
             this.tsmi20min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi60min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi90min = new System.Windows.Forms.ToolStripMenuItem();
+            this.tssCollect3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAdvanced = new System.Windows.Forms.ToolStripMenuItem();
             this.lblMA1 = new System.Windows.Forms.Label();
             this.lblMA2 = new System.Windows.Forms.Label();
             this.lblMA3 = new System.Windows.Forms.Label();
@@ -74,6 +74,8 @@ namespace ZwiftActivityMonitor
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.runTimer = new System.Windows.Forms.Timer(this.components);
+            this.tsmiHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -155,33 +157,17 @@ namespace ZwiftActivityMonitor
             // 
             this.menuStrip1.BackColor = System.Drawing.SystemColors.Menu;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiFile,
-            this.tsmiCollect});
+            this.tsmiAnalyze,
+            this.tsmiHelp});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(318, 24);
             this.menuStrip1.TabIndex = 10;
             this.menuStrip1.Text = "File";
             // 
-            // tsmiFile
+            // tsmiAnalyze
             // 
-            this.tsmiFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiExit});
-            this.tsmiFile.Name = "tsmiFile";
-            this.tsmiFile.Size = new System.Drawing.Size(37, 20);
-            this.tsmiFile.Text = "File";
-            // 
-            // tsmiExit
-            // 
-            this.tsmiExit.Name = "tsmiExit";
-            this.tsmiExit.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.tsmiExit.Size = new System.Drawing.Size(135, 22);
-            this.tsmiExit.Text = "Exit";
-            this.tsmiExit.Click += new System.EventHandler(this.tsmiExit_Click);
-            // 
-            // tsmiCollect
-            // 
-            this.tsmiCollect.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAnalyze.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiStart,
             this.tsmiStop,
             this.tssCollect1,
@@ -193,29 +179,31 @@ namespace ZwiftActivityMonitor
             this.tsmi10min,
             this.tsmi20min,
             this.tsmi60min,
-            this.tsmi90min});
-            this.tsmiCollect.Name = "tsmiCollect";
-            this.tsmiCollect.Size = new System.Drawing.Size(56, 20);
-            this.tsmiCollect.Text = "Collect";
+            this.tsmi90min,
+            this.tssCollect3,
+            this.tsmiAdvanced});
+            this.tsmiAnalyze.Name = "tsmiAnalyze";
+            this.tsmiAnalyze.Size = new System.Drawing.Size(60, 20);
+            this.tsmiAnalyze.Text = "Analyze";
             // 
             // tsmiStart
             // 
             this.tsmiStart.Name = "tsmiStart";
-            this.tsmiStart.Size = new System.Drawing.Size(110, 22);
+            this.tsmiStart.Size = new System.Drawing.Size(136, 22);
             this.tsmiStart.Text = "Start";
             this.tsmiStart.Click += new System.EventHandler(this.tsmiStart_Click);
             // 
             // tsmiStop
             // 
             this.tsmiStop.Name = "tsmiStop";
-            this.tsmiStop.Size = new System.Drawing.Size(110, 22);
+            this.tsmiStop.Size = new System.Drawing.Size(136, 22);
             this.tsmiStop.Text = "Stop";
             this.tsmiStop.Click += new System.EventHandler(this.tsmiStop_Click);
             // 
             // tssCollect1
             // 
             this.tssCollect1.Name = "tssCollect1";
-            this.tssCollect1.Size = new System.Drawing.Size(107, 6);
+            this.tssCollect1.Size = new System.Drawing.Size(133, 6);
             // 
             // tsmiTimer
             // 
@@ -223,33 +211,33 @@ namespace ZwiftActivityMonitor
             this.tsmiSetupTimer,
             this.tsmiStopTimer});
             this.tsmiTimer.Name = "tsmiTimer";
-            this.tsmiTimer.Size = new System.Drawing.Size(110, 22);
+            this.tsmiTimer.Size = new System.Drawing.Size(136, 22);
             this.tsmiTimer.Text = "Timer";
             // 
             // tsmiSetupTimer
             // 
             this.tsmiSetupTimer.Name = "tsmiSetupTimer";
-            this.tsmiSetupTimer.Size = new System.Drawing.Size(137, 22);
-            this.tsmiSetupTimer.Text = "Setup Timer";
+            this.tsmiSetupTimer.Size = new System.Drawing.Size(146, 22);
+            this.tsmiSetupTimer.Text = "Setup Timer...";
             this.tsmiSetupTimer.Click += new System.EventHandler(this.tsmiSetupTimer_Click);
             // 
             // tsmiStopTimer
             // 
             this.tsmiStopTimer.Name = "tsmiStopTimer";
-            this.tsmiStopTimer.Size = new System.Drawing.Size(137, 22);
+            this.tsmiStopTimer.Size = new System.Drawing.Size(146, 22);
             this.tsmiStopTimer.Text = "Stop Timer";
             this.tsmiStopTimer.Click += new System.EventHandler(this.tsmiStopTimer_Click);
             // 
             // tssCollect2
             // 
             this.tssCollect2.Name = "tssCollect2";
-            this.tssCollect2.Size = new System.Drawing.Size(107, 6);
+            this.tssCollect2.Size = new System.Drawing.Size(133, 6);
             // 
             // tsmi5sec
             // 
             this.tsmi5sec.CheckOnClick = true;
             this.tsmi5sec.Name = "tsmi5sec";
-            this.tsmi5sec.Size = new System.Drawing.Size(110, 22);
+            this.tsmi5sec.Size = new System.Drawing.Size(136, 22);
             this.tsmi5sec.Tag = "FiveSeconds";
             this.tsmi5sec.Text = "5 sec";
             this.tsmi5sec.Click += new System.EventHandler(this.anyDuration_Click);
@@ -258,7 +246,7 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi1min.CheckOnClick = true;
             this.tsmi1min.Name = "tsmi1min";
-            this.tsmi1min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi1min.Size = new System.Drawing.Size(136, 22);
             this.tsmi1min.Tag = "OneMinute";
             this.tsmi1min.Text = "1 min";
             this.tsmi1min.Click += new System.EventHandler(this.anyDuration_Click);
@@ -267,7 +255,7 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi5min.CheckOnClick = true;
             this.tsmi5min.Name = "tsmi5min";
-            this.tsmi5min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi5min.Size = new System.Drawing.Size(136, 22);
             this.tsmi5min.Tag = "FiveMinutes";
             this.tsmi5min.Text = "5 min";
             this.tsmi5min.Click += new System.EventHandler(this.anyDuration_Click);
@@ -276,7 +264,7 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi10min.CheckOnClick = true;
             this.tsmi10min.Name = "tsmi10min";
-            this.tsmi10min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi10min.Size = new System.Drawing.Size(136, 22);
             this.tsmi10min.Tag = "TenMinutes";
             this.tsmi10min.Text = "10 min";
             this.tsmi10min.Click += new System.EventHandler(this.anyDuration_Click);
@@ -285,7 +273,7 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi20min.CheckOnClick = true;
             this.tsmi20min.Name = "tsmi20min";
-            this.tsmi20min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi20min.Size = new System.Drawing.Size(136, 22);
             this.tsmi20min.Tag = "TwentyMinutes";
             this.tsmi20min.Text = "20 min";
             this.tsmi20min.Click += new System.EventHandler(this.anyDuration_Click);
@@ -294,7 +282,7 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi60min.CheckOnClick = true;
             this.tsmi60min.Name = "tsmi60min";
-            this.tsmi60min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi60min.Size = new System.Drawing.Size(136, 22);
             this.tsmi60min.Tag = "SixtyMinutes";
             this.tsmi60min.Text = "60 min";
             this.tsmi60min.Click += new System.EventHandler(this.anyDuration_Click);
@@ -303,10 +291,22 @@ namespace ZwiftActivityMonitor
             // 
             this.tsmi90min.CheckOnClick = true;
             this.tsmi90min.Name = "tsmi90min";
-            this.tsmi90min.Size = new System.Drawing.Size(110, 22);
+            this.tsmi90min.Size = new System.Drawing.Size(136, 22);
             this.tsmi90min.Tag = "NinetyMinutes";
             this.tsmi90min.Text = "90 min";
             this.tsmi90min.Click += new System.EventHandler(this.anyDuration_Click);
+            // 
+            // tssCollect3
+            // 
+            this.tssCollect3.Name = "tssCollect3";
+            this.tssCollect3.Size = new System.Drawing.Size(133, 6);
+            // 
+            // tsmiAdvanced
+            // 
+            this.tsmiAdvanced.Name = "tsmiAdvanced";
+            this.tsmiAdvanced.Size = new System.Drawing.Size(136, 22);
+            this.tsmiAdvanced.Text = "Advanced...";
+            this.tsmiAdvanced.Click += new System.EventHandler(this.tsmiAdvanced_Click);
             // 
             // lblMA1
             // 
@@ -527,6 +527,20 @@ namespace ZwiftActivityMonitor
             this.runTimer.Interval = 1000;
             this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
+            // tsmiHelp
+            // 
+            this.tsmiHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAbout});
+            this.tsmiHelp.Name = "tsmiHelp";
+            this.tsmiHelp.Size = new System.Drawing.Size(44, 20);
+            this.tsmiHelp.Text = "Help";
+            // 
+            // tsmiAbout
+            // 
+            this.tsmiAbout.Name = "tsmiAbout";
+            this.tsmiAbout.Size = new System.Drawing.Size(226, 22);
+            this.tsmiAbout.Text = "About Zwift Activity Monitor";
+            // 
             // MonitorStatistics
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -567,7 +581,9 @@ namespace ZwiftActivityMonitor
             this.TransparencyKey = System.Drawing.Color.Lime;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MonitorStatistics_FormClosing);
             this.Load += new System.EventHandler(this.MonitorStatistics_Load);
+            this.Shown += new System.EventHandler(this.MonitorStatistics_Shown);
             this.VisibleChanged += new System.EventHandler(this.MonitorStatistics_VisibleChanged);
+            this.Move += new System.EventHandler(this.MonitorStatistics_Move);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -585,9 +601,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiFile;
-        private System.Windows.Forms.ToolStripMenuItem tsmiExit;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCollect;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAnalyze;
         private System.Windows.Forms.ToolStripMenuItem tsmiStart;
         private System.Windows.Forms.ToolStripMenuItem tsmiStop;
         private System.Windows.Forms.ToolStripSeparator tssCollect1;
@@ -622,5 +636,9 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Timer runTimer;
+        private System.Windows.Forms.ToolStripSeparator tssCollect3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAdvanced;
+        private System.Windows.Forms.ToolStripMenuItem tsmiHelp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAbout;
     }
 }

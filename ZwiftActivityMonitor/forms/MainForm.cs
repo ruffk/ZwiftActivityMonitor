@@ -45,7 +45,7 @@ namespace ZwiftActivityMonitor
 
             m_logger.LogInformation($"UI Thread: {Thread.CurrentThread.ManagedThreadId}");
 
-            m_zpMonitorService.StartMonitor(cbxDebugMode.Checked, targetHR);
+            m_zpMonitorService.StartMonitor(cbxDebugMode.Checked, targetHR, 0);
 
             btnMonitorStatistics.Enabled = true;
         }

@@ -36,6 +36,7 @@ namespace ZwiftActivityMonitor
             this.btnStopMonitor = new System.Windows.Forms.Button();
             this.btnMonitorStatistics = new System.Windows.Forms.Button();
             this.tbTargetHR = new System.Windows.Forms.TextBox();
+            this.tbRiderTime = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // buttonExit
@@ -103,18 +104,28 @@ namespace ZwiftActivityMonitor
             // 
             // tbTargetHR
             // 
-            this.tbTargetHR.Location = new System.Drawing.Point(211, 30);
+            this.tbTargetHR.Location = new System.Drawing.Point(324, 30);
             this.tbTargetHR.Name = "tbTargetHR";
             this.tbTargetHR.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.tbTargetHR.Size = new System.Drawing.Size(68, 23);
             this.tbTargetHR.TabIndex = 6;
             this.tbTargetHR.Text = "0";
             // 
+            // tbRiderTime
+            // 
+            this.tbRiderTime.Location = new System.Drawing.Point(164, 30);
+            this.tbRiderTime.Name = "tbRiderTime";
+            this.tbRiderTime.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.tbRiderTime.Size = new System.Drawing.Size(68, 23);
+            this.tbRiderTime.TabIndex = 7;
+            this.tbRiderTime.Text = "00:00";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(404, 294);
+            this.Controls.Add(this.tbRiderTime);
             this.Controls.Add(this.tbTargetHR);
             this.Controls.Add(this.btnMonitorStatistics);
             this.Controls.Add(this.btnStopMonitor);
@@ -140,6 +151,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Button btnStopMonitor;
         private System.Windows.Forms.Button btnMonitorStatistics;
         private System.Windows.Forms.TextBox tbTargetHR;
+        private System.Windows.Forms.TextBox tbRiderTime;
     }
 }
 

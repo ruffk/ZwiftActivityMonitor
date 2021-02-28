@@ -21,7 +21,7 @@ namespace ZwiftActivityMonitor
         {
             var executableLocation = Path.GetDirectoryName(typeof(Program).Assembly.Location);
             var host = new HostBuilder()
-                .ConfigureWinForms<MainForm>()
+                .ConfigureWinForms<MonitorStatistics>()
                 .ConfigureConfiguration(args)
                 .ConfigureLogging()
                 .ConfigureSingleInstance(builder =>
@@ -59,8 +59,9 @@ namespace ZwiftActivityMonitor
                     // add our ZwiftPacketMonitor wrapper service
                     serviceCollection.AddSingleton<ZPMonitorService>();
 
-                    serviceCollection.AddTransient<MonitorStatistics>();
+                    //serviceCollection.AddTransient<MonitorStatistics>();
                     //serviceCollection.AddTransient<MovingAverage>();
+                    serviceCollection.AddTransient<AdvancedOptions>();
                     serviceCollection.AddSingleton<MonitorTimer>();
                 })
                 .UseWinFormsLifetime()

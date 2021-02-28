@@ -125,6 +125,7 @@ namespace ZwiftActivityMonitor
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MonitorTimer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Timer Setup";
             ((System.ComponentModel.ISupportInitialize)(this.updnMinutes)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.updnSeconds)).EndInit();

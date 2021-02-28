@@ -332,6 +332,5 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
-
     }
 }
