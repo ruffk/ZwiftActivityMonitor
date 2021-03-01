@@ -409,7 +409,7 @@ namespace ZwiftActivityMonitor
                 tsslStatus.Text = "Running";
 
                 if (m_zpMonitorService.IsStarted && m_zpMonitorService.IsDebugMode)
-                    tsslStatus.Text += " in DEBUG/DEMO mode"
+                    tsslStatus.Text += " in DEBUG/DEMO mode";
             }
             else
             {
