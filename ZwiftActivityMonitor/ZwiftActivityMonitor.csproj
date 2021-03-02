@@ -23,6 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="README.md" />
     <None Remove="ZwiftActivityMonitor.nuspec" />
   </ItemGroup>
 
