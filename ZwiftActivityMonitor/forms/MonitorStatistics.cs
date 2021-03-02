@@ -54,32 +54,34 @@ namespace ZwiftActivityMonitor
             private Label m_lblMaxPower;
             private Label m_lblFtpPower;
             private Label m_lblAvgHR;
-            private Label m_lblMA;
+            private Label m_lblMovingAvg;
             private Collector m_collector;
 
-            public LabelHelper(Label lblMA, Label lblAvgPower, Label lblMaxPower, Label lblFtpPower, Label lblAvgHR)
+            public LabelHelper(Label lblMovingAvg, Label lblAvgPower, Label lblMaxPower, Label lblFtpPower, Label lblAvgHR)
             {
                 m_lblAvgPower = lblAvgPower;
                 m_lblMaxPower = lblMaxPower;
                 m_lblFtpPower = lblFtpPower;
                 m_lblAvgHR = lblAvgHR;
-                m_lblMA = lblMA;
+                m_lblMovingAvg = lblMovingAvg;
             }
 
-            public void ClearLabels()
+            public void ClearLabels(bool clearMovingAvgLabel = true)
             {
                 m_lblAvgPower.Text = "";
                 m_lblMaxPower.Text = "";
                 m_lblFtpPower.Text = "";
                 m_lblAvgHR.Text = "";
-                m_lblMA.Text = "";
+
+                if (clearMovingAvgLabel)
+                    m_lblMovingAvg.Text = "";
             }
 
             public Label AvgPower { get { return m_lblAvgPower; } }
             public Label MaxPower { get { return m_lblMaxPower; } }
             public Label AvgHR { get { return m_lblAvgHR; } }
             public Label FtpPower { get { return m_lblFtpPower; } }
-            public Label MA { get { return m_lblMA; } }
+            public Label MovingAvg { get { return m_lblMovingAvg; } }
             public Collector Collector
             {
                 get { return m_collector; }
@@ -142,7 +144,6 @@ namespace ZwiftActivityMonitor
         private DateTime m_timerCompletion; // Time when timer countdown should complete
         private DateTime m_collectionStart; // Time when monitor run started
         private double m_ZwifterWeightKgs; // Zwifter weight from configuration
-        private bool m_zpMonitorAutoStart; // Whether to attempt to auto start the ZwiftPacketMonitor
         private bool m_isStarted;           // Whether the collectors are currently running
 
 
@@ -173,14 +174,6 @@ namespace ZwiftActivityMonitor
         private void MonitorStatistics_Load(object sender, EventArgs e)
         {
             m_dispatcher = Dispatcher.CurrentDispatcher;
-
-            // Determine AutoStart
-            if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_zpMonitorAutoStart))
-            {
-                m_zpMonitorAutoStart = false;
-            }
-
-            m_logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_zpMonitorAutoStart}");
 
             // Determine window position
             if (!int.TryParse(m_configuration["ZwiftActivityMonitor:WindowStartupPosition:X"], out int xPos))
@@ -273,11 +266,8 @@ namespace ZwiftActivityMonitor
             // Load collectors for whatever is defined in by the checked menu items
             LoadMovingAverageCollection();
 
-            // if autostart is false, bring up the AdvancedOptions window.
-            if (!m_zpMonitorAutoStart)
-            {
-                tsmiAdvanced.PerformClick();
-            }
+            // Bring up the advance options dialog
+            tsmiAdvanced.PerformClick();
 
             m_logger.LogInformation("MonitorStatistics Shown");
         }
@@ -393,6 +383,9 @@ namespace ZwiftActivityMonitor
         {
             if (m_isStarted)
             {
+                // Clear any values on the screen
+                m_labelHelpers.ForEach(helper => helper.ClearLabels(false));
+
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
 
@@ -429,6 +422,10 @@ namespace ZwiftActivityMonitor
                 // set Timer menu sub-items
                 if (countdownTimer.Enabled)
                 {
+                    // Clear any values on the screen
+                    m_labelHelpers.ForEach(helper => helper.ClearLabels(false));
+
+
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
                 }
@@ -457,7 +454,7 @@ namespace ZwiftActivityMonitor
             m_maCollection.Clear();
 
             foreach (LabelHelper lh in m_labelHelpers)
-                lh.ClearLabels();
+                lh.ClearLabels(true);
 
             // Loop through the menu items within the Collect menu.
             // If an item is checked, we want to create a collector for it.
@@ -488,7 +485,7 @@ namespace ZwiftActivityMonitor
 
                             // Here we row's id text (5 sec, 1 min, etc) and associate the matching Collector.
                             // All of this makes it easy to update the display as the MovingAverage events fire.
-                            m_labelHelpers[labelSet].MA.Text = tsmi.Text;
+                            m_labelHelpers[labelSet].MovingAvg.Text = tsmi.Text;
                             m_labelHelpers[labelSet].Collector = m_collectors[result];
 
                             if (m_maCollection.Count >= 3) // only allow up to 3 collectors

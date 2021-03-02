@@ -24,9 +24,9 @@ namespace ZwiftActivityMonitor
         private bool m_isStarted;
         private int m_eventsProcessed;
         private DateTime m_lastPlayerStateUpdate;
-        //private long m_lastWorldTime;
-        //private PlayerStateEventArgs m_lastPlayerStateEventArgs;
         
+        private bool m_isAutoStart; // Whether to attempt to auto start the ZwiftPacketMonitor
+
         private string m_zpMonitorNetwork;
 
         public event EventHandler<PlayerStateEventArgs> PlayerStateEvent;
@@ -60,6 +60,15 @@ namespace ZwiftActivityMonitor
             m_serviceProvider = serviceProvider;
             m_zpMonitor = zpMonitor;
 
+            // Determine AutoStart
+            if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_isAutoStart))
+            {
+                m_isAutoStart = false;
+            }
+
+            m_logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_isAutoStart}");
+
+
             m_zpMonitorNetwork = m_configuration["ZwiftPacketMonitor:Network"];
 
             m_zwifters = new Dictionary<int, Zwifter>();
@@ -80,8 +89,38 @@ namespace ZwiftActivityMonitor
             m_targetPower = targetPower;
 
             m_lastPlayerStateUpdate = DateTime.Now;
-            //m_lastWorldTime = 0;
             m_eventsProcessed = 0;
+
+            // Here we launch our own task to start monitoring.  It's not actually necessary
+            // but it does allow some extra logging of threads used for startup, shutdown, etc.
+            // You cannot wait for it to complete because it doesn't, at least not until stop is called.
+            // Plus, we want to see if an exception occurs during startup and properly re-throw it.
+            Task t = Task.Run(async() => 
+            {
+                try
+                {
+                    await StartMonitorAsync();//.ConfigureAwait(false);
+                }
+                catch
+                {
+                    throw;
+                }
+            });
+
+            // Since we're not waiting on the startup, sleep for a short time to let the startup thread run 
+            // and see if there were any exceptions.
+            Thread.Sleep(1000); 
+
+            if (t.Exception != null)
+            {
+                t.Exception.Handle((ex) =>
+                    {
+                        throw (ex);
+                    });
+            }
+
+
+            //Thread.Sleep(1000); // just to make sure startup has had enough time
 
             // Debug mode will operate a little differently than the regular game mode.
             // When debug mode is on, we'll either pick the first INCOMING player's data to use, or try to match
@@ -100,23 +139,12 @@ namespace ZwiftActivityMonitor
                 m_zpMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
             }
 
-            //m_zpMonitor.IncomingPlayerEnteredWorldEvent += this.PlayerEnteredWorldEventHandler;
-
-            // Here we launch our own task to start monitoring.  It's not actually necessary
-            // but it does allow some extra logging of threads used for startup, shutdown, etc.
-            // You cannot wait for it to complete because it doesn't, at least not until stop is called.
-            // The alternate way is commented out below.
-            Task.Run(() => { StartMonitorAsync(); });
-            
-            //m_zpMonitor.StartCaptureAsync(m_zpMonitorNetwork); // alternate way
-
             m_isStarted = true;
-
-            Thread.Sleep(1000); // just to make sure startup has had enough time
 
             m_logger.LogInformation($"ZwiftPacketMonitor started.");
 
         }
+
         public void StopMonitor()
         {
             Task.Run(() => { StopMonitorAsync().Wait(); });
@@ -144,6 +172,8 @@ namespace ZwiftActivityMonitor
         }
 
         public bool IsStarted { get { return m_isStarted; } }
+
+        public bool IsAutoStart { get { return m_isAutoStart; } }
 
         public int EventsProcessed { get { return m_eventsProcessed; } }
 
@@ -268,20 +298,29 @@ namespace ZwiftActivityMonitor
 
         private async Task StartMonitorAsync(CancellationToken cancellationToken = default)
         {
-            m_logger.LogInformation($"1-Thread: {Thread.CurrentThread.ManagedThreadId}");
+            m_logger.LogInformation($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
-            await m_zpMonitor.StartCaptureAsync(m_zpMonitorNetwork, cancellationToken);
+            try
+            {
+                await m_zpMonitor.StartCaptureAsync(m_zpMonitorNetwork, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                m_logger.LogError(e, "Exception occurred trying to start ZwiftPacketMonitor in StartMonitorAsync method.");
+                throw;
+            }
 
-            m_logger.LogInformation($"2-Thread: {Thread.CurrentThread.ManagedThreadId}");
+
+            m_logger.LogInformation($"StartMonitorAsync, After StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
         private async Task StopMonitorAsync(CancellationToken cancellationToken = default)
         {
-            m_logger.LogInformation($"1-Thread: {Thread.CurrentThread.ManagedThreadId}");
+            m_logger.LogInformation($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             await m_zpMonitor.StopCaptureAsync(cancellationToken);
 
-            m_logger.LogInformation($"2-Thread: {Thread.CurrentThread.ManagedThreadId}");
+            m_logger.LogInformation($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
     }

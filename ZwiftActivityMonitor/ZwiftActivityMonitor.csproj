@@ -12,7 +12,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>    
-    <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>    
+    <ApplicationIcon>cycling.ico</ApplicationIcon>
     <!-- <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild> -->
   </PropertyGroup>
 

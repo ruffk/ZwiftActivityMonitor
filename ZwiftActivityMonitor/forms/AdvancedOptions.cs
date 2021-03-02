@@ -71,9 +71,21 @@ namespace ZwiftActivityMonitor
                 }
             }
 
-            m_zpMonitorService.StartMonitor(debugMode, targetHr, targetPower);
+            try
+            {
+                m_zpMonitorService.StartMonitor(debugMode, targetHr, targetPower);
 
-            OnMonitorStatusChanged();
+                OnMonitorStatusChanged();
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"{ex.Message}.\r\r1) Run command IpConfig /all at a windows CMD prompt to find your network.\r2) Update the ZwiftPacketMonitor:Network key in appsettings.json", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception occurred: " + ex.ToString(), "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
         }
 
 
@@ -119,6 +131,11 @@ namespace ZwiftActivityMonitor
             OnMonitorStatusChanged();
 
             m_zpMonitorService.PlayerStateEvent += ProcessedPlayerStateEventHandler;
+
+            //if (m_zpMonitorService.IsAutoStart)
+            //{
+            //    btnStart.PerformClick();
+            //}
 
         }
 

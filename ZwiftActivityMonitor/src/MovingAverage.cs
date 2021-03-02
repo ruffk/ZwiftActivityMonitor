@@ -34,11 +34,11 @@ namespace ZwiftActivityMonitor
 
         private long m_sumPower;
         private long m_sumHR;
-        private int m_curAvgPower;
-        private int m_curAvgHR;
-        private int m_maxAvgPower;
-        private int m_maxAvgHR;
-        private int m_duration; // how long to store recorded readings
+        private int  m_curAvgPower;
+        private int  m_curAvgHR;
+        private int  m_maxAvgPower;
+        private int  m_maxAvgHR;
+        private int  m_duration; // how long to store recorded readings
         private bool m_started;
 
         #region EventArgs
@@ -193,6 +193,15 @@ namespace ZwiftActivityMonitor
         {
             if (!m_started)
             {
+                m_sumPower = 0;
+                m_sumHR = 0;
+                m_curAvgPower = 0;
+                m_curAvgHR = 0;
+                m_maxAvgPower = 0;
+                m_maxAvgHR = 0;
+                m_statsQueue.Clear();
+
+
                 m_duration = MovingAverage.GetDuration(m_durationType);
 
                 m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
