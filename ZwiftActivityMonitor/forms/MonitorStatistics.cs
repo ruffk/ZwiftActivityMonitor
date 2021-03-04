@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using ZwiftPacketMonitor;
 using System.Threading;
 using System.Threading.Tasks;
+//using Squirrel.Windows;
+
 
 namespace ZwiftActivityMonitor
 {
@@ -56,6 +58,7 @@ namespace ZwiftActivityMonitor
             private Label m_lblAvgHR;
             private Label m_lblMovingAvg;
             private Collector m_collector;
+            private bool m_maxDurationTriggered;
 
             public LabelHelper(Label lblMovingAvg, Label lblAvgPower, Label lblMaxPower, Label lblFtpPower, Label lblAvgHR)
             {
@@ -75,6 +78,8 @@ namespace ZwiftActivityMonitor
 
                 if (clearMovingAvgLabel)
                     m_lblMovingAvg.Text = "";
+
+                m_maxDurationTriggered = false;
             }
 
             public Label AvgPower { get { return m_lblAvgPower; } }
@@ -87,8 +92,10 @@ namespace ZwiftActivityMonitor
                 get { return m_collector; }
                 set { m_collector = value; }
             }
+            public bool MaxDurationTriggered { get { return m_maxDurationTriggered; } set { m_maxDurationTriggered = value; } }
+
         }
-        
+
         /// <summary>
         /// Represents the MovingAverage:Collector configuration section
         /// </summary>
@@ -100,7 +107,6 @@ namespace ZwiftActivityMonitor
             private FieldUomType m_fieldAvg;
             private FieldUomType m_fieldAvgMax;
             private FieldUomType m_fieldFtp;
-            private bool m_maxDurationTriggered;
 
             public enum FieldUomType
             {
@@ -135,7 +141,6 @@ namespace ZwiftActivityMonitor
             public FieldUomType FieldAvg { get { return m_fieldAvg; } }
             public FieldUomType FieldAvgMax { get { return m_fieldAvgMax; } }
             public FieldUomType FieldFtp { get { return m_fieldFtp; } }
-            public bool MaxDurationTriggered { get { return m_maxDurationTriggered; } set { m_maxDurationTriggered = value; } }
         }
         #endregion
 
@@ -549,7 +554,7 @@ namespace ZwiftActivityMonitor
             // The FTP column will track the AvgPower until the time duration is satisfied.
             // This enables the rider to see what his FTP would be real-time.
             // Once the time duration is satisfied, we no longer will update using the AvgPower.
-            if (!c.MaxDurationTriggered)
+            if (!l.MaxDurationTriggered)
             {
                 switch (c.FieldFtp)
                 {
@@ -613,7 +618,7 @@ namespace ZwiftActivityMonitor
             }
 
             // Save the fact that this moving average has fulfilled it's time duration
-            c.MaxDurationTriggered = true;
+            l.MaxDurationTriggered = true;
 
             // The FTP column will now track the MaxAvgPower now that the time duration is satisfied.
             switch (c.FieldFtp)
@@ -712,6 +717,14 @@ namespace ZwiftActivityMonitor
         private void MonitorStatistics_Move(object sender, EventArgs e)
         {
             m_logger.LogInformation($"Screen position {this.Location.ToString()}");
+        }
+
+        private void tsmiCheckForUpdates_Click(object sender, EventArgs e)
+        {
+            //using (var mgr = UpdateManager.GitHubUpdateManager("https://github.com/myuser/myapp"))
+            //{
+            //    await mgr.Result.UpdateApp();
+            //}
         }
     }
 }

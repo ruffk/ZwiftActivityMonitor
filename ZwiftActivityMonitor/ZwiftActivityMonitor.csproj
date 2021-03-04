@@ -23,6 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="hostsettings.json" />
     <None Remove="README.md" />
     <None Remove="ZwiftActivityMonitor.nuspec" />
   </ItemGroup>
@@ -42,16 +43,13 @@
 
   <ItemGroup>
     <None Update="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.Production.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="hostsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -59,6 +57,10 @@
     <Folder Include="interfaces\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" hostsettings_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Development.json' '$(TargetDir)'&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if $(ConfigurationName) == Release (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=New-Item -Path $(SolutionDir)PublishOutput -ItemType Directory -Force&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Production.json' '$(TargetDir)'&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Compress-Archive -CompressionLevel Optimal -Path '$(TargetDir)*.dll', '$(TargetDir)*.exe', '$(TargetDir)*.json' -DestinationPath '$(SolutionDir)PublishOutput\$(ProjectName)-FullInstall.zip' -Force&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Compress-Archive -CompressionLevel Optimal -Path '$(TargetDir)*.dll', '$(TargetDir)*.exe' -DestinationPath '$(SolutionDir)PublishOutput\$(ProjectName)-UpdateInstall.zip' -Force&#xD;&#xA;)&#xD;&#xA;" />
+  </Target>
 
 </Project>

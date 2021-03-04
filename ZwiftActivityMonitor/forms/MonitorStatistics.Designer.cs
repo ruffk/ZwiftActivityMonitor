@@ -77,6 +77,8 @@ namespace ZwiftActivityMonitor
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.runTimer = new System.Windows.Forms.Timer(this.components);
+            this.tssHelp1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -312,6 +314,8 @@ namespace ZwiftActivityMonitor
             // tsmiHelp
             // 
             this.tsmiHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiCheckForUpdates,
+            this.tssHelp1,
             this.tsmiAbout});
             this.tsmiHelp.Name = "tsmiHelp";
             this.tsmiHelp.Size = new System.Drawing.Size(44, 20);
@@ -542,6 +546,18 @@ namespace ZwiftActivityMonitor
             this.runTimer.Interval = 1000;
             this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
+            // tssHelp1
+            // 
+            this.tssHelp1.Name = "tssHelp1";
+            this.tssHelp1.Size = new System.Drawing.Size(223, 6);
+            // 
+            // tsmiCheckForUpdates
+            // 
+            this.tsmiCheckForUpdates.Name = "tsmiCheckForUpdates";
+            this.tsmiCheckForUpdates.Size = new System.Drawing.Size(226, 22);
+            this.tsmiCheckForUpdates.Text = "Check For Updates";
+            this.tsmiCheckForUpdates.Click += new System.EventHandler(this.tsmiCheckForUpdates_Click);
+            // 
             // MonitorStatistics
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -642,5 +658,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmiAdvanced;
         private System.Windows.Forms.ToolStripMenuItem tsmiHelp;
         private System.Windows.Forms.ToolStripMenuItem tsmiAbout;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCheckForUpdates;
+        private System.Windows.Forms.ToolStripSeparator tssHelp1;
     }
 }
