@@ -13,7 +13,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>    
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>    
-    <ApplicationIcon>cycling.ico</ApplicationIcon>
+    <ApplicationIcon>resources\cycling.ico</ApplicationIcon>
     <!-- <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild> -->
   </PropertyGroup>
 
@@ -25,6 +25,7 @@
   <ItemGroup>
     <None Remove="hostsettings.json" />
     <None Remove="README.md" />
+    <None Remove="resources\cycling.ico" />
     <None Remove="ZwiftActivityMonitor.nuspec" />
   </ItemGroup>
 
@@ -55,6 +56,10 @@
 
   <ItemGroup>
     <Folder Include="interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="resources\cycling.ico" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" hostsettings_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
