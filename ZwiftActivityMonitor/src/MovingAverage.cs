@@ -17,10 +17,12 @@ namespace ZwiftActivityMonitor
     public enum DurationType
     {
         FiveSeconds,
+        ThirtySeconds,
         OneMinute,
         FiveMinutes,
         TenMinutes,
         TwentyMinutes,
+        ThirtyMinutes,
         SixtyMinutes,
         NinetyMinutes
     }
@@ -31,6 +33,7 @@ namespace ZwiftActivityMonitor
         private readonly ILogger<MovingAverage> m_logger;
         private readonly Queue<Statistics> m_statsQueue;
         private readonly DurationType m_durationType;
+        private readonly bool m_excludeZeroPowerValues;
 
         private long m_sumPower;
         private long m_sumHR;
@@ -40,6 +43,8 @@ namespace ZwiftActivityMonitor
         private int  m_maxAvgHR;
         private int  m_duration; // how long to store recorded readings
         private bool m_started;
+        private long m_sumOverallPower;
+        private int  m_countOverallPowerSamples;
 
         #region EventArgs
         public class MovingAverageChangedEventArgs : EventArgs
@@ -89,8 +94,39 @@ namespace ZwiftActivityMonitor
             }
             public DurationType DurationType { get { return m_durationType; } }
         }
+        public class MovingAverageCalculatedEventArgs : EventArgs
+        {
+            private int m_avgPower;
+            private int m_avgHR;
+            private int m_overallPower;
+            private DurationType m_durationType;
+
+            public MovingAverageCalculatedEventArgs(int avgPower, int avgHR, int overallPower, DurationType durationType)
+            {
+                m_avgPower = avgPower;
+                m_avgHR = avgHR;
+                m_overallPower = overallPower;
+                m_durationType = durationType;
+            }
+
+            public int AveragePower
+            {
+                get { return m_avgPower; }
+            }
+            public int AverageHR
+            {
+                get { return m_avgHR; }
+            }
+            public int OverallPower
+            {
+                get { return m_overallPower; }
+            }
+
+            public DurationType DurationType { get { return m_durationType; } }
+        }
 
         public event EventHandler<MovingAverageChangedEventArgs> MovingAverageChangedEvent;
+        public event EventHandler<MovingAverageCalculatedEventArgs> MovingAverageCalculatedEvent;
         public event EventHandler<MovingAverageMaxChangedEventArgs> MovingAverageMaxChangedEvent;
         #endregion
 
@@ -147,13 +183,18 @@ namespace ZwiftActivityMonitor
         #endregion
 
 
-        public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType)
+        public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType, bool excludeZeroPowerValues)
         {
             m_zpMonitorService = zpMonitorService;
             m_logger = loggerFactory.CreateLogger<MovingAverage>();
             m_durationType = durationType;
+            m_duration = MovingAverage.GetDuration(durationType);
+            m_excludeZeroPowerValues = excludeZeroPowerValues;
 
             m_statsQueue = new Queue<Statistics>();
+
+            m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
+
         }
 
         static MovingAverage()
@@ -161,10 +202,12 @@ namespace ZwiftActivityMonitor
             _durationDetails = new List<DurationDetail>
             {
                 new DurationDetail(DurationType.FiveSeconds, "5 sec", 5),
+                new DurationDetail(DurationType.ThirtySeconds, "30 sec", 30),
                 new DurationDetail(DurationType.OneMinute, "1 min", 60),
                 new DurationDetail(DurationType.FiveMinutes, "5 min", 300),
                 new DurationDetail(DurationType.TenMinutes, "10 min", 600),
                 new DurationDetail(DurationType.TwentyMinutes, "20 min", 1200),
+                new DurationDetail(DurationType.ThirtyMinutes, "30 min", 1800),
                 new DurationDetail(DurationType.SixtyMinutes, "60 min", 3600),
                 new DurationDetail(DurationType.NinetyMinutes, "90 min", 5400)
             };
@@ -199,12 +242,9 @@ namespace ZwiftActivityMonitor
                 m_curAvgHR = 0;
                 m_maxAvgPower = 0;
                 m_maxAvgHR = 0;
+                m_sumOverallPower = 0;
+                m_countOverallPowerSamples = 0;
                 m_statsQueue.Clear();
-
-
-                m_duration = MovingAverage.GetDuration(m_durationType);
-
-                m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
 
                 m_started = true;
             }
@@ -214,7 +254,6 @@ namespace ZwiftActivityMonitor
         {
             if (m_started)
             {
-                m_zpMonitorService.PlayerStateEvent -= PlayerStateEventHandler;
                 m_started = false;
             }
         }
@@ -236,8 +275,19 @@ namespace ZwiftActivityMonitor
             bool calculateMax = false;
             bool triggerMax = false;
 
+            if (!m_started)
+                return;
+
             // the Statistics class captures the values we want to measure
             var stats = new Statistics(e.PlayerState.Power, e.PlayerState.Heartrate);
+
+            // To keep track of overall average power.  Performing here as zeros count.
+            m_sumOverallPower += (long)stats.Power;
+            m_countOverallPowerSamples += 1;
+
+            // For calculating normalized power zeros are ignored.
+            if (m_excludeZeroPowerValues && stats.Power == 0)
+                return;
             
             // Initialize with current max values.  This is so we know if a new max has occurred.
             maxAvgPower = m_maxAvgPower;
@@ -286,6 +336,11 @@ namespace ZwiftActivityMonitor
                     m_maxAvgHR = curAvgHR;
                     triggerMax = true;
                 }
+
+                int overallPower = (int)(m_sumOverallPower / (long)m_countOverallPowerSamples);
+
+                // Since buffer was full trigger an event so consumer can use this new average (without waiting for a change).  Used by NormalizedPower
+                OnMovingAverageCalculatedEvent(new MovingAverageCalculatedEventArgs(curAvgPower, curAvgHR, overallPower, m_durationType));
             }
 
             // if either average power or average HR changed, trigger event
@@ -317,7 +372,24 @@ namespace ZwiftActivityMonitor
                 {
                     handler(this, e);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
+                {
+                    // Don't let downstream exceptions bubble up
+                    m_logger.LogWarning(ex, ex.ToString());
+                }
+            }
+        }
+        private void OnMovingAverageCalculatedEvent(MovingAverageCalculatedEventArgs e)
+        {
+            EventHandler<MovingAverageCalculatedEventArgs> handler = MovingAverageCalculatedEvent;
+
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
                     m_logger.LogWarning(ex, ex.ToString());

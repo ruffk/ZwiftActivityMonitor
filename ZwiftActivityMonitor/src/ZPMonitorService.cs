@@ -246,25 +246,16 @@ namespace ZwiftActivityMonitor
                     //m_logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
                 }
 
-                //if (e.PlayerState.WorldTime == m_lastWorldTime)
-                //{
-                //    m_logger.LogInformation($"1-DUP WORLDTIME: {m_lastPlayerStateEventArgs.PlayerState}");
-                //    m_logger.LogInformation($"2-DUP WORLDTIME: {e.PlayerState}");
-                //    m_trackedPlayerId = 0;
-                //    return;
-                //}
-
-                //m_lastWorldTime = e.PlayerState.WorldTime;
-                //m_lastPlayerStateEventArgs = e;
+                // only receive updates approx once/sec
+                if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 900)
+                {
+                    return;
+                }
+                m_lastPlayerStateUpdate = DateTime.Now;
 
 
                 if (m_debugMode)
                 {
-                    if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 1000)
-                    {
-                        return;
-                    }
-                    m_lastPlayerStateUpdate = DateTime.Now;
                     m_logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}");
                 }
 

@@ -27,6 +27,7 @@ namespace ZwiftActivityMonitor
         private readonly Dictionary<DurationType, MovingAverageWrapper> m_maCollection;
         private readonly Dictionary<string, string> m_labelUnits;
         private readonly Dictionary<DurationType, Collector> m_collectors;
+        private readonly NormalizedPower m_normalizedPower;
 
         #region Internal Classes
         /// <summary>
@@ -148,8 +149,9 @@ namespace ZwiftActivityMonitor
 
         private DateTime m_timerCompletion; // Time when timer countdown should complete
         private DateTime m_collectionStart; // Time when monitor run started
-        private double m_ZwifterWeightKgs; // Zwifter weight from configuration
+        private double m_ZwifterWeightKgs;  // Zwifter weight from configuration
         private bool m_isStarted;           // Whether the collectors are currently running
+        private int m_thresholdPower;       // Not FTP!  This is the value you would multiply by .95 to get FTP.  Used to calculate IF
 
 
         public MonitorStatistics(IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
@@ -166,6 +168,9 @@ namespace ZwiftActivityMonitor
 
             m_labelHelpers = new List<LabelHelper>();
 
+            m_normalizedPower = new NormalizedPower(zpMonitorService, loggerFactory);
+            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
+
             InitializeComponent();
         }
 
@@ -179,6 +184,11 @@ namespace ZwiftActivityMonitor
         private void MonitorStatistics_Load(object sender, EventArgs e)
         {
             m_dispatcher = Dispatcher.CurrentDispatcher;
+
+            if (!int.TryParse(m_configuration["ZwiftActivityMonitor:ThresholdPower"], out m_thresholdPower))
+            {
+                m_thresholdPower = 0;
+            }
 
             // Determine window position
             if (!int.TryParse(m_configuration["ZwiftActivityMonitor:WindowStartupPosition:X"], out int xPos))
@@ -354,6 +364,8 @@ namespace ZwiftActivityMonitor
                     maw.MovingAverage.Start();
                 }
 
+                m_normalizedPower.Start();
+
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
 
@@ -375,6 +387,9 @@ namespace ZwiftActivityMonitor
                 {
                     maw.MovingAverage.Stop();
                 }
+
+                m_normalizedPower.Stop();
+
                 m_isStarted = false;
 
                 runTimer.Enabled = false;
@@ -390,6 +405,7 @@ namespace ZwiftActivityMonitor
             {
                 // Clear any values on the screen
                 m_labelHelpers.ForEach(helper => helper.ClearLabels(false));
+                tsslOverall.Text = "Collecting...";
 
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
@@ -429,6 +445,7 @@ namespace ZwiftActivityMonitor
                 {
                     // Clear any values on the screen
                     m_labelHelpers.ForEach(helper => helper.ClearLabels(false));
+                    tsslOverall.Text = "";
 
 
                     tsmiSetupTimer.Enabled = false;
@@ -458,8 +475,8 @@ namespace ZwiftActivityMonitor
             // empty the dictionary
             m_maCollection.Clear();
 
-            foreach (LabelHelper lh in m_labelHelpers)
-                lh.ClearLabels(true);
+            m_labelHelpers.ForEach(helper => helper.ClearLabels(true));
+            tsslOverall.Text = "";
 
             // Loop through the menu items within the Collect menu.
             // If an item is checked, we want to create a collector for it.
@@ -476,7 +493,7 @@ namespace ZwiftActivityMonitor
                     DurationType result;
                     if (Enum.TryParse<DurationType>(tsmi.Tag.ToString(), true, out result))
                     {
-                        MovingAverage ma = new MovingAverage(m_zpMonitorService, m_loggerFactory, result);
+                        MovingAverage ma = new MovingAverage(m_zpMonitorService, m_loggerFactory, result, false);
 
                         ma.MovingAverageChangedEvent += MovingAverageChangedEventHandler;
                         ma.MovingAverageMaxChangedEvent += MovingAverageMaxChangedEventHandler;
@@ -635,6 +652,44 @@ namespace ZwiftActivityMonitor
                     }
                     break;
             }
+        }
+
+
+        /// <summary>
+        /// A delegate used solely by the MovingAverageChangedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void NormalizedPowerChangedEventHandlerDelegate(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e);
+
+        /// <summary>
+        /// Occurs each time the normalized power changes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NormalizedPowerChangedEventHandler(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new NormalizedPowerChangedEventHandlerDelegate(NormalizedPowerChangedEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            string strIf = "";
+
+            if (m_thresholdPower > 0)
+            {
+                double currentIf = e.NormalizedPower / (double)m_thresholdPower;
+
+                strIf = $", IF: {currentIf.ToString("#.00")}";
+            }
+
+            tsslOverall.Text = $"AP: {e.OverallPower}, NP: {e.NormalizedPower}{strIf}";
+
+            //lblNp.Text = e.NormalizedPower.ToString();
+
+            //m_logger.LogInformation($"Normalized power: {e.NormalizedPower}");
         }
 
         #endregion

@@ -56,6 +56,8 @@ namespace ZwiftActivityMonitor
             this.tssCollect3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAdvanced = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            this.tssHelp1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.lblMA1 = new System.Windows.Forms.Label();
             this.lblMA2 = new System.Windows.Forms.Label();
@@ -77,10 +79,12 @@ namespace ZwiftActivityMonitor
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.runTimer = new System.Windows.Forms.Timer(this.components);
-            this.tssHelp1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.tsslOverall = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblOverall = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.statusStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblAvgPower1
@@ -321,6 +325,18 @@ namespace ZwiftActivityMonitor
             this.tsmiHelp.Size = new System.Drawing.Size(44, 20);
             this.tsmiHelp.Text = "Help";
             // 
+            // tsmiCheckForUpdates
+            // 
+            this.tsmiCheckForUpdates.Name = "tsmiCheckForUpdates";
+            this.tsmiCheckForUpdates.Size = new System.Drawing.Size(226, 22);
+            this.tsmiCheckForUpdates.Text = "Check For Updates";
+            this.tsmiCheckForUpdates.Click += new System.EventHandler(this.tsmiCheckForUpdates_Click);
+            // 
+            // tssHelp1
+            // 
+            this.tssHelp1.Name = "tssHelp1";
+            this.tssHelp1.Size = new System.Drawing.Size(223, 6);
+            // 
             // tsmiAbout
             // 
             this.tsmiAbout.Name = "tsmiAbout";
@@ -344,7 +360,7 @@ namespace ZwiftActivityMonitor
             this.lblMA2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.lblMA2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMA2.ForeColor = System.Drawing.Color.White;
-            this.lblMA2.Location = new System.Drawing.Point(4, 98);
+            this.lblMA2.Location = new System.Drawing.Point(4, 91);
             this.lblMA2.Name = "lblMA2";
             this.lblMA2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMA2.Size = new System.Drawing.Size(67, 18);
@@ -356,7 +372,7 @@ namespace ZwiftActivityMonitor
             this.lblMA3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.lblMA3.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMA3.ForeColor = System.Drawing.Color.White;
-            this.lblMA3.Location = new System.Drawing.Point(4, 127);
+            this.lblMA3.Location = new System.Drawing.Point(4, 113);
             this.lblMA3.Name = "lblMA3";
             this.lblMA3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMA3.Size = new System.Drawing.Size(67, 18);
@@ -368,7 +384,7 @@ namespace ZwiftActivityMonitor
             this.lblAvgPower2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.lblAvgPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower2.ForeColor = System.Drawing.Color.White;
-            this.lblAvgPower2.Location = new System.Drawing.Point(73, 93);
+            this.lblAvgPower2.Location = new System.Drawing.Point(73, 86);
             this.lblAvgPower2.Name = "lblAvgPower2";
             this.lblAvgPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblAvgPower2.Size = new System.Drawing.Size(60, 24);
@@ -381,7 +397,7 @@ namespace ZwiftActivityMonitor
             this.lblAvgPower3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.lblAvgPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgPower3.ForeColor = System.Drawing.Color.White;
-            this.lblAvgPower3.Location = new System.Drawing.Point(73, 122);
+            this.lblAvgPower3.Location = new System.Drawing.Point(73, 108);
             this.lblAvgPower3.Name = "lblAvgPower3";
             this.lblAvgPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblAvgPower3.Size = new System.Drawing.Size(60, 24);
@@ -393,7 +409,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblMaxPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower2.ForeColor = System.Drawing.Color.White;
-            this.lblMaxPower2.Location = new System.Drawing.Point(129, 93);
+            this.lblMaxPower2.Location = new System.Drawing.Point(129, 86);
             this.lblMaxPower2.Name = "lblMaxPower2";
             this.lblMaxPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMaxPower2.Size = new System.Drawing.Size(60, 24);
@@ -405,7 +421,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblMaxPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblMaxPower3.ForeColor = System.Drawing.Color.White;
-            this.lblMaxPower3.Location = new System.Drawing.Point(129, 122);
+            this.lblMaxPower3.Location = new System.Drawing.Point(129, 108);
             this.lblMaxPower3.Name = "lblMaxPower3";
             this.lblMaxPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblMaxPower3.Size = new System.Drawing.Size(60, 24);
@@ -417,7 +433,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblAvgHR2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR2.ForeColor = System.Drawing.Color.White;
-            this.lblAvgHR2.Location = new System.Drawing.Point(255, 93);
+            this.lblAvgHR2.Location = new System.Drawing.Point(255, 86);
             this.lblAvgHR2.Name = "lblAvgHR2";
             this.lblAvgHR2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblAvgHR2.Size = new System.Drawing.Size(55, 24);
@@ -429,7 +445,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblFtpPower2.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblFtpPower2.ForeColor = System.Drawing.Color.White;
-            this.lblFtpPower2.Location = new System.Drawing.Point(186, 93);
+            this.lblFtpPower2.Location = new System.Drawing.Point(186, 86);
             this.lblFtpPower2.Name = "lblFtpPower2";
             this.lblFtpPower2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblFtpPower2.Size = new System.Drawing.Size(60, 24);
@@ -441,7 +457,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblAvgHR3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblAvgHR3.ForeColor = System.Drawing.Color.White;
-            this.lblAvgHR3.Location = new System.Drawing.Point(255, 122);
+            this.lblAvgHR3.Location = new System.Drawing.Point(255, 108);
             this.lblAvgHR3.Name = "lblAvgHR3";
             this.lblAvgHR3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblAvgHR3.Size = new System.Drawing.Size(55, 24);
@@ -453,7 +469,7 @@ namespace ZwiftActivityMonitor
             // 
             this.lblFtpPower3.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblFtpPower3.ForeColor = System.Drawing.Color.White;
-            this.lblFtpPower3.Location = new System.Drawing.Point(186, 122);
+            this.lblFtpPower3.Location = new System.Drawing.Point(186, 108);
             this.lblFtpPower3.Name = "lblFtpPower3";
             this.lblFtpPower3.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lblFtpPower3.Size = new System.Drawing.Size(60, 24);
@@ -473,8 +489,8 @@ namespace ZwiftActivityMonitor
             this.statusStrip1.MinimumSize = new System.Drawing.Size(0, 26);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(202, 26);
+            this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 22;
-            this.statusStrip1.Text = "dfdasfsa";
             // 
             // tsslSeparator1
             // 
@@ -546,17 +562,38 @@ namespace ZwiftActivityMonitor
             this.runTimer.Interval = 1000;
             this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
-            // tssHelp1
+            // statusStrip2
             // 
-            this.tssHelp1.Name = "tssHelp1";
-            this.tssHelp1.Size = new System.Drawing.Size(223, 6);
+            this.statusStrip2.AutoSize = false;
+            this.statusStrip2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
+            this.statusStrip2.Dock = System.Windows.Forms.DockStyle.None;
+            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsslOverall});
+            this.statusStrip2.Location = new System.Drawing.Point(79, 134);
+            this.statusStrip2.Name = "statusStrip2";
+            this.statusStrip2.Size = new System.Drawing.Size(235, 22);
+            this.statusStrip2.SizingGrip = false;
+            this.statusStrip2.TabIndex = 27;
             // 
-            // tsmiCheckForUpdates
+            // tsslOverall
             // 
-            this.tsmiCheckForUpdates.Name = "tsmiCheckForUpdates";
-            this.tsmiCheckForUpdates.Size = new System.Drawing.Size(226, 22);
-            this.tsmiCheckForUpdates.Text = "Check For Updates";
-            this.tsmiCheckForUpdates.Click += new System.EventHandler(this.tsmiCheckForUpdates_Click);
+            this.tsslOverall.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.tsslOverall.ForeColor = System.Drawing.Color.White;
+            this.tsslOverall.Name = "tsslOverall";
+            this.tsslOverall.Size = new System.Drawing.Size(185, 17);
+            this.tsslOverall.Text = "AP: 8.88, NP: 8.88, IF: 8.88";
+            // 
+            // lblOverall
+            // 
+            this.lblOverall.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
+            this.lblOverall.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblOverall.ForeColor = System.Drawing.Color.White;
+            this.lblOverall.Location = new System.Drawing.Point(4, 137);
+            this.lblOverall.Name = "lblOverall";
+            this.lblOverall.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblOverall.Size = new System.Drawing.Size(67, 18);
+            this.lblOverall.TabIndex = 28;
+            this.lblOverall.Text = "Overall";
             // 
             // MonitorStatistics
             // 
@@ -564,6 +601,8 @@ namespace ZwiftActivityMonitor
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.ClientSize = new System.Drawing.Size(318, 158);
+            this.Controls.Add(this.lblOverall);
+            this.Controls.Add(this.statusStrip2);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -594,7 +633,7 @@ namespace ZwiftActivityMonitor
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MonitorStatistics";
-            this.Text = "Activity Monitor";
+            this.Text = "Zwift Activity Monitor";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MonitorStatistics_FormClosing);
@@ -606,6 +645,8 @@ namespace ZwiftActivityMonitor
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.statusStrip2.ResumeLayout(false);
+            this.statusStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -660,5 +701,8 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmiAbout;
         private System.Windows.Forms.ToolStripMenuItem tsmiCheckForUpdates;
         private System.Windows.Forms.ToolStripSeparator tssHelp1;
+        private System.Windows.Forms.StatusStrip statusStrip2;
+        private System.Windows.Forms.ToolStripStatusLabel tsslOverall;
+        private System.Windows.Forms.Label lblOverall;
     }
 }

@@ -62,7 +62,7 @@
     <Resource Include="resources\cycling.ico" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" hostsettings_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="if $(ConfigurationName) == Debug (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Development.json' '$(TargetDir)'&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if $(ConfigurationName) == Release (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=New-Item -Path $(SolutionDir)Release -ItemType Directory -Force&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Production.json' '$(TargetDir)'&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Compress-Archive -CompressionLevel Optimal -Path '$(TargetDir)*.dll', '$(TargetDir)*.exe', '$(TargetDir)*.json' -DestinationPath '$(SolutionDir)Release\$(ProjectName)-FullInstall.zip' -Force&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Compress-Archive -CompressionLevel Optimal -Path '$(TargetDir)*.dll', '$(TargetDir)*.exe' -DestinationPath '$(SolutionDir)Release\$(ProjectName)-UpdateInstall.zip' -Force&#xD;&#xA;)&#xD;&#xA;" />

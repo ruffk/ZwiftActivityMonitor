@@ -102,7 +102,6 @@ namespace ZwiftActivityMonitor
             this.tbTargetPower.Name = "tbTargetPower";
             this.tbTargetPower.Size = new System.Drawing.Size(29, 23);
             this.tbTargetPower.TabIndex = 18;
-            this.tbTargetPower.Text = "150";
             this.tbTargetPower.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // lblPower
