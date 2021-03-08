@@ -20,7 +20,7 @@ Windows:
 
 <ol>
     <li>Find the name of your network adapter</li>
-    <ol>
+    <ol type="i">
         <li>Open a command prompt by opening the Windows start menu and entering the command "cmd".</li> 
         <li>In the command prompt window, enter the command "ipconfig /all"</li>
         <li>Scroll through the results to find your network adapter name.  You're looking for the adapter with an IP addressed assigned.  It must be the same network that you run Zwift on.</li>
@@ -32,24 +32,24 @@ Windows:
         <li>There may be some others in the list.</li>
     </ul><br>
     <li>Using a text editor (like notepad.exe) find and open the file appsettings.Production.json.  It will be in the same directory as the executable files.</li>
-	<ul>
+	<ol type="i">
     	<li>Section ZwiftPacketMonitor</li>
     	<ul>
         	<li>Modify the value associated with the "Network" key to the network name you found in step one.</li>
     	</ul>
     	<li>Section ZwiftActivityMonitor</li>
-    	<ul>
+    	<ol type="a">
         <li>Modify the value associated with the "Weight" key to your weight.  You can enter it in pounds (ie. 175) or kilograms (75.4).</li>
         <li>Modify the value associated with the "UnitOfMeasure" key to be either lbs or kgs, according to the units you entered your weight in.</li>
         <li>Modify the value associated with the "ThresholdPower" key to your threshold power number (in watts).  This is not your FTP, this is the value you would multiply by .95 to get your FTP.  It is used to calculate IF (intensity factor).</li>
-        </ul>
-    </ul><br>
+        </ol>
+    </ol><br>
 	<li>Select default Moving Average collectors.  This is optional as 1 min, 5 min, and 20 min collectors are already setup for you.</li>
-    <ul>
+    <ol type="i">
     	<li>Determine the three collectors you would like to see on application start-up. (5 sec, 1 min, 5 min, etc.)</li>
     	<li>Modify the value associated with the "Display" key to be either true (if you'd like to see it) or false (if you don't).</li>
     	<li>Optionally, you can change how units for average power, maximum power, and FTP are displayed.  This can be either in watts or wkg.  You can even specify none if you don't want to see a value.</li>
-    </ul><br>
+    </ol><br>
 <li>Save the configuration file.</li>
 </ol>
 
