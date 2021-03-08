@@ -53,7 +53,7 @@ Windows:
 <li>Save the configuration file.</li>
 </ol>
 
-<p><b>Steps for running Zwift Activity Monitor:</b></p>
+<p><b>Steps for running the Zwift Activity Monitor:</b></p>
 
 <ol>
 	<li>Launch the application from the desktop icon or start menu</li>
@@ -63,6 +63,23 @@ Windows:
 		<li>If you get an error regarding your network, verify that you've setup the ZwiftPacketMonitor:Network key correctly using the steps above. </li>
 	</ul>
 	<li>Launch the Zwift application if not already running.</li>
+</ol>
+
+<p><b>Quick start guidance to get monitoring:</b></p>
+
+<p>
+	The Zwift Activity Monitor main window is transparent and is designed to be moved on top of the Zwift main window.
+	Because it is transparent, you will still be able to see Zwift screen activities behind it.  If you have chosen (up to three)
+	default collectors in the setup procedure above, you should see those items on the main window.
+</p>
+
+<ol>
+	<li>Analyze menu/li>
+		<ol>
+			<li>Start</li>
+			<p>This will start collecting power and heartrate from Zwift as you ride.  Those results will be displayed on the main window.</p>
+			<li>Stop</li>
+		</ol>
 </ol>
 
 ## Contributing to <project_name>
