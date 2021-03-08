@@ -32,7 +32,7 @@ Windows:
         <li>There may be some others in the list.</li>
     </ul><br>
     <li>Using a text editor (like notepad.exe) find and open the file appsettings.Production.json.  It will be in the same directory as the executable files,
-	which by default is <b>C:\Program Files (x86)\Zwift Activity Monitor<b></li>
+	which by default is <b>C:\Program Files (x86)\Zwift Activity Monitor</b></li>
 	<ol type="i">
     	<li>Section ZwiftPacketMonitor</li>
     	<ul>
