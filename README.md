@@ -74,14 +74,17 @@ Windows:
 </p>
 
 <ol>
-	<li>Analyze menu/li>
+	<li>Analyze menu</li>
 	<ul>
 		<li>Start - This will start collecting power and heartrate from Zwift as you ride.  Those results will be displayed on the main window.</li>
 		<li>Stop - This will stop collection but will leave the latest values on the screen for your analysis.</li>
 		<li>Timer</li>
 		<ul type="i">
-			<li>Setup Timer dialog</li>
-			<li>Stop Timer</li>
+			<li>Setup Timer dialog - The timer is handy when waiting in the pen for an event to start.  You can syncronize the time remaining to the Zwift
+			event clock and click Start.  On the main window you will see the countdown occur and when it hits zero the monitor will automatically begin.
+			This is also useful for TTTs with a delayed start.  If you will have a four minute delay after banner drop, add four minutes to the Zwift event clock
+			and set the timer.  Now you will know exactly when to Go! Go! Go!</li>
+			<li>Stop Timer - Stops a running timer</li>
 		</ul>
 	</ul>
 </ol>
