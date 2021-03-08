@@ -1,4 +1,4 @@
-# ZwiftActivityMonitor
+# Zwift Activity Monitor
 This project allows Zwift users to monitor their power and heartrate average in real-time.
 
 ## Prerequisites
@@ -6,17 +6,17 @@ This project allows Zwift users to monitor their power and heartrate average in 
 Before you begin, ensure you have met the following requirements:
 * You have installed the latest version of Npcap: Packet capture library for Windows. (https://nmap.org/npcap/#download)
 
-## Installing ZwiftActivityMonitor
+## Installing Zwift Activity Monitor
 
-To install ZwiftActivityMonitor, follow these steps:
+To install Zwift Activity Monitor, follow these steps:
 
 Windows:
 
 <install_command>
 
-## Using ZwiftActivityMonitor
+## Using Zwift Activity Monitor
 
-<p>Steps for preparing to use ZwiftActivityMonitor:</p>
+<p><b>Steps for preparing to use Zwift Activity Monitor:</b></p>
 
 <ol>
     <li>Find the name of your network adapter</li>
@@ -53,10 +53,17 @@ Windows:
 <li>Save the configuration file.</li>
 </ol>
 
+<p><b>Steps for running Zwift Activity Monitor:</b></p>
 
-
-Steps for running ZwiftActivityMonitor:
-
+<ol>
+	<li>Launch the application from the desktop icon or start menu</li>
+	<li>When the Advanced Options dialog appears, click Start</li>
+	<ul>
+		<li>The Manual Operation Status should switch to Running.  If so, click Close and you're ready to monitor!</li>
+		<li>If you get an error regarding your network, verify that you've setup the ZwiftPacketMonitor:Network key correctly using the steps above. </li>
+	</ul>
+	<li>Launch the Zwift application if not already running.</li>
+</ol>
 
 ## Contributing to <project_name>
 
