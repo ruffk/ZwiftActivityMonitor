@@ -75,11 +75,15 @@ Windows:
 
 <ol>
 	<li>Analyze menu/li>
-		<ol>
-			<li>Start</li>
-			<p>This will start collecting power and heartrate from Zwift as you ride.  Those results will be displayed on the main window.</p>
-			<li>Stop</li>
-		</ol>
+	<ul>
+		<li>Start - This will start collecting power and heartrate from Zwift as you ride.  Those results will be displayed on the main window.</li>
+		<li>Stop - This will stop collection but will leave the latest values on the screen for your analysis.</li>
+		<li>Timer</li>
+		<ul type="i">
+			<li>Setup Timer dialog</li>
+			<li>Stop Timer</li>
+		</ul>
+	</ul>
 </ol>
 
 ## Contributing to <project_name>
