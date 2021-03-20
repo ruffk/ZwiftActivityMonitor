@@ -82,6 +82,7 @@ namespace ZwiftActivityMonitor
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.tsslOverall = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblOverall = new System.Windows.Forms.Label();
+            this.tsmiOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.statusStrip2.SuspendLayout();
@@ -188,6 +189,7 @@ namespace ZwiftActivityMonitor
             this.tsmi60min,
             this.tsmi90min,
             this.tssCollect3,
+            this.tsmiOptions,
             this.tsmiAdvanced});
             this.tsmiAnalyze.Name = "tsmiAnalyze";
             this.tsmiAnalyze.Size = new System.Drawing.Size(60, 20);
@@ -595,6 +597,13 @@ namespace ZwiftActivityMonitor
             this.lblOverall.TabIndex = 28;
             this.lblOverall.Text = "Overall";
             // 
+            // tsmiOptions
+            // 
+            this.tsmiOptions.Name = "tsmiOptions";
+            this.tsmiOptions.Size = new System.Drawing.Size(136, 22);
+            this.tsmiOptions.Text = "Options...";
+            this.tsmiOptions.Click += new System.EventHandler(this.tsmiOptions_Click);
+            // 
             // MonitorStatistics
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -704,5 +713,6 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsslOverall;
         private System.Windows.Forms.Label lblOverall;
+        private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
     }
 }

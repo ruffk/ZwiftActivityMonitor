@@ -74,6 +74,13 @@ namespace ZwiftActivityMonitor
             m_zwifters = new Dictionary<int, Zwifter>();
 
             m_logger.LogInformation($"Class {this.GetType()} initialized.");
+
+        }
+
+
+        public void StartMonitor()
+        {
+            StartMonitor(false, 0, 0);
         }
 
         public void StartMonitor(bool debugMode, int targetHR, int targetPower)

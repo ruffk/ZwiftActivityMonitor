@@ -10,11 +10,22 @@ using System.Collections.Generic;
 using ZwiftPacketMonitor;
 using System.Threading;
 using System.Threading.Tasks;
-//using Squirrel.Windows;
-
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SharpPcap;
+using SharpPcap.Npcap;
 
 namespace ZwiftActivityMonitor
 {
+
+    public enum FieldUomType
+    {
+        Hidden,
+        Watts,
+        Wkg
+    }
+
     public partial class MonitorStatistics : Form, IWinFormsShell
     {
         private readonly ILogger<MonitorStatistics> m_logger;
@@ -109,12 +120,6 @@ namespace ZwiftActivityMonitor
             private FieldUomType m_fieldAvgMax;
             private FieldUomType m_fieldFtp;
 
-            public enum FieldUomType
-            {
-                None,
-                Watts,
-                Wkg
-            }
 
             public Collector(string durationLabel, string displayDefault, string fieldAvgUom, string fieldAvgMaxUom, string fieldFtpUom)
             {
@@ -170,6 +175,7 @@ namespace ZwiftActivityMonitor
 
             m_normalizedPower = new NormalizedPower(zpMonitorService, loggerFactory);
             m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
+
 
             InitializeComponent();
         }
@@ -253,7 +259,6 @@ namespace ZwiftActivityMonitor
                     }
                 }
             }
-
 
             m_logger.LogInformation("MonitorStatistics Loaded");
 
@@ -553,11 +558,11 @@ namespace ZwiftActivityMonitor
 
             switch (c.FieldAvg)
             {
-                case Collector.FieldUomType.Watts:
+                case FieldUomType.Watts:
                     l.AvgPower.Text = e.AveragePower.ToString();
                     break;
 
-                case Collector.FieldUomType.Wkg:
+                case FieldUomType.Wkg:
                     if (m_ZwifterWeightKgs > 0)
                     {
                         double wkg = e.AveragePower / m_ZwifterWeightKgs;
@@ -575,11 +580,11 @@ namespace ZwiftActivityMonitor
             {
                 switch (c.FieldFtp)
                 {
-                    case Collector.FieldUomType.Watts:
+                    case FieldUomType.Watts:
                         l.FtpPower.Text = Convert.ToInt32(e.AveragePower * 0.95).ToString();
                         break;
 
-                    case Collector.FieldUomType.Wkg:
+                    case FieldUomType.Wkg:
                         if (m_ZwifterWeightKgs > 0)
                         {
                             double wkg = (e.AveragePower / m_ZwifterWeightKgs) * 0.95;
@@ -621,11 +626,11 @@ namespace ZwiftActivityMonitor
 
             switch (c.FieldAvgMax)
             {
-                case Collector.FieldUomType.Watts:
+                case FieldUomType.Watts:
                     l.MaxPower.Text = e.MaxAvgPower.ToString();
                     break;
 
-                case Collector.FieldUomType.Wkg:
+                case FieldUomType.Wkg:
                     if (m_ZwifterWeightKgs > 0)
                     {
                         double wkg = e.MaxAvgPower / m_ZwifterWeightKgs;
@@ -640,11 +645,11 @@ namespace ZwiftActivityMonitor
             // The FTP column will now track the MaxAvgPower now that the time duration is satisfied.
             switch (c.FieldFtp)
             {
-                case Collector.FieldUomType.Watts:
+                case FieldUomType.Watts:
                     l.FtpPower.Text = Convert.ToInt32(e.MaxAvgPower * 0.95).ToString();
                     break;
 
-                case Collector.FieldUomType.Wkg:
+                case FieldUomType.Wkg:
                     if (m_ZwifterWeightKgs > 0)
                     {
                         double wkg = (e.MaxAvgPower / m_ZwifterWeightKgs) * 0.95;
@@ -780,6 +785,19 @@ namespace ZwiftActivityMonitor
             //{
             //    await mgr.Result.UpdateApp();
             //}
+        }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            //var form = m_serviceProvider.GetService<ConfigurationOptions>();
+
+            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location.X, this.Location.Y);
+
+            DialogResult result = form.ShowDialog(this);
+
+            // Allow menus and status bar to update according to what user just did
+            //OnCollectionStatusChanged();
+
         }
     }
 }

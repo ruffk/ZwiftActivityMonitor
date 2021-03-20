@@ -55,13 +55,13 @@ namespace ZwiftActivityMonitor
                 {
                     // Add the ZwiftPacketMonitor extensions
                     ZwiftPacketMonitor.RegistrationExtensions.AddZwiftPacketMonitoring(serviceCollection);
-                    
+
                     // add our ZwiftPacketMonitor wrapper service
                     serviceCollection.AddSingleton<ZPMonitorService>();
+                    //serviceCollection.AddSingleton<ConfigurationBO>();
 
-                    //serviceCollection.AddTransient<MonitorStatistics>();
-                    //serviceCollection.AddTransient<MovingAverage>();
                     serviceCollection.AddTransient<AdvancedOptions>();
+                    serviceCollection.AddTransient<ConfigurationOptions>();
                     serviceCollection.AddSingleton<MonitorTimer>();
                 })
                 .UseWinFormsLifetime()
@@ -119,6 +119,7 @@ namespace ZwiftActivityMonitor
                     configApp
                         .AddEnvironmentVariables(prefix: Prefix)
                         .AddCommandLine(args);
+                        
                 });
         }
     }
