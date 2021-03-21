@@ -791,7 +791,7 @@ namespace ZwiftActivityMonitor
         {
             //var form = m_serviceProvider.GetService<ConfigurationOptions>();
 
-            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location.X, this.Location.Y);
+            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location);
 
             DialogResult result = form.ShowDialog(this);
 

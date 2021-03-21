@@ -77,7 +77,7 @@ namespace ZwiftActivityMonitor
             // pBase
             // 
             this.pBase.Controls.Add(this.pControl);
-            this.pBase.Size = new System.Drawing.Size(653, 518);
+            this.pBase.Size = new System.Drawing.Size(587, 518);
             // 
             // pControl
             // 
@@ -87,7 +87,7 @@ namespace ZwiftActivityMonitor
             this.pControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pControl.Location = new System.Drawing.Point(0, 0);
             this.pControl.Name = "pControl";
-            this.pControl.Size = new System.Drawing.Size(653, 518);
+            this.pControl.Size = new System.Drawing.Size(587, 518);
             this.pControl.TabIndex = 0;
             // 
             // gbSystemZpm
@@ -150,6 +150,7 @@ namespace ZwiftActivityMonitor
             this.lvTrace.TabStop = false;
             this.lvTrace.UseCompatibleStateImageBehavior = false;
             this.lvTrace.View = System.Windows.Forms.View.Details;
+            this.lvTrace.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // chPlayerId
             // 
@@ -193,6 +194,7 @@ namespace ZwiftActivityMonitor
             this.btnStart.TabIndex = 90;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnStop
             // 
@@ -202,6 +204,7 @@ namespace ZwiftActivityMonitor
             this.btnStop.TabIndex = 100;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // lblStatus
             // 
@@ -223,6 +226,7 @@ namespace ZwiftActivityMonitor
             this.ckbRunning.TabStop = false;
             this.ckbRunning.Text = "Running";
             this.ckbRunning.UseVisualStyleBackColor = true;
+            this.ckbRunning.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // tbDescSystem
             // 
@@ -236,6 +240,7 @@ namespace ZwiftActivityMonitor
             this.tbDescSystem.TabIndex = 3;
             this.tbDescSystem.TabStop = false;
             this.tbDescSystem.Text = "Configure system options to use while running the Zwift Activity Monitor.";
+            this.tbDescSystem.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // gbSystemSettings
             // 
@@ -300,6 +305,7 @@ namespace ZwiftActivityMonitor
             this.tbCurWindowPosY.Size = new System.Drawing.Size(32, 23);
             this.tbCurWindowPosY.TabIndex = 87;
             this.tbCurWindowPosY.TabStop = false;
+            this.tbCurWindowPosY.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // tbCurWindowPosX
             // 
@@ -309,6 +315,7 @@ namespace ZwiftActivityMonitor
             this.tbCurWindowPosX.Size = new System.Drawing.Size(32, 23);
             this.tbCurWindowPosX.TabIndex = 86;
             this.tbCurWindowPosX.TabStop = false;
+            this.tbCurWindowPosX.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // lblCurWindow
             // 
@@ -326,6 +333,9 @@ namespace ZwiftActivityMonitor
             this.tbWindowPosY.Name = "tbWindowPosY";
             this.tbWindowPosY.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosY.TabIndex = 35;
+            this.tbWindowPosY.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.tbWindowPosY.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.tbWindowPosY.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // label2
             // 
@@ -343,6 +353,9 @@ namespace ZwiftActivityMonitor
             this.tbWindowPosX.Name = "tbWindowPosX";
             this.tbWindowPosX.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosX.TabIndex = 30;
+            this.tbWindowPosX.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.tbWindowPosX.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.tbWindowPosX.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // lblDefWindow
             // 
@@ -370,6 +383,7 @@ namespace ZwiftActivityMonitor
             this.btnCancelSettings.TabIndex = 80;
             this.btnCancelSettings.Text = "Cancel";
             this.btnCancelSettings.UseVisualStyleBackColor = true;
+            this.btnCancelSettings.Click += new System.EventHandler(this.btnCancelSettings_Click);
             // 
             // btnSaveSettings
             // 
@@ -379,6 +393,7 @@ namespace ZwiftActivityMonitor
             this.btnSaveSettings.TabIndex = 70;
             this.btnSaveSettings.Text = "Save";
             this.btnSaveSettings.UseVisualStyleBackColor = true;
+            this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
             // 
             // btnEditSettings
             // 
@@ -388,6 +403,7 @@ namespace ZwiftActivityMonitor
             this.btnEditSettings.TabIndex = 60;
             this.btnEditSettings.Text = "Edit";
             this.btnEditSettings.UseVisualStyleBackColor = true;
+            this.btnEditSettings.Click += new System.EventHandler(this.btnEditSettings_Click);
             // 
             // cbNetwork
             // 
@@ -397,6 +413,9 @@ namespace ZwiftActivityMonitor
             this.cbNetwork.Name = "cbNetwork";
             this.cbNetwork.Size = new System.Drawing.Size(203, 23);
             this.cbNetwork.TabIndex = 20;
+            this.cbNetwork.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.cbNetwork.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.cbNetwork.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // cbCurrentUser
             // 
@@ -406,6 +425,9 @@ namespace ZwiftActivityMonitor
             this.cbCurrentUser.Name = "cbCurrentUser";
             this.cbCurrentUser.Size = new System.Drawing.Size(203, 23);
             this.cbCurrentUser.TabIndex = 10;
+            this.cbCurrentUser.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.cbCurrentUser.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.cbCurrentUser.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // ckbAutoStart
             // 
@@ -416,6 +438,9 @@ namespace ZwiftActivityMonitor
             this.ckbAutoStart.TabIndex = 25;
             this.ckbAutoStart.Text = "Auto-Start";
             this.ckbAutoStart.UseVisualStyleBackColor = true;
+            this.ckbAutoStart.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.ckbAutoStart.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.ckbAutoStart.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // lblNetwork
             // 
@@ -440,7 +465,7 @@ namespace ZwiftActivityMonitor
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "SystemControl";
-            this.Size = new System.Drawing.Size(653, 540);
+            this.Size = new System.Drawing.Size(587, 540);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.pBase.ResumeLayout(false);
             this.pControl.ResumeLayout(false);

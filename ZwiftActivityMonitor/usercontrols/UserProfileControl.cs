@@ -79,12 +79,14 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
+        private bool m_editMode;
+
         public UserProfileControl()
         {
             InitializeComponent();
         }
 
-        internal override void UserControlBase_Load(object sender, EventArgs e)
+        protected override void UserControlBase_Load(object sender, EventArgs e)
         {
             if (DesignMode)
                 return;
@@ -99,9 +101,12 @@ namespace ZwiftActivityMonitor
                 lvUserProfiles.Items.Add(new UserProfileListViewItem(user));
             });
 
+
+            // this will cause UserProfiles_LoadFields to occur
             if (lvUserProfiles.Items.Count > 0)
             {
                 lvUserProfiles.Items[0].Selected = true;
+                lvUserProfiles.Items[0].Focused = true;
             }
 
             // Get collectors and add names only to the checked list box
@@ -112,10 +117,11 @@ namespace ZwiftActivityMonitor
             EditingUserProfiles = false; // initialize
         }
 
-        internal override void SkipControl_Enter(object sender, EventArgs e)
-        {
-            base.SkipControl_Enter(sender, e);
-        }
+        //protected override void SkipControl_Enter(object sender, EventArgs e)
+        //{
+        //    base.SkipControl_Enter(sender, e);
+        //}
+
         public override void ControlLosingFocus(object sender, CancelEventArgs e)
         {
             base.ControlLosingFocus(sender, e);
@@ -125,6 +131,13 @@ namespace ZwiftActivityMonitor
                 MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 e.Cancel = true;
             }
+        }
+        public override void ControlGainingFocus(object sender, CancelEventArgs e)
+        {
+            base.ControlGainingFocus(sender, e);
+
+            //ActiveControl = this;
+            btnEditProfile.Focus();
         }
 
 
@@ -204,10 +217,12 @@ namespace ZwiftActivityMonitor
                 nPowerThreshold.Enabled = value;
                 clbCollectors.Enabled = value;
 
+                m_editMode = value;
+
                 Logger.LogInformation($"EditingUserProfiles: {value}, SelectedItemsCount: {lvUserProfiles.SelectedItems.Count}");
             }
 
-            get { return btnSaveProfile.Enabled; }
+            get { return m_editMode; }
         }
 
         private void lvUserProfiles_SelectedIndexChanged(object sender, EventArgs e)
@@ -240,6 +255,7 @@ namespace ZwiftActivityMonitor
             UserProfileListViewItem item = new UserProfileListViewItem();
             lvUserProfiles.Items.Add(item);
             item.Selected = true;
+            item.Focused = true;
 
             ZAMsettings.BeginCachedConfiguration();
             EditingUserProfiles = true;
@@ -267,6 +283,7 @@ namespace ZwiftActivityMonitor
 
                         if (lvUserProfiles.Items.Count > 0)
                         {
+                            lvUserProfiles.Items[0].Focused = true;
                             lvUserProfiles.Items[0].Selected = true;
                         }
                         lvUserProfiles.EndUpdate();
@@ -368,6 +385,7 @@ namespace ZwiftActivityMonitor
                     if (lvUserProfiles.Items.Count > 0)
                     {
                         lvUserProfiles.Items[0].Selected = true;
+                        lvUserProfiles.Items[0].Focused = true;
                     }
                 }
                 else

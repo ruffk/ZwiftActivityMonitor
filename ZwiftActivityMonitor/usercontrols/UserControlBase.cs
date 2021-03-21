@@ -13,9 +13,7 @@ namespace ZwiftActivityMonitor
 {
     public partial class UserControlBase : UserControl
     {
-        public static ILogger Logger { get; set; }
-        //public static ErrorProvider ErrorProvider { get; set; }
-        //public static ToolStripStatusLabel StatusLabel { get; set; }
+        public ILogger Logger { get; set; }
 
         public UserControlBase()
         {
@@ -31,13 +29,13 @@ namespace ZwiftActivityMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal virtual void UserControlBase_Load(object sender, EventArgs e)
+        protected virtual void UserControlBase_Load(object sender, EventArgs e)
         {
             if (Logger != null)
                 Logger.LogInformation($"UserControlBase_Load");
         }
 
-        internal virtual void SkipControl_Enter(object sender, EventArgs e)
+        protected virtual void SkipControl_Enter(object sender, EventArgs e)
         {
             Control c = sender as Control;
             if (c != null && c.Parent != null)
@@ -46,9 +44,20 @@ namespace ZwiftActivityMonitor
                 Logger.LogInformation($"SkipControl_Enter, Control: {c.Name}");
             }
         }
+
+        /// <summary>
+        /// This method allows closing forms and changing tabpages to query a user control to see if the action should be canceled.  
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public virtual void ControlLosingFocus(object sender, CancelEventArgs e)
         {
             Logger.LogInformation($"ControlLosingFocus");
+        }
+
+        public virtual void ControlGainingFocus(object sender, CancelEventArgs e)
+        {
+            Logger.LogInformation($"ControlGainingFocus");
         }
 
 

@@ -131,12 +131,14 @@ namespace ZwiftActivityMonitor
         }
         #endregion
 
+        private bool m_editMode;
+
         public StatisticsControl()
         {
             InitializeComponent();
         }
 
-        internal override void UserControlBase_Load(object sender, EventArgs e)
+        protected override void UserControlBase_Load(object sender, EventArgs e)
         {
             if (DesignMode)
                 return;
@@ -175,10 +177,12 @@ namespace ZwiftActivityMonitor
 
             EditingCollectors = false; // initialize
         }
-        internal override void SkipControl_Enter(object sender, EventArgs e)
-        {
-            base.SkipControl_Enter(sender, e);
-        }
+
+        //protected override void SkipControl_Enter(object sender, EventArgs e)
+        //{
+        //    base.SkipControl_Enter(sender, e);
+        //}
+
         public override void ControlLosingFocus(object sender, CancelEventArgs e)
         {
             base.ControlLosingFocus(sender, e);
@@ -188,6 +192,13 @@ namespace ZwiftActivityMonitor
                 MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 e.Cancel = true;
             }
+        }
+        public override void ControlGainingFocus(object sender, CancelEventArgs e)
+        {
+            base.ControlGainingFocus(sender, e);
+
+            //ActiveControl = this;
+            btnStatsEdit.Focus();
         }
 
         private bool EditingCollectors
@@ -218,11 +229,13 @@ namespace ZwiftActivityMonitor
                 pAvgMaxGroup.Enabled = value;
                 pFtpGroup.Enabled = value;
 
+                m_editMode = value;
+
                 if (Logger != null)
                     Logger.LogInformation($"EditingCollectors: {value}, SelectedItemsCount: {lvCollectors.SelectedItems.Count}");
             }
 
-            get { return btnStatsSave.Enabled; }
+            get { return m_editMode; }
         }
         private void lvCollectors_SelectedIndexChanged(object sender, EventArgs e)
         {

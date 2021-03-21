@@ -21,12 +21,13 @@ namespace ZwiftActivityMonitor
     {
         private readonly ILogger<ConfigurationOptions> m_logger;
         //private readonly ConfigurationBO m_configurationBO;
-        private readonly int m_zamWindowXpos;
-        private readonly int m_zamWindowYpos;
-        private readonly ZPMonitorService m_zpMonitorService;
+        //private readonly int m_zamWindowXpos;
+        //private readonly int m_zamWindowYpos;
+        //private readonly ZPMonitorService m_zpMonitorService;
 
-        private Dispatcher m_dispatcher;
+        //private Dispatcher m_dispatcher;
 
+        /*
 
         internal class UserProfileListViewItem : ListViewItem
         {
@@ -80,22 +81,26 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        */
 
-        public ConfigurationOptions(ILoggerFactory loggerFactory, IServiceProvider serviceProvider, int zamWindowXpos, int zamWindowYpos)
+
+        public ConfigurationOptions(ILoggerFactory loggerFactory, IServiceProvider serviceProvider, Point ZAMWindowPos)
         {
             m_logger = loggerFactory.CreateLogger<ConfigurationOptions>();
             //m_configurationBO = serviceProvider.GetService<ConfigurationBO>();
-            m_zpMonitorService = serviceProvider.GetService<ZPMonitorService>();
-            m_zamWindowXpos = zamWindowXpos;
-            m_zamWindowYpos = zamWindowYpos;
+            //m_zpMonitorService = serviceProvider.GetService<ZPMonitorService>();
+            //m_zamWindowXpos = ZAMWindowPos.X;
+            //m_zamWindowYpos = ZAMWindowPos.Y;
 
             InitializeComponent();
 
             ZAMsettings.Initialize(loggerFactory);
 
-            StatisticsControl.Logger = loggerFactory.CreateLogger<StatisticsControl>();
-            UserProfileControl.Logger = loggerFactory.CreateLogger<UserProfileControl>();
-
+            ucStatistics.Logger = loggerFactory.CreateLogger<StatisticsControl>();
+            ucUserProfiles.Logger = loggerFactory.CreateLogger<UserProfileControl>();
+            ucSystem.Logger = loggerFactory.CreateLogger<SystemControl>();
+            SystemControl.PacketMonitor = serviceProvider.GetService<ZPMonitorService>();
+            SystemControl.ZAMWindowPos = ZAMWindowPos;
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)
@@ -103,23 +108,30 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            m_dispatcher = Dispatcher.CurrentDispatcher;
+            //m_dispatcher = Dispatcher.CurrentDispatcher;
+
+            // toggle the tabpage selection to get the Selecting / Selected events to fire for the initial tabpage
+            tabOptions.SelectedIndex = -1;
+            tabOptions.SelectedIndex = 0;
 
             // Start configuration in a known valid state
             //m_configurationBO.RollbackCachedConfiguration();
 
-            SystemSettings_Load();
+            //SystemSettings_Load();
             //UserProfiles_Load();
 
             //ZAMsettings.Test();
 
-
-            ActiveControl = cbCurrentUser;
+            //ActiveControl = cbCurrentUser;
         }
 
         private void ConfigurationOptions_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (DesignMode)
+                return;
+
+            ucSystem.ControlLosingFocus(sender, e);
+            if (e.Cancel)
                 return;
 
             ucStatistics.ControlLosingFocus(sender, e);
@@ -147,33 +159,50 @@ namespace ZwiftActivityMonitor
 
             m_logger.LogInformation($"TabPageIndex: {e.TabPageIndex} Action: {e.Action.ToString()}");
 
-            // we're only interested in Deselecting events
-            if (e.Action != TabControlAction.Deselecting)
-                return;
-
-            switch (e.TabPageIndex)
+            if (e.Action == TabControlAction.Selecting)
             {
-                case 0:
+                switch (e.TabPageIndex)
+                {
+                    case 0:
+                        ucSystem.ControlGainingFocus(sender, e);
+                        break;
 
-                    break;
+                    case 1:
+                        ucUserProfiles.ControlGainingFocus(sender, e);
+                        break;
 
-                case 1:
-                    ucUserProfiles.ControlLosingFocus(sender, e);
-                    break;
+                    case 2:
+                        ucStatistics.ControlGainingFocus(sender, e);
+                        break;
+                }
+            }
 
-                case 2:
-                    ucStatistics.ControlLosingFocus(sender, e);
-                    break;
+            if (e.Action == TabControlAction.Deselecting)
+            {
+                switch (e.TabPageIndex)
+                {
+                    case 0:
+                        ucSystem.ControlLosingFocus(sender, e);
+                        break;
+
+                    case 1:
+                        ucUserProfiles.ControlLosingFocus(sender, e);
+                        break;
+
+                    case 2:
+                        ucStatistics.ControlLosingFocus(sender, e);
+                        break;
+                }
             }
         }
-    
 
 
-    /// <summary>
-    /// This event handles TabPage Selected / Deselected events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+
+        /// <summary>
+        /// This event handles TabPage Selected / Deselected events
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tabOptions_Selected(object sender, TabControlEventArgs e)
         {
             if (DesignMode)
@@ -188,8 +217,6 @@ namespace ZwiftActivityMonitor
             switch (e.TabPageIndex)
             {
                 case 0:
-                    SystemSettings_TabSelected();
-                    
                     break;
 
                 case 1:
@@ -624,6 +651,7 @@ namespace ZwiftActivityMonitor
         #endregion
         */
 
+        /*
         #region SystemSettings
 
         private void SystemSettings_Load()
@@ -964,6 +992,8 @@ namespace ZwiftActivityMonitor
         }
 
         #endregion
+        */
+        
 
     }
 }
