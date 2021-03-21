@@ -94,8 +94,7 @@ namespace ZwiftActivityMonitor
             ZAMsettings.Initialize(loggerFactory);
 
             StatisticsControl.Logger = loggerFactory.CreateLogger<StatisticsControl>();
-            StatisticsControl.ErrorProvider = this.errorProvider;
-            StatisticsControl.StatusLabel = this.tsslStatus;
+            UserProfileControl.Logger = loggerFactory.CreateLogger<UserProfileControl>();
 
         }
 
@@ -110,7 +109,7 @@ namespace ZwiftActivityMonitor
             //m_configurationBO.RollbackCachedConfiguration();
 
             SystemSettings_Load();
-            UserProfiles_Load();
+            //UserProfiles_Load();
 
             //ZAMsettings.Test();
 
@@ -123,13 +122,13 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            m_logger.LogInformation($"ConfigurationOptions_FormClosing, EditingSystemSettings: {EditingSystemSettings}, EditingUserProfiles: {EditingUserProfiles}");
-            if (EditingSystemSettings || EditingUserProfiles)
-            {
-                MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                e.Cancel = true;
-            }
+            ucStatistics.ControlLosingFocus(sender, e);
+            if (e.Cancel)
+                return;
 
+            ucUserProfiles.ControlLosingFocus(sender, e);
+            if (e.Cancel)
+                return;
         }
 
         private void SkipControl_Enter(object sender, EventArgs e)
@@ -155,22 +154,15 @@ namespace ZwiftActivityMonitor
             switch (e.TabPageIndex)
             {
                 case 0:
-                    if (EditingSystemSettings)
-                    {
-                        MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        e.Cancel = true;
-                    }
+
                     break;
 
                 case 1:
-                    if (EditingUserProfiles)
-                    {
-                        MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        e.Cancel = true;
-                    }
+                    ucUserProfiles.ControlLosingFocus(sender, e);
                     break;
 
                 case 2:
+                    ucStatistics.ControlLosingFocus(sender, e);
                     break;
             }
         }
@@ -208,6 +200,8 @@ namespace ZwiftActivityMonitor
             }
         }
 
+
+        /*
         #region UserProfiles
 
         /// <summary>
@@ -628,6 +622,7 @@ namespace ZwiftActivityMonitor
         }
 
         #endregion
+        */
 
         #region SystemSettings
 

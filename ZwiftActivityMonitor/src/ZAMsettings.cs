@@ -26,7 +26,7 @@ namespace ZwiftActivityMonitor
         public string UniqueId { get; set; } = "";
         private string m_name = "";
         private decimal m_weight;
-        public bool WeightInKgs { get; set; }
+        private bool m_weightInKgs;
         public int PowerThreshold { get; set; }
         public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
@@ -42,6 +42,21 @@ namespace ZwiftActivityMonitor
             return this.MemberwiseClone();
         }
 
+        public bool WeightInKgs
+        {
+            get 
+            {
+                return m_weightInKgs;
+            }
+            set 
+            {
+                m_weightInKgs = value;
+
+                m_weight = (m_weightInKgs ? Math.Round(m_weight, 1) : Math.Round(m_weight, 0));
+            }
+        }
+
+
         public string Name
         {
             get { return new string(m_name.Take(30).ToArray()); }
@@ -53,18 +68,16 @@ namespace ZwiftActivityMonitor
                 m_name = value;
             }
         }
+
         public decimal Weight
         {
             get
             {
-                switch (this.WeightInKgs)
-                {
-                    case true:
-                        return Math.Round(m_weight, 1);
+                this.WeightInKgs = m_weightInKgs; // fixup weight if necessary
+                
+                return m_weight;
 
-                    default:
-                        return Math.Round(m_weight, 0);
-                }
+                //return (m_weightInKgs ? Math.Round(m_weight, 1) : Math.Round(m_weight, 0));
             }
 
             set
@@ -199,6 +212,18 @@ namespace ZwiftActivityMonitor
             else if (DefaultUserProfile == user.UniqueId)
                 DefaultUserProfile = "";
         }
+
+        public void DeleteUserProfile(UserProfile user)
+        {
+            Debug.Assert(!this.m_readOnly, "Configuration in use is read-only.  Did you forget BeginCachedConfiguration?");
+
+            Debug.Assert(UserProfiles.ContainsKey(user.UniqueId), "User profile not found in dictionary.  Cannot delete.");
+
+            UserProfiles.Remove(user.UniqueId);
+
+            _logger.LogInformation($"User {user.Name} deleted.");
+        }
+
         public void UpsertCollector(Collector collector)
         {
             Debug.Assert(!this.m_readOnly, "Configuration in use is read-only.  Did you forget BeginCachedConfiguration?");

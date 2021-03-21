@@ -15,6 +15,7 @@ namespace ZwiftActivityMonitor
 {
     public partial class StatisticsControl : UserControlBase
     {
+        #region Internal classes
         internal class CollectorListViewColumnSorter : IComparer
         {
             /// <summary>
@@ -78,6 +79,7 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
+
         internal class CollectorListViewItem : ListViewItem
         {
             private Collector m_collector;
@@ -108,8 +110,11 @@ namespace ZwiftActivityMonitor
                 // Set each SubItem individually.  Cannot Clear and AddRange as it messes up.
                 string[] text = SubItemStrings(m_collector);
 
-                for (int i = 0; i < base.SubItems.Count; i++)
-                    base.SubItems[i] = new ListViewSubItem(this, text[i]);
+                for (int i = 0; i < 4; i++)
+                    base.SubItems[i].Text = text[i];
+
+                //for (int i = 0; i < base.SubItems.Count; i++)
+                //    base.SubItems[i] = new ListViewSubItem(this, text[i]);
             }
 
             public Collector Collector
@@ -124,6 +129,7 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
+        #endregion
 
         public StatisticsControl()
         {
@@ -152,8 +158,6 @@ namespace ZwiftActivityMonitor
 
             lvCollectors.ListViewItemSorter = new CollectorListViewColumnSorter(lvCollectors.Sorting);
 
-            EditingCollectors = false; // initialize
-
             List<Collector> collectors = ZAMsettings.Settings.GetCollectors;
 
             lvCollectors.Items.Clear();
@@ -169,14 +173,21 @@ namespace ZwiftActivityMonitor
                 lvCollectors.Items[0].Selected = true;
             }
 
+            EditingCollectors = false; // initialize
         }
         internal override void SkipControl_Enter(object sender, EventArgs e)
         {
             base.SkipControl_Enter(sender, e);
         }
-        public override void ParentWindow_FormClosing(object sender, FormClosingEventArgs e)
+        public override void ControlLosingFocus(object sender, CancelEventArgs e)
         {
-            base.ParentWindow_FormClosing(sender, e);
+            base.ControlLosingFocus(sender, e);
+
+            if (EditingCollectors)
+            {
+                MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                e.Cancel = true;
+            }
         }
 
         private bool EditingCollectors
@@ -269,16 +280,14 @@ namespace ZwiftActivityMonitor
                 //rbFtpWatts.Checked = collector.FieldFtpType == FieldUomType.Watts;
                 //rbFtpWkg.Checked = collector.FieldFtpType == FieldUomType.Wkg;
             }
+            else
+            {
+                tbDuration.Text = "";
+            }
         }
 
         private void btnStatsEdit_Click(object sender, EventArgs e)
         {
-            //if (lvCollectors.SelectedItems.Count > 0)
-            //{
-            //    CollectorListViewItem itemBeingEdited = (CollectorListViewItem)lvCollectors.SelectedItems[0];
-            //    Collector userBeingEdited = itemBeingEdited.Collector;
-            //}
-
             ZAMsettings.BeginCachedConfiguration();
             EditingCollectors = true;
 
@@ -322,11 +331,17 @@ namespace ZwiftActivityMonitor
                     ZAMsettings.CommitCachedConfiguration();
 
                     lvCollectors.BeginUpdate();
-                    CollectorListViewItem lvi = new CollectorListViewItem(collectorBeingEdited);
-                    lvCollectors.Items.Add(lvi);
-                    lvi.Selected = true;
 
-                    lvCollectors.Items.Remove(itemBeingEdited);
+                    // Refresh the fields and the list view
+                    Collectors_LoadFields(collectorBeingEdited);
+                    itemBeingEdited.Refresh();
+
+                    //CollectorListViewItem lvi = new CollectorListViewItem(collectorBeingEdited);
+                    //lvCollectors.Items.Add(lvi);
+                    //lvi.Selected = true;
+
+                    //lvCollectors.Items.Remove(itemBeingEdited);
+                    
                     lvCollectors.EndUpdate();
                 }
                 catch (Exception ex)
@@ -346,7 +361,7 @@ namespace ZwiftActivityMonitor
         {
             ZAMsettings.RollbackCachedConfiguration();
 
-            ErrorProvider.Clear();
+            errorProvider.Clear();
 
             if (lvCollectors.SelectedItems.Count > 0)
             {
@@ -385,12 +400,12 @@ namespace ZwiftActivityMonitor
         {
             bool errorOccurred = false;
 
-            Debug.Assert(ErrorProvider != null, "ValidateStatistics - ErrorProvider not set.");
+            Debug.Assert(errorProvider != null, "ValidateStatistics - errorProvider not set.");
 
             if (lvCollectors.SelectedItems.Count < 1)
                 return false;
 
-            ErrorProvider.SetError(control, "");
+            errorProvider.SetError(control, "");
 
             Collector collector = ((CollectorListViewItem)lvCollectors.SelectedItems[0]).Collector;
 
@@ -408,7 +423,7 @@ namespace ZwiftActivityMonitor
                     }
                     catch (Exception ex)
                     {
-                        ErrorProvider.SetError(control, ex.Message);
+                        errorProvider.SetError(control, ex.Message);
                         errorOccurred = true;
                     }
                     break;
@@ -425,7 +440,7 @@ namespace ZwiftActivityMonitor
                     }
                     catch (Exception ex)
                     {
-                        ErrorProvider.SetError(control, ex.Message);
+                        errorProvider.SetError(control, ex.Message);
                         errorOccurred = true;
                     }
                     break;
@@ -442,7 +457,7 @@ namespace ZwiftActivityMonitor
                     }
                     catch (Exception ex)
                     {
-                        ErrorProvider.SetError(control, ex.Message);
+                        errorProvider.SetError(control, ex.Message);
                         errorOccurred = true;
                     }
                     break;
@@ -467,11 +482,11 @@ namespace ZwiftActivityMonitor
 
         public void HandleTooltipsStatistics(Control control, bool isEntering)
         {
-            Debug.Assert(StatusLabel != null, "ValidateStatistics - StatusStrip not set.");
+            Debug.Assert(toolStripStatusLabel != null, "ValidateStatistics - StatusStrip not set.");
 
             if (!isEntering)
             {
-                StatusLabel.Text = "";
+                toolStripStatusLabel.Text = "";
                 return;
             }
 
@@ -486,7 +501,7 @@ namespace ZwiftActivityMonitor
                 case "rbFtpHide":
                 case "rbFtpWatts":
                 case "rbFtpWkg":
-                    StatusLabel.Text = "Select how to display units on monitor window.";
+                    toolStripStatusLabel.Text = "Select how to display units on monitor window.";
                     break;
             }
         }

@@ -14,8 +14,8 @@ namespace ZwiftActivityMonitor
     public partial class UserControlBase : UserControl
     {
         public static ILogger Logger { get; set; }
-        public static ErrorProvider ErrorProvider { get; set; }
-        public static ToolStripStatusLabel StatusLabel { get; set; }
+        //public static ErrorProvider ErrorProvider { get; set; }
+        //public static ToolStripStatusLabel StatusLabel { get; set; }
 
         public UserControlBase()
         {
@@ -46,9 +46,9 @@ namespace ZwiftActivityMonitor
                 Logger.LogInformation($"SkipControl_Enter, Control: {c.Name}");
             }
         }
-        public virtual void ParentWindow_FormClosing(object sender, FormClosingEventArgs e)
+        public virtual void ControlLosingFocus(object sender, CancelEventArgs e)
         {
-            Logger.LogInformation($"ParentWindow_FormClosing");
+            Logger.LogInformation($"ControlLosingFocus");
         }
 
 

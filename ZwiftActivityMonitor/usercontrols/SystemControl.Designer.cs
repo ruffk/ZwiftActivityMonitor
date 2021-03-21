@@ -1,14 +1,14 @@
 ﻿
 namespace ZwiftActivityMonitor
 {
-    partial class ConfigurationOptions
+    partial class SystemControl
     {
-        /// <summary>
+        /// <summary> 
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
+        /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -21,18 +21,15 @@ namespace ZwiftActivityMonitor
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Component Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigurationOptions));
-            this.tabOptions = new System.Windows.Forms.TabControl();
-            this.tpSystem = new System.Windows.Forms.TabPage();
+            this.pControl = new System.Windows.Forms.Panel();
             this.gbSystemZpm = new System.Windows.Forms.GroupBox();
             this.pZpm = new System.Windows.Forms.Panel();
             this.lblEventCount = new System.Windows.Forms.Label();
@@ -68,65 +65,38 @@ namespace ZwiftActivityMonitor
             this.ckbAutoStart = new System.Windows.Forms.CheckBox();
             this.lblNetwork = new System.Windows.Forms.Label();
             this.lblCurrentUser = new System.Windows.Forms.Label();
-            this.tpUserProfiles = new System.Windows.Forms.TabPage();
-            this.ucUserProfiles = new ZwiftActivityMonitor.UserProfileControl();
-            this.tpCollectors = new System.Windows.Forms.TabPage();
-            this.ucStatistics = new ZwiftActivityMonitor.StatisticsControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.ucSystem = new ZwiftActivityMonitor.SystemControl();
-            this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tabOptions.SuspendLayout();
-            this.tpSystem.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+            this.pBase.SuspendLayout();
+            this.pControl.SuspendLayout();
             this.gbSystemZpm.SuspendLayout();
             this.pZpm.SuspendLayout();
             this.gbSystemSettings.SuspendLayout();
             this.pSystemSettings.SuspendLayout();
-            this.tpUserProfiles.SuspendLayout();
-            this.tpCollectors.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabOptions
+            // pBase
             // 
-            this.tabOptions.Controls.Add(this.tpSystem);
-            this.tabOptions.Controls.Add(this.tpUserProfiles);
-            this.tabOptions.Controls.Add(this.tpCollectors);
-            this.tabOptions.Controls.Add(this.tabPage1);
-            this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabOptions.Location = new System.Drawing.Point(0, 0);
-            this.tabOptions.Name = "tabOptions";
-            this.tabOptions.SelectedIndex = 0;
-            this.tabOptions.Size = new System.Drawing.Size(598, 582);
-            this.tabOptions.TabIndex = 0;
-            this.tabOptions.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabOptions_Selecting);
-            this.tabOptions.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabOptions_Selected);
-            this.tabOptions.Deselecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabOptions_Selecting);
-            this.tabOptions.Deselected += new System.Windows.Forms.TabControlEventHandler(this.tabOptions_Selected);
+            this.pBase.Controls.Add(this.pControl);
+            this.pBase.Size = new System.Drawing.Size(653, 518);
             // 
-            // tpSystem
+            // pControl
             // 
-            this.tpSystem.BackColor = System.Drawing.SystemColors.Control;
-            this.tpSystem.Controls.Add(this.gbSystemZpm);
-            this.tpSystem.Controls.Add(this.tbDescSystem);
-            this.tpSystem.Controls.Add(this.gbSystemSettings);
-            this.tpSystem.Location = new System.Drawing.Point(4, 24);
-            this.tpSystem.Name = "tpSystem";
-            this.tpSystem.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSystem.Size = new System.Drawing.Size(590, 554);
-            this.tpSystem.TabIndex = 0;
-            this.tpSystem.Text = "System";
+            this.pControl.Controls.Add(this.gbSystemZpm);
+            this.pControl.Controls.Add(this.tbDescSystem);
+            this.pControl.Controls.Add(this.gbSystemSettings);
+            this.pControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pControl.Location = new System.Drawing.Point(0, 0);
+            this.pControl.Name = "pControl";
+            this.pControl.Size = new System.Drawing.Size(653, 518);
+            this.pControl.TabIndex = 0;
             // 
             // gbSystemZpm
             // 
             this.gbSystemZpm.Controls.Add(this.pZpm);
-            this.gbSystemZpm.Location = new System.Drawing.Point(23, 287);
+            this.gbSystemZpm.Location = new System.Drawing.Point(20, 286);
             this.gbSystemZpm.Name = "gbSystemZpm";
             this.gbSystemZpm.Size = new System.Drawing.Size(542, 221);
-            this.gbSystemZpm.TabIndex = 2;
+            this.gbSystemZpm.TabIndex = 5;
             this.gbSystemZpm.TabStop = false;
             this.gbSystemZpm.Text = "Zwift Packet Monitoring";
             // 
@@ -180,7 +150,6 @@ namespace ZwiftActivityMonitor
             this.lvTrace.TabStop = false;
             this.lvTrace.UseCompatibleStateImageBehavior = false;
             this.lvTrace.View = System.Windows.Forms.View.Details;
-            this.lvTrace.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // chPlayerId
             // 
@@ -224,7 +193,6 @@ namespace ZwiftActivityMonitor
             this.btnStart.TabIndex = 90;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnStop
             // 
@@ -234,7 +202,6 @@ namespace ZwiftActivityMonitor
             this.btnStop.TabIndex = 100;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // lblStatus
             // 
@@ -266,10 +233,9 @@ namespace ZwiftActivityMonitor
             this.tbDescSystem.Name = "tbDescSystem";
             this.tbDescSystem.ReadOnly = true;
             this.tbDescSystem.Size = new System.Drawing.Size(545, 47);
-            this.tbDescSystem.TabIndex = 0;
+            this.tbDescSystem.TabIndex = 3;
             this.tbDescSystem.TabStop = false;
             this.tbDescSystem.Text = "Configure system options to use while running the Zwift Activity Monitor.";
-            this.tbDescSystem.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // gbSystemSettings
             // 
@@ -277,7 +243,7 @@ namespace ZwiftActivityMonitor
             this.gbSystemSettings.Location = new System.Drawing.Point(20, 73);
             this.gbSystemSettings.Name = "gbSystemSettings";
             this.gbSystemSettings.Size = new System.Drawing.Size(548, 196);
-            this.gbSystemSettings.TabIndex = 1;
+            this.gbSystemSettings.TabIndex = 4;
             this.gbSystemSettings.TabStop = false;
             this.gbSystemSettings.Text = "System Settings";
             // 
@@ -334,7 +300,6 @@ namespace ZwiftActivityMonitor
             this.tbCurWindowPosY.Size = new System.Drawing.Size(32, 23);
             this.tbCurWindowPosY.TabIndex = 87;
             this.tbCurWindowPosY.TabStop = false;
-            this.tbCurWindowPosY.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // tbCurWindowPosX
             // 
@@ -344,7 +309,6 @@ namespace ZwiftActivityMonitor
             this.tbCurWindowPosX.Size = new System.Drawing.Size(32, 23);
             this.tbCurWindowPosX.TabIndex = 86;
             this.tbCurWindowPosX.TabStop = false;
-            this.tbCurWindowPosX.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // lblCurWindow
             // 
@@ -362,9 +326,6 @@ namespace ZwiftActivityMonitor
             this.tbWindowPosY.Name = "tbWindowPosY";
             this.tbWindowPosY.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosY.TabIndex = 35;
-            this.tbWindowPosY.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.tbWindowPosY.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
-            this.tbWindowPosY.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // label2
             // 
@@ -382,9 +343,6 @@ namespace ZwiftActivityMonitor
             this.tbWindowPosX.Name = "tbWindowPosX";
             this.tbWindowPosX.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosX.TabIndex = 30;
-            this.tbWindowPosX.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.tbWindowPosX.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
-            this.tbWindowPosX.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
             // lblDefWindow
             // 
@@ -412,7 +370,6 @@ namespace ZwiftActivityMonitor
             this.btnCancelSettings.TabIndex = 80;
             this.btnCancelSettings.Text = "Cancel";
             this.btnCancelSettings.UseVisualStyleBackColor = true;
-            this.btnCancelSettings.Click += new System.EventHandler(this.btnCancelSettings_Click);
             // 
             // btnSaveSettings
             // 
@@ -422,7 +379,6 @@ namespace ZwiftActivityMonitor
             this.btnSaveSettings.TabIndex = 70;
             this.btnSaveSettings.Text = "Save";
             this.btnSaveSettings.UseVisualStyleBackColor = true;
-            this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
             // 
             // btnEditSettings
             // 
@@ -432,7 +388,6 @@ namespace ZwiftActivityMonitor
             this.btnEditSettings.TabIndex = 60;
             this.btnEditSettings.Text = "Edit";
             this.btnEditSettings.UseVisualStyleBackColor = true;
-            this.btnEditSettings.Click += new System.EventHandler(this.btnEditSettings_Click);
             // 
             // cbNetwork
             // 
@@ -442,8 +397,6 @@ namespace ZwiftActivityMonitor
             this.cbNetwork.Name = "cbNetwork";
             this.cbNetwork.Size = new System.Drawing.Size(203, 23);
             this.cbNetwork.TabIndex = 20;
-            this.cbNetwork.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.cbNetwork.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             // 
             // cbCurrentUser
             // 
@@ -453,8 +406,6 @@ namespace ZwiftActivityMonitor
             this.cbCurrentUser.Name = "cbCurrentUser";
             this.cbCurrentUser.Size = new System.Drawing.Size(203, 23);
             this.cbCurrentUser.TabIndex = 10;
-            this.cbCurrentUser.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.cbCurrentUser.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             // 
             // ckbAutoStart
             // 
@@ -465,8 +416,6 @@ namespace ZwiftActivityMonitor
             this.ckbAutoStart.TabIndex = 25;
             this.ckbAutoStart.Text = "Auto-Start";
             this.ckbAutoStart.UseVisualStyleBackColor = true;
-            this.ckbAutoStart.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.ckbAutoStart.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             // 
             // lblNetwork
             // 
@@ -486,121 +435,22 @@ namespace ZwiftActivityMonitor
             this.lblCurrentUser.TabIndex = 0;
             this.lblCurrentUser.Text = "Current User:";
             // 
-            // tpUserProfiles
-            // 
-            this.tpUserProfiles.BackColor = System.Drawing.SystemColors.Control;
-            this.tpUserProfiles.Controls.Add(this.ucUserProfiles);
-            this.tpUserProfiles.Location = new System.Drawing.Point(4, 24);
-            this.tpUserProfiles.Name = "tpUserProfiles";
-            this.tpUserProfiles.Padding = new System.Windows.Forms.Padding(3);
-            this.tpUserProfiles.Size = new System.Drawing.Size(590, 554);
-            this.tpUserProfiles.TabIndex = 4;
-            this.tpUserProfiles.Text = "User Profiles";
-            // 
-            // ucUserProfiles
-            // 
-            this.ucUserProfiles.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ucUserProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucUserProfiles.Location = new System.Drawing.Point(3, 3);
-            this.ucUserProfiles.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
-            this.ucUserProfiles.Name = "ucUserProfiles";
-            this.ucUserProfiles.Size = new System.Drawing.Size(584, 548);
-            this.ucUserProfiles.TabIndex = 0;
-            // 
-            // tpCollectors
-            // 
-            this.tpCollectors.BackColor = System.Drawing.SystemColors.Control;
-            this.tpCollectors.Controls.Add(this.ucStatistics);
-            this.tpCollectors.Location = new System.Drawing.Point(4, 24);
-            this.tpCollectors.Name = "tpCollectors";
-            this.tpCollectors.Padding = new System.Windows.Forms.Padding(3);
-            this.tpCollectors.Size = new System.Drawing.Size(590, 554);
-            this.tpCollectors.TabIndex = 3;
-            this.tpCollectors.Text = "Collectors";
-            // 
-            // ucStatistics
-            // 
-            this.ucStatistics.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ucStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucStatistics.Location = new System.Drawing.Point(3, 3);
-            this.ucStatistics.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
-            this.ucStatistics.Name = "ucStatistics";
-            this.ucStatistics.Size = new System.Drawing.Size(584, 548);
-            this.ucStatistics.TabIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage1.Controls.Add(this.ucSystem);
-            this.tabPage1.Location = new System.Drawing.Point(4, 24);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(590, 554);
-            this.tabPage1.TabIndex = 5;
-            this.tabPage1.Text = "Test System";
-            // 
-            // ucSystem
-            // 
-            this.ucSystem.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ucSystem.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucSystem.Location = new System.Drawing.Point(3, 3);
-            this.ucSystem.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
-            this.ucSystem.Name = "ucSystem";
-            this.ucSystem.Size = new System.Drawing.Size(584, 548);
-            this.ucSystem.TabIndex = 0;
-            // 
-            // errorProvider
-            // 
-            this.errorProvider.ContainerControl = this;
-            // 
-            // statusStrip
-            // 
-            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsslStatus});
-            this.statusStrip.Location = new System.Drawing.Point(0, 582);
-            this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(598, 22);
-            this.statusStrip.SizingGrip = false;
-            this.statusStrip.TabIndex = 4;
-            this.statusStrip.Text = "This doesn\'t get seen";
-            // 
-            // tsslStatus
-            // 
-            this.tsslStatus.Name = "tsslStatus";
-            this.tsslStatus.Size = new System.Drawing.Size(0, 17);
-            // 
-            // ConfigurationOptions
+            // SystemControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ClientSize = new System.Drawing.Size(598, 604);
-            this.Controls.Add(this.tabOptions);
-            this.Controls.Add(this.statusStrip);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "ConfigurationOptions";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Options";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConfigurationOptions_FormClosing);
-            this.Load += new System.EventHandler(this.ConfigurationOptions_Load);
-            this.tabOptions.ResumeLayout(false);
-            this.tpSystem.ResumeLayout(false);
-            this.tpSystem.PerformLayout();
+            this.Name = "SystemControl";
+            this.Size = new System.Drawing.Size(653, 540);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+            this.pBase.ResumeLayout(false);
+            this.pControl.ResumeLayout(false);
+            this.pControl.PerformLayout();
             this.gbSystemZpm.ResumeLayout(false);
             this.pZpm.ResumeLayout(false);
             this.pZpm.PerformLayout();
             this.gbSystemSettings.ResumeLayout(false);
             this.pSystemSettings.ResumeLayout(false);
             this.pSystemSettings.PerformLayout();
-            this.tpUserProfiles.ResumeLayout(false);
-            this.tpCollectors.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-            this.statusStrip.ResumeLayout(false);
-            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -608,12 +458,33 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabOptions;
-        private System.Windows.Forms.TabPage tpSystem;
-        private System.Windows.Forms.GroupBox gbSystemSettings;
-        private System.Windows.Forms.Panel pSystemSettings;
+        private System.Windows.Forms.Panel pControl;
+        private System.Windows.Forms.GroupBox gbSystemZpm;
+        private System.Windows.Forms.Panel pZpm;
+        private System.Windows.Forms.Label lblEventCount;
+        private System.Windows.Forms.Label lblEvents;
+        private System.Windows.Forms.ListView lvTrace;
+        private System.Windows.Forms.ColumnHeader chPlayerId;
+        private System.Windows.Forms.ColumnHeader chPower;
+        private System.Windows.Forms.ColumnHeader chHeartrate;
+        private System.Windows.Forms.ColumnHeader chEventTime;
+        private System.Windows.Forms.Label lblEventsProcessed;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.CheckBox ckbRunning;
+        private System.Windows.Forms.TextBox tbDescSystem;
+        private System.Windows.Forms.GroupBox gbSystemSettings;
+        private System.Windows.Forms.Panel pSystemSettings;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox tbCurWindowPosY;
+        private System.Windows.Forms.TextBox tbCurWindowPosX;
+        private System.Windows.Forms.Label lblCurWindow;
+        private System.Windows.Forms.TextBox tbWindowPosY;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbWindowPosX;
+        private System.Windows.Forms.Label lblDefWindow;
         private System.Windows.Forms.Label lblZpm;
         private System.Windows.Forms.Button btnCancelSettings;
         private System.Windows.Forms.Button btnSaveSettings;
@@ -623,36 +494,5 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.CheckBox ckbAutoStart;
         private System.Windows.Forms.Label lblNetwork;
         private System.Windows.Forms.Label lblCurrentUser;
-        private System.Windows.Forms.TextBox tbDescSystem;
-        private System.Windows.Forms.GroupBox gbSystemZpm;
-        private System.Windows.Forms.CheckBox ckbRunning;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox tbCurWindowPosY;
-        private System.Windows.Forms.TextBox tbCurWindowPosX;
-        private System.Windows.Forms.Label lblCurWindow;
-        private System.Windows.Forms.TextBox tbWindowPosY;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox tbWindowPosX;
-        private System.Windows.Forms.Label lblDefWindow;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Panel pZpm;
-        private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Label lblEventsProcessed;
-        private System.Windows.Forms.Label lblEvents;
-        private System.Windows.Forms.ListView lvTrace;
-        private System.Windows.Forms.ColumnHeader chPlayerId;
-        private System.Windows.Forms.ColumnHeader chPower;
-        private System.Windows.Forms.ColumnHeader chHeartrate;
-        private System.Windows.Forms.ColumnHeader chEventTime;
-        private System.Windows.Forms.ErrorProvider errorProvider;
-        private System.Windows.Forms.Label lblEventCount;
-        private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
-        private System.Windows.Forms.TabPage tpCollectors;
-        private StatisticsControl ucStatistics;
-        private System.Windows.Forms.TabPage tpUserProfiles;
-        private UserProfileControl ucUserProfiles;
-        private System.Windows.Forms.TabPage tabPage1;
-        private SystemControl ucSystem;
     }
 }

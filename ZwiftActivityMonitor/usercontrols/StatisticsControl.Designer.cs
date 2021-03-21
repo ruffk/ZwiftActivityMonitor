@@ -59,6 +59,8 @@ namespace ZwiftActivityMonitor
             this.chFtp = new System.Windows.Forms.ColumnHeader();
             this.chBlank = new System.Windows.Forms.ColumnHeader();
             this.tbDescStatistics = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+            this.pBase.SuspendLayout();
             this.pControl.SuspendLayout();
             this.gbCollectors.SuspendLayout();
             this.pStatistics.SuspendLayout();
@@ -67,6 +69,11 @@ namespace ZwiftActivityMonitor
             this.pAvgGroup.SuspendLayout();
             this.SuspendLayout();
             // 
+            // pBase
+            // 
+            this.pBase.Controls.Add(this.pControl);
+            this.pBase.Size = new System.Drawing.Size(586, 476);
+            // 
             // pControl
             // 
             this.pControl.Controls.Add(this.gbCollectors);
@@ -74,8 +81,8 @@ namespace ZwiftActivityMonitor
             this.pControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pControl.Location = new System.Drawing.Point(0, 0);
             this.pControl.Name = "pControl";
-            this.pControl.Size = new System.Drawing.Size(590, 559);
-            this.pControl.TabIndex = 0;
+            this.pControl.Size = new System.Drawing.Size(586, 476);
+            this.pControl.TabIndex = 1;
             // 
             // gbCollectors
             // 
@@ -152,7 +159,7 @@ namespace ZwiftActivityMonitor
             this.rbFtpWatts.Location = new System.Drawing.Point(3, 3);
             this.rbFtpWatts.Name = "rbFtpWatts";
             this.rbFtpWatts.Size = new System.Drawing.Size(55, 19);
-            this.rbFtpWatts.TabIndex = 40;
+            this.rbFtpWatts.TabIndex = 41;
             this.rbFtpWatts.TabStop = true;
             this.rbFtpWatts.Text = "Watts";
             this.rbFtpWatts.UseVisualStyleBackColor = true;
@@ -213,7 +220,7 @@ namespace ZwiftActivityMonitor
             this.rbAvgMaxWatts.Location = new System.Drawing.Point(3, 3);
             this.rbAvgMaxWatts.Name = "rbAvgMaxWatts";
             this.rbAvgMaxWatts.Size = new System.Drawing.Size(55, 19);
-            this.rbAvgMaxWatts.TabIndex = 30;
+            this.rbAvgMaxWatts.TabIndex = 31;
             this.rbAvgMaxWatts.TabStop = true;
             this.rbAvgMaxWatts.Text = "Watts";
             this.rbAvgMaxWatts.UseVisualStyleBackColor = true;
@@ -265,7 +272,7 @@ namespace ZwiftActivityMonitor
             this.rbAvgWatts.Location = new System.Drawing.Point(3, 3);
             this.rbAvgWatts.Name = "rbAvgWatts";
             this.rbAvgWatts.Size = new System.Drawing.Size(55, 19);
-            this.rbAvgWatts.TabIndex = 20;
+            this.rbAvgWatts.TabIndex = 21;
             this.rbAvgWatts.TabStop = true;
             this.rbAvgWatts.Text = "Watts";
             this.rbAvgWatts.UseVisualStyleBackColor = true;
@@ -358,7 +365,6 @@ namespace ZwiftActivityMonitor
             this.lvCollectors.Location = new System.Drawing.Point(3, 3);
             this.lvCollectors.MultiSelect = false;
             this.lvCollectors.Name = "lvCollectors";
-            this.lvCollectors.Scrollable = false;
             this.lvCollectors.Size = new System.Drawing.Size(375, 215);
             this.lvCollectors.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvCollectors.TabIndex = 10;
@@ -392,7 +398,7 @@ namespace ZwiftActivityMonitor
             // chBlank
             // 
             this.chBlank.Text = "";
-            this.chBlank.Width = 150;
+            this.chBlank.Width = 116;
             // 
             // tbDescStatistics
             // 
@@ -413,10 +419,10 @@ namespace ZwiftActivityMonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.Controls.Add(this.pControl);
             this.Name = "StatisticsControl";
-            this.Size = new System.Drawing.Size(590, 559);
+            this.Size = new System.Drawing.Size(586, 498);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+            this.pBase.ResumeLayout(false);
             this.pControl.ResumeLayout(false);
             this.pControl.PerformLayout();
             this.gbCollectors.ResumeLayout(false);
@@ -429,6 +435,7 @@ namespace ZwiftActivityMonitor
             this.pAvgGroup.ResumeLayout(false);
             this.pAvgGroup.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -459,10 +466,10 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Label lblDuration;
         private System.Windows.Forms.ListView lvCollectors;
         private System.Windows.Forms.ColumnHeader chName;
-        private System.Windows.Forms.TextBox tbDescStatistics;
         private System.Windows.Forms.ColumnHeader chAverage;
         private System.Windows.Forms.ColumnHeader chAverageMax;
         private System.Windows.Forms.ColumnHeader chFtp;
         private System.Windows.Forms.ColumnHeader chBlank;
+        private System.Windows.Forms.TextBox tbDescStatistics;
     }
 }
