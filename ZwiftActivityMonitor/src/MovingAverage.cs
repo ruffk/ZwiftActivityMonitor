@@ -14,6 +14,7 @@ using System.Windows;
 namespace ZwiftActivityMonitor
 {
 
+    #region DurationType
     public enum DurationType
     {
         FiveSeconds,
@@ -26,11 +27,12 @@ namespace ZwiftActivityMonitor
         SixtyMinutes,
         NinetyMinutes
     }
+    #endregion
 
     public class MovingAverage
     {
         private readonly ZPMonitorService m_zpMonitorService;
-        private readonly ILogger<MovingAverage> m_logger;
+        private readonly ILogger<MovingAverage> Logger;
         private readonly Queue<Statistics> m_statsQueue;
         private readonly DurationType m_durationType;
         private readonly bool m_excludeZeroPowerValues;
@@ -186,7 +188,7 @@ namespace ZwiftActivityMonitor
         public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType, bool excludeZeroPowerValues)
         {
             m_zpMonitorService = zpMonitorService;
-            m_logger = loggerFactory.CreateLogger<MovingAverage>();
+            Logger = loggerFactory.CreateLogger<MovingAverage>();
             m_durationType = durationType;
             m_duration = MovingAverage.GetDuration(durationType);
             m_excludeZeroPowerValues = excludeZeroPowerValues;
@@ -358,8 +360,8 @@ namespace ZwiftActivityMonitor
                 OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs(m_maxAvgPower, m_maxAvgHR, m_durationType));
             }
 
-            //m_logger.LogInformation($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
-            //m_logger.LogInformation($"id: {e.PlayerState.Id} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} PowerAvg: {curAvgPower} HRAvg: {curAvgHR} PowerMax: {m_maxAvgPower} HRMax: {m_maxAvgHR} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
+            //Logger.LogInformation($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
+            //Logger.LogInformation($"id: {e.PlayerState.Id} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} PowerAvg: {curAvgPower} HRAvg: {curAvgHR} PowerMax: {m_maxAvgPower} HRMax: {m_maxAvgHR} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
         }
 
         private void OnMovingAverageChangedEvent(MovingAverageChangedEventArgs e)
@@ -375,7 +377,7 @@ namespace ZwiftActivityMonitor
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    m_logger.LogWarning(ex, ex.ToString());
+                    Logger.LogWarning(ex, ex.ToString());
                 }
             }
         }
@@ -392,7 +394,7 @@ namespace ZwiftActivityMonitor
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    m_logger.LogWarning(ex, ex.ToString());
+                    Logger.LogWarning(ex, ex.ToString());
                 }
             }
         }
@@ -409,7 +411,7 @@ namespace ZwiftActivityMonitor
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    m_logger.LogWarning(ex, ex.ToString());
+                    Logger.LogWarning(ex, ex.ToString());
                 }
             }
         }

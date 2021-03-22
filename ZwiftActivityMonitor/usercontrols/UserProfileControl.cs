@@ -93,6 +93,12 @@ namespace ZwiftActivityMonitor
 
             base.UserControlBase_Load(sender, e);
 
+            // Get collectors and add names only to the checked list box
+            List<Collector> collectors = ZAMsettings.Settings.GetCollectors;
+
+            collectors.ForEach(collector => clbCollectors.Items.Add(collector.Name));
+
+            // Get users and add them to the listview
             List<UserProfile> users = ZAMsettings.Settings.GetUsers;
 
             lvUserProfiles.Items.Clear();
@@ -101,18 +107,12 @@ namespace ZwiftActivityMonitor
                 lvUserProfiles.Items.Add(new UserProfileListViewItem(user));
             });
 
-
             // this will cause UserProfiles_LoadFields to occur
             if (lvUserProfiles.Items.Count > 0)
             {
                 lvUserProfiles.Items[0].Selected = true;
                 lvUserProfiles.Items[0].Focused = true;
             }
-
-            // Get collectors and add names only to the checked list box
-            List<Collector> collectors = ZAMsettings.Settings.GetCollectors;
-
-            collectors.ForEach(collector => clbCollectors.Items.Add(collector.Name));
 
             EditingUserProfiles = false; // initialize
         }
@@ -459,7 +459,7 @@ namespace ZwiftActivityMonitor
                         if (tbWeight.Text == "")
                             throw new FormatException("Weight cannot be blank.");
 
-                        user.Weight = decimal.Parse(tbWeight.Text);
+                        user.Weight = double.Parse(tbWeight.Text);
                     }
                     catch (Exception ex)
                     {

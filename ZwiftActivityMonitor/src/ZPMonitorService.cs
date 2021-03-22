@@ -12,9 +12,9 @@ namespace ZwiftActivityMonitor
 {
     public class ZPMonitorService
     {
-        private readonly ILogger<ZPMonitorService> m_logger;
-        private readonly IConfiguration m_configuration;
-        private readonly IServiceProvider m_serviceProvider;
+        private readonly ILogger<ZPMonitorService> Logger;
+        //private readonly IConfiguration m_configuration;
+        //private readonly IServiceProvider m_serviceProvider;
         private readonly ZwiftPacketMonitor.Monitor m_zpMonitor;
 
         private int m_trackedPlayerId;
@@ -25,11 +25,11 @@ namespace ZwiftActivityMonitor
         private int m_eventsProcessed;
         private DateTime m_lastPlayerStateUpdate;
         
-        private bool m_isAutoStart; // Whether to attempt to auto start the ZwiftPacketMonitor
-
         private string m_zpMonitorNetwork;
 
         public event EventHandler<PlayerStateEventArgs> PlayerStateEvent;
+
+        #region Internal classes
 
         internal class Zwifter
         {
@@ -49,32 +49,34 @@ namespace ZwiftActivityMonitor
             public string LastName { get { return m_lastName; } }
         }
 
+        #endregion
+
+        // Used if tracking PlayerEnteredWorld events
         private Dictionary<int, Zwifter> m_zwifters;
 
 
 
-        public ZPMonitorService(ILogger<ZPMonitorService> logger, IServiceProvider serviceProvider, IConfiguration configuration, ZwiftPacketMonitor.Monitor zpMonitor)
+        public ZPMonitorService(ILogger<ZPMonitorService> logger, ZwiftPacketMonitor.Monitor zpMonitor)
         {
-            m_logger = logger;
-            m_configuration = configuration;
-            m_serviceProvider = serviceProvider;
+            Logger = logger;
+            //m_configuration = configuration;
+            //m_serviceProvider = serviceProvider;
             m_zpMonitor = zpMonitor;
 
-            // Determine AutoStart
-            if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_isAutoStart))
-            {
-                m_isAutoStart = false;
-            }
+            //// Determine AutoStart
+            //if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_isAutoStart))
+            //{
+            //    m_isAutoStart = false;
+            //}
 
-            m_logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_isAutoStart}");
+            //Logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_isAutoStart}");
 
 
-            m_zpMonitorNetwork = m_configuration["ZwiftPacketMonitor:Network"];
+            //m_zpMonitorNetwork = m_configuration["ZwiftPacketMonitor:Network"];
 
             m_zwifters = new Dictionary<int, Zwifter>();
 
-            m_logger.LogInformation($"Class {this.GetType()} initialized.");
-
+            Logger.LogInformation($"Class {this.GetType()} initialized.");
         }
 
 
@@ -87,9 +89,11 @@ namespace ZwiftActivityMonitor
         {
             if (m_isStarted)
             {
-                m_logger.LogWarning($"ZwiftPacketMonitor is already running.");
+                Logger.LogWarning($"ZwiftPacketMonitor is already running.");
                 return;
             }
+
+            m_zpMonitorNetwork = ZAMsettings.Settings.Network;
 
             m_debugMode = debugMode;
             m_targetHR = targetHR;
@@ -148,7 +152,7 @@ namespace ZwiftActivityMonitor
 
             m_isStarted = true;
 
-            m_logger.LogInformation($"ZwiftPacketMonitor started.");
+            Logger.LogInformation($"ZwiftPacketMonitor started.");
 
         }
 
@@ -174,13 +178,11 @@ namespace ZwiftActivityMonitor
             //m_zpMonitor.IncomingPlayerEnteredWorldEvent -= this.PlayerEnteredWorldEventHandler;
 
 
-            m_logger.LogInformation($"ZwiftPacketMonitor stopped.");
+            Logger.LogInformation($"ZwiftPacketMonitor stopped.");
 
         }
 
         public bool IsStarted { get { return m_isStarted; } }
-
-        public bool IsAutoStart { get { return m_isAutoStart; } }
 
         public int EventsProcessed { get { return m_eventsProcessed; } }
 
@@ -198,19 +200,19 @@ namespace ZwiftActivityMonitor
             {
                 //if  (e.PlayerUpdate.LastName == "Larsen[V]")
                 //{
-                //    m_logger.LogInformation($"Found Rider: {e.PlayerUpdate.RiderId} FirstName: {e.PlayerUpdate.FirstName} LastName: {e.PlayerUpdate.LastName}");
+                //    Logger.LogInformation($"Found Rider: {e.PlayerUpdate.RiderId} FirstName: {e.PlayerUpdate.FirstName} LastName: {e.PlayerUpdate.LastName}");
 
                 //}
                 m_zwifters.Add(e.PlayerUpdate.RiderId, new Zwifter(e.PlayerUpdate));
 
                 if (m_zwifters.Count % 100 == 0)
                 {
-                    m_logger.LogInformation($"Rider count: {m_zwifters.Count}");
+                    Logger.LogInformation($"Rider count: {m_zwifters.Count}");
                 }
             }
             else
             {
-                //m_logger.LogInformation($"Duplicate Rider: {e.PlayerUpdate.RiderId} FirstName: {e.PlayerUpdate.FirstName} LastName: {e.PlayerUpdate.LastName}");
+                //Logger.LogInformation($"Duplicate Rider: {e.PlayerUpdate.RiderId} FirstName: {e.PlayerUpdate.FirstName} LastName: {e.PlayerUpdate.LastName}");
             }
         }
 
@@ -234,7 +236,7 @@ namespace ZwiftActivityMonitor
                                 && (m_targetPower == 0 || e.PlayerState.Power >= m_targetPower - 10 && e.PlayerState.Power <= m_targetPower + 10))
                             {
                                 m_trackedPlayerId = e.PlayerState.Id;
-                                m_logger.LogInformation($"Monitoring player: {m_trackedPlayerId}");
+                                Logger.LogInformation($"Monitoring player: {m_trackedPlayerId}");
                             }
                         }
                         else // randomly choose, not recommended
@@ -250,7 +252,7 @@ namespace ZwiftActivityMonitor
                 }
                 else
                 {
-                    //m_logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
+                    //Logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
                 }
 
                 // only receive updates approx once/sec
@@ -263,7 +265,7 @@ namespace ZwiftActivityMonitor
 
                 if (m_debugMode)
                 {
-                    m_logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}");
+                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}");
                 }
 
                 m_eventsProcessed++;
@@ -273,7 +275,7 @@ namespace ZwiftActivityMonitor
             }
             catch (Exception ex)
             {
-                m_logger.LogError($"Exception occurred: {ex}");
+                Logger.LogError($"Exception occurred: {ex}");
             }
         }
 
@@ -296,7 +298,7 @@ namespace ZwiftActivityMonitor
 
         private async Task StartMonitorAsync(CancellationToken cancellationToken = default)
         {
-            m_logger.LogInformation($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            Logger.LogInformation($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             try
             {
@@ -304,21 +306,21 @@ namespace ZwiftActivityMonitor
             }
             catch (Exception e)
             {
-                m_logger.LogError(e, "Exception occurred trying to start ZwiftPacketMonitor in StartMonitorAsync method.");
+                Logger.LogError(e, "Exception occurred trying to start ZwiftPacketMonitor in StartMonitorAsync method.");
                 throw;
             }
 
 
-            m_logger.LogInformation($"StartMonitorAsync, After StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            Logger.LogInformation($"StartMonitorAsync, After StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
         private async Task StopMonitorAsync(CancellationToken cancellationToken = default)
         {
-            m_logger.LogInformation($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            Logger.LogInformation($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             await m_zpMonitor.StopCaptureAsync(cancellationToken);
 
-            m_logger.LogInformation($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            Logger.LogInformation($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
     }

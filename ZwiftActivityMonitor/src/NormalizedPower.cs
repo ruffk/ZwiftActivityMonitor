@@ -23,7 +23,7 @@ namespace ZwiftActivityMonitor
     public class NormalizedPower
     {
         private readonly ZPMonitorService m_zpMonitorService;
-        private readonly ILogger<NormalizedPower> m_logger;
+        private readonly ILogger<NormalizedPower> Logger;
         private readonly MovingAverage m_movingAvg;
 
         private ulong m_sumMovingAvgPow4;
@@ -60,7 +60,7 @@ namespace ZwiftActivityMonitor
         public NormalizedPower(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
         {
             m_zpMonitorService = zpMonitorService;
-            m_logger = loggerFactory.CreateLogger<NormalizedPower>();
+            Logger = loggerFactory.CreateLogger<NormalizedPower>();
 
             m_movingAvg = new MovingAverage(m_zpMonitorService, loggerFactory, DurationType.ThirtySeconds, true);
             m_movingAvg.MovingAverageCalculatedEvent += MovingAverageCalculatedEventHandler;
@@ -126,7 +126,7 @@ namespace ZwiftActivityMonitor
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    m_logger.LogWarning(ex, ex.ToString());
+                    Logger.LogWarning(ex, ex.ToString());
                 }
             }
         }

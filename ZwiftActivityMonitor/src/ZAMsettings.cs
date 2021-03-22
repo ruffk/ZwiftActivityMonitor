@@ -14,24 +14,24 @@ using SharpPcap.Npcap;
 
 namespace ZwiftActivityMonitor
 {
-
-    //public enum WeightUomType
-    //{
-    //    lbs,
-    //    kgs
-    //}
+    #region UserProfile
 
     public class UserProfile : ICloneable
     {
         public string UniqueId { get; set; } = "";
-        private string m_name = "";
-        private decimal m_weight;
-        private bool m_weightInKgs;
         public int PowerThreshold { get; set; }
         public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
+        private string m_name = "";
+        private double m_weight;
+        private bool m_weightInKgs;
+
+        /// <summary>
+        /// Identifies the user profile as the default user.
+        /// </summary>
         [JsonIgnore]
         public bool Default { get; set; }
+
 
         public UserProfile()
         {
@@ -40,6 +40,35 @@ namespace ZwiftActivityMonitor
         public object Clone()
         {
             return this.MemberwiseClone();
+        }
+
+        public void ClearDefaultCollectors()
+        {
+            DefaultCollectors.Clear();
+        }
+
+        public void AddDefaultCollector(string name)
+        {
+            DefaultCollectors.Add(name, true);
+        }
+
+        [JsonIgnore]
+        public SortedList<string, Collector> SelectedCollectors
+        {
+            get
+            {
+                SortedList<string, Collector> list = new SortedList<string, Collector>();
+
+                foreach (var item in DefaultCollectors)
+                {
+                    if (item.Value == true)
+                    {
+                        if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
+                            list.Add(item.Key, ZAMsettings.Settings.Collectors[item.Key]);
+                    }
+                }
+                return list;
+            }
         }
 
         public bool WeightInKgs
@@ -69,15 +98,13 @@ namespace ZwiftActivityMonitor
             }
         }
 
-        public decimal Weight
+        public double Weight
         {
             get
             {
                 this.WeightInKgs = m_weightInKgs; // fixup weight if necessary
                 
                 return m_weight;
-
-                //return (m_weightInKgs ? Math.Round(m_weight, 1) : Math.Round(m_weight, 0));
             }
 
             set
@@ -89,12 +116,29 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// Weight is needed in kgs for watts/kg calculations
+        /// </summary>
+        /// <returns></returns>
+        [JsonIgnore]
+        public double WeightAsKgs
+        {
+            get
+            {
+                return (this.m_weightInKgs ? this.m_weight : this.m_weight / 2.205);
+            }
+        }
+
         public override string ToString()
         {
             return $"{this.Name}";
         }
 
     }
+
+    #endregion
+
+    #region Collector
 
     public class Collector : ICloneable
     {
@@ -132,6 +176,10 @@ namespace ZwiftActivityMonitor
         }
     }
 
+    #endregion
+
+    #region NetworkListItem
+
     public class NetworkListItem
     {
         private string m_network;
@@ -151,8 +199,12 @@ namespace ZwiftActivityMonitor
         }
     }
 
+    #endregion
+
     public class ZAMsettings
     {
+        #region Public members included in .json configuration
+
         public string Network { get; set; }
         public bool AutoStart { get; set; }
         public string DefaultUserProfile { get; set; } = "";
@@ -161,6 +213,8 @@ namespace ZwiftActivityMonitor
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
+
+        #endregion
 
         [JsonIgnore]
         public string CurrentUserProfile { get; set; } = "";
@@ -174,6 +228,10 @@ namespace ZwiftActivityMonitor
 
         private static ILogger<ZAMsettings> _logger;
         private static bool _initialized;
+
+
+        private const string FileNameDefault = "ZAMsettings.Default.json";
+        private const string FileName = "ZAMsettings.json";
 
 
         private ZAMsettings()
@@ -268,6 +326,21 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// Returns the user that has been selected as the current user
+        /// </summary>
+        [JsonIgnore]
+        public UserProfile CurrentUser
+        {
+            get
+            {
+                if (UserProfiles.ContainsKey(CurrentUserProfile))
+                    return UserProfiles[CurrentUserProfile];
+
+                return null;
+            }
+        }
+
         [JsonIgnore]
         public List<Collector> GetCollectors
         {
@@ -294,7 +367,8 @@ namespace ZwiftActivityMonitor
         public static ZAMsettings Settings 
         { 
             get 
-            { 
+            {
+                Debug.Assert(_initialized, "Not initialized.");
                 return (_dirtyZAMsettings != null ? _dirtyZAMsettings : _cleanZAMsettings); 
             } 
         }
@@ -307,17 +381,14 @@ namespace ZwiftActivityMonitor
 
             _logger = loggerFactory.CreateLogger<ZAMsettings>();
 
-            string fileNameDefault = "ZAMsettings.Default.json";
-            string fileName = "ZAMsettings.Development.json";
-
             try
             {
-                string defaultJsonStr = File.ReadAllText(fileNameDefault);
+                string defaultJsonStr = File.ReadAllText(FileNameDefault);
                 JObject defaultJson = JObject.Parse(defaultJsonStr);
 
                 try
                 {
-                    string userJsonStr = File.ReadAllText(fileName);
+                    string userJsonStr = File.ReadAllText(FileName);
                     JObject userJson = JObject.Parse(userJsonStr);
 
                     defaultJson.Merge(userJson, new JsonMergeSettings
@@ -326,12 +397,12 @@ namespace ZwiftActivityMonitor
                         MergeArrayHandling = MergeArrayHandling.Union
                     });
 
-                    _logger.LogInformation($"Configuration cached from default settings file {fileNameDefault} and merged with user settings file {fileName}.");
+                    _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault} and merged with user settings file {FileName}.");
                 }
                 catch (FileNotFoundException)
                 {
                     // this is okay as defaults will be used
-                    _logger.LogInformation($"Configuration cached from default settings file {fileNameDefault}.  User settings file {fileName} not found.");
+                    _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
                 }
 
 
@@ -351,7 +422,7 @@ namespace ZwiftActivityMonitor
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Exception occurred trying to load configuration from file: {fileName}", ex);
+                throw new ApplicationException($"Exception occurred trying to load configuration from file: {FileName}", ex);
             }
 
         }
@@ -409,8 +480,6 @@ namespace ZwiftActivityMonitor
 
         public static void CommitCachedConfiguration()
         {
-            string fileName = "ZAMsettings.Development.json";
-
             Debug.Assert(_initialized, "Not initialized.");
             Debug.Assert(_dirtyZAMsettings != null, "Configuration not in a cached state.  It must be cached first using BeginCachedConfiguration.");
 
@@ -418,7 +487,7 @@ namespace ZwiftActivityMonitor
             {
                 string json = JsonConvert.SerializeObject(_dirtyZAMsettings, Formatting.Indented);
 
-                File.WriteAllText(fileName, json);
+                File.WriteAllText(FileName, json);
 
                 _logger.LogInformation($"In CommitCachedConfiguration:\n{json}");
 
@@ -428,11 +497,11 @@ namespace ZwiftActivityMonitor
 
                 _dirtyZAMsettings = null;
 
-                _logger.LogInformation($"Cached configuration saved to file: {fileName}");
+                _logger.LogInformation($"Cached configuration saved to file: {FileName}");
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Exception occurred trying to save cached configuration to file: {fileName}", ex);
+                throw new ApplicationException($"Exception occurred trying to save cached configuration to file: {FileName}", ex);
             }
         }
         public static void RollbackCachedConfiguration()
@@ -441,12 +510,13 @@ namespace ZwiftActivityMonitor
             Debug.Assert(_dirtyZAMsettings != null, "Configuration not in a cached state.  It must be cached first using RollbackCachedConfiguration.");
 
             _dirtyZAMsettings = null;
-            //_configUserProfileIndex = -1;
 
             _logger.LogInformation($"Cached configuration rolled back.");
         }
 
-
+        /// <summary>
+        /// Method for testing configuration
+        /// </summary>
         public static void Test()
         {
             BeginCachedConfiguration();
@@ -461,13 +531,13 @@ namespace ZwiftActivityMonitor
             //user.PowerThreshold = 283;
             //Insert(user, true);
 
-            Collector c = new Collector();
-            c.Name = "5 sec";
-            c.DurationDesc = Enum.GetName<DurationType>(DurationType.FiveSeconds);
-            c.FieldAvgDesc = Enum.GetName<FieldUomType>(FieldUomType.Watts);
-            c.FieldAvgMaxDesc = Enum.GetName<FieldUomType>(FieldUomType.Wkg);
-            c.FieldFtpDesc = Enum.GetName<FieldUomType>(FieldUomType.Hidden);
-            Settings.UpsertCollector(c);
+            //Collector c = new Collector();
+            //c.Name = "5 sec";
+            //c.DurationDesc = Enum.GetName<DurationType>(DurationType.FiveSeconds);
+            //c.FieldAvgDesc = Enum.GetName<FieldUomType>(FieldUomType.Watts);
+            //c.FieldAvgMaxDesc = Enum.GetName<FieldUomType>(FieldUomType.Wkg);
+            //c.FieldFtpDesc = Enum.GetName<FieldUomType>(FieldUomType.Hidden);
+            //Settings.UpsertCollector(c);
 
             CommitCachedConfiguration();
 

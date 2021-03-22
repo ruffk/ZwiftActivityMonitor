@@ -56,8 +56,7 @@ namespace ZwiftActivityMonitor
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(70, 17);
-            this.toolStripStatusLabel.Text = "Hello World";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // pBase
             // 
