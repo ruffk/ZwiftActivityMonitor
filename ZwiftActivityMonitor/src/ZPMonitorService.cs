@@ -265,7 +265,11 @@ namespace ZwiftActivityMonitor
 
                 if (m_debugMode)
                 {
-                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}");
+                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
+                }
+                else
+                {
+                    //Logger.LogInformation($"TRACING-OUTGOING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
                 }
 
                 m_eventsProcessed++;

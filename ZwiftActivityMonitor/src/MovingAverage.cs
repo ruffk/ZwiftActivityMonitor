@@ -47,6 +47,8 @@ namespace ZwiftActivityMonitor
         private bool m_started;
         private long m_sumOverallPower;
         private int  m_countOverallPowerSamples;
+        private int  m_distanceSeedValue; // the PlayerState.Distance value when first started
+        private DateTime m_collectionStart;
 
         #region EventArgs
         public class MovingAverageChangedEventArgs : EventArgs
@@ -99,15 +101,11 @@ namespace ZwiftActivityMonitor
         public class MovingAverageCalculatedEventArgs : EventArgs
         {
             private int m_avgPower;
-            private int m_avgHR;
-            private int m_overallPower;
             private DurationType m_durationType;
 
-            public MovingAverageCalculatedEventArgs(int avgPower, int avgHR, int overallPower, DurationType durationType)
+            public MovingAverageCalculatedEventArgs(int avgPower, DurationType durationType)
             {
                 m_avgPower = avgPower;
-                m_avgHR = avgHR;
-                m_overallPower = overallPower;
                 m_durationType = durationType;
             }
 
@@ -115,21 +113,28 @@ namespace ZwiftActivityMonitor
             {
                 get { return m_avgPower; }
             }
-            public int AverageHR
-            {
-                get { return m_avgHR; }
-            }
-            public int OverallPower
-            {
-                get { return m_overallPower; }
-            }
 
             public DurationType DurationType { get { return m_durationType; } }
         }
 
+        public class MetricsCalculatedEventArgs : EventArgs
+        {
+            public int OverallPower { get; }
+            public double AverageKph { get; }
+            public double AverageMph { get; }
+
+            public MetricsCalculatedEventArgs(int overallPower, double averageKph, double averageMph)
+            {
+                OverallPower = overallPower;
+                AverageKph = averageKph;
+                AverageMph = averageMph;
+            }
+        }
+
         public event EventHandler<MovingAverageChangedEventArgs> MovingAverageChangedEvent;
-        public event EventHandler<MovingAverageCalculatedEventArgs> MovingAverageCalculatedEvent;
         public event EventHandler<MovingAverageMaxChangedEventArgs> MovingAverageMaxChangedEvent;
+        public event EventHandler<MetricsCalculatedEventArgs> MetricsCalculatedEvent;
+        public event EventHandler<MovingAverageCalculatedEventArgs> MovingAverageCalculatedEvent;
         #endregion
 
         static private List<DurationDetail> _durationDetails;
@@ -246,6 +251,7 @@ namespace ZwiftActivityMonitor
                 m_maxAvgHR = 0;
                 m_sumOverallPower = 0;
                 m_countOverallPowerSamples = 0;
+                m_collectionStart = DateTime.Now;
                 m_statsQueue.Clear();
 
                 m_started = true;
@@ -283,9 +289,29 @@ namespace ZwiftActivityMonitor
             // the Statistics class captures the values we want to measure
             var stats = new Statistics(e.PlayerState.Power, e.PlayerState.Heartrate);
 
+            if (m_countOverallPowerSamples == 0)
+            {
+                // Capture the current distance traveled value to use as an offset to each successive distance value.
+                m_distanceSeedValue = e.PlayerState.Distance;
+            }
+
             // To keep track of overall average power.  Performing here as zeros count.
             m_sumOverallPower += (long)stats.Power;
             m_countOverallPowerSamples += 1;
+
+            if (MetricsCalculatedEvent != null)
+            {
+                int overallPower = (int)Math.Round(m_sumOverallPower / (double)m_countOverallPowerSamples, 0);
+
+                // Calculate average speed, distance is given in meters.
+                TimeSpan runningTime = (DateTime.Now - m_collectionStart);
+                double kmsTravelled = (e.PlayerState.Distance - m_distanceSeedValue) / 1000.0;
+                double milesTravelled = kmsTravelled / 1.609;
+                double averageKph = Math.Round((kmsTravelled / runningTime.TotalSeconds) * 3600, 1);
+                double averageMph = Math.Round((milesTravelled / runningTime.TotalSeconds) * 3600, 1);
+
+                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(overallPower, averageKph, averageMph));
+            }
 
             // For calculating normalized power zeros are ignored.
             if (m_excludeZeroPowerValues && stats.Power == 0)
@@ -322,8 +348,8 @@ namespace ZwiftActivityMonitor
             m_sumHR += (long)stats.HeartRate;
 
             // calculate averages
-            curAvgPower = (int)(m_sumPower / (long)m_statsQueue.Count);
-            curAvgHR = (int)(m_sumHR / (long)m_statsQueue.Count);
+            curAvgPower = (int)Math.Round(m_sumPower / (double)m_statsQueue.Count, 0);
+            curAvgHR = (int)Math.Round(m_sumHR / (double)m_statsQueue.Count, 0);
 
             // if queue was full, check to see if we have any new max values
             if (calculateMax)
@@ -339,10 +365,8 @@ namespace ZwiftActivityMonitor
                     triggerMax = true;
                 }
 
-                int overallPower = (int)(m_sumOverallPower / (long)m_countOverallPowerSamples);
-
                 // Since buffer was full trigger an event so consumer can use this new average (without waiting for a change).  Used by NormalizedPower
-                OnMovingAverageCalculatedEvent(new MovingAverageCalculatedEventArgs(curAvgPower, curAvgHR, overallPower, m_durationType));
+                OnMovingAverageCalculatedEvent(new MovingAverageCalculatedEventArgs(curAvgPower, m_durationType));
             }
 
             // if either average power or average HR changed, trigger event
@@ -401,6 +425,23 @@ namespace ZwiftActivityMonitor
         private void OnMovingAverageMaxChangedEvent(MovingAverageMaxChangedEventArgs e)
         {
             EventHandler<MovingAverageMaxChangedEventArgs> handler = MovingAverageMaxChangedEvent;
+
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch (Exception ex)
+                {
+                    // Don't let downstream exceptions bubble up
+                    Logger.LogWarning(ex, ex.ToString());
+                }
+            }
+        }
+        private void OnMetricsCalculatedEvent(MetricsCalculatedEventArgs e)
+        {
+            EventHandler<MetricsCalculatedEventArgs> handler = MetricsCalculatedEvent;
 
             if (handler != null)
             {

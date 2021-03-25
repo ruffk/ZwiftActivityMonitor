@@ -5,8 +5,8 @@ using Dapplo.Microsoft.Extensions.Hosting.WinForms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using ZwiftPacketMonitor;
 using System.Threading;
 using System.Threading.Tasks;
@@ -96,60 +96,9 @@ namespace ZwiftActivityMonitor
 
         }
 
-        /*
-        /// <summary>
-        /// Represents the MovingAverage:Collector configuration section
-        /// </summary>
-        internal class Collector
-        {
-            private string m_label;
-            private DurationType m_type;
-            private bool m_displayDefault;
-            private FieldUomType m_fieldAvg;
-            private FieldUomType m_fieldAvgMax;
-            private FieldUomType m_fieldFtp;
-
-
-            public Collector(string durationLabel, string displayDefault, string fieldAvgUom, string fieldAvgMaxUom, string fieldFtpUom)
-            {
-                m_label = durationLabel;
-
-                // Find DurationType based upon a duration label (5 sec, 1 min, 5 min, etc.)
-                m_type = MovingAverage.GetType(durationLabel);
-
-                if (!bool.TryParse(displayDefault, out m_displayDefault))
-                    throw new ArgumentException($"Invalid display default: {displayDefault}, Use [true | false]");
-
-                if (!Enum.TryParse<FieldUomType>(fieldAvgUom, true, out m_fieldAvg))
-                    throw new ArgumentException($"Invalid FieldAvgUom: {fieldAvgUom}, Use [None | Watts | Wkg]");
-                
-                if (!Enum.TryParse<FieldUomType>(fieldAvgMaxUom, true, out m_fieldAvgMax))
-                    throw new ArgumentException($"Invalid FieldAvgMaxUom: {fieldAvgMaxUom}, Use [None | Watts | Wkg]");
-
-                if (!Enum.TryParse<FieldUomType>(fieldFtpUom, true, out m_fieldFtp))
-                    throw new ArgumentException($"Invalid fieldFtpUom: {fieldFtpUom}, Use [None | Watts | Wkg]");
-            }
-
-            public Collector(string durationLabel, FieldUomType fieldAvg, FieldUomType fieldAvgMax, FieldUomType fieldFtp)
-            {
-                m_label = durationLabel;
-                m_fieldAvg = fieldAvg;
-                m_fieldAvgMax = fieldAvgMax;
-                m_fieldFtp = fieldFtp;
-            }
-
-            public string Label { get { return m_label; } }
-            public DurationType Type { get { return m_type; } }
-            public bool DisplayDefault { get { return m_displayDefault; } }
-            public FieldUomType FieldAvg { get { return m_fieldAvg; } }
-            public FieldUomType FieldAvgMax { get { return m_fieldAvgMax; } }
-            public FieldUomType FieldFtp { get { return m_fieldFtp; } }
-        }
-        */
         #endregion
 
         private readonly ILogger<MonitorStatistics> m_logger;
-        //private readonly IConfiguration m_configuration;
         private readonly IServiceProvider m_serviceProvider;
         private readonly ZPMonitorService m_zpMonitorService;
         private readonly ILoggerFactory m_loggerFactory;
@@ -157,7 +106,6 @@ namespace ZwiftActivityMonitor
         private readonly List<LabelHelper> m_labelHelpers;
         private readonly Dictionary<DurationType, MovingAverageWrapper> m_maCollection;
         private readonly Dictionary<string, string> m_labelUnits;
-        //private readonly Dictionary<DurationType, Collector> m_collectors;
         private readonly NormalizedPower m_normalizedPower;
 
 
@@ -165,9 +113,7 @@ namespace ZwiftActivityMonitor
 
         private DateTime m_timerCompletion; // Time when timer countdown should complete
         private DateTime m_collectionStart; // Time when monitor run started
-        //private double m_ZwifterWeightKgs;  // Zwifter weight from configuration
         private bool m_isStarted;           // Whether the collectors are currently running
-        //private int m_thresholdPower;       // FTP, Used to calculate IF
         private UserProfile m_currentUser;
 
 
@@ -175,18 +121,17 @@ namespace ZwiftActivityMonitor
         {
             m_logger = loggerFactory.CreateLogger<MonitorStatistics>(); ;
             m_serviceProvider = serviceProvider;
-            //m_configuration = configuration;
             m_zpMonitorService = zpMonitorService;
             m_loggerFactory = loggerFactory;
 
             m_maCollection = new Dictionary<DurationType, MovingAverageWrapper>();
             m_labelUnits = new Dictionary<string, string>();
-            //m_collectors = new Dictionary<DurationType, Collector>();
 
             m_labelHelpers = new List<LabelHelper>();
 
             m_normalizedPower = new NormalizedPower(zpMonitorService, loggerFactory);
             m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
+            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
 
 
             InitializeComponent();
@@ -669,6 +614,13 @@ namespace ZwiftActivityMonitor
         /// <param name="e"></param>
         private delegate void NormalizedPowerChangedEventHandlerDelegate(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e);
 
+        private double m_currentIf;
+        private int m_currentNp;
+        private double m_currentKph;
+        private double m_currentMph;
+        private int m_currentAp;
+
+
         /// <summary>
         /// Occurs each time the normalized power changes.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
@@ -683,20 +635,54 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            string strIf = "";
-
             if (m_currentUser.PowerThreshold > 0)
             {
-                double currentIf = e.NormalizedPower / (double)m_currentUser.PowerThreshold;
-
-                strIf = $", IF: {currentIf.ToString("#.00")}";
+                m_currentIf = Math.Round(e.NormalizedPower / (double)m_currentUser.PowerThreshold, 2);
+            }
+            else
+            {
+                m_currentIf = 0;
             }
 
-            tsslOverall.Text = $"AP: {e.OverallPower}, NP: {e.NormalizedPower}{strIf}";
+            m_currentNp = e.NormalizedPower;
 
-            //lblNp.Text = e.NormalizedPower.ToString();
+            UpdateOverallValues();
+        }
 
-            //m_logger.LogInformation($"Normalized power: {e.NormalizedPower}");
+        private void UpdateOverallValues()
+        {
+            tsslOverall.Text = $"AP: {m_currentAp}{(m_currentNp > 0 ? ", NP: " + m_currentNp : "")}{(m_currentIf > 0 ? ", IF: " + m_currentIf.ToString("#.00") : "")}{(m_currentKph > 0 ? ", KPH: " + m_currentKph.ToString("#.0") : "")}";
+        }
+
+        /// <summary>
+        /// A delegate used solely by the MetricsChangedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void MetricsChangedEventHandlerDelegate(object sender, NormalizedPower.MetricsChangedEventArgs e);
+
+
+        /// <summary>
+        /// Occurs each time the average speed changes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MetricsChangedEventHandler(object sender, NormalizedPower.MetricsChangedEventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new MetricsChangedEventHandlerDelegate(MetricsChangedEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            m_currentKph = e.AverageKph;
+            m_currentMph = e.AverageMph;
+            m_currentAp = e.OverallPower;
+
+            UpdateOverallValues();
+
+            //m_logger.LogInformation($"Average speed: KPH {e.AverageKph}, MPH {e.AverageMph}");
         }
 
         #endregion
@@ -755,7 +741,6 @@ namespace ZwiftActivityMonitor
                 tsslStatus.Text = "Time Remaining: " + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#"); 
             }
         }
-        #endregion
 
         private void runTimer_Tick(object sender, EventArgs e)
         {
@@ -765,6 +750,9 @@ namespace ZwiftActivityMonitor
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
         }
+
+        #endregion
+
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
         {

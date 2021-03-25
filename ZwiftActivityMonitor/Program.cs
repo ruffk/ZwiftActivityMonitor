@@ -21,7 +21,8 @@ namespace ZwiftActivityMonitor
         {
             var executableLocation = Path.GetDirectoryName(typeof(Program).Assembly.Location);
             var host = new HostBuilder()
-                .ConfigureWinForms<MonitorStatistics>()
+                .ConfigureWinForms<MainForm>()
+                //.ConfigureWinForms<MonitorStatistics>()
                 .ConfigureConfiguration(args)
                 .ConfigureLogging()
                 .ConfigureSingleInstance(builder =>
