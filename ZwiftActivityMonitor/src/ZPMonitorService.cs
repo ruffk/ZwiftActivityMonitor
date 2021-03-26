@@ -24,7 +24,8 @@ namespace ZwiftActivityMonitor
         private bool m_isStarted;
         private int m_eventsProcessed;
         private DateTime m_lastPlayerStateUpdate;
-        
+        private TimeSpan m_playerStateTime = new TimeSpan(0); // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
+
         private string m_zpMonitorNetwork;
 
         public event EventHandler<PlayerStateEventArgs> PlayerStateEvent;
@@ -101,6 +102,7 @@ namespace ZwiftActivityMonitor
 
             m_lastPlayerStateUpdate = DateTime.Now;
             m_eventsProcessed = 0;
+            m_playerStateTime = new TimeSpan(0);
 
             // Here we launch our own task to start monitoring.  It's not actually necessary
             // but it does allow some extra logging of threads used for startup, shutdown, etc.
@@ -193,6 +195,18 @@ namespace ZwiftActivityMonitor
         public int TargetHeartrate { get { return m_targetHR; } }
         public int TargetPower { get { return m_targetPower; } }
 
+        // Get the latest PlayerState.Time value. This corresponds to the elapsed time the player sees on screen. 
+        public TimeSpan PlayerStateTime
+        {
+            get
+            {
+                lock(this)
+                {
+                    return m_playerStateTime;
+                }
+            }
+        }
+
         private void PlayerEnteredWorldEventHandler(object sender, PlayerEnteredWorldEventArgs e)
         {
 
@@ -255,6 +269,14 @@ namespace ZwiftActivityMonitor
                     //Logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
                 }
 
+                // Capture the latest PlayerState.Time value.  This corresponds to the elapsed time the player sees on screen.
+                // We can use this to know when the Zwift ride actually starts so that the ZAM clocks start simutaneously. 
+                lock (this)
+                {
+                    // Lock is used to avoid contention between threads
+                    m_playerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
+                }
+
                 // only receive updates approx once/sec
                 if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 900)
                 {
@@ -265,11 +287,13 @@ namespace ZwiftActivityMonitor
 
                 if (m_debugMode)
                 {
-                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
+                    //Logger.LogInformation($"TRACING-INCOMING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
+                    Logger.LogInformation($"TRACING-INCOMING: Time: {e.PlayerState.Time}, RoadTime: {e.PlayerState.RoadTime}, WorldTime: {e.PlayerState.WorldTime}");
                 }
                 else
                 {
-                    //Logger.LogInformation($"TRACING-OUTGOING: PlayerId: {e.PlayerState.Id}, Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
+                    //Logger.LogInformation($"TRACING-OUTGOING: Power: {e.PlayerState.Power}, HeartRate: {e.PlayerState.Heartrate}, Distance: {e.PlayerState.Distance}");
+                    Logger.LogInformation($"TRACING-OUTGOING: Time: {e.PlayerState.Time}, RoadTime: {e.PlayerState.RoadTime}, WorldTime: {e.PlayerState.WorldTime}");
                 }
 
                 m_eventsProcessed++;

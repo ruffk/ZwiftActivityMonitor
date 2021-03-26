@@ -73,7 +73,8 @@ namespace ZwiftActivityMonitor
             m_zpMonitorService = zpMonitorService;
             Logger = loggerFactory.CreateLogger<NormalizedPower>();
 
-            m_movingAvg = new MovingAverage(m_zpMonitorService, loggerFactory, DurationType.ThirtySeconds, true);
+            // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).
+            m_movingAvg = new MovingAverage(m_zpMonitorService, loggerFactory, DurationType.ThirtySeconds, false);
             m_movingAvg.MovingAverageCalculatedEvent += MovingAverageCalculatedEventHandler;
             m_movingAvg.MetricsCalculatedEvent += MetricsCalculatedEventHandler;
         }
