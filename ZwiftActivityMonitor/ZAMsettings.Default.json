@@ -1,0 +1,95 @@
+{
+  "Network": "",
+  "AutoStart": false,
+  "DefaultUserProfile": "789765a5-23a9-4537-b5bb-47af8091f3d3",
+  "WindowPositionX": 311,
+  "WindowPositionY": 48,
+  "UserProfiles": {
+    "789765a5-23a9-4537-b5bb-47af8091f3d3": {
+      "UniqueId": "789765a5-23a9-4537-b5bb-47af8091f3d3",
+      "PowerThreshold": 150,
+      "DefaultCollectors": {
+        "1 min": true,
+        "20 min": true,
+        "30 sec": true
+      },
+      "WeightInKgs": false,
+      "Name": "Default User",
+      "Weight": 165.0
+    }
+  },
+  "Collectors": {
+    "1 min": {
+      "Name": "1 min",
+      "DurationDesc": "OneMinute",
+      "DurationSecs": 60,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "10 min": {
+      "Name": "10 min",
+      "DurationDesc": "TenMinute",
+      "DurationSecs": 600,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "20 min": {
+      "Name": "20 min",
+      "DurationDesc": "TwentyMinute",
+      "DurationSecs": 1200,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Wkg"
+    },
+    "30 min": {
+      "Name": "30 min",
+      "DurationDesc": "ThirtyMinute",
+      "DurationSecs": 1800,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "30 sec": {
+      "Name": "30 sec",
+      "DurationDesc": "ThirtySeconds",
+      "DurationSecs": 30,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "5 min": {
+      "Name": "5 min",
+      "DurationDesc": "FiveMinute",
+      "DurationSecs": 300,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "5 sec": {
+      "Name": "5 sec",
+      "DurationDesc": "FiveSeconds",
+      "DurationSecs": 5,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "60 min": {
+      "Name": "60 min",
+      "DurationDesc": "SixtyMinute",
+      "DurationSecs": 3600,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "90 min": {
+      "Name": "90 min",
+      "DurationDesc": "NinetyMinute",
+      "DurationSecs": 5400,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    }
+  }
+}

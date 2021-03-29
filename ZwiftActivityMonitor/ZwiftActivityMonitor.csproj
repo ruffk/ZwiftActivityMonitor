@@ -23,10 +23,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="forms\MonitorStatistics.cs" />
+    <Compile Remove="forms\MonitorStatistics.Designer.cs" />
+    <Compile Remove="src\ConfigurationBO.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="forms\MonitorStatistics.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="hostsettings.json" />
     <None Remove="README.md" />
     <None Remove="resources\cycling.ico" />
+    <None Remove="resources\cycling1.ico" />
     <None Remove="ZwiftActivityMonitor.nuspec" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="resources\cycling1.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,12 +52,20 @@
     <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.AppServices" Version="0.5.5" />
     <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.Plugins" Version="0.5.5" />
     <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.WinForms" Version="0.5.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="SharpPcap" Version="5.4.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="ZwiftPacketMonitor" Version="1.2.7" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="ZAMsettings.Default.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ZAMsettings.Development.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
@@ -59,7 +82,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="resources\cycling.ico" />
+    <EmbeddedResource Include="resources\cycling.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings" /></VisualStudio></ProjectExtensions>
