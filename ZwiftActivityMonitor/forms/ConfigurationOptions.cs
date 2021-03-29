@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
-using Dapplo.Microsoft.Extensions.Hosting.WinForms;
 using Microsoft.Extensions.DependencyInjection;
-using ZwiftPacketMonitor;
 
 
 namespace ZwiftActivityMonitor
@@ -20,12 +10,6 @@ namespace ZwiftActivityMonitor
     public partial class ConfigurationOptions : Form
     {
         private readonly ILogger<ConfigurationOptions> m_logger;
-        //private readonly ConfigurationBO m_configurationBO;
-        //private readonly int m_zamWindowXpos;
-        //private readonly int m_zamWindowYpos;
-        //private readonly ZPMonitorService m_zpMonitorService;
-
-        //private Dispatcher m_dispatcher;
 
         /*
 
@@ -87,10 +71,6 @@ namespace ZwiftActivityMonitor
         public ConfigurationOptions(ILoggerFactory loggerFactory, IServiceProvider serviceProvider, Point ZAMWindowPos)
         {
             m_logger = loggerFactory.CreateLogger<ConfigurationOptions>();
-            //m_configurationBO = serviceProvider.GetService<ConfigurationBO>();
-            //m_zpMonitorService = serviceProvider.GetService<ZPMonitorService>();
-            //m_zamWindowXpos = ZAMWindowPos.X;
-            //m_zamWindowYpos = ZAMWindowPos.Y;
 
             InitializeComponent();
 
@@ -108,21 +88,9 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            //m_dispatcher = Dispatcher.CurrentDispatcher;
-
             // toggle the tabpage selection to get the Selecting / Selected events to fire for the initial tabpage
             tabOptions.SelectedIndex = -1;
             tabOptions.SelectedIndex = 0;
-
-            // Start configuration in a known valid state
-            //m_configurationBO.RollbackCachedConfiguration();
-
-            //SystemSettings_Load();
-            //UserProfiles_Load();
-
-            //ZAMsettings.Test();
-
-            //ActiveControl = cbCurrentUser;
         }
 
         private void ConfigurationOptions_FormClosing(object sender, FormClosingEventArgs e)

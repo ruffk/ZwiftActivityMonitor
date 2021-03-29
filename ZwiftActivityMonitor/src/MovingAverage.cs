@@ -1,15 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using ZwiftPacketMonitor;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using System.Windows.Threading;
-using System.Windows;
 
 namespace ZwiftActivityMonitor
 {
@@ -200,7 +191,7 @@ namespace ZwiftActivityMonitor
 
             m_statsQueue = new Queue<Statistics>();
 
-            m_zpMonitorService.PlayerStateEvent += PlayerStateEventHandler;
+            m_zpMonitorService.RiderStateEvent += RiderStateEventHandler;
 
         }
 
@@ -271,7 +262,7 @@ namespace ZwiftActivityMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void PlayerStateEventHandler(object sender, PlayerStateEventArgs e)
+        private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
             DateTime now = DateTime.Now; // fixed current time
             TimeSpan oldest = TimeSpan.Zero; // oldest item in queue
@@ -287,12 +278,12 @@ namespace ZwiftActivityMonitor
                 return;
 
             // the Statistics class captures the values we want to measure
-            var stats = new Statistics(e.PlayerState.Power, e.PlayerState.Heartrate);
+            var stats = new Statistics(e.Power, e.Heartrate);
 
             if (m_countOverallPowerSamples == 0)
             {
                 // Capture the current distance traveled value to use as an offset to each successive distance value.
-                m_distanceSeedValue = e.PlayerState.Distance;
+                m_distanceSeedValue = e.Distance;
             }
 
             // To keep track of overall average power.  Performing here as zeros count.
@@ -305,7 +296,7 @@ namespace ZwiftActivityMonitor
 
                 // Calculate average speed, distance is given in meters.
                 TimeSpan runningTime = (DateTime.Now - m_collectionStart);
-                double kmsTravelled = (e.PlayerState.Distance - m_distanceSeedValue) / 1000.0;
+                double kmsTravelled = (e.Distance - m_distanceSeedValue) / 1000.0;
                 double milesTravelled = kmsTravelled / 1.609;
                 double averageKph = Math.Round((kmsTravelled / runningTime.TotalSeconds) * 3600, 1);
                 double averageMph = Math.Round((milesTravelled / runningTime.TotalSeconds) * 3600, 1);

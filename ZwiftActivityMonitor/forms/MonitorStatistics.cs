@@ -19,12 +19,6 @@ using SharpPcap.Npcap;
 namespace ZwiftActivityMonitor
 {
 
-    public enum FieldUomType
-    {
-        Hidden,
-        Watts,
-        Wkg
-    }
 
     public partial class MonitorStatistics : Form, IWinFormsShell
     {

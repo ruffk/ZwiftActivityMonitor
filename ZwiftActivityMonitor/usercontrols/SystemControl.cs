@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
-using Microsoft.Extensions.Logging;
-using ZwiftPacketMonitor;
 
 namespace ZwiftActivityMonitor
 {
@@ -54,7 +47,7 @@ namespace ZwiftActivityMonitor
 
             //SetMonitorButtonStatus();
 
-            PacketMonitor.PlayerStateEvent += ProcessedPlayerStateEventHandler;
+            PacketMonitor.RiderStateEvent += ProcessedRiderStateEventHandler;
 
             // initialize
             EditingSystemSettings = false;
@@ -226,20 +219,20 @@ namespace ZwiftActivityMonitor
         }
 
 
-        private delegate void ProcessedPlayerStateEventHandlerDelegate(object sender, PlayerStateEventArgs e);
+        private delegate void ProcessedRiderStateEventHandlerDelegate(object sender, RiderStateEventArgs e);
 
-        private void ProcessedPlayerStateEventHandler(object sender, PlayerStateEventArgs e)
+        private void ProcessedRiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
                 // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-                m_dispatcher.BeginInvoke(new ProcessedPlayerStateEventHandlerDelegate(ProcessedPlayerStateEventHandler), new object[] { sender, e });
+                m_dispatcher.BeginInvoke(new ProcessedRiderStateEventHandlerDelegate(ProcessedRiderStateEventHandler), new object[] { sender, e });
                 return;
             }
 
             lblEventsProcessed.Text = PacketMonitor.EventsProcessed.ToString();
 
-            string[] row = { e.PlayerState.Id.ToString(), e.PlayerState.Power.ToString(), e.PlayerState.Heartrate.ToString(), DateTime.Now.ToString() };
+            string[] row = { e.Id.ToString(), e.Power.ToString(), e.Heartrate.ToString(), DateTime.Now.ToString() };
 
             lvTrace.Items.Insert(0, new ListViewItem(row));
 

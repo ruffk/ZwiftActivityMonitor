@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Runtime.CompilerServices;
 
 namespace ZwiftActivityMonitor
 {
@@ -189,12 +188,7 @@ namespace ZwiftActivityMonitor
         private DateTime m_lastViewerRefresh; // Time of last Viewer list view refresh
         private DateTime m_lastSummaryRefresh; // Time of last Summary list view refresh
         private int m_summaryRefreshCount; // Number of times Summary list view has been refreshed
-        private CancellationTokenSource m_cancellationTokenSource;
-        //private double m_currentIf;
-        //private int m_currentNp;
-        //private double m_currentKph;
-        //private double m_currentMph;
-        //private int m_currentAp;
+        private CancellationTokenSource m_cancellationTokenSource; // For cancelling thread awaiting rider start
 
 
 
@@ -321,7 +315,7 @@ namespace ZwiftActivityMonitor
             if (m_isStarted)
             {
                 if (MessageBox.Show("Are you sure you wish to stop monitoring and close the application?",
-                    "Performance Monitor Running", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    "Activity Monitor Running", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 {
                     e.Cancel = true;
                     return;
@@ -330,9 +324,9 @@ namespace ZwiftActivityMonitor
 
             Collection_OnStop();
 
-            m_maCollection.Clear();
+            //m_maCollection.Clear();
 
-            m_logger.LogInformation("Closing");
+            m_logger.LogInformation("FormClosing");
         }
 
         #endregion
@@ -384,13 +378,26 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// Wait for the rider clock to begin counting.
+        /// This allows user to select Start, and collection won't begin until the clock begins.  
+        /// On a freeride, this is when they start pedalling.
+        /// In a timed event, this is when banner drops.
+        /// In a non-timed event, this is when the user crosses the timing start line, which is usually shortly after the banner.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task WaitForRiderStartAsync(CancellationToken cancellationToken = default)
         {
             m_logger.LogInformation($"WaitForRiderStartAsync, Begin Waiting...");
 
+            tsslStatus.Text = "Waiting on Event clock...";
+
+            double currentTime = m_zpMonitorService.PlayerStateTime.TotalSeconds;
+
             await Task.Run(() =>
             {
-                while (!cancellationToken.IsCancellationRequested && m_zpMonitorService.PlayerStateTime.TotalSeconds == 0)
+                while (!cancellationToken.IsCancellationRequested && m_zpMonitorService.PlayerStateTime.TotalSeconds == currentTime)
                 {
                     Task.Delay(250).Wait();
                 }
@@ -437,8 +444,6 @@ namespace ZwiftActivityMonitor
                 // Clear any values on the screen
                 RefreshListViews(true);
 
-                //tsslOverall.Text = "Collecting...";
-
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
 
@@ -456,10 +461,10 @@ namespace ZwiftActivityMonitor
                 tsmiOptions.Enabled = false;
                 tsmiAdvanced.Enabled = false;
 
-                tsslStatus.Text = "Running";
+                //tsslStatus.Text = "Running";
 
-                if (m_zpMonitorService.IsStarted && m_zpMonitorService.IsDebugMode)
-                    tsslStatus.Text += " in DEBUG/DEMO mode";
+                //if (m_zpMonitorService.IsStarted && m_zpMonitorService.IsDebugMode)
+                //    tsslStatus.Text += " in DEBUG/DEMO mode";
             }
             else
             {
@@ -909,38 +914,6 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
-        private void tsmiAdvanced_Click(object sender, EventArgs e)
-        {
-            var form = m_serviceProvider.GetService<AdvancedOptions>();
-
-            DialogResult result = form.ShowDialog(this);
-
-            // Allow menus and status bar to update according to what user just did
-            OnCollectionStatusChanged();
-        }
-
-        private void tsmiCheckForUpdates_Click(object sender, EventArgs e)
-        {
-            //using (var mgr = UpdateManager.GitHubUpdateManager("https://github.com/myuser/myapp"))
-            //{
-            //    await mgr.Result.UpdateApp();
-            //}
-        }
-
-        private void tsmiOptions_Click(object sender, EventArgs e)
-        {
-            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location);
-
-            DialogResult result = form.ShowDialog(this);
-
-            SetupCurrentUser();
-
-            // Allow menus and status bar to update according to what user just did
-            OnCollectionStatusChanged();
-        }
-
-
-
         #region Misc Form events
 
         private void lblTitle_MouseDown(object sender, MouseEventArgs e)
@@ -972,6 +945,36 @@ namespace ZwiftActivityMonitor
 
         #region Menu item events
 
+        private void tsmiAdvanced_Click(object sender, EventArgs e)
+        {
+            var form = m_serviceProvider.GetService<AdvancedOptions>();
+
+            DialogResult result = form.ShowDialog(this);
+
+            // Allow menus and status bar to update according to what user just did
+            OnCollectionStatusChanged();
+        }
+
+        private void tsmiCheckForUpdates_Click(object sender, EventArgs e)
+        {
+            //using (var mgr = UpdateManager.GitHubUpdateManager("https://github.com/myuser/myapp"))
+            //{
+            //    await mgr.Result.UpdateApp();
+            //}
+        }
+
+        private void tsmiOptions_Click(object sender, EventArgs e)
+        {
+            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location);
+
+            DialogResult result = form.ShowDialog(this);
+
+            SetupCurrentUser();
+
+            // Allow menus and status bar to update according to what user just did
+            OnCollectionStatusChanged();
+        }
+
         private void tsmiStart_Click(object sender, EventArgs e)
         {
             if (!m_zpMonitorService.IsStarted)
@@ -982,6 +985,7 @@ namespace ZwiftActivityMonitor
 
             Collection_OnStart();
         }
+
         private void tsmiStop_Click(object sender, EventArgs e)
         {
             Collection_OnStop();

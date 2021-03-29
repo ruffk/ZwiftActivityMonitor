@@ -27,20 +27,20 @@ namespace ZwiftActivityMonitor
             m_logger.LogInformation($"Class {this.GetType()} initialized.");
         }
 
-        private delegate void ProcessedPlayerStateEventHandlerDelegate(object sender, PlayerStateEventArgs e);
+        private delegate void ProcessedRiderStateEventHandlerDelegate(object sender, RiderStateEventArgs e);
 
-        private void ProcessedPlayerStateEventHandler(object sender, PlayerStateEventArgs e)
+        private void ProcessedRiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
                 // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-                m_dispatcher.BeginInvoke(new ProcessedPlayerStateEventHandlerDelegate(ProcessedPlayerStateEventHandler), new object[] { sender, e });
+                m_dispatcher.BeginInvoke(new ProcessedRiderStateEventHandlerDelegate(ProcessedRiderStateEventHandler), new object[] { sender, e });
                 return;
             }
 
             lblEventsProcessed.Text = m_zpMonitorService.EventsProcessed.ToString();
 
-            string[] row = { e.PlayerState.Id.ToString(), e.PlayerState.Power.ToString(), e.PlayerState.Heartrate.ToString(), DateTime.Now.ToString() };
+            string[] row = { e.Id.ToString(), e.Power.ToString(), e.Heartrate.ToString(), DateTime.Now.ToString() };
 
             lvTrace.Items.Insert(0, new ListViewItem(row));
 
@@ -115,7 +115,7 @@ namespace ZwiftActivityMonitor
         {
             m_logger.LogInformation($"FormClosed event");
 
-            m_zpMonitorService.PlayerStateEvent -= ProcessedPlayerStateEventHandler;
+            m_zpMonitorService.RiderStateEvent -= ProcessedRiderStateEventHandler;
         }
 
         private void AdvancedOptions_Shown(object sender, EventArgs e)
@@ -130,7 +130,7 @@ namespace ZwiftActivityMonitor
             // Set controls based on started/stopped
             OnMonitorStatusChanged();
 
-            m_zpMonitorService.PlayerStateEvent += ProcessedPlayerStateEventHandler;
+            m_zpMonitorService.RiderStateEvent += ProcessedRiderStateEventHandler;
 
             //if (m_zpMonitorService.IsAutoStart)
             //{

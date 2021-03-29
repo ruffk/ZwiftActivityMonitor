@@ -2,47 +2,27 @@
   "Network": "",
   "AutoStart": false,
   "DefaultUserProfile": "789765a5-23a9-4537-b5bb-47af8091f3d3",
-  "WindowPositionX": 314,
+  "WindowPositionX": 311,
   "WindowPositionY": 48,
   "UserProfiles": {
     "789765a5-23a9-4537-b5bb-47af8091f3d3": {
       "UniqueId": "789765a5-23a9-4537-b5bb-47af8091f3d3",
+      "PowerThreshold": 150,
+      "DefaultCollectors": {
+        "1 min": true,
+        "20 min": true,
+        "30 sec": true
+      },
       "WeightInKgs": false,
-      "PowerThreshold": 200,
       "Name": "Default User",
-      "Weight": 150
+      "Weight": 165.0
     }
   },
   "Collectors": {
-    "5 sec": {
-      "Name": "5 sec",
-      "DurationDesc": "FiveSeconds",
-      "DurationSecs": 5,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-
-    },
-    "30 sec": {
-      "Name": "30 sec",
-      "DurationDesc": "ThirtySeconds",
-      "DurationSecs": 30,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
     "1 min": {
       "Name": "1 min",
       "DurationDesc": "OneMinute",
       "DurationSecs": 60,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "5 min": {
-      "Name": "5 min",
-      "DurationDesc": "FiveMinute",
-      "DurationSecs": 300,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
       "FieldFtpDesc": "Hidden"
@@ -67,6 +47,30 @@
       "Name": "30 min",
       "DurationDesc": "ThirtyMinute",
       "DurationSecs": 1800,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "30 sec": {
+      "Name": "30 sec",
+      "DurationDesc": "ThirtySeconds",
+      "DurationSecs": 30,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "5 min": {
+      "Name": "5 min",
+      "DurationDesc": "FiveMinute",
+      "DurationSecs": 300,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
+    "5 sec": {
+      "Name": "5 sec",
+      "DurationDesc": "FiveSeconds",
+      "DurationSecs": 5,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
       "FieldFtpDesc": "Hidden"
