@@ -43,21 +43,25 @@ in order to use ZAM.  This can either be done manually each time you run ZAM (by
 
 ![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SystemOptions.png)
 
-#### Options -> Users Configuration Tab
+#### Options -> User Configuration Tab
 
 Multiple user profiles are ideal for multi-rider households, or if you'd like to be able to quickly select a different collector set. 
-A default profile is provided for you, but you should configure it before using.
+A default profile is provided for you, but you should configure it properly before using.
 
 <ol>
-	<li>Rider name - Identifies the rider.</li>
-	<li>Weight, in Kilos or Pounds.</li>
-	<li>FTP</li>
+	<li>Name - Identifies the rider.</li>
+	<li>Weight - In Kilos or Pounds, preferably </li>
+	<li>FTP - From your last FTP test or the value that Zwift has.</li>
 	<li>Default moving average collector selection</li>
 </ol>
 
-Note: It is VERY important to set the weight and FTP fields properly!  These are used to calculate Watts/Kilo and Intensity Factor.
+The moving average collectors selected will be shown by default for this user.  However, you can select different collectors from the main ZAM window. 
+
+Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  These are used to calculate Watts/Kilo and Intensity Factor.
 
 ![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserProfiles.png)
+
+#### Options -> Collector Configuration Tab
 
 ZAM extracts this data into moving average collectors and presents then on the screen in real-time.
 Furthermore, you'll get to see the following overall statistics:
@@ -68,6 +72,8 @@ Furthermore, you'll get to see the following overall statistics:
 	<li>Intensity factor (IF)</li>
 	<li>Average speed</li>
 </ol>
+
+![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
 
 
 ## Prerequisites
