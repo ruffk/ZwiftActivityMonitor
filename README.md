@@ -1,8 +1,11 @@
-# Zwift Activity Monitor
+Zwift Activity Monitor
+======================
+
+## The Power is Within You
 
 ![main_form](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainForm.png)
 
-This project allows Zwift users to monitor their power and heartrate average in real-time.
+This project allows Zwift riders to monitor their power and heartrate averages in real-time.
 
 ## Prerequisites
 
@@ -15,7 +18,11 @@ To install Zwift Activity Monitor, follow these steps:
 
 Windows:
 
-<install_command>
+<ol>
+	<li>Make sure you've installed the latest version of Npcap from the link above in Prerequisites.</li>
+	<li>Download the latest Setup-ZAM.exe release from this GitHub repository.  You may get some weird messages from your Anti-Virus software.</li>
+	<li>Run the installation.  Again, you may get some messages from your Anti-Virus software.</li>
+</ol>
 
 ## Using Zwift Activity Monitor
 
