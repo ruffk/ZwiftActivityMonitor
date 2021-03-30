@@ -33,28 +33,31 @@ ZAM is easily configured via a set of configuration tab pages in the <b>Options<
 ZAM first and foremost needs to know what network you use when running Zwift.  It's usually pretty simple as most
 computers are either Wi-Fi or direct Ethernet cabled.  Within ZAM there is a packet monitoring system which MUST be started
 in order to use ZAM.  This can either be done manually each time you run ZAM (by clicking the Start button), or by checking Auto-Start.
+
 <ol>
-	<li>Default User - The user profile that will be used each time ZAM starts.</li>
+	<li>Current User - The user profile that will be used during this ZAM session.  This defaults to the Default User Profile.</li>
 	<li>Network - The network in your computer you use when running Zwift.</li>
+	<li>Auto-Start - Whether to start the Zwift Packet Monitoring service automatically when ZAM starts.</li>
 	<li>Window Position - Once you find where you like the ZAM window to sit, enter those coordinates and it will open there each time.</li>
 </ol>
 
 ![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SystemOptions.png)
 
+#### Options -> Users Configuration Tab
 
-<p>
-
-ZAM is highly configurable and has the ability to save multiple rider profiles. A rider profile consists of: 
+Multiple user profiles are ideal for multi-rider households, or if you'd like to be able to quickly select a different collector set. 
+A default profile is provided for you, but you should configure it before using.
 
 <ol>
-	<li>Rider name</li>
-	<li>Weight, in Kilos or Pounds</li>
+	<li>Rider name - Identifies the rider.</li>
+	<li>Weight, in Kilos or Pounds.</li>
 	<li>FTP</li>
 	<li>Default moving average collector selection</li>
 </ol>
 
+Note: It is VERY important to set the weight and FTP fields properly!  These are used to calculate Watts/Kilo and Intensity Factor.
+
 ![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserProfiles.png)
-</p>
 
 ZAM extracts this data into moving average collectors and presents then on the screen in real-time.
 Furthermore, you'll get to see the following overall statistics:
