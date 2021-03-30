@@ -63,14 +63,21 @@ Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  Th
 
 #### Options -> Collector Configuration Tab
 
-ZAM extracts this data into moving average collectors and presents then on the screen in real-time.
-Furthermore, you'll get to see the following overall statistics:
+ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
 
 <ol>
-	<li>Average power output</li>
-	<li>Normalized power output</li>
-	<li>Intensity factor (IF)</li>
-	<li>Average speed</li>
+	<li>Time Duration - The period for which a collector retains data</li>
+	<li>Average Power display format - Moving average for all values currently in the collector.</li>
+	<li>Maximum Power display format - The maximum value attained from the moving average.</li>
+	<li>FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).</li>
+</ol>
+
+Display Format can be shown in:
+
+<ol>
+	<li>Watts - Rounded to nearest whole number.</li>
+	<li>Watts/Kilo - Shown as #.##</li>
+	<li>Hidden - Not shown.</li>
 </ol>
 
 ![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
