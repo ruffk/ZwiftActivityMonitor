@@ -13,7 +13,7 @@ Zwift Activity Montitor (or ZAM for short), monitors outgoing network packets ge
 aggregates the data into moving averages, and presents it on the screen.
 
 ## Using Zwift Activity Monitor
-
+<p>
 The network packets that ZAM consumes contain some important statistics.  Some of them are:
 
 <ol>
@@ -22,12 +22,23 @@ The network packets that ZAM consumes contain some important statistics.  Some o
 	<li>Distance travelled</li>
 	<li>Time spent riding</li>
 </ol>
+</p>
 
-ZAM is easily configurable to collect this data, but first ZAM needs to know what network you use when running Zwift.  It's usually pretty simple as most
-computers are either Wi-Fi or direct Ethernet cabled.  You configure this in the <b>System Options</b> screen.
+### Configuration
+<p>
+
+ZAM is easily configured via a set of configuration tab pages in the <b>Options</b> dialog.
+
+#### Options -> System Configuration Tab
+
+ZAM first and foremost needs to know what network you use when running Zwift.  It's usually pretty simple as most
+computers are either Wi-Fi or direct Ethernet cabled.  Within ZAM there is a packet monitoring system which MUST be started
+in order to use ZAM.  This can either be done manually each time you run ZAM (by clicking the Start button), or by checking Auto-Start.
 
 ![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SystemOptions.png)
+</p>
 
+<p>
 ZAM extracts this data into moving average collectors and presents in on the screen in real-time.
 Furthermore, you'll get to see the following overall statistics:
 
@@ -48,6 +59,7 @@ ZAM is highly configurable and has the ability to save multiple rider profiles. 
 </ol>
 
 ![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserProfiles.png)
+</p>
 
 ## Prerequisites
 
