@@ -30,7 +30,6 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigurationOptions));
             this.tabOptions = new System.Windows.Forms.TabControl();
             this.tpSystem = new System.Windows.Forms.TabPage();
             this.ucSystem = new ZwiftActivityMonitor.SystemControl();
@@ -160,7 +159,6 @@ namespace ZwiftActivityMonitor
             this.Controls.Add(this.tabOptions);
             this.Controls.Add(this.statusStrip);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ConfigurationOptions";

@@ -2,8 +2,8 @@
 Unicode True
 
 !define PRODUCT_NAME "Zwift Activity Monitor"
-!define PRODUCT_VERSION "2.0.0"
-!define PRODUCT_PUBLISHER "KRuff p/b EnJoy Fitness"
+!define PRODUCT_VERSION "1.1.0"
+!define PRODUCT_PUBLISHER "Kevin Ruff p/b EnJoy Fitness"
 !define PRODUCT_WEB_SITE "https://github.com/ruffk/ZwiftActivityMonitor"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\ZwiftActivityMonitor.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -42,7 +42,8 @@ Unicode True
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "Setup-ZAM.exe"
-InstallDir "$PROGRAMFILES\Zwift Activity Monitor"
+;InstallDir "$PROGRAMFILES\Zwift Activity Monitor"
+InstallDir "C:\Zwift Activity Monitor"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -91,6 +92,11 @@ Section -Post
 SectionEnd
 
 
+Function .onInit
+  ;Not using the normal C:\Program Files directory as it doesn't allow file writes (.json config) if user isn't admin
+  StrCpy $INSTDIR "C:\Zwift Activity Monitor"
+FunctionEnd
+
 Function un.onUninstSuccess
   HideWindow
   MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
@@ -114,7 +120,7 @@ Section Uninstall
   Delete "$0\*.exe"
   Delete "$0\*.dll"
   Delete "$0\ZwiftActivityMonitor*.json"
-  ;This will leave the appsettings*.json files
+  ;This will leave the appsettings*.json and ZAMSettings*.json files
 
   Delete "$SMPROGRAMS\Zwift Activity Monitor\Uninstall.lnk"
   Delete "$SMPROGRAMS\Zwift Activity Monitor\Website.lnk"

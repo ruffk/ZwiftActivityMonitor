@@ -214,6 +214,7 @@ namespace ZwiftActivityMonitor
 
             // This rounds the edges of the borderless window
             this.Region = System.Drawing.Region.FromHrgn(ZAMsettings.CreateRoundRectRgn(0, 0, Width, Height, 15, 15));
+            btnClose.FlatAppearance.BorderColor = Color.FromArgb(0, 255, 255, 255); //transparent
 
             //MainForm.colorListViewHeader(ref lvViewer, lvViewer.BackColor, Color.White); // transparent ListView headers
             //MainForm.colorListViewHeader(ref lvOverall, lvOverall.BackColor, Color.White); // transparent ListView headers
@@ -941,6 +942,16 @@ namespace ZwiftActivityMonitor
             this.Close();
         }
 
+        private void SkipControl_Enter(object sender, EventArgs e)
+        {
+            Control c = sender as Control;
+            if (c != null && c.Parent != null)
+            {
+                c.Parent.SelectNextControl(c, true, true, true, true);
+            }
+        }
+
+
         #endregion
 
         #region Menu item events
@@ -1053,5 +1064,12 @@ namespace ZwiftActivityMonitor
         }
         #endregion
 
+        private void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (e.IsSelected)
+                e.Item.Selected = false;
+
+            //m_logger.LogInformation($"ListView_ItemSelectionChanged ItemIndex: {e.ItemIndex}, IsSelected: {e.IsSelected}");
+        }
     }
 }

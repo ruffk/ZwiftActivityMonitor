@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="resources\cycling1.ico" />
+    <Content Include="resources\cycling1.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,11 +78,12 @@
 
   <ItemGroup>
     <Folder Include="interfaces\" />
+    <Folder Include="images\" />
     <Folder Include="nsis-setup\" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="resources\cycling.ico" />
+    <Content Include="resources\cycling.ico" />
   </ItemGroup>
 
   <ItemGroup>

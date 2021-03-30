@@ -30,25 +30,25 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "20 Min",
             "8.88",
             "8.88",
             "8.88",
             "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "20 Min",
             "8.88",
             "8.88",
             "8.88",
             "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "20 Min",
             "8.88",
             "8.88",
             "8.88",
             "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "Overall",
             "888",
             "888",
@@ -124,7 +124,6 @@ namespace ZwiftActivityMonitor
             // 
             // btnClose
             // 
-            this.btnClose.AutoSize = true;
             this.btnClose.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnClose.BackColor = System.Drawing.Color.White;
             this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
@@ -135,7 +134,8 @@ namespace ZwiftActivityMonitor
             this.btnClose.Location = new System.Drawing.Point(305, 0);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(29, 26);
-            this.btnClose.TabIndex = 1;
+            this.btnClose.TabIndex = 0;
+            this.btnClose.TabStop = false;
             this.btnClose.Text = "X";
             this.btnClose.UseVisualStyleBackColor = false;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
@@ -431,9 +431,9 @@ namespace ZwiftActivityMonitor
             this.lvViewer.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvViewer.HideSelection = false;
             this.lvViewer.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem5,
-            listViewItem6,
-            listViewItem7});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.lvViewer.Location = new System.Drawing.Point(0, 0);
             this.lvViewer.MultiSelect = false;
             this.lvViewer.Name = "lvViewer";
@@ -441,9 +441,12 @@ namespace ZwiftActivityMonitor
             this.lvViewer.Scrollable = false;
             this.lvViewer.Size = new System.Drawing.Size(334, 98);
             this.lvViewer.TabIndex = 0;
+            this.lvViewer.TabStop = false;
             this.lvViewer.UseCompatibleStateImageBehavior = false;
             this.lvViewer.View = System.Windows.Forms.View.Details;
             this.lvViewer.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
+            this.lvViewer.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListView_ItemSelectionChanged_Disable);
+            this.lvViewer.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // chDesc
             // 
@@ -501,7 +504,7 @@ namespace ZwiftActivityMonitor
             this.lvOverall.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvOverall.HideSelection = false;
             this.lvOverall.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem8});
+            listViewItem4});
             this.lvOverall.Location = new System.Drawing.Point(0, 0);
             this.lvOverall.MultiSelect = false;
             this.lvOverall.Name = "lvOverall";
@@ -509,9 +512,12 @@ namespace ZwiftActivityMonitor
             this.lvOverall.Scrollable = false;
             this.lvOverall.Size = new System.Drawing.Size(334, 55);
             this.lvOverall.TabIndex = 0;
+            this.lvOverall.TabStop = false;
             this.lvOverall.UseCompatibleStateImageBehavior = false;
             this.lvOverall.View = System.Windows.Forms.View.Details;
             this.lvOverall.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
+            this.lvOverall.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListView_ItemSelectionChanged_Disable);
+            this.lvOverall.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // columnHeader1
             // 
@@ -571,7 +577,6 @@ namespace ZwiftActivityMonitor
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.pnTitle.ResumeLayout(false);
-            this.pnTitle.PerformLayout();
             this.pnMenu.ResumeLayout(false);
             this.pnMenu.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

@@ -74,13 +74,15 @@ namespace ZwiftActivityMonitor
 
             InitializeComponent();
 
-            ZAMsettings.Initialize(loggerFactory);
+            //ZAMsettings.Initialize(loggerFactory);
 
             ucStatistics.Logger = loggerFactory.CreateLogger<StatisticsControl>();
             ucUserProfiles.Logger = loggerFactory.CreateLogger<UserProfileControl>();
             ucSystem.Logger = loggerFactory.CreateLogger<SystemControl>();
             SystemControl.PacketMonitor = serviceProvider.GetService<ZPMonitorService>();
             SystemControl.ZAMWindowPos = ZAMWindowPos;
+
+            this.Icon = Properties.Resources.cycling1;
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)

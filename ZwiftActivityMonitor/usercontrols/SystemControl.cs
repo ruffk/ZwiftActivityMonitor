@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
 
@@ -36,10 +37,41 @@ namespace ZwiftActivityMonitor
                 List<NetworkListItem> list = ZAMsettings.Networks;
                 cbNetwork.Items.AddRange(list.ToArray());
             }
+            catch(DllNotFoundException ex)
+            {
+                DialogResult result = MessageBox.Show(this.ParentForm, 
+                    $"The pre-requisite program Npcap has not been installed.\n\nSelect OK to be sent to the Npcap homepage to download the Npcap 1.20 Installer for Windows.\n\nSelect Cancel to close this application.\n\nDetails: {ex.Message}", 
+                    "Error accessing system network devices", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.OK)
+                {
+                    try
+                    {
+                        ProcessStartInfo psInfo = new ProcessStartInfo
+                        {
+                            FileName = "https://nmap.org/npcap/dist/npcap-1.20.exe",
+                            UseShellExecute = true
+                        };
+                        Process.Start(psInfo);
+                        Thread.Sleep(2000);
+                        Application.Exit();
+                    }
+                    catch (Exception ex1)
+                    {
+                        MessageBox.Show(this.ParentForm, $"Sorry, but your browser didn't launch due to an error.\n\n{ex1.Message}", "Could not launch browser", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Application.Exit();
+                    }
+                }
+                else
+                {
+                    Application.Exit();
+                }
+
+            }
             catch (Exception ex)
             {
                 // Display error regarding need for elevated permissions
-                MessageBox.Show(ex.Message, "Error accessing system network devices", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this.ParentForm, ex.ToString(), "Error accessing system network devices", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             // Load values from configuration into fields
@@ -230,7 +262,7 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            lblEventsProcessed.Text = PacketMonitor.EventsProcessed.ToString();
+            lblEventCount.Text = PacketMonitor.EventsProcessed.ToString();
 
             string[] row = { e.Id.ToString(), e.Power.ToString(), e.Heartrate.ToString(), DateTime.Now.ToString() };
 

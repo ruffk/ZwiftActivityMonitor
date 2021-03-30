@@ -20,6 +20,7 @@ namespace ZwiftActivityMonitor
         public static Task Main(string[] args)
         {
             var executableLocation = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+
             var host = new HostBuilder()
                 .ConfigureWinForms<MainForm>()
                 //.ConfigureWinForms<MonitorStatistics>()
@@ -70,7 +71,11 @@ namespace ZwiftActivityMonitor
                 .Build();
 
             //Console.WriteLine(@"Run!");
-            
+
+            ILoggerFactory lf = host.Services.GetRequiredService<ILoggerFactory>();
+            ZAMsettings.Initialize(lf);
+
+
             return host.RunAsync();
         }
 
