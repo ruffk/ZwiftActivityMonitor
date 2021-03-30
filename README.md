@@ -104,7 +104,7 @@ Display Format can be shown in:
 #### Quick Start
 
 <ol>
-	<li>Start the Zwift Packet Monitoring service from the Analyze->Options System Tab by pressing Start.  Maybe while you're there select the Auto-Start option./li>
+	<li>Start the Zwift Packet Monitoring service from the Analyze->Options System Tab by pressing Start.  Maybe while you're there select the Auto-Start option.</li>
 	<li>Click Analyze->Start.</li>
 	<li>Pedal away!</li>
 	<li>Click Analyze->Stop when done.</li>
@@ -112,9 +112,7 @@ Display Format can be shown in:
 
 #### Timer Set-Up
 
-If you've ever done a WTRL TTT then you know there's usually a delayed start after the banner drops.  
-Or, maybe you're in an event pen and don't want to worry about clicking Analyze->Start when the banner drops.  We've got you covered!
-Setting the timer allows you to pre-determine the ZAM start time.  You set it up and a countdown begins.  When the countdown ends, the system "clicks" Start for you.
+If you've ever done a WTRL TTT then you know there's usually a delayed start after the banner drops. Or, maybe you're in an event pen and don't want to worry about clicking Analyze->Start when the banner drops.  We've got you covered! Setting the timer allows you to pre-determine the ZAM start time.  You set it up and a countdown begins.  When the countdown ends, the system "clicks" Start for you.
 
 <ol>
 	<li>Click Analyze->Setup Timer.</li>
