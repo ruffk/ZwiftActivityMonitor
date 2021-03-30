@@ -119,6 +119,7 @@ If you've ever done a WTRL TTT then you know there's usually a delayed start aft
 	<li>Set your delay time.</li>
 	<li>Click the Start Timer button.</li>
 	<li>When the countdown ends, start pedalling!</li>
+	<li>If you change your mind or need to reset the timer, Click Analyze->Stop Timer and repeat the setup process.</li>
 </ol>
 
 ![setup_timer](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SetupTimer.png)
