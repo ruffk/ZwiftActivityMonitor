@@ -1,4 +1,9 @@
 # Zwift Activity Monitor
+  <img src="MainForm.jpg" 
+       width="333" 
+       height="204" 
+       alt="Picture of Zwift Activity Monitor"> 
+
 This project allows Zwift users to monitor their power and heartrate average in real-time.
 
 ## Prerequisites
