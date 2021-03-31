@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -210,6 +211,7 @@ namespace ZwiftActivityMonitor
     {
         #region Public members included in .json configuration
 
+        //public string Version { get; set; } = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
         public string Network { get; set; }
         public bool AutoStart { get; set; }
         public string DefaultUserProfile { get; set; } = "";
@@ -227,9 +229,9 @@ namespace ZwiftActivityMonitor
         private bool m_readOnly; // Is the current configuration mutable
 
 
-        private static ZAMsettings _cleanZAMsettings;
-        private static string _cleanJsonStr;
-        private static ZAMsettings _dirtyZAMsettings;
+        private static string       _committedJsonStr;      // The clean (disk hardened) version of the .json settings
+        private static ZAMsettings  _committedZAMsettings;  // The deserialized settings matching _committedJsonStr 
+        private static ZAMsettings  _uncommittedZAMsettings;  // While editing, contains the dirty settings
 
         private static ILogger<ZAMsettings> _logger;
         private static bool _initialized;
@@ -374,7 +376,7 @@ namespace ZwiftActivityMonitor
             get 
             {
                 Debug.Assert(_initialized, "Not initialized.");
-                return (_dirtyZAMsettings != null ? _dirtyZAMsettings : _cleanZAMsettings); 
+                return (_uncommittedZAMsettings != null ? _uncommittedZAMsettings : _committedZAMsettings); 
             } 
         }
 
@@ -386,49 +388,87 @@ namespace ZwiftActivityMonitor
 
             _logger = loggerFactory.CreateLogger<ZAMsettings>();
 
+            JObject parsedJson = null;
+
             try
             {
-                string defaultJsonStr = File.ReadAllText(FileNameDefault);
-                JObject defaultJson = JObject.Parse(defaultJsonStr);
-
                 try
                 {
-                    string userJsonStr = File.ReadAllText(FileName);
-                    JObject userJson = JObject.Parse(userJsonStr);
+                    // Try to load user .json file settings
+                    string jsonStr = File.ReadAllText(FileName);
+                    parsedJson = JObject.Parse(jsonStr);
 
-                    defaultJson.Merge(userJson, new JsonMergeSettings
-                    {
-                        // union array values together to avoid duplicates
-                        MergeArrayHandling = MergeArrayHandling.Union
-                    });
-
-                    _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault} and merged with user settings file {FileName}.");
+                    _logger.LogInformation($"Configuration cached from user settings file {FileName}.");
                 }
                 catch (FileNotFoundException)
                 {
-                    // this is okay as defaults will be used
+                    // User .json file not found.  Try to load default .json file settings
+                    string jsonStr = File.ReadAllText(FileNameDefault);
+                    parsedJson = JObject.Parse(jsonStr);
+
                     _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
                 }
 
+                // Configuration has been loaded and .json is good.  Now deserialize into the settings objects.
+                _committedJsonStr = parsedJson.ToString(); 
 
-                _cleanJsonStr = defaultJson.ToString();
+                _committedZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_committedJsonStr); // this could throw if settings don't match the .json
 
-                //_cleanJsonStr = File.ReadAllText(fileName);
-
-                _cleanZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_cleanJsonStr);
-
-                _cleanZAMsettings.m_readOnly = true;
+                _committedZAMsettings.m_readOnly = true;
 
                 // Set current user according to default selection.  This value is not persisted in json file.
-                _cleanZAMsettings.CurrentUserProfile = _cleanZAMsettings.DefaultUserProfile;
+                _committedZAMsettings.CurrentUserProfile = _committedZAMsettings.DefaultUserProfile;
 
                 _initialized = true;
-
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Exception occurred trying to load configuration from file: {FileName}", ex);
+                throw new ApplicationException($"Exception occurred while trying to load configuration.", ex);
             }
+
+
+            // This version would first read the default json settings file, and merge the user json settings file into it.
+            // Problem is things like UserProfiles would suddenly have Collectors from the default showing up as selected by the user.
+            //try
+            //{
+            //    string defaultJsonStr = File.ReadAllText(FileNameDefault);
+            //    JObject defaultJson = JObject.Parse(defaultJsonStr);
+
+            //    try
+            //    {
+            //        string userJsonStr = File.ReadAllText(FileName);
+            //        JObject userJson = JObject.Parse(userJsonStr);
+
+            //        defaultJson.Merge(userJson, new JsonMergeSettings
+            //        {
+            //            // union array values together to avoid duplicates
+            //            MergeArrayHandling = MergeArrayHandling.Union
+            //        });
+
+            //        _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault} and merged with user settings file {FileName}.");
+            //    }
+            //    catch (FileNotFoundException)
+            //    {
+            //        // this is okay as defaults will be used
+            //        _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
+            //    }
+
+            //    _committedJsonStr = defaultJson.ToString();
+
+            //    _committedZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_committedJsonStr);
+
+            //    _committedZAMsettings.m_readOnly = true;
+
+            //    // Set current user according to default selection.  This value is not persisted in json file.
+            //    _committedZAMsettings.CurrentUserProfile = _committedZAMsettings.DefaultUserProfile;
+
+            //    _initialized = true;
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new ApplicationException($"Exception occurred trying to load configuration from file: {FileName}", ex);
+            //}
 
         }
 
@@ -460,19 +500,19 @@ namespace ZwiftActivityMonitor
         public static void BeginCachedConfiguration()
         {
             Debug.Assert(_initialized, "Not initialized.");
-            Debug.Assert(_dirtyZAMsettings == null, "Configuration already in a cached state.  It must be rolled back or committed before calling BeginCachedConfiguration.");
+            Debug.Assert(_uncommittedZAMsettings == null, "Configuration already in a cached state.  It must be rolled back or committed before calling BeginCachedConfiguration.");
 
             try
             {
-                _logger.LogInformation($"In BeginCachedConfiguration:\n{_cleanJsonStr}");
+                //_logger.LogInformation($"In BeginCachedConfiguration:\n{_committedJsonStr}");
 
 
-                _dirtyZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_cleanJsonStr);
+                _uncommittedZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_committedJsonStr);
 
-                _dirtyZAMsettings.m_readOnly = false;
+                _uncommittedZAMsettings.m_readOnly = false;
 
                 // Because this value is not persisted in json file, set current user manually.
-                _dirtyZAMsettings.CurrentUserProfile = _cleanZAMsettings.CurrentUserProfile;
+                _uncommittedZAMsettings.CurrentUserProfile = _committedZAMsettings.CurrentUserProfile;
 
 
                 _logger.LogInformation($"Configuration cached.");
@@ -486,21 +526,21 @@ namespace ZwiftActivityMonitor
         public static void CommitCachedConfiguration()
         {
             Debug.Assert(_initialized, "Not initialized.");
-            Debug.Assert(_dirtyZAMsettings != null, "Configuration not in a cached state.  It must be cached first using BeginCachedConfiguration.");
+            Debug.Assert(_uncommittedZAMsettings != null, "Configuration not in a cached state.  It must be cached first using BeginCachedConfiguration.");
 
             try
             {
-                string json = JsonConvert.SerializeObject(_dirtyZAMsettings, Formatting.Indented);
+                string json = JsonConvert.SerializeObject(_uncommittedZAMsettings, Formatting.Indented);
 
                 File.WriteAllText(FileName, json);
 
-                _logger.LogInformation($"In CommitCachedConfiguration:\n{json}");
+                //_logger.LogInformation($"In CommitCachedConfiguration:\n{json}");
 
-                _cleanZAMsettings = _dirtyZAMsettings;
-                _cleanJsonStr = json;
-                _cleanZAMsettings.m_readOnly = true;
+                _committedZAMsettings = _uncommittedZAMsettings;
+                _committedJsonStr = json;
+                _committedZAMsettings.m_readOnly = true;
 
-                _dirtyZAMsettings = null;
+                _uncommittedZAMsettings = null;
 
                 _logger.LogInformation($"Cached configuration saved to file: {FileName}");
             }
@@ -512,9 +552,9 @@ namespace ZwiftActivityMonitor
         public static void RollbackCachedConfiguration()
         {
             Debug.Assert(_initialized, "Not initialized.");
-            Debug.Assert(_dirtyZAMsettings != null, "Configuration not in a cached state.  It must be cached first using RollbackCachedConfiguration.");
+            Debug.Assert(_uncommittedZAMsettings != null, "Configuration not in a cached state.  It must be cached first using RollbackCachedConfiguration.");
 
-            _dirtyZAMsettings = null;
+            _uncommittedZAMsettings = null;
 
             _logger.LogInformation($"Cached configuration rolled back.");
         }
