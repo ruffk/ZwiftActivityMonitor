@@ -68,18 +68,16 @@ namespace ZwiftActivityMonitor
         */
 
 
-        public ConfigurationOptions(ILoggerFactory loggerFactory, IServiceProvider serviceProvider, Point ZAMWindowPos)
+        public ConfigurationOptions(IServiceProvider serviceProvider, Point ZAMWindowPos)
         {
-            m_logger = loggerFactory.CreateLogger<ConfigurationOptions>();
+            m_logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
 
             InitializeComponent();
 
-            //ZAMsettings.Initialize(loggerFactory);
-
-            ucStatistics.Logger = loggerFactory.CreateLogger<StatisticsControl>();
-            ucUserProfiles.Logger = loggerFactory.CreateLogger<UserProfileControl>();
-            ucSystem.Logger = loggerFactory.CreateLogger<SystemControl>();
-            SystemControl.PacketMonitor = serviceProvider.GetService<ZPMonitorService>();
+            ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
+            ucUserProfiles.Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
+            ucSystem.Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
+            SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
             SystemControl.ZAMWindowPos = ZAMWindowPos;
 
             this.Icon = Properties.Resources.cycling1;

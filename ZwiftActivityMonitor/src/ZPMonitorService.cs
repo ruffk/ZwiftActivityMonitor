@@ -77,26 +77,11 @@ namespace ZwiftActivityMonitor
         public ZPMonitorService(ILogger<ZPMonitorService> logger, ZwiftPacketMonitor.Monitor zpMonitor)
         {
             Logger = logger;
-            //m_configuration = configuration;
-            //m_serviceProvider = serviceProvider;
             m_zpMonitor = zpMonitor;
-
-            //// Determine AutoStart
-            //if (!bool.TryParse(m_configuration["ZwiftPacketMonitor:AutoStart"], out m_isAutoStart))
-            //{
-            //    m_isAutoStart = false;
-            //}
-
-            //Logger.LogInformation($"AutoStart of ZwiftPacketMonitor is {m_isAutoStart}");
-
-
-            //m_zpMonitorNetwork = m_configuration["ZwiftPacketMonitor:Network"];
 
             m_zwifters = new Dictionary<int, Zwifter>();
 
-            
-
-            Logger.LogInformation($"Class {this.GetType()} initialized.");
+            Logger.LogInformation($"Class {this.GetType()} constructed.");
         }
 
 

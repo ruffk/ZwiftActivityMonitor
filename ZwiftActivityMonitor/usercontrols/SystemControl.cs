@@ -9,7 +9,7 @@ using System.Windows.Threading;
 
 namespace ZwiftActivityMonitor
 {
-    public partial class SystemControl : UserControlBase
+    public partial class SystemControl : UserControlWithStatusBase
     {
         public static ZPMonitorService PacketMonitor { get; set; }
         public static Point ZAMWindowPos { get;  set; }

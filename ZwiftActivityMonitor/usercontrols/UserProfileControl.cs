@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
-    public partial class UserProfileControl : UserControlBase
+    public partial class UserProfileControl : UserControlWithStatusBase
     {
         #region Internal Classes
 

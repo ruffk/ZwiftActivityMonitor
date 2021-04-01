@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
-    public partial class StatisticsControl : UserControlBase
+    public partial class StatisticsControl : UserControlWithStatusBase
     {
         #region Internal classes
         internal class CollectorListViewColumnSorter : IComparer

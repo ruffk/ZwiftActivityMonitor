@@ -22,7 +22,6 @@ namespace ZwiftActivityMonitor
 
     public class MovingAverage
     {
-        private readonly ZPMonitorService m_zpMonitorService;
         private readonly ILogger<MovingAverage> Logger;
         private readonly Queue<Statistics> m_statsQueue;
         private readonly DurationType m_durationType;
@@ -181,18 +180,17 @@ namespace ZwiftActivityMonitor
         #endregion
 
 
-        public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType, bool excludeZeroPowerValues)
+        public MovingAverage(DurationType durationType, bool excludeZeroPowerValues)
         {
-            m_zpMonitorService = zpMonitorService;
-            Logger = loggerFactory.CreateLogger<MovingAverage>();
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverage>();
+
             m_durationType = durationType;
             m_duration = MovingAverage.GetDuration(durationType);
             m_excludeZeroPowerValues = excludeZeroPowerValues;
 
             m_statsQueue = new Queue<Statistics>();
 
-            m_zpMonitorService.RiderStateEvent += RiderStateEventHandler;
-
+            ZAMsettings.ZPMonitorService.RiderStateEvent += RiderStateEventHandler;
         }
 
         static MovingAverage()
