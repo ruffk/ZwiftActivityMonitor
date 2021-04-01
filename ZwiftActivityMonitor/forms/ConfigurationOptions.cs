@@ -109,6 +109,10 @@ namespace ZwiftActivityMonitor
             ucUserProfiles.ControlLosingFocus(sender, e);
             if (e.Cancel)
                 return;
+
+            ucSplits.ControlLosingFocus(sender, e);
+            if (e.Cancel)
+                return;
         }
 
         private void SkipControl_Enter(object sender, EventArgs e)
@@ -125,40 +129,51 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            m_logger.LogInformation($"TabPageIndex: {e.TabPageIndex} Action: {e.Action.ToString()}");
+            if (e.TabPageIndex == -1)
+                return;
+
+            m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
 
             if (e.Action == TabControlAction.Selecting)
             {
-                switch (e.TabPageIndex)
+                switch (e.TabPage.Name)
                 {
-                    case 0:
+                    case "tpSystem":
                         ucSystem.ControlGainingFocus(sender, e);
                         break;
 
-                    case 1:
+                    case "tpUserProfiles":
                         ucUserProfiles.ControlGainingFocus(sender, e);
                         break;
 
-                    case 2:
+                    case "tpCollectors":
                         ucStatistics.ControlGainingFocus(sender, e);
+                        break;
+
+                    case "tpSplits":
+                        ucSplits.ControlGainingFocus(sender, e);
                         break;
                 }
             }
 
             if (e.Action == TabControlAction.Deselecting)
             {
-                switch (e.TabPageIndex)
+                switch (e.TabPage.Name)
                 {
-                    case 0:
+                    case "tpSystem":
                         ucSystem.ControlLosingFocus(sender, e);
                         break;
 
-                    case 1:
+                    case "tpUserProfiles":
                         ucUserProfiles.ControlLosingFocus(sender, e);
                         break;
 
-                    case 2:
+                    case "tpCollectors":
                         ucStatistics.ControlLosingFocus(sender, e);
+                        break;
+
+                    case "tpSplits":
+                        ucSplits.ControlLosingFocus(sender, e);
                         break;
                 }
             }
@@ -176,21 +191,27 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            m_logger.LogInformation($"TabPageIndex: {e.TabPageIndex} Action: {e.Action.ToString()}");
+            if (e.TabPageIndex == -1)
+                return;
+
+            m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
 
             // we're only interested in Selected events
             if (e.Action != TabControlAction.Selected)
                 return;
 
-            switch (e.TabPageIndex)
+            switch (e.TabPage.Name)
             {
-                case 0:
+                case "tpSystem":
                     break;
 
-                case 1:
+                case "tpUserProfiles":
                     break;
 
-                case 2:
+                case "tpCollectors":
+                    break;
+
+                case "tpSplits":
                     break;
             }
         }
@@ -961,7 +982,7 @@ namespace ZwiftActivityMonitor
 
         #endregion
         */
-        
+
 
     }
 }

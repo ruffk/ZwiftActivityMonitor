@@ -207,6 +207,89 @@ namespace ZwiftActivityMonitor
 
     #endregion
 
+    public class Splits : ICloneable
+    {
+        public bool ShowSplits { get; set; }
+        public bool CalculateGoal { get; set; }
+
+        private int m_splitDistance = 5;
+        private string m_splitUom = "km";
+        private int m_goalHours;
+        private int m_goalMinutes = 45;
+        private int m_goalSeconds;
+
+        public Splits()
+        {
+
+        }
+
+        public int SplitDistance
+        {
+            get { return m_splitDistance; } 
+
+            set
+            {
+                if (value < 1 || value > 999)
+                    throw new FormatException("Split distance value must be between 1 and 999.");
+
+                m_splitDistance = value;
+            }
+        }
+        public string SplitUom 
+        {
+            get { return m_splitUom; }
+            set 
+            { 
+                if (value != "km" && value != "mi")
+                    throw new FormatException("Distance UOM must be either km or mi.");
+
+                m_splitUom = value;
+            }
+        }
+        public int GoalHours
+        {
+            get { return m_goalHours; }
+
+            set
+            {
+                if (value < 0 || value > 23)
+                    throw new FormatException("Goal hours value must be between 0 and 23.");
+
+                m_goalHours = value;
+            }
+        }
+        public int GoalMinutes
+        {
+            get { return m_goalMinutes; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Goal minutes value must be between 0 and 59.");
+
+                m_goalMinutes = value;
+            }
+        }
+        public int GoalSeconds
+        {
+            get { return m_goalSeconds; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Goal seconds value must be between 0 and 59.");
+
+                m_goalSeconds = value;
+            }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+    }
+
     public class ZAMsettings
     {
         #region Public members included in .json configuration
@@ -220,6 +303,7 @@ namespace ZwiftActivityMonitor
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
+        public Splits Splits { get; }
 
         #endregion
 
@@ -248,6 +332,7 @@ namespace ZwiftActivityMonitor
         {
             UserProfiles = new SortedList<string, UserProfile>();
             Collectors = new SortedList<string, Collector>();
+            Splits = new Splits();
         }
 
         public void UpsertUserProfile(UserProfile user)

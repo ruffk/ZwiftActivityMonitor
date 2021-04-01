@@ -107,7 +107,6 @@ namespace ZwiftActivityMonitor
             // Reload each time control is shown as user profile info may have changed.
             SystemSettings_LoadFields();
 
-            //ActiveControl = this;
             btnEditSettings.Focus();
         }
 
