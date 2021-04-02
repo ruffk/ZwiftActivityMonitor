@@ -353,16 +353,21 @@ namespace ZwiftActivityMonitor
             this.chThreshold,
             this.chBlank});
             this.lvUserProfiles.FullRowSelect = true;
+            this.lvUserProfiles.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvUserProfiles.HideSelection = false;
             this.lvUserProfiles.Location = new System.Drawing.Point(3, 3);
             this.lvUserProfiles.MultiSelect = false;
             this.lvUserProfiles.Name = "lvUserProfiles";
+            this.lvUserProfiles.OwnerDraw = true;
             this.lvUserProfiles.Size = new System.Drawing.Size(385, 116);
             this.lvUserProfiles.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvUserProfiles.TabIndex = 10;
             this.lvUserProfiles.UseCompatibleStateImageBehavior = false;
             this.lvUserProfiles.View = System.Windows.Forms.View.Details;
+            this.lvUserProfiles.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListView_DrawItem);
+            this.lvUserProfiles.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
             this.lvUserProfiles.SelectedIndexChanged += new System.EventHandler(this.lvUserProfiles_SelectedIndexChanged);
+            this.lvUserProfiles.Resize += new System.EventHandler(this.ListView_Resize);
             // 
             // chName
             // 

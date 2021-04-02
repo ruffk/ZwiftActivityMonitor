@@ -20,6 +20,11 @@ namespace ZwiftActivityMonitor
         public SystemControl()
         {
             InitializeComponent();
+
+            if (DesignMode)
+                return;
+
+            UserControlBase.SetListViewHeaderColor(ref this.lvTrace, SystemColors.Control, Color.Black);
         }
 
         protected override void UserControlBase_Load(object sender, EventArgs e)
@@ -108,6 +113,13 @@ namespace ZwiftActivityMonitor
             SystemSettings_LoadFields();
 
             btnEditSettings.Focus();
+        }
+        private void ListView_Resize(object sender, EventArgs e)
+        {
+            if (DesignMode)
+                return;
+
+            UserControlBase.HideHorizontalScrollBar(sender as ListView);
         }
 
 
@@ -414,6 +426,22 @@ namespace ZwiftActivityMonitor
         }
 
         #endregion
+
+
+        protected override void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            base.ListView_ItemSelectionChanged_Disable(sender, e);
+        }
+
+        protected override void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            base.ListView_DrawItem(sender, e);
+        }
+
+        protected override void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            base.Listview_DrawSubItem(sender, e);
+        }
 
     }
 }

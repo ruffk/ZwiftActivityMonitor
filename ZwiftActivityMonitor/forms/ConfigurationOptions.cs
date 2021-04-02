@@ -153,6 +153,7 @@ namespace ZwiftActivityMonitor
                     case "tpSplits":
                         ucSplits.ControlGainingFocus(sender, e);
                         break;
+
                 }
             }
 

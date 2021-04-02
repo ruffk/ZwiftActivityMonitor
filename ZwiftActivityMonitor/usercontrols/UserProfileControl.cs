@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -78,6 +79,11 @@ namespace ZwiftActivityMonitor
         public UserProfileControl()
         {
             InitializeComponent();
+
+            if (DesignMode)
+                return;
+
+            UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, SystemColors.Control, Color.Black);
         }
 
         protected override void UserControlBase_Load(object sender, EventArgs e)
@@ -575,6 +581,28 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
+        private void ListView_Resize(object sender, EventArgs e)
+        {
+            if (DesignMode)
+                return;
+
+            UserControlBase.HideHorizontalScrollBar(sender as ListView);
+        }
+
+        protected override void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            base.ListView_ItemSelectionChanged_Disable(sender, e);
+        }
+
+        protected override void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            base.ListView_DrawItem(sender, e);
+        }
+
+        protected override void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            base.Listview_DrawSubItem(sender, e);
+        }
 
     }
 }

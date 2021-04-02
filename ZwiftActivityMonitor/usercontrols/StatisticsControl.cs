@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
 
@@ -131,6 +132,10 @@ namespace ZwiftActivityMonitor
         public StatisticsControl()
         {
             InitializeComponent();
+            if (DesignMode)
+                return;
+
+            UserControlBase.SetListViewHeaderColor(ref this.lvCollectors, SystemColors.Control, Color.Black);
         }
 
         protected override void UserControlBase_Load(object sender, EventArgs e)
@@ -512,6 +517,24 @@ namespace ZwiftActivityMonitor
                     toolStripStatusLabel.Text = "Select how to display units on monitor window.";
                     break;
             }
+        }
+
+        private void ListView_Resize(object sender, EventArgs e)
+        {
+            if (DesignMode)
+                return;
+
+            UserControlBase.HideHorizontalScrollBar(sender as ListView);
+        }
+
+        protected override void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            base.ListView_DrawItem(sender, e);
+        }
+
+        protected override void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            base.Listview_DrawSubItem(sender, e);
         }
 
     }

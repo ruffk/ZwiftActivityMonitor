@@ -67,6 +67,17 @@ namespace ZwiftActivityMonitor
         }
 
         /// <summary>
+        /// Call this from the ListView's Resize event handler
+        /// </summary>
+        /// <param name="listView"></param>
+        protected static void HideHorizontalScrollBar(ListView listView)
+        {
+            listView.Scrollable = true;
+
+            ZAMsettings.ShowScrollBar(listView.Handle, 0, false);
+        }
+
+        /// <summary>
         /// This method allows changing the ListView column header colors.  Call this static method from your form or listview load.
         /// Be sure to wire in the DrawItem and DrawSubItem events.
         /// </summary>
@@ -90,6 +101,30 @@ namespace ZwiftActivityMonitor
             using (SolidBrush backBrush = new SolidBrush(backColor))
             {
                 e.Graphics.FillRectangle(backBrush, e.Bounds);
+
+                // draw the 3d header
+                // 
+                Rectangle r = e.Bounds;
+
+                r.Width -= 1;
+                r.Height -= 1;
+
+                // draw the dark border around the whole thing 
+                // 
+                e.Graphics.DrawRectangle(SystemPens.ControlDarkDark, r);
+
+                r.Width -= 1;
+                r.Height -= 1;
+
+                // draw the light 3D border 
+                //
+                e.Graphics.DrawLine(SystemPens.ControlLightLight, r.X, r.Y, r.Right, r.Y);
+                e.Graphics.DrawLine(SystemPens.ControlLightLight, r.X, r.Y, r.X, r.Bottom);
+
+                // draw the dark 3D Border 
+                //
+                e.Graphics.DrawLine(SystemPens.ControlDark, r.X + 1, r.Bottom, r.Right, r.Bottom);
+                e.Graphics.DrawLine(SystemPens.ControlDark, r.Right, r.Y + 1, r.Right, r.Bottom);
             }
 
             using (StringFormat sf = new StringFormat())

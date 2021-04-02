@@ -207,6 +207,8 @@ namespace ZwiftActivityMonitor
 
     #endregion
 
+    #region Splits
+
     public class Splits : ICloneable
     {
         public bool ShowSplits { get; set; }
@@ -217,6 +219,10 @@ namespace ZwiftActivityMonitor
         private int m_goalHours;
         private int m_goalMinutes = 45;
         private int m_goalSeconds;
+        private double m_goalDistance = 25;
+
+        [JsonIgnore]
+        public TimeSpan GoalTimeSpan { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
 
         public Splits()
         {
@@ -283,12 +289,28 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        public double GoalDistance
+        {
+            get { return m_goalDistance; }
+
+            set
+            {
+                if (value < 1 || value > 999)
+                    throw new FormatException("Goal distance value must be between 1 and 999.");
+
+                m_goalDistance = value;
+            }
+        }
+
+
         public object Clone()
         {
             return this.MemberwiseClone();
         }
 
     }
+
+    #endregion
 
     public class ZAMsettings
     {
@@ -669,6 +691,21 @@ namespace ZwiftActivityMonitor
             int nBottomRect,   // y-coordinate of lower-right corner
             int nWidthEllipse, // height of ellipse
             int nHeightEllipse // width of ellipse
+        );
+
+        /// <summary>
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="wBar">SB_HORZ = 0, SB_VERT = 1, SB_BOTH = 3</param>
+        /// <param name="bShow"></param>
+        /// <returns></returns>
+        [DllImport("user32", CallingConvention = CallingConvention.Winapi)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool ShowScrollBar
+        (
+            IntPtr hwnd,
+            int wBar,
+            [MarshalAs(UnmanagedType.Bool)] bool bShow
         );
 
         /// <summary>
