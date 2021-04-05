@@ -212,7 +212,7 @@ namespace ZwiftActivityMonitor
             // 
             // columnHeader5
             // 
-            this.columnHeader5.Text = "Kph";
+            this.columnHeader5.Text = "km/h";
             this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.columnHeader5.Width = 54;
             // 

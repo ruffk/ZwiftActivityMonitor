@@ -146,7 +146,7 @@ namespace ZwiftActivityMonitor
                 string[] text = SubItemStrings(SummaryItem, refreshUom);
 
                 // Update the speed column header text accordingly
-                this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "Mph" : "Kph";
+                this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "Mph" : "km/h";
 
                 for (int i = 0; i < 5; i++)
                     this.SubItems[i].Text = text[i];

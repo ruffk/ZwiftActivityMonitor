@@ -225,7 +225,7 @@ namespace ZwiftActivityMonitor
             }
 
             double goalSpeed = Math.Round((splits.GoalDistance / goalTime.TotalSeconds) * 3600, 1);
-            lblGoalSpeed.Text = $"{goalSpeed.ToString("#.#")} {(splits.SplitUom == "km" ? "kph" : "mph")}";
+            lblGoalSpeed.Text = $"{goalSpeed.ToString("#.#")} {(splits.SplitUom == "km" ? "km/h" : "mph")}";
         }
 
         private bool EditingSystemSettings

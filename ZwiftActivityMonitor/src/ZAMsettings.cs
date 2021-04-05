@@ -241,6 +241,19 @@ namespace ZwiftActivityMonitor
                 m_splitDistance = value;
             }
         }
+
+        [JsonIgnore]
+        public double SplitDistanceAsKm
+        {
+            get { return m_splitUom == "km" ? m_splitDistance : m_splitDistance * 1.609; }
+        }
+
+        [JsonIgnore]
+        public int SplitDistanceAsMeters
+        {
+            get { return (int)Math.Round(SplitDistanceAsKm * 1000, 0); }
+        }
+
         public string SplitUom 
         {
             get { return m_splitUom; }
