@@ -84,7 +84,6 @@ namespace ZwiftActivityMonitor
         {
             InitializeComponent();
             UserControlBase.SetListViewHeaderColor(ref this.lvSplits, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
-
         }
 
         #region Base class overrides for event selection
@@ -122,6 +121,10 @@ namespace ZwiftActivityMonitor
         protected override void SkipControl_Enter(object sender, EventArgs e)
         {
             base.SkipControl_Enter(sender, e);
+        }
+        protected override void ListView_Resize_HideHorizontalScrollBar(object sender, EventArgs e)
+        {
+            base.ListView_Resize_HideHorizontalScrollBar(sender, e);
         }
 
         #endregion

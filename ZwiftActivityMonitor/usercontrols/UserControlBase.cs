@@ -157,5 +157,45 @@ namespace ZwiftActivityMonitor
                 e.Item.Selected = false;
         }
 
+        protected virtual void ListView_Resize_HideHorizontalScrollBar(object sender, EventArgs e)
+        {
+            ListView lv = (ListView)sender;
+            UserControlBase.HideHorizontalScrollBar(lv);
+
+            if (Logger != null)
+                Logger.LogInformation($"ListView_Resize_HideHorizontalScrollBar {lv.Name}");
+
+        }
+
+
+        /// <summary>
+        /// The DesignMode property does not correctly tell you if
+        /// you are in design mode.  IsDesignerHosted is a corrected
+        /// version of that property.
+        /// (see https://connect.microsoft.com/VisualStudio/feedback/details/553305
+        /// and http://stackoverflow.com/a/2693338/238419 )
+        /// </summary>
+        protected bool IsDesignerHosted
+        {
+            get
+            {
+                if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+                    return true;
+
+                Control ctrl = this;
+                while (ctrl != null)
+                {
+                    if ((ctrl.Site != null) && ctrl.Site.DesignMode)
+                        return true;
+                    ctrl = ctrl.Parent;
+                }
+                return false;
+            }
+        }
+        public static bool IsInDesignMode()
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly()
+                 .Location.Contains("VisualStudio");
+        }
     }
 }

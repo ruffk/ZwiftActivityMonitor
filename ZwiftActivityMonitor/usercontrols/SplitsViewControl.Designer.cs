@@ -60,11 +60,11 @@ namespace ZwiftActivityMonitor
             this.chDelta = new System.Windows.Forms.ColumnHeader();
             this.chBlank = new System.Windows.Forms.ColumnHeader();
             this.pSplitChartTitle = new System.Windows.Forms.Panel();
-            this.lblSplit = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.lblSplit = new System.Windows.Forms.Label();
             this.pSplitChartFooter = new System.Windows.Forms.Panel();
-            this.label8 = new System.Windows.Forms.Label();
             this.lblGoalSpeed = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.pSplits.SuspendLayout();
             this.pSplitChartTitle.SuspendLayout();
             this.pSplitChartFooter.SuspendLayout();
@@ -105,12 +105,12 @@ namespace ZwiftActivityMonitor
             this.lvSplits.MultiSelect = false;
             this.lvSplits.Name = "lvSplits";
             this.lvSplits.OwnerDraw = true;
-            this.lvSplits.Scrollable = false;
             this.lvSplits.Size = new System.Drawing.Size(334, 109);
             this.lvSplits.TabIndex = 1;
             this.lvSplits.TabStop = false;
             this.lvSplits.UseCompatibleStateImageBehavior = false;
             this.lvSplits.View = System.Windows.Forms.View.Details;
+            this.lvSplits.Resize += new System.EventHandler(this.ListView_Resize_HideHorizontalScrollBar);
             // 
             // chSplitNum
             // 
@@ -150,7 +150,7 @@ namespace ZwiftActivityMonitor
             // chBlank
             // 
             this.chBlank.Text = "";
-            this.chBlank.Width = 12;
+            this.chBlank.Width = 10;
             // 
             // pSplitChartTitle
             // 
@@ -165,25 +165,25 @@ namespace ZwiftActivityMonitor
             this.pSplitChartTitle.Size = new System.Drawing.Size(334, 22);
             this.pSplitChartTitle.TabIndex = 1;
             // 
-            // lblSplit
-            // 
-            this.lblSplit.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblSplit.Location = new System.Drawing.Point(29, 2);
-            this.lblSplit.Name = "lblSplit";
-            this.lblSplit.Size = new System.Drawing.Size(149, 19);
-            this.lblSplit.TabIndex = 90;
-            this.lblSplit.Text = "Split";
-            this.lblSplit.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            // 
             // label7
             // 
             this.label7.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label7.Location = new System.Drawing.Point(187, 2);
+            this.label7.Location = new System.Drawing.Point(194, 2);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(133, 19);
             this.label7.TabIndex = 91;
             this.label7.Text = "Total";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            // 
+            // lblSplit
+            // 
+            this.lblSplit.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblSplit.Location = new System.Drawing.Point(41, 2);
+            this.lblSplit.Name = "lblSplit";
+            this.lblSplit.Size = new System.Drawing.Size(140, 19);
+            this.lblSplit.TabIndex = 90;
+            this.lblSplit.Text = "Split";
+            this.lblSplit.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // pSplitChartFooter
             // 
@@ -198,15 +198,6 @@ namespace ZwiftActivityMonitor
             this.pSplitChartFooter.Size = new System.Drawing.Size(334, 22);
             this.pSplitChartFooter.TabIndex = 82;
             // 
-            // label8
-            // 
-            this.label8.Location = new System.Drawing.Point(0, 1);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(107, 19);
-            this.label8.TabIndex = 95;
-            this.label8.Text = "Goal Speed:";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // lblGoalSpeed
             // 
             this.lblGoalSpeed.Location = new System.Drawing.Point(94, 1);
@@ -215,6 +206,15 @@ namespace ZwiftActivityMonitor
             this.lblGoalSpeed.TabIndex = 96;
             this.lblGoalSpeed.Text = "43.6 km/h";
             this.lblGoalSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label8
+            // 
+            this.label8.Location = new System.Drawing.Point(0, 1);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(107, 19);
+            this.label8.TabIndex = 95;
+            this.label8.Text = "Goal Speed:";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // SplitsViewControl
             // 

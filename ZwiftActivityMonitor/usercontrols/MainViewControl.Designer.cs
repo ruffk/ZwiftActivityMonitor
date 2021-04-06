@@ -67,6 +67,8 @@ namespace ZwiftActivityMonitor
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
+            this.chBlank = new System.Windows.Forms.ColumnHeader();
+            this.chBlank2 = new System.Windows.Forms.ColumnHeader();
             this.pnViewer.SuspendLayout();
             this.pnOverall.SuspendLayout();
             this.SuspendLayout();
@@ -90,7 +92,8 @@ namespace ZwiftActivityMonitor
             this.chAvg,
             this.chAvgMax,
             this.chFTP,
-            this.chHR});
+            this.chHR,
+            this.chBlank});
             this.lvViewer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvViewer.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lvViewer.ForeColor = System.Drawing.Color.White;
@@ -130,7 +133,7 @@ namespace ZwiftActivityMonitor
             // 
             this.chAvgMax.Text = "Avg (Max)";
             this.chAvgMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chAvgMax.Width = 105;
+            this.chAvgMax.Width = 85;
             // 
             // chFTP
             // 
@@ -164,7 +167,8 @@ namespace ZwiftActivityMonitor
             this.columnHeader2,
             this.columnHeader3,
             this.columnHeader4,
-            this.columnHeader5});
+            this.columnHeader5,
+            this.chBlank2});
             this.lvOverall.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvOverall.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lvOverall.ForeColor = System.Drawing.Color.White;
@@ -200,9 +204,9 @@ namespace ZwiftActivityMonitor
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Normalized";
+            this.columnHeader3.Text = "NP";
             this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader3.Width = 105;
+            this.columnHeader3.Width = 85;
             // 
             // columnHeader4
             // 
@@ -215,6 +219,16 @@ namespace ZwiftActivityMonitor
             this.columnHeader5.Text = "km/h";
             this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.columnHeader5.Width = 54;
+            // 
+            // chBlank
+            // 
+            this.chBlank.Text = "";
+            this.chBlank.Width = 20;
+            // 
+            // chBlank2
+            // 
+            this.chBlank2.Text = "";
+            this.chBlank2.Width = 20;
             // 
             // MainViewControl
             // 
@@ -246,5 +260,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.ColumnHeader columnHeader5;
+        private System.Windows.Forms.ColumnHeader chBlank;
+        private System.Windows.Forms.ColumnHeader chBlank2;
     }
 }

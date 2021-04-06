@@ -64,11 +64,14 @@ namespace ZwiftActivityMonitor
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.countdownTimer = new System.Windows.Forms.Timer(this.components);
             this.runTimer = new System.Windows.Forms.Timer(this.components);
-            this.ucMain = new ZwiftActivityMonitor.MainViewControl();
+            this.pViews = new System.Windows.Forms.Panel();
+            this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
+            this.MainView = new ZwiftActivityMonitor.MainViewControl();
             this.pnTitle.SuspendLayout();
             this.pnMenu.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.pViews.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnTitle
@@ -376,21 +379,38 @@ namespace ZwiftActivityMonitor
             this.runTimer.Interval = 1000;
             this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
-            // ucMain
+            // pViews
             // 
-            this.ucMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucMain.Location = new System.Drawing.Point(0, 50);
-            this.ucMain.Margin = new System.Windows.Forms.Padding(5);
-            this.ucMain.Name = "ucMain";
-            this.ucMain.Size = new System.Drawing.Size(334, 153);
-            this.ucMain.TabIndex = 2;
+            this.pViews.Controls.Add(this.SplitsView);
+            this.pViews.Controls.Add(this.MainView);
+            this.pViews.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pViews.Location = new System.Drawing.Point(0, 50);
+            this.pViews.Name = "pViews";
+            this.pViews.Size = new System.Drawing.Size(334, 153);
+            this.pViews.TabIndex = 2;
+            // 
+            // SplitsView
+            // 
+            this.SplitsView.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.SplitsView.Location = new System.Drawing.Point(0, 130);
+            this.SplitsView.Name = "SplitsView";
+            this.SplitsView.Size = new System.Drawing.Size(334, 23);
+            this.SplitsView.TabIndex = 1;
+            // 
+            // MainView
+            // 
+            this.MainView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainView.Location = new System.Drawing.Point(0, 0);
+            this.MainView.Name = "MainView";
+            this.MainView.Size = new System.Drawing.Size(334, 153);
+            this.MainView.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.ClientSize = new System.Drawing.Size(334, 203);
-            this.Controls.Add(this.ucMain);
+            this.Controls.Add(this.pViews);
             this.Controls.Add(this.pnMenu);
             this.Controls.Add(this.pnTitle);
             this.Font = new System.Drawing.Font("Franklin Gothic Heavy", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -409,6 +429,7 @@ namespace ZwiftActivityMonitor
             this.statusStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.pViews.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -449,6 +470,8 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
         private System.Windows.Forms.Timer countdownTimer;
         private System.Windows.Forms.Timer runTimer;
-        private MainViewControl ucMain;
+        private System.Windows.Forms.Panel pViews;
+        private MainViewControl MainView;
+        private SplitsViewControl SplitsView;
     }
 }

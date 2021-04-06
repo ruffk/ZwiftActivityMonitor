@@ -146,7 +146,7 @@ namespace ZwiftActivityMonitor
                 string[] text = SubItemStrings(SummaryItem, refreshUom);
 
                 // Update the speed column header text accordingly
-                this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "Mph" : "km/h";
+                this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "mi/h" : "km/h";
 
                 for (int i = 0; i < 5; i++)
                     this.SubItems[i].Text = text[i];
@@ -167,27 +167,27 @@ namespace ZwiftActivityMonitor
 
         private readonly SummaryHelper m_summaryHelper;
         private readonly Dictionary<DurationType, MovingAverageWrapper> m_maCollection;
-        private readonly NormalizedPower m_normalizedPower;
 
 
+        private NormalizedPower m_normalizedPower;
         private Dispatcher m_dispatcher;        // Current UI thread dispatcher, for marshalling UI calls
         private DateTime m_lastViewerRefresh;   // Time of last Viewer list view refresh
         private DateTime m_lastSummaryRefresh;  // Time of last Summary list view refresh
         private int m_summaryRefreshCount;      // Number of times Summary list view has been refreshed
 
+        private Timer refreshTimer = new Timer();
+
         private UserProfile CurrentUser { get; set; }
 
         public MainViewControl()
         {
+            InitializeComponent();
+
+            this.refreshTimer.Interval = 1000;
+            this.refreshTimer.Tick += new System.EventHandler(this.refreshTimer_Tick);
+
             m_summaryHelper = new SummaryHelper(new SummaryListViewItem(new SummaryItem()));
             m_maCollection = new Dictionary<DurationType, MovingAverageWrapper>();
-
-            m_normalizedPower = new NormalizedPower();
-            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
-            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
-
-
-            InitializeComponent();
 
             UserControlBase.SetListViewHeaderColor(ref this.lvViewer, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
             UserControlBase.SetListViewHeaderColor(ref this.lvOverall, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
@@ -204,6 +204,8 @@ namespace ZwiftActivityMonitor
 
             m_normalizedPower.Start();
 
+            refreshTimer.Enabled = true;
+
             this.ResetCounters();
         }
         public void StopCollection()
@@ -213,6 +215,8 @@ namespace ZwiftActivityMonitor
                 maw.MovingAverage.Stop();
             }
             m_normalizedPower.Stop();
+
+            refreshTimer.Enabled = false;
         }
 
         public void ClearViewerItems()
@@ -516,7 +520,7 @@ namespace ZwiftActivityMonitor
         /// <summary>
         /// Refresh the two ListViews on the screen with current information.
         /// This routine is called approx every second while collection is occuring.
-        /// In order to moderate screen refreshes, we only update the ucMain.Viewer every 5 seconds, and the lvOverall every 10 seconds.
+        /// In order to moderate screen refreshes, we only update the lvViewer every 5 seconds, and the lvOverall every 10 seconds.
         /// </summary>
         /// <param name="clearDataFields"></param>
         public void RefreshListViews(bool clearDataFields = false)
@@ -536,9 +540,9 @@ namespace ZwiftActivityMonitor
                     foreach (var wrapper in m_maCollection)
                     {
                         if (clearDataFields)
-                            (wrapper.Value as MovingAverageWrapper).ViewerListViewItem.ViewerItem.ClearDataFields();
+                            wrapper.Value.ViewerListViewItem.ViewerItem.ClearDataFields();
 
-                        (wrapper.Value as MovingAverageWrapper).ViewerListViewItem.Refresh();
+                        wrapper.Value.ViewerListViewItem.Refresh();
                     }
                     this.lvViewer.EndUpdate();
 
@@ -571,39 +575,65 @@ namespace ZwiftActivityMonitor
             //m_logger.LogInformation($"RefreshListViews called.");
         }
 
+        private void refreshTimer_Tick(object sender, EventArgs e)
+        {
+            this.RefreshListViews();
+        }
+
+
 
         #region Base class overrides for event selection
         protected override void UserControlBase_Load(object sender, EventArgs e)
         {
-            base.UserControlBase_Load(sender, e);
+            if (DesignMode)
+                return;
 
             // for handling UI events
             m_dispatcher = Dispatcher.CurrentDispatcher;
 
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainViewControl>();
 
+            m_normalizedPower = new NormalizedPower();
+            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
+            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
+
             this.lvOverall.Items.Clear();
             this.lvOverall.Items.Add(m_summaryHelper.SummaryListViewItem);
+
+            base.UserControlBase_Load(sender, e);
         }
 
         protected override void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            if (DesignMode)
+                return;
+
             base.ListView_ItemSelectionChanged_Disable(sender, e);
         }
 
         protected override void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
+            if (DesignMode)
+                return;
             base.ListView_DrawItem(sender, e);
         }
 
         protected override void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
+            if (DesignMode)
+                return;
             base.Listview_DrawSubItem(sender, e);
         }
 
         protected override void SkipControl_Enter(object sender, EventArgs e)
         {
+            if (DesignMode)
+                return;
             base.SkipControl_Enter(sender, e);
+        }
+        protected override void ListView_Resize_HideHorizontalScrollBar(object sender, EventArgs e)
+        {
+            base.ListView_Resize_HideHorizontalScrollBar(sender, e);
         }
 
         #endregion

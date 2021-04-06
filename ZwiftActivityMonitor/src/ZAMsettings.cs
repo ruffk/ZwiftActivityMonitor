@@ -353,7 +353,7 @@ namespace ZwiftActivityMonitor
         private static ZAMsettings  _uncommittedZAMsettings;  // While editing, contains the dirty settings
 
         private static ILogger<ZAMsettings> _logger;
-        public static ILoggerFactory LoggerFactory { get; set; }
+        private static ILoggerFactory _loggerFactory;
         public static ZPMonitorService ZPMonitorService { get; set; }
 
         private static bool _initialized;
@@ -503,13 +503,23 @@ namespace ZwiftActivityMonitor
             } 
         }
 
+        public static ILoggerFactory LoggerFactory
+        {
+            get
+            {
+                return _loggerFactory;
+            }
+        }
+            
+
+
 
         public static void Initialize(ILoggerFactory loggerFactory, ZPMonitorService zpMonitorService)
         {
             if (_initialized)
                 return;
 
-            LoggerFactory = loggerFactory;
+            _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<ZAMsettings>();
 
             ZPMonitorService = zpMonitorService;

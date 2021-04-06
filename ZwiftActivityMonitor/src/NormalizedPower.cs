@@ -59,7 +59,9 @@ namespace ZwiftActivityMonitor
 
         public NormalizedPower()
         {
-            //m_zpMonitorService = zpMonitorService;
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
             Logger = ZAMsettings.LoggerFactory.CreateLogger<NormalizedPower>();
 
             // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).

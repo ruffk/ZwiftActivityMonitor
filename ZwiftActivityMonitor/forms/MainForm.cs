@@ -50,9 +50,6 @@ namespace ZwiftActivityMonitor
             // for handling UI events
             m_dispatcher = Dispatcher.CurrentDispatcher;
 
-            // Initialize the settings manager
-            //ZAMsettings.Initialize(LoggerFactory);
-
             // Determine window position
             if (ZAMsettings.Settings.WindowPositionX > 0 && ZAMsettings.Settings.WindowPositionY > 0)
             {
@@ -62,6 +59,12 @@ namespace ZwiftActivityMonitor
 
             // Set the environment based on the current user
             SetupCurrentUser();
+
+            SplitsView.SendToBack();
+            SplitsView.Dock = DockStyle.None;
+            MainView.BringToFront();
+            MainView.Dock = DockStyle.Fill;
+
 
             Logger.LogInformation("MainForm_Load");
 
@@ -163,7 +166,7 @@ namespace ZwiftActivityMonitor
                     return;
                 }
 
-                ucMain.StartCollection();
+                MainView.StartCollection();
 
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
@@ -210,7 +213,7 @@ namespace ZwiftActivityMonitor
             {
                 if (m_cancellationTokenSource == null)
                 {
-                    ucMain.StopCollection();
+                    MainView.StopCollection();
 
                     runTimer.Enabled = false;
                 }
@@ -232,7 +235,7 @@ namespace ZwiftActivityMonitor
             if (m_isStarted)
             {
                 // Clear any values on the screen
-                ucMain.RefreshListViews(true);
+                MainView.RefreshListViews(true);
 
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
@@ -274,7 +277,7 @@ namespace ZwiftActivityMonitor
                 if (countdownTimer.Enabled)
                 {
                     // Clear any values on the screen
-                    ucMain.RefreshListViews(true);
+                    MainView.RefreshListViews(true);
 
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
@@ -301,7 +304,7 @@ namespace ZwiftActivityMonitor
         private void LoadMovingAverageCollection()
         {
             // Remove all moving average collectors and ListView items
-            ucMain.ClearViewerItems();
+            MainView.ClearViewerItems();
 
             // Loop through the menu items within the Collect menu.
             // If an item is checked, we want to create a collector for it.
@@ -315,15 +318,12 @@ namespace ZwiftActivityMonitor
 
                 if (tsmi.Checked)
                 {
-                    if (ucMain.CountViewerItems < 3)
+                    if (MainView.CountViewerItems < 3)
                     {
                         DurationType result;
                         if (Enum.TryParse<DurationType>(tsmi.Tag.ToString(), true, out result))
                         {
-                            ucMain.AddViewerItem(result, tsmi.Text);
-
-                            //if (ucMain.CountViewerItems >= 3) // only allow up to 3 collectors
-                            //    break;
+                            MainView.AddViewerItem(result, tsmi.Text);
                         }
                         else
                         {
@@ -390,13 +390,34 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        private int count;
+
         private void runTimer_Tick(object sender, EventArgs e)
         {
             TimeSpan ts = DateTime.Now - m_collectionStart;
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
 
-            ucMain.RefreshListViews();
+            //if ((int)ts.TotalSeconds % 10 == 0)
+            //{
+            //    if (count++ % 2 == 0)
+            //    {
+            //        MainView.SendToBack();
+            //        MainView.Dock = DockStyle.None;
+            //        SplitsView.BringToFront();
+            //        SplitsView.Dock = DockStyle.Fill;
+            //    }
+            //    else
+            //    {
+            //        SplitsView.SendToBack();
+            //        SplitsView.Dock = DockStyle.None;
+            //        MainView.BringToFront();
+            //        MainView.Dock = DockStyle.Fill;
+            //    }
+            //    Logger.LogInformation($"Count: {count}");
+            //}
+
+            //MainView.RefreshListViews();
         }
 
         #endregion
