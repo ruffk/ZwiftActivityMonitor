@@ -169,6 +169,26 @@ namespace ZwiftActivityMonitor
             lvSplits.Items.Clear();
             lblGoalSpeed.Text = "";
 
+            SplitsManager.SplitGoals splitGoals = SplitsManager.GetSplitGoals();
+
+            if (splitGoals == null)
+                return;
+
+            foreach (SplitsManager.SplitGoal goal in splitGoals.Goals)
+            {
+                SplitItem item = new SplitItem()
+                {
+                    Distance = goal.SplitDistanceStr,
+                    Time = goal.SplitTimeStr,
+                    TotalDistance = goal.TotalDistanceStr,
+                    TotalTime = goal.TotalTimeStr
+                };
+                lvSplits.Items.Add(new SplitListViewItem(item));
+            }
+
+            lblGoalSpeed.Text = splitGoals.GoalSpeedStr;
+
+            /*
             if (!ckbShowSplits.Checked || !ckbCalculateGoal.Checked)
                 return;
 
@@ -226,6 +246,7 @@ namespace ZwiftActivityMonitor
 
             double goalSpeed = Math.Round((splits.GoalDistance / goalTime.TotalSeconds) * 3600, 1);
             lblGoalSpeed.Text = $"{goalSpeed.ToString("#.#")} {(splits.SplitUom == "km" ? "km/h" : "mph")}";
+            */
         }
 
         private bool EditingSystemSettings

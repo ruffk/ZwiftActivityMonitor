@@ -193,6 +193,29 @@ namespace ZwiftActivityMonitor
             UserControlBase.SetListViewHeaderColor(ref this.lvOverall, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
         }
 
+        protected override void UserControlBase_Load(object sender, EventArgs e)
+        {
+            if (DesignMode)
+                return;
+
+            // for handling UI events
+            m_dispatcher = Dispatcher.CurrentDispatcher;
+
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainViewControl>();
+
+            // NormalizedPower is instantiated here rather than constructor because it was preventing ability to drag/drop control on to a form.
+            // This was because it creates a Logger in its constructor and the LoggerFactor isn't of course available.
+            m_normalizedPower = new NormalizedPower();
+            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
+            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
+
+            this.lvOverall.Items.Clear();
+            this.lvOverall.Items.Add(m_summaryHelper.SummaryListViewItem);
+
+            base.UserControlBase_Load(sender, e);
+        }
+
+
         public void StartCollection()
         {
             this.CurrentUser = ZAMsettings.Settings.CurrentUser;
@@ -583,52 +606,24 @@ namespace ZwiftActivityMonitor
 
 
         #region Base class overrides for event selection
-        protected override void UserControlBase_Load(object sender, EventArgs e)
-        {
-            if (DesignMode)
-                return;
-
-            // for handling UI events
-            m_dispatcher = Dispatcher.CurrentDispatcher;
-
-            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainViewControl>();
-
-            m_normalizedPower = new NormalizedPower();
-            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
-            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
-
-            this.lvOverall.Items.Clear();
-            this.lvOverall.Items.Add(m_summaryHelper.SummaryListViewItem);
-
-            base.UserControlBase_Load(sender, e);
-        }
 
         protected override void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            if (DesignMode)
-                return;
-
             base.ListView_ItemSelectionChanged_Disable(sender, e);
         }
 
         protected override void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
-            if (DesignMode)
-                return;
             base.ListView_DrawItem(sender, e);
         }
 
         protected override void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-            if (DesignMode)
-                return;
             base.Listview_DrawSubItem(sender, e);
         }
 
         protected override void SkipControl_Enter(object sender, EventArgs e)
         {
-            if (DesignMode)
-                return;
             base.SkipControl_Enter(sender, e);
         }
         protected override void ListView_Resize_HideHorizontalScrollBar(object sender, EventArgs e)

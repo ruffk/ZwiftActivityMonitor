@@ -110,6 +110,8 @@ namespace ZwiftActivityMonitor
             this.lvSplits.TabStop = false;
             this.lvSplits.UseCompatibleStateImageBehavior = false;
             this.lvSplits.View = System.Windows.Forms.View.Details;
+            this.lvSplits.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListView_DrawItem);
+            this.lvSplits.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
             this.lvSplits.Resize += new System.EventHandler(this.ListView_Resize_HideHorizontalScrollBar);
             // 
             // chSplitNum
@@ -200,20 +202,20 @@ namespace ZwiftActivityMonitor
             // 
             // lblGoalSpeed
             // 
-            this.lblGoalSpeed.Location = new System.Drawing.Point(94, 1);
+            this.lblGoalSpeed.Location = new System.Drawing.Point(43, 1);
             this.lblGoalSpeed.Name = "lblGoalSpeed";
-            this.lblGoalSpeed.Size = new System.Drawing.Size(101, 19);
+            this.lblGoalSpeed.Size = new System.Drawing.Size(291, 19);
             this.lblGoalSpeed.TabIndex = 96;
-            this.lblGoalSpeed.Text = "43.6 km/h";
             this.lblGoalSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label8
             // 
-            this.label8.Location = new System.Drawing.Point(0, 1);
+            this.label8.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label8.Location = new System.Drawing.Point(0, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(107, 19);
+            this.label8.Size = new System.Drawing.Size(107, 22);
             this.label8.TabIndex = 95;
-            this.label8.Text = "Goal Speed:";
+            this.label8.Text = "Goal:";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // SplitsViewControl

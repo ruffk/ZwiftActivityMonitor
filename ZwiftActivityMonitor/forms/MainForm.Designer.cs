@@ -30,7 +30,11 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.pnTitle = new System.Windows.Forms.Panel();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsbSplits = new System.Windows.Forms.ToolStripButton();
+            this.tsbAnalysis = new System.Windows.Forms.ToolStripButton();
             this.btnClose = new System.Windows.Forms.Button();
             this.lblTitle = new System.Windows.Forms.Label();
             this.pnMenu = new System.Windows.Forms.Panel();
@@ -68,6 +72,7 @@ namespace ZwiftActivityMonitor
             this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
             this.MainView = new ZwiftActivityMonitor.MainViewControl();
             this.pnTitle.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.pnMenu.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -77,6 +82,7 @@ namespace ZwiftActivityMonitor
             // pnTitle
             // 
             this.pnTitle.BackColor = System.Drawing.Color.White;
+            this.pnTitle.Controls.Add(this.toolStrip1);
             this.pnTitle.Controls.Add(this.btnClose);
             this.pnTitle.Controls.Add(this.lblTitle);
             this.pnTitle.Dock = System.Windows.Forms.DockStyle.Top;
@@ -85,6 +91,43 @@ namespace ZwiftActivityMonitor
             this.pnTitle.Name = "pnTitle";
             this.pnTitle.Size = new System.Drawing.Size(334, 26);
             this.pnTitle.TabIndex = 0;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.AutoSize = false;
+            this.toolStrip1.BackColor = System.Drawing.Color.White;
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSplits,
+            this.tsbAnalysis});
+            this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.toolStrip1.Size = new System.Drawing.Size(51, 26);
+            this.toolStrip1.TabIndex = 1;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbSplits
+            // 
+            this.tsbSplits.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSplits.Image = ((System.Drawing.Image)(resources.GetObject("tsbSplits.Image")));
+            this.tsbSplits.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSplits.Name = "tsbSplits";
+            this.tsbSplits.Size = new System.Drawing.Size(23, 23);
+            this.tsbSplits.Text = "Splits View";
+            this.tsbSplits.Click += new System.EventHandler(this.tsbSplits_Click);
+            // 
+            // tsbAnalysis
+            // 
+            this.tsbAnalysis.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAnalysis.Image = ((System.Drawing.Image)(resources.GetObject("tsbAnalysis.Image")));
+            this.tsbAnalysis.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAnalysis.Name = "tsbAnalysis";
+            this.tsbAnalysis.Size = new System.Drawing.Size(23, 23);
+            this.tsbAnalysis.Text = "Analysis View";
+            this.tsbAnalysis.Click += new System.EventHandler(this.tsbAnalysis_Click);
             // 
             // btnClose
             // 
@@ -423,6 +466,8 @@ namespace ZwiftActivityMonitor
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.pnTitle.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.pnMenu.ResumeLayout(false);
             this.pnMenu.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -473,5 +518,10 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Panel pViews;
         private MainViewControl MainView;
         private SplitsViewControl SplitsView;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tsbSplits1;
+        private System.Windows.Forms.ToolStripButton tsbAnalysis1;
+        private System.Windows.Forms.ToolStripButton tsbAnalysis;
+        private System.Windows.Forms.ToolStripButton tsbSplits;
     }
 }

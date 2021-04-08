@@ -243,9 +243,15 @@ namespace ZwiftActivityMonitor
         }
 
         [JsonIgnore]
+        public bool SplitsInKm
+        {
+            get { return m_splitUom == "km"; }
+        }
+
+        [JsonIgnore]
         public double SplitDistanceAsKm
         {
-            get { return m_splitUom == "km" ? m_splitDistance : m_splitDistance * 1.609; }
+            get { return SplitsInKm ? m_splitDistance : m_splitDistance * 1.609; }
         }
 
         [JsonIgnore]

@@ -167,6 +167,7 @@ namespace ZwiftActivityMonitor
                 }
 
                 MainView.StartCollection();
+                SplitsView.StartCollection();
 
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
@@ -214,6 +215,7 @@ namespace ZwiftActivityMonitor
                 if (m_cancellationTokenSource == null)
                 {
                     MainView.StopCollection();
+                    SplitsView.StopCollection();
 
                     runTimer.Enabled = false;
                 }
@@ -390,32 +392,12 @@ namespace ZwiftActivityMonitor
             }
         }
 
-        private int count;
-
         private void runTimer_Tick(object sender, EventArgs e)
         {
             TimeSpan ts = DateTime.Now - m_collectionStart;
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
 
-            //if ((int)ts.TotalSeconds % 10 == 0)
-            //{
-            //    if (count++ % 2 == 0)
-            //    {
-            //        MainView.SendToBack();
-            //        MainView.Dock = DockStyle.None;
-            //        SplitsView.BringToFront();
-            //        SplitsView.Dock = DockStyle.Fill;
-            //    }
-            //    else
-            //    {
-            //        SplitsView.SendToBack();
-            //        SplitsView.Dock = DockStyle.None;
-            //        MainView.BringToFront();
-            //        MainView.Dock = DockStyle.Fill;
-            //    }
-            //    Logger.LogInformation($"Count: {count}");
-            //}
 
             //MainView.RefreshListViews();
         }
@@ -516,5 +498,21 @@ namespace ZwiftActivityMonitor
         }
 
         #endregion
+
+        private void tsbAnalysis_Click(object sender, EventArgs e)
+        {
+            SplitsView.SendToBack();
+            SplitsView.Dock = DockStyle.None;
+            MainView.BringToFront();
+            MainView.Dock = DockStyle.Fill;
+        }
+
+        private void tsbSplits_Click(object sender, EventArgs e)
+        {
+            MainView.SendToBack();
+            MainView.Dock = DockStyle.None;
+            SplitsView.BringToFront();
+            SplitsView.Dock = DockStyle.Fill;
+        }
     }
 }
