@@ -437,7 +437,7 @@ namespace ZwiftActivityMonitor
                             throw new ApplicationException("Goal distance must be >= split distance to calculate goals.");
                         }
 
-                        if (ZAMsettings.Settings.Splits.CalculateGoal && ZAMsettings.Settings.Splits.GoalTimeSpan.TotalSeconds < 1)
+                        if (ZAMsettings.Settings.Splits.CalculateGoal && ZAMsettings.Settings.Splits.GoalTime.TotalSeconds < 1)
                         {
                             control = this.tbGoalHrs;
                             control.Focus();

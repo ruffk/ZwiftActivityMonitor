@@ -25,6 +25,7 @@ namespace ZwiftActivityMonitor
         private bool m_isStarted;                                   // Whether the collectors are currently running
         private UserProfile m_currentUser;                          // Current user, selected in Options dialog
         private CancellationTokenSource m_cancellationTokenSource;  // For cancelling thread awaiting rider start
+        private DateTime? m_splitsViewDisplayTime;
 
         public MainForm(IServiceProvider serviceProvider)
         {
@@ -60,14 +61,16 @@ namespace ZwiftActivityMonitor
             // Set the environment based on the current user
             SetupCurrentUser();
 
+            // Make sure the analysis control is shown
             SplitsView.SendToBack();
-            SplitsView.Dock = DockStyle.None;
+            SplitsView.Dock = DockStyle.Fill;
             MainView.BringToFront();
             MainView.Dock = DockStyle.Fill;
 
+            SplitsView.SplitGoalCompletedEvent += SplitCompletedEventHandler;
+            SplitsView.SplitCompletedEvent += SplitCompletedEventHandler;
 
             Logger.LogInformation("MainForm_Load");
-
         }
 
         private void SetupCurrentUser()
@@ -171,6 +174,7 @@ namespace ZwiftActivityMonitor
 
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
+                m_splitsViewDisplayTime = null;
 
                 Logger.LogInformation($"Collection_OnStart");
             }
@@ -238,6 +242,7 @@ namespace ZwiftActivityMonitor
             {
                 // Clear any values on the screen
                 MainView.RefreshListViews(true);
+                SplitsView.ClearListView();
 
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
@@ -280,6 +285,7 @@ namespace ZwiftActivityMonitor
                 {
                     // Clear any values on the screen
                     MainView.RefreshListViews(true);
+                    SplitsView.ClearListView();
 
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
@@ -305,6 +311,9 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void LoadMovingAverageCollection()
         {
+            MainView.RefreshListViews(true);
+            SplitsView.ClearListView();
+
             // Remove all moving average collectors and ListView items
             MainView.ClearViewerItems();
 
@@ -339,6 +348,37 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
+
+        /// <summary>
+        /// A delegate used solely by the SplitGoalCompletedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void SplitCompletedEventHandlerDelegate(object sender, EventArgs e);
+
+        /// <summary>
+        /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SplitCompletedEventHandler(object sender, EventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new SplitCompletedEventHandlerDelegate(SplitCompletedEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            if (!this.IsControlAtFront(SplitsView))
+            {
+                tsbSplits.PerformClick();
+                m_splitsViewDisplayTime = DateTime.Now;
+            }
+
+            //Logger.LogInformation($"SplitGoalCompletedEventHandler {e.SplitNumberStr}, {e.SplitTimeStr}, {e.SplitSpeedStr}, {e.TotalDistanceStr}, {e.TotalTimeStr}");
+        }
+
 
         #region Timer menu and tick event handling
 
@@ -398,8 +438,22 @@ namespace ZwiftActivityMonitor
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
 
-
-            //MainView.RefreshListViews();
+            if (m_splitsViewDisplayTime != null) // Splits control was displayed, timer in progress
+            {
+                if (IsControlAtFront(SplitsView)) // Splits control still displayed?
+                {
+                    if ((DateTime.Now - (DateTime)m_splitsViewDisplayTime).TotalSeconds >= 5) // Swap back to analysis window after 5 seconds
+                    {
+                        tsbAnalysis.PerformClick();
+                        m_splitsViewDisplayTime = null;
+                    }
+                }
+                else
+                {
+                    // Clear time since Splits control no longer displayed
+                    m_splitsViewDisplayTime = null;
+                }
+            }
         }
 
         #endregion
@@ -502,7 +556,7 @@ namespace ZwiftActivityMonitor
         private void tsbAnalysis_Click(object sender, EventArgs e)
         {
             SplitsView.SendToBack();
-            SplitsView.Dock = DockStyle.None;
+            //SplitsView.Dock = DockStyle.None;
             MainView.BringToFront();
             MainView.Dock = DockStyle.Fill;
         }
@@ -510,9 +564,29 @@ namespace ZwiftActivityMonitor
         private void tsbSplits_Click(object sender, EventArgs e)
         {
             MainView.SendToBack();
-            MainView.Dock = DockStyle.None;
+            //MainView.Dock = DockStyle.None;
             SplitsView.BringToFront();
             SplitsView.Dock = DockStyle.Fill;
+        }
+
+        private bool IsControlAtFront(Control control)
+        {
+            while (control.Parent != null)
+            {
+                if (control.Parent.Controls.GetChildIndex(control) == 0)
+                {
+                    control = control.Parent;
+                    if (control.Parent == null)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
         }
     }
 }

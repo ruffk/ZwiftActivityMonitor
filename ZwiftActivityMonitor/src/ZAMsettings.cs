@@ -222,7 +222,7 @@ namespace ZwiftActivityMonitor
         private double m_goalDistance = 25;
 
         [JsonIgnore]
-        public TimeSpan GoalTimeSpan { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
+        public TimeSpan GoalTime { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
 
         public Splits()
         {

@@ -145,7 +145,7 @@ namespace ZwiftActivityMonitor
             // 
             // chDelta
             // 
-            this.chDelta.Text = "Delta";
+            this.chDelta.Text = "+/-";
             this.chDelta.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.chDelta.Width = 62;
             // 

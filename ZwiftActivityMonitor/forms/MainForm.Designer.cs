@@ -519,8 +519,6 @@ namespace ZwiftActivityMonitor
         private MainViewControl MainView;
         private SplitsViewControl SplitsView;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripButton tsbSplits1;
-        private System.Windows.Forms.ToolStripButton tsbAnalysis1;
         private System.Windows.Forms.ToolStripButton tsbAnalysis;
         private System.Windows.Forms.ToolStripButton tsbSplits;
     }
