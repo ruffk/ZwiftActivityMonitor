@@ -3,9 +3,11 @@ Zwift Activity Monitor
 
 ## The Power is Within You
 
-![main_form](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainForm.png)
+![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainView.png)
 
 This project allows Zwift riders to monitor their power and heartrate averages in real-time.
+
+![split_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SplitView.png)
 
 ## How It Works
 
