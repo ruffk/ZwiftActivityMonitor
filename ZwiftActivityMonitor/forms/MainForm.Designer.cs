@@ -30,7 +30,6 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.pnTitle = new System.Windows.Forms.Panel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbSplits = new System.Windows.Forms.ToolStripButton();
@@ -54,6 +53,7 @@ namespace ZwiftActivityMonitor
             this.tsmi30sec = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi1min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi5min = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmi6min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi10min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi20min = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi30min = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,7 +72,6 @@ namespace ZwiftActivityMonitor
             this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
             this.MainView = new ZwiftActivityMonitor.MainViewControl();
             this.postStartupTimer = new System.Windows.Forms.Timer(this.components);
-            this.tsmi6min = new System.Windows.Forms.ToolStripMenuItem();
             this.pnTitle.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.pnMenu.SuspendLayout();
@@ -114,7 +113,7 @@ namespace ZwiftActivityMonitor
             // tsbSplits
             // 
             this.tsbSplits.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbSplits.Image = ((System.Drawing.Image)(resources.GetObject("tsbSplits.Image")));
+            this.tsbSplits.Image = global::ZwiftActivityMonitor.Properties.Resources.split;
             this.tsbSplits.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbSplits.Name = "tsbSplits";
             this.tsbSplits.Size = new System.Drawing.Size(23, 23);
@@ -124,7 +123,7 @@ namespace ZwiftActivityMonitor
             // tsbAnalysis
             // 
             this.tsbAnalysis.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAnalysis.Image = ((System.Drawing.Image)(resources.GetObject("tsbAnalysis.Image")));
+            this.tsbAnalysis.Image = global::ZwiftActivityMonitor.Properties.Resources.analytics;
             this.tsbAnalysis.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbAnalysis.Name = "tsbAnalysis";
             this.tsbAnalysis.Size = new System.Drawing.Size(23, 23);
@@ -323,6 +322,15 @@ namespace ZwiftActivityMonitor
             this.tsmi5min.Text = "5 min";
             this.tsmi5min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
+            // tsmi6min
+            // 
+            this.tsmi6min.CheckOnClick = true;
+            this.tsmi6min.Name = "tsmi6min";
+            this.tsmi6min.Size = new System.Drawing.Size(136, 22);
+            this.tsmi6min.Tag = "SixMinutes";
+            this.tsmi6min.Text = "6 min";
+            this.tsmi6min.Click += new System.EventHandler(this.anyDuration_Click);
+            // 
             // tsmi10min
             // 
             this.tsmi10min.CheckOnClick = true;
@@ -455,15 +463,6 @@ namespace ZwiftActivityMonitor
             // 
             this.postStartupTimer.Interval = 1000;
             this.postStartupTimer.Tick += new System.EventHandler(this.postStartupTimer_Tick);
-            // 
-            // tsmi6min
-            // 
-            this.tsmi6min.CheckOnClick = true;
-            this.tsmi6min.Name = "tsmi6min";
-            this.tsmi6min.Size = new System.Drawing.Size(136, 22);
-            this.tsmi6min.Tag = "SixMinutes";
-            this.tsmi6min.Text = "6 min";
-            this.tsmi6min.Click += new System.EventHandler(this.anyDuration_Click);
             // 
             // MainForm
             // 

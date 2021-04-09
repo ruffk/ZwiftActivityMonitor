@@ -35,13 +35,17 @@
   <ItemGroup>
     <None Remove="hostsettings.json" />
     <None Remove="README.md" />
+    <None Remove="resources\analytics.ico" />
     <None Remove="resources\cycling.ico" />
     <None Remove="resources\cycling1.ico" />
+    <None Remove="resources\split.ico" />
     <None Remove="ZwiftActivityMonitor.nuspec" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="resources\analytics.ico" />
     <Content Include="resources\cycling1.ico" />
+    <Content Include="resources\split.ico" />
   </ItemGroup>
 
   <ItemGroup>
