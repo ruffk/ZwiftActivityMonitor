@@ -101,6 +101,19 @@ Display Format can be shown in:
 
 ![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
 
+#### Options -> Splits Configuration Tab
+
+ZAM allows you to configure distance based splits to review your progress while riding.  Optionally, you can also configure goals so that you'll know if you're ahead or behind on your split times.  A split has the following attributes:
+
+<ol>
+	<li>Show Splits - When checked, the splits view window will display automatically for 5 seconds when the distance is hit.</li>
+	<li>Splits Every - This determines the distance (in km or mi) that splits occur.</li>
+	<li>Calculate Goal - When checked, the splits view window will show a +/- indicator of your time vs the split time.</li>
+	<li>Goal Time and Goal Distance - Together these are used to automatically calculate the number of splits and the target split times.</li>
+</ol>
+
+![splits](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Splits.png)
+
 ### Using While Zwifting
 
 #### Quick Start
