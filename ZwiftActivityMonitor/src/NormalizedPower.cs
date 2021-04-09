@@ -12,7 +12,6 @@ namespace ZwiftActivityMonitor
         /// </summary>
     public class NormalizedPower
     {
-        private readonly ZPMonitorService m_zpMonitorService;
         private readonly ILogger<NormalizedPower> Logger;
         private readonly MovingAverage m_movingAvg;
 
@@ -58,13 +57,15 @@ namespace ZwiftActivityMonitor
         public event EventHandler<MetricsChangedEventArgs> MetricsChangedEvent;
 
 
-        public NormalizedPower(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
+        public NormalizedPower()
         {
-            m_zpMonitorService = zpMonitorService;
-            Logger = loggerFactory.CreateLogger<NormalizedPower>();
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<NormalizedPower>();
 
             // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).
-            m_movingAvg = new MovingAverage(m_zpMonitorService, loggerFactory, DurationType.ThirtySeconds, false);
+            m_movingAvg = new MovingAverage(DurationType.ThirtySeconds, false);
             m_movingAvg.MovingAverageCalculatedEvent += MovingAverageCalculatedEventHandler;
             m_movingAvg.MetricsCalculatedEvent += MetricsCalculatedEventHandler;
         }

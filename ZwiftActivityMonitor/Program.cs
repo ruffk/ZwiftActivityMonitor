@@ -60,20 +60,17 @@ namespace ZwiftActivityMonitor
 
                     // add our ZwiftPacketMonitor wrapper service
                     serviceCollection.AddSingleton<ZPMonitorService>();
-                    //serviceCollection.AddSingleton<ConfigurationBO>();
 
                     serviceCollection.AddTransient<AdvancedOptions>();
                     serviceCollection.AddTransient<ConfigurationOptions>();
                     serviceCollection.AddSingleton<MonitorTimer>();
                 })
                 .UseWinFormsLifetime()
-                //.UseConsoleLifetime()
                 .Build();
 
-            //Console.WriteLine(@"Run!");
-
             ILoggerFactory lf = host.Services.GetRequiredService<ILoggerFactory>();
-            ZAMsettings.Initialize(lf);
+            ZPMonitorService zp = host.Services.GetRequiredService<ZPMonitorService>();
+            ZAMsettings.Initialize(lf, zp);
 
 
             return host.RunAsync();

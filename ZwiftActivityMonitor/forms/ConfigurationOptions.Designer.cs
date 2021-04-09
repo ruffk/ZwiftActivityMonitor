@@ -37,6 +37,8 @@ namespace ZwiftActivityMonitor
             this.ucUserProfiles = new ZwiftActivityMonitor.UserProfileControl();
             this.tpCollectors = new System.Windows.Forms.TabPage();
             this.ucStatistics = new ZwiftActivityMonitor.StatisticsControl();
+            this.tpSplits = new System.Windows.Forms.TabPage();
+            this.ucSplits = new ZwiftActivityMonitor.SplitsConfigControl();
             this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
@@ -44,6 +46,7 @@ namespace ZwiftActivityMonitor
             this.tpSystem.SuspendLayout();
             this.tpUserProfiles.SuspendLayout();
             this.tpCollectors.SuspendLayout();
+            this.tpSplits.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +56,7 @@ namespace ZwiftActivityMonitor
             this.tabOptions.Controls.Add(this.tpSystem);
             this.tabOptions.Controls.Add(this.tpUserProfiles);
             this.tabOptions.Controls.Add(this.tpCollectors);
+            this.tabOptions.Controls.Add(this.tpSplits);
             this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabOptions.Location = new System.Drawing.Point(0, 0);
             this.tabOptions.Name = "tabOptions";
@@ -80,7 +84,6 @@ namespace ZwiftActivityMonitor
             this.ucSystem.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucSystem.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ucSystem.Location = new System.Drawing.Point(3, 3);
-            this.ucSystem.Logger = null;
             this.ucSystem.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucSystem.Name = "ucSystem";
             this.ucSystem.Size = new System.Drawing.Size(584, 548);
@@ -102,7 +105,6 @@ namespace ZwiftActivityMonitor
             this.ucUserProfiles.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucUserProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ucUserProfiles.Location = new System.Drawing.Point(3, 3);
-            this.ucUserProfiles.Logger = null;
             this.ucUserProfiles.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucUserProfiles.Name = "ucUserProfiles";
             this.ucUserProfiles.Size = new System.Drawing.Size(584, 548);
@@ -124,11 +126,31 @@ namespace ZwiftActivityMonitor
             this.ucStatistics.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ucStatistics.Location = new System.Drawing.Point(3, 3);
-            this.ucStatistics.Logger = null;
             this.ucStatistics.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucStatistics.Name = "ucStatistics";
             this.ucStatistics.Size = new System.Drawing.Size(584, 548);
             this.ucStatistics.TabIndex = 0;
+            // 
+            // tpSplits
+            // 
+            this.tpSplits.BackColor = System.Drawing.SystemColors.Control;
+            this.tpSplits.Controls.Add(this.ucSplits);
+            this.tpSplits.Location = new System.Drawing.Point(4, 24);
+            this.tpSplits.Name = "tpSplits";
+            this.tpSplits.Padding = new System.Windows.Forms.Padding(3);
+            this.tpSplits.Size = new System.Drawing.Size(590, 554);
+            this.tpSplits.TabIndex = 6;
+            this.tpSplits.Text = "Splits";
+            // 
+            // ucSplits
+            // 
+            this.ucSplits.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
+            this.ucSplits.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucSplits.Location = new System.Drawing.Point(3, 3);
+            this.ucSplits.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
+            this.ucSplits.Name = "ucSplits";
+            this.ucSplits.Size = new System.Drawing.Size(584, 548);
+            this.ucSplits.TabIndex = 0;
             // 
             // errorProvider
             // 
@@ -170,6 +192,7 @@ namespace ZwiftActivityMonitor
             this.tpSystem.ResumeLayout(false);
             this.tpUserProfiles.ResumeLayout(false);
             this.tpCollectors.ResumeLayout(false);
+            this.tpSplits.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
@@ -190,5 +213,7 @@ namespace ZwiftActivityMonitor
         private UserProfileControl ucUserProfiles;
         private System.Windows.Forms.TabPage tpSystem;
         private SystemControl ucSystem;
+        private System.Windows.Forms.TabPage tpSplits;
+        private SplitsConfigControl ucSplits;
     }
 }

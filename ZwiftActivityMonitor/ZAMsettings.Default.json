@@ -11,7 +11,7 @@
       "DefaultCollectors": {
         "1 min": true,
         "20 min": true,
-        "30 sec": true
+        "5 min": true
       },
       "WeightInKgs": false,
       "Name": "Default User",
@@ -29,7 +29,7 @@
     },
     "10 min": {
       "Name": "10 min",
-      "DurationDesc": "TenMinute",
+      "DurationDesc": "TenMinutes",
       "DurationSecs": 600,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
@@ -37,7 +37,7 @@
     },
     "20 min": {
       "Name": "20 min",
-      "DurationDesc": "TwentyMinute",
+      "DurationDesc": "TwentyMinutes",
       "DurationSecs": 1200,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
@@ -45,7 +45,7 @@
     },
     "30 min": {
       "Name": "30 min",
-      "DurationDesc": "ThirtyMinute",
+      "DurationDesc": "ThirtyMinutes",
       "DurationSecs": 1800,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
@@ -61,7 +61,7 @@
     },
     "5 min": {
       "Name": "5 min",
-      "DurationDesc": "FiveMinute",
+      "DurationDesc": "FiveMinutes",
       "DurationSecs": 300,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
@@ -75,9 +75,17 @@
       "FieldAvgMaxDesc": "Wkg",
       "FieldFtpDesc": "Hidden"
     },
+    "6 min": {
+      "Name": "6 min",
+      "DurationDesc": "SixMinutes",
+      "DurationSecs": 360,
+      "FieldAvgDesc": "Watts",
+      "FieldAvgMaxDesc": "Wkg",
+      "FieldFtpDesc": "Hidden"
+    },
     "60 min": {
       "Name": "60 min",
-      "DurationDesc": "SixtyMinute",
+      "DurationDesc": "SixtyMinutes",
       "DurationSecs": 3600,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
@@ -85,11 +93,21 @@
     },
     "90 min": {
       "Name": "90 min",
-      "DurationDesc": "NinetyMinute",
+      "DurationDesc": "NinetyMinutes",
       "DurationSecs": 5400,
       "FieldAvgDesc": "Watts",
       "FieldAvgMaxDesc": "Wkg",
       "FieldFtpDesc": "Hidden"
     }
+  },
+  "Splits": {
+    "ShowSplits": true,
+    "CalculateGoal": false,
+    "SplitDistance": 5,
+    "SplitUom": "km",
+    "GoalHours": 0,
+    "GoalMinutes": 45,
+    "GoalSeconds": 0,
+    "GoalDistance": 25.0
   }
 }

@@ -361,16 +361,21 @@ namespace ZwiftActivityMonitor
             this.chFtp,
             this.chBlank});
             this.lvCollectors.FullRowSelect = true;
+            this.lvCollectors.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvCollectors.HideSelection = false;
             this.lvCollectors.Location = new System.Drawing.Point(3, 3);
             this.lvCollectors.MultiSelect = false;
             this.lvCollectors.Name = "lvCollectors";
-            this.lvCollectors.Size = new System.Drawing.Size(375, 215);
+            this.lvCollectors.OwnerDraw = true;
+            this.lvCollectors.Size = new System.Drawing.Size(312, 225);
             this.lvCollectors.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvCollectors.TabIndex = 10;
             this.lvCollectors.UseCompatibleStateImageBehavior = false;
             this.lvCollectors.View = System.Windows.Forms.View.Details;
+            this.lvCollectors.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListView_DrawItem);
+            this.lvCollectors.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
             this.lvCollectors.SelectedIndexChanged += new System.EventHandler(this.lvCollectors_SelectedIndexChanged);
+            this.lvCollectors.Resize += new System.EventHandler(this.ListView_Resize);
             // 
             // chName
             // 
@@ -398,7 +403,7 @@ namespace ZwiftActivityMonitor
             // chBlank
             // 
             this.chBlank.Text = "";
-            this.chBlank.Width = 116;
+            this.chBlank.Width = 52;
             // 
             // tbDescStatistics
             // 

@@ -140,17 +140,23 @@ namespace ZwiftActivityMonitor
             this.chPower,
             this.chHeartrate,
             this.chEventTime});
+            this.lvTrace.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvTrace.HideSelection = false;
             this.lvTrace.Location = new System.Drawing.Point(149, 79);
             this.lvTrace.MultiSelect = false;
             this.lvTrace.Name = "lvTrace";
+            this.lvTrace.OwnerDraw = true;
             this.lvTrace.Scrollable = false;
             this.lvTrace.Size = new System.Drawing.Size(289, 106);
             this.lvTrace.TabIndex = 88;
             this.lvTrace.TabStop = false;
             this.lvTrace.UseCompatibleStateImageBehavior = false;
             this.lvTrace.View = System.Windows.Forms.View.Details;
+            this.lvTrace.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListView_DrawItem);
+            this.lvTrace.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
+            this.lvTrace.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListView_ItemSelectionChanged_Disable);
             this.lvTrace.Enter += new System.EventHandler(this.SkipControl_Enter);
+            this.lvTrace.Resize += new System.EventHandler(this.ListView_Resize);
             // 
             // chPlayerId
             // 

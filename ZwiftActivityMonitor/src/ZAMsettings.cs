@@ -207,6 +207,130 @@ namespace ZwiftActivityMonitor
 
     #endregion
 
+    #region Splits
+
+    public class Splits : ICloneable
+    {
+        public bool ShowSplits { get; set; }
+        public bool CalculateGoal { get; set; }
+
+        private int m_splitDistance = 5;
+        private string m_splitUom = "km";
+        private int m_goalHours;
+        private int m_goalMinutes = 45;
+        private int m_goalSeconds;
+        private double m_goalDistance = 25;
+
+        [JsonIgnore]
+        public TimeSpan GoalTime { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
+
+        public Splits()
+        {
+
+        }
+
+        public int SplitDistance
+        {
+            get { return m_splitDistance; } 
+
+            set
+            {
+                if (value < 1 || value > 999)
+                    throw new FormatException("Split distance value must be between 1 and 999.");
+
+                m_splitDistance = value;
+            }
+        }
+
+        [JsonIgnore]
+        public bool SplitsInKm
+        {
+            get { return m_splitUom == "km"; }
+        }
+
+        [JsonIgnore]
+        public double SplitDistanceAsKm
+        {
+            get { return SplitsInKm ? m_splitDistance : m_splitDistance * 1.609; }
+        }
+
+        [JsonIgnore]
+        public int SplitDistanceAsMeters
+        {
+            get { return (int)Math.Round(SplitDistanceAsKm * 1000, 0); }
+        }
+
+        public string SplitUom 
+        {
+            get { return m_splitUom; }
+            set 
+            { 
+                if (value != "km" && value != "mi")
+                    throw new FormatException("Distance UOM must be either km or mi.");
+
+                m_splitUom = value;
+            }
+        }
+        public int GoalHours
+        {
+            get { return m_goalHours; }
+
+            set
+            {
+                if (value < 0 || value > 23)
+                    throw new FormatException("Goal hours value must be between 0 and 23.");
+
+                m_goalHours = value;
+            }
+        }
+        public int GoalMinutes
+        {
+            get { return m_goalMinutes; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Goal minutes value must be between 0 and 59.");
+
+                m_goalMinutes = value;
+            }
+        }
+        public int GoalSeconds
+        {
+            get { return m_goalSeconds; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Goal seconds value must be between 0 and 59.");
+
+                m_goalSeconds = value;
+            }
+        }
+
+        public double GoalDistance
+        {
+            get { return m_goalDistance; }
+
+            set
+            {
+                if (value < 1 || value > 999)
+                    throw new FormatException("Goal distance value must be between 1 and 999.");
+
+                m_goalDistance = value;
+            }
+        }
+
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+    }
+
+    #endregion
+
     public class ZAMsettings
     {
         #region Public members included in .json configuration
@@ -220,6 +344,7 @@ namespace ZwiftActivityMonitor
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
+        public Splits Splits { get; }
 
         #endregion
 
@@ -234,6 +359,9 @@ namespace ZwiftActivityMonitor
         private static ZAMsettings  _uncommittedZAMsettings;  // While editing, contains the dirty settings
 
         private static ILogger<ZAMsettings> _logger;
+        private static ILoggerFactory _loggerFactory;
+        public static ZPMonitorService ZPMonitorService { get; set; }
+
         private static bool _initialized;
 
 
@@ -245,6 +373,7 @@ namespace ZwiftActivityMonitor
         {
             UserProfiles = new SortedList<string, UserProfile>();
             Collectors = new SortedList<string, Collector>();
+            Splits = new Splits();
         }
 
         public void UpsertUserProfile(UserProfile user)
@@ -380,15 +509,29 @@ namespace ZwiftActivityMonitor
             } 
         }
 
+        public static ILoggerFactory LoggerFactory
+        {
+            get
+            {
+                return _loggerFactory;
+            }
+        }
+            
 
-        public static void Initialize(ILoggerFactory loggerFactory)
+
+
+        public static void Initialize(ILoggerFactory loggerFactory, ZPMonitorService zpMonitorService)
         {
             if (_initialized)
                 return;
 
+            _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<ZAMsettings>();
 
+            ZPMonitorService = zpMonitorService;
+
             JObject parsedJson = null;
+            bool userFileExists = false;
 
             try
             {
@@ -397,6 +540,8 @@ namespace ZwiftActivityMonitor
                     // Try to load user .json file settings
                     string jsonStr = File.ReadAllText(FileName);
                     parsedJson = JObject.Parse(jsonStr);
+
+                    userFileExists = true;
 
                     _logger.LogInformation($"Configuration cached from user settings file {FileName}.");
                 }
@@ -420,6 +565,25 @@ namespace ZwiftActivityMonitor
                 _committedZAMsettings.CurrentUserProfile = _committedZAMsettings.DefaultUserProfile;
 
                 _initialized = true;
+
+                if (userFileExists)
+                {
+                    if (!Settings.Collectors.ContainsKey("6 min"))
+                    {
+                        BeginCachedConfiguration();
+                        Collector c = new Collector()
+                        {
+                            Name = "6 min",
+                            DurationDesc = "SixMinute",
+                            DurationSecs = 360,
+                            FieldAvgDesc = "Watts",
+                            FieldAvgMaxDesc = "Wkg",
+                            FieldFtpDesc = "Hidden"
+                        };
+                        Settings.Collectors.Add("6 min", c);
+                        CommitCachedConfiguration();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -578,6 +742,21 @@ namespace ZwiftActivityMonitor
             int nBottomRect,   // y-coordinate of lower-right corner
             int nWidthEllipse, // height of ellipse
             int nHeightEllipse // width of ellipse
+        );
+
+        /// <summary>
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="wBar">SB_HORZ = 0, SB_VERT = 1, SB_BOTH = 3</param>
+        /// <param name="bShow"></param>
+        /// <returns></returns>
+        [DllImport("user32", CallingConvention = CallingConvention.Winapi)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        public static extern bool ShowScrollBar
+        (
+            IntPtr hwnd,
+            int wBar,
+            [MarshalAs(UnmanagedType.Bool)] bool bShow
         );
 
         /// <summary>

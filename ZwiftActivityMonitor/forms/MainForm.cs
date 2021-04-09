@@ -14,215 +14,33 @@ namespace ZwiftActivityMonitor
 {
     public partial class MainForm : Form, IWinFormsShell
     {
-
-        #region Internal Classes
-        /// <summary>
-        /// Wrapper class for MovingAverage and LabelHelper.
-        /// </summary>
-        internal class MovingAverageWrapper
-        {
-            public MovingAverage MovingAverage { get; } // Calculates the moving average based upon ZPMonitorService events
-            public ViewerListViewItem ViewerListViewItem { get; }
-            public Collector Collector { get; }
-            public bool MaxDurationTriggered { get; set; }
-
-            public MovingAverageWrapper(MovingAverage movingAverage, ViewerListViewItem viewerListViewItem, Collector collector)
-            {
-                MovingAverage = movingAverage;
-                ViewerListViewItem = viewerListViewItem;
-                Collector = collector;
-            }
-        }
-
-        internal class ViewerItem
-        {
-            public string Description { get; set; }
-            public string Average { get; set; } = "";
-            public string AverageMax { get; set; } = "";
-            public string Ftp { get; set; } = "";
-            public string HeartRate { get; set; } = "";
-
-            public ViewerItem(string description)
-            {
-                this.Description = description;
-            }
-
-            public void ClearDataFields()
-            {
-                this.Average = "";
-                this.AverageMax = "";
-                this.Ftp = "";
-                this.HeartRate = "";
-            }
-        }
-
-        internal class ViewerListViewItem : ListViewItem
-        {
-            public ViewerItem ViewerItem { get; }
-
-            public ViewerListViewItem(ViewerItem item) : base(SubItemStrings(item))
-            {
-                this.ViewerItem = item;
-            }
-
-            private static string[] SubItemStrings(ViewerItem item)
-            {
-                return (new string[]
-                {
-                    item.Description,
-                    item.Average,
-                    item.AverageMax,
-                    item.Ftp,
-                    item.HeartRate
-                });
-            }
-
-            public void Refresh()
-            {
-                string[] text = SubItemStrings(ViewerItem);
-
-                for (int i = 0; i < 5; i++)
-                    this.SubItems[i].Text = text[i];
-            }
-        }
-
-        internal class SummaryItem
-        {
-            public string Description { get; set; }
-            public string Average { get; set; } = "";
-            public string AverageWkg { get; set; } = "";
-            public string Normalized { get; set; } = "";
-            public string NormalizedWkg { get; set; } = "";
-            public string If { get; set; } = "";
-            public string Speed { get; set; } = "";
-            public string SpeedKph { get; set; } = "";
-
-            public SummaryItem()
-            {
-                this.Description = "Overall";
-            }
-
-            public void ClearDataFields()
-            {
-                this.Average = "";
-                this.Normalized = "";
-                this.AverageWkg = "";
-                this.NormalizedWkg = "";
-                this.If = "";
-                this.Speed = "";
-                this.SpeedKph = "";
-            }
-        }
-        internal class SummaryListViewItem : ListViewItem
-        {
-            public SummaryItem SummaryItem { get; }
-
-            public enum RefreshUom
-            {
-                RefreshImperial,
-                RefreshMetric
-            }
-
-            public SummaryListViewItem(SummaryItem item) : base(SubItemStrings(item, RefreshUom.RefreshImperial))
-            {
-                this.SummaryItem = item;
-            }
-
-            private static string[] SubItemStrings(SummaryItem item, RefreshUom refreshUom)
-            {
-                return (new string[]
-                {
-                    item.Description,
-                    refreshUom == RefreshUom.RefreshImperial ? item.Average : item.AverageWkg,
-                    refreshUom == RefreshUom.RefreshImperial ? item.Normalized : item.NormalizedWkg,
-                    item.If,
-                    refreshUom == RefreshUom.RefreshImperial ? item.Speed : item.SpeedKph
-                });
-            }
-
-            public void Refresh(RefreshUom refreshUom)
-            {
-                string[] text = SubItemStrings(SummaryItem, refreshUom);
-                
-                // Update the speed column header text accordingly
-                this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "Mph" : "Kph";
-
-                for (int i = 0; i < 5; i++)
-                    this.SubItems[i].Text = text[i];
-            }
-        }
-
-        internal class SummaryHelper
-        {
-            public SummaryListViewItem SummaryListViewItem { get; }
-
-            public SummaryHelper(SummaryListViewItem summaryListViewItem)
-            {
-                this.SummaryListViewItem = summaryListViewItem;
-            }
-        }
-
-        #endregion
-
-        private System.Drawing.Point m_offset; // for moving window
-        private bool m_mouseDown; // for moving window
-
-        private readonly ILogger<MainForm> m_logger;
+        private readonly ILogger<MainForm> Logger;
         private readonly IServiceProvider m_serviceProvider;
-        private readonly ZPMonitorService m_zpMonitorService;
-        private readonly ILoggerFactory m_loggerFactory;
 
-        //private readonly List<LabelHelper> m_labelHelpers;
-        private readonly Dictionary<DurationType, MovingAverageWrapper> m_maCollection;
-        //private readonly Dictionary<string, string> m_labelUnits;
-        private readonly NormalizedPower m_normalizedPower;
-        private readonly SummaryHelper m_summaryHelper;
+        private System.Drawing.Point m_offset;                      // for moving window
+        private bool m_mouseDown;                                   // for moving window
+        private Dispatcher m_dispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
+        private DateTime m_timerCompletion;                         // Time when timer countdown should complete
+        private DateTime m_collectionStart;                         // Time when monitor run started
+        private bool m_isStarted;                                   // Whether the collectors are currently running
+        private UserProfile m_currentUser;                          // Current user, selected in Options dialog
+        private CancellationTokenSource m_cancellationTokenSource;  // For cancelling thread awaiting rider start
+        private DateTime? m_splitsViewDisplayTime;
 
-
-        private Dispatcher m_dispatcher; // Current UI thread dispatcher, for marshalling UI calls
-
-        private DateTime m_timerCompletion; // Time when timer countdown should complete
-        private DateTime m_collectionStart; // Time when monitor run started
-        private bool m_isStarted;           // Whether the collectors are currently running
-        private UserProfile m_currentUser;
-        private DateTime m_lastViewerRefresh; // Time of last Viewer list view refresh
-        private DateTime m_lastSummaryRefresh; // Time of last Summary list view refresh
-        private int m_summaryRefreshCount; // Number of times Summary list view has been refreshed
-        private CancellationTokenSource m_cancellationTokenSource; // For cancelling thread awaiting rider start
-
-
-
-
-        public MainForm(IServiceProvider serviceProvider, IConfiguration configuration, ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory)
+        public MainForm(IServiceProvider serviceProvider)
         {
-            m_logger = loggerFactory.CreateLogger<MainForm>(); ;
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
             m_serviceProvider = serviceProvider;
-            m_zpMonitorService = zpMonitorService;
-            m_loggerFactory = loggerFactory;
-
-            m_maCollection = new Dictionary<DurationType, MovingAverageWrapper>();
-            m_summaryHelper = new SummaryHelper(new SummaryListViewItem(new SummaryItem()));
-            //m_labelUnits = new Dictionary<string, string>();
-
-            //m_labelHelpers = new List<LabelHelper>();
-
-            m_normalizedPower = new NormalizedPower(zpMonitorService, loggerFactory);
-            m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
-            m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
 
             InitializeComponent();
 
             // This rounds the edges of the borderless window
             this.Region = System.Drawing.Region.FromHrgn(ZAMsettings.CreateRoundRectRgn(0, 0, Width, Height, 15, 15));
             btnClose.FlatAppearance.BorderColor = Color.FromArgb(0, 255, 255, 255); //transparent
-
-            //MainForm.colorListViewHeader(ref lvViewer, lvViewer.BackColor, Color.White); // transparent ListView headers
-            //MainForm.colorListViewHeader(ref lvOverall, lvOverall.BackColor, Color.White); // transparent ListView headers
-            SetListViewHeaderColor(ref lvViewer, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
-            SetListViewHeaderColor(ref lvOverall, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
         }
 
         #region Form Events
+
 
         /// <summary>
         /// On initial load, the desired collection durations are load from configuration.
@@ -234,9 +52,6 @@ namespace ZwiftActivityMonitor
             // for handling UI events
             m_dispatcher = Dispatcher.CurrentDispatcher;
 
-            // Initialize the settings manager
-            ZAMsettings.Initialize(m_loggerFactory);
-
             // Determine window position
             if (ZAMsettings.Settings.WindowPositionX > 0 && ZAMsettings.Settings.WindowPositionY > 0)
             {
@@ -244,19 +59,19 @@ namespace ZwiftActivityMonitor
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
             }
 
-            this.lvOverall.Items.Clear();
-            this.lvOverall.Items.Add(m_summaryHelper.SummaryListViewItem);
-
-            //m_labelHelpers.Add(new LabelHelper(lblMA1, lblAvgPower1, lblMaxPower1, lblFtpPower1, lblAvgHR1));
-            //m_labelHelpers.Add(new LabelHelper(lblMA2, lblAvgPower2, lblMaxPower2, lblFtpPower2, lblAvgHR2));
-            //m_labelHelpers.Add(new LabelHelper(lblMA3, lblAvgPower3, lblMaxPower3, lblFtpPower3, lblAvgHR3));
-
-
             // Set the environment based on the current user
             SetupCurrentUser();
 
-            m_logger.LogInformation("MainForm Loaded");
+            // Make sure the analysis control is shown
+            SplitsView.SendToBack();
+            SplitsView.Dock = DockStyle.Fill;
+            MainView.BringToFront();
+            MainView.Dock = DockStyle.Fill;
 
+            SplitsView.SplitGoalCompletedEvent += SplitCompletedEventHandler;
+            SplitsView.SplitCompletedEvent += SplitCompletedEventHandler;
+
+            Logger.LogInformation("MainForm_Load");
         }
 
         private void SetupCurrentUser()
@@ -277,12 +92,10 @@ namespace ZwiftActivityMonitor
                 }
             }
 
-            //this.Text = $"Zwift Activity Monitor ({m_currentUser.Name})";
-
             // Load collectors for whatever is defined in by the checked menu items
             LoadMovingAverageCollection();
 
-            m_logger.LogInformation("SetupCurrentUser");
+            Logger.LogInformation("SetupCurrentUser");
         }
 
         /// <summary>
@@ -293,21 +106,23 @@ namespace ZwiftActivityMonitor
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            if (ZAMsettings.Settings.AutoStart)
-            {
-                m_zpMonitorService.StartMonitor();
-            }
-            else
-            {
-                // Bring up the options dialog
-                tsmiOptions.PerformClick();
-            }
-
             // Set control statuses
             OnCollectionStatusChanged();
 
+            postStartupTimer.Interval = 500;
+            postStartupTimer.Enabled = true;
 
-            m_logger.LogInformation("MainForm Shown");
+            //if (ZAMsettings.Settings.AutoStart)
+            //{
+            //    ZAMsettings.ZPMonitorService.StartMonitor();
+            //}
+            //else
+            //{
+            //    // Bring up the options dialog
+            //    tsmiOptions.PerformClick();
+            //}
+
+            Logger.LogInformation("MainForm_Shown");
         }
 
 
@@ -325,9 +140,7 @@ namespace ZwiftActivityMonitor
 
             Collection_OnStop();
 
-            //m_maCollection.Clear();
-
-            m_logger.LogInformation("FormClosing");
+            Logger.LogInformation("MainForm_FormClosing");
         }
 
         #endregion
@@ -344,6 +157,8 @@ namespace ZwiftActivityMonitor
                 // update all the menu items accordingly
                 OnCollectionStatusChanged();
 
+                tsbAnalysis.PerformClick();
+
                 m_cancellationTokenSource = new CancellationTokenSource();
 
 
@@ -356,26 +171,18 @@ namespace ZwiftActivityMonitor
 
                 if (cancelled)
                 {
-                    m_logger.LogInformation($"Collection_OnStart - Cancelled");
+                    Logger.LogInformation($"Collection_OnStart - Cancelled");
                     return;
                 }
 
-                foreach (MovingAverageWrapper maw in m_maCollection.Values)
-                {
-                    maw.MovingAverage.Start();
-                }
-
-                m_normalizedPower.Start();
+                MainView.StartCollection();
+                SplitsView.StartCollection();
 
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
+                m_splitsViewDisplayTime = null;
 
-
-                m_summaryRefreshCount = 0;
-                m_lastSummaryRefresh = DateTime.Now;
-                m_lastViewerRefresh = DateTime.Now;
-
-                m_logger.LogInformation($"Collection_OnStart");
+                Logger.LogInformation($"Collection_OnStart");
             }
         }
 
@@ -390,21 +197,21 @@ namespace ZwiftActivityMonitor
         /// <returns></returns>
         private async Task WaitForRiderStartAsync(CancellationToken cancellationToken = default)
         {
-            m_logger.LogInformation($"WaitForRiderStartAsync, Begin Waiting...");
+            Logger.LogInformation($"WaitForRiderStartAsync, Begin Waiting...");
 
             tsslStatus.Text = "Waiting on Event clock...";
 
-            double currentTime = m_zpMonitorService.PlayerStateTime.TotalSeconds;
+            double currentTime = ZAMsettings.ZPMonitorService.PlayerStateTime.TotalSeconds;
 
             await Task.Run(() =>
             {
-                while (!cancellationToken.IsCancellationRequested && m_zpMonitorService.PlayerStateTime.TotalSeconds == currentTime)
+                while (!cancellationToken.IsCancellationRequested && ZAMsettings.ZPMonitorService.PlayerStateTime.TotalSeconds == currentTime)
                 {
                     Task.Delay(250).Wait();
                 }
             }, cancellationToken);
            
-            m_logger.LogInformation($"WaitForRiderStartAsync, Waiting completed.  Cancelled: {cancellationToken.IsCancellationRequested}");
+            Logger.LogInformation($"WaitForRiderStartAsync, Waiting completed.  Cancelled: {cancellationToken.IsCancellationRequested}");
         }
 
 
@@ -417,12 +224,9 @@ namespace ZwiftActivityMonitor
             {
                 if (m_cancellationTokenSource == null)
                 {
-                    foreach (MovingAverageWrapper maw in m_maCollection.Values)
-                    {
-                        maw.MovingAverage.Stop();
-                    }
+                    MainView.StopCollection();
+                    SplitsView.StopCollection();
 
-                    m_normalizedPower.Stop();
                     runTimer.Enabled = false;
                 }
                 else
@@ -434,7 +238,7 @@ namespace ZwiftActivityMonitor
                 m_isStarted = false;
 
                 OnCollectionStatusChanged();
-                m_logger.LogInformation($"Collection_OnStop");
+                Logger.LogInformation($"Collection_OnStop");
             }
         }
 
@@ -443,7 +247,8 @@ namespace ZwiftActivityMonitor
             if (m_isStarted)
             {
                 // Clear any values on the screen
-                RefreshListViews(true);
+                MainView.RefreshListViews(true);
+                SplitsView.ClearListView();
 
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
@@ -455,17 +260,13 @@ namespace ZwiftActivityMonitor
                 tsmi30sec.Enabled = false;
                 tsmi5min.Enabled = false;
                 tsmi5sec.Enabled = false;
+                tsmi6min.Enabled = false;
                 tsmi60min.Enabled = false;
                 tsmi90min.Enabled = false;
 
                 tsmiTimer.Enabled = false;
                 tsmiOptions.Enabled = false;
                 tsmiAdvanced.Enabled = false;
-
-                //tsslStatus.Text = "Running";
-
-                //if (m_zpMonitorService.IsStarted && m_zpMonitorService.IsDebugMode)
-                //    tsslStatus.Text += " in DEBUG/DEMO mode";
             }
             else
             {
@@ -479,6 +280,7 @@ namespace ZwiftActivityMonitor
                 tsmi30sec.Enabled = true;
                 tsmi5min.Enabled = true;
                 tsmi5sec.Enabled = true;
+                tsmi6min.Enabled = true;
                 tsmi60min.Enabled = true;
                 tsmi90min.Enabled = true;
 
@@ -490,7 +292,8 @@ namespace ZwiftActivityMonitor
                 if (countdownTimer.Enabled)
                 {
                     // Clear any values on the screen
-                    RefreshListViews(true);
+                    MainView.RefreshListViews(true);
+                    SplitsView.ClearListView();
 
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
@@ -501,7 +304,7 @@ namespace ZwiftActivityMonitor
                     tsmiStopTimer.Enabled = false;
                 }
 
-                if (m_zpMonitorService.IsStarted)
+                if (ZAMsettings.ZPMonitorService.IsStarted)
                     tsslStatus.Text = "Select Analyze->Start to begin";
                 else
                     tsslStatus.Text = "ZPM Service Not Running";
@@ -516,14 +319,11 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void LoadMovingAverageCollection()
         {
-            // empty the MovingAverageWrapper dictionary
-            m_maCollection.Clear();
+            MainView.RefreshListViews(true);
+            SplitsView.ClearListView();
 
-            // Clear the ListView
-            lvViewer.Items.Clear();
-
-            //m_labelHelpers.ForEach(helper => helper.ClearLabels(true));
-            //tsslOverall.Text = "";
+            // Remove all moving average collectors and ListView items
+            MainView.ClearViewerItems();
 
             // Loop through the menu items within the Collect menu.
             // If an item is checked, we want to create a collector for it.
@@ -537,31 +337,12 @@ namespace ZwiftActivityMonitor
 
                 if (tsmi.Checked)
                 {
-                    if (m_maCollection.Count < 3)
+                    if (MainView.CountViewerItems < 3)
                     {
                         DurationType result;
                         if (Enum.TryParse<DurationType>(tsmi.Tag.ToString(), true, out result))
                         {
-                            MovingAverage ma = new MovingAverage(m_zpMonitorService, m_loggerFactory, result, false);
-
-                            ma.MovingAverageChangedEvent += MovingAverageChangedEventHandler;
-                            ma.MovingAverageMaxChangedEvent += MovingAverageMaxChangedEventHandler;
-
-                            // Initialize and add item to ListView
-                            ViewerListViewItem lvi = new ViewerListViewItem(new ViewerItem(tsmi.Text));
-                            this.lvViewer.Items.Add(lvi);
-
-                            Collector collector = ZAMsettings.Settings.Collectors[tsmi.Text];
-
-                            m_maCollection.Add(result, new MovingAverageWrapper(ma, lvi, collector));
-
-                            // Here we assign the row's id text (5 sec, 1 min, etc) and associate the matching Collector.
-                            // All of this makes it easy to update the display as the MovingAverage events fire.
-                            //m_labelHelpers[labelSet].MovingAvg.Text = tsmi.Text;
-                            //m_labelHelpers[labelSet].Collector = ZAMsettings.Settings.Collectors[tsmi.Text];
-
-                            if (m_maCollection.Count >= 3) // only allow up to 3 collectors
-                                break;
+                            MainView.AddViewerItem(result, tsmi.Text);
                         }
                         else
                         {
@@ -574,289 +355,44 @@ namespace ZwiftActivityMonitor
                     }
                 }
             }
-
         }
 
-        #region Moving average collection event handlers
-
         /// <summary>
-        /// A delegate used solely by the MovingAverageChangedEventHandler
+        /// A delegate used solely by the SplitGoalCompletedEventHandler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void MovingAverageChangedEventHandlerDelegate(object sender, MovingAverage.MovingAverageChangedEventArgs e);
+        private delegate void SplitCompletedEventHandlerDelegate(object sender, EventArgs e);
 
         /// <summary>
-        /// Occurs each time a collector's moving average changes.  Allows for UI update by marshalling the call accordingly.
+        /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MovingAverageChangedEventHandler(object sender, MovingAverage.MovingAverageChangedEventArgs e)
-        {
-            //if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    m_dispatcher.BeginInvoke(new MovingAverageChangedEventHandlerDelegate(MovingAverageChangedEventHandler), new object[] { sender, e });
-            //    return;
-            //}
-
-            lock (lvViewer)
-            {
-                MovingAverageWrapper wrapper = m_maCollection[e.DurationType];
-                Collector collector = wrapper.Collector;
-                ViewerListViewItem listViewItem = wrapper.ViewerListViewItem;
-                ViewerItem viewerItem = listViewItem.ViewerItem;
-
-                switch (collector.FieldAvgType)
-                {
-                    case FieldUomType.Watts:
-                        viewerItem.Average = e.AveragePower.ToString();
-                        break;
-
-                    case FieldUomType.Wkg:
-                        if (m_currentUser.WeightAsKgs > 0)
-                            viewerItem.Average = Math.Round(e.AveragePower / m_currentUser.WeightAsKgs, 2).ToString("#.00");
-                        break;
-                }
-
-                viewerItem.HeartRate = e.AverageHR.ToString();
-
-                // The FTP column will track the AvgPower until the time duration is satisfied.
-                // This enables the rider to see what his FTP would be real-time.
-                // Once the time duration is satisfied, we no longer will update using the AvgPower.
-                if (!wrapper.MaxDurationTriggered)
-                {
-                    switch (collector.FieldFtpType)
-                    {
-                        case FieldUomType.Watts:
-                            viewerItem.Ftp = Math.Round(e.AveragePower * 0.95, 0).ToString();
-                            break;
-
-                        case FieldUomType.Wkg:
-                            if (m_currentUser.WeightAsKgs > 0)
-                                viewerItem.Ftp = Math.Round((e.AveragePower / m_currentUser.WeightAsKgs) * 0.95, 2).ToString("#.00");
-                            break;
-                    }
-
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// A delegate used solely by the MovingAverageMaxChangedEventHandlerDelegate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private delegate void MovingAverageMaxChangedEventHandlerDelegate(object sender, MovingAverage.MovingAverageMaxChangedEventArgs e);
-
-        /// <summary>
-        /// Occurs each time a collector's moving average max value changes.  Allows for UI update by marshalling the call accordingly.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MovingAverageMaxChangedEventHandler(object sender, MovingAverage.MovingAverageMaxChangedEventArgs e)
-        {
-            //if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    m_dispatcher.BeginInvoke(new MovingAverageMaxChangedEventHandlerDelegate(MovingAverageMaxChangedEventHandler), new object[] { sender, e });
-            //    return;
-            //}
-
-            lock (lvViewer)
-            {
-                MovingAverageWrapper wrapper = m_maCollection[e.DurationType];
-                Collector collector = wrapper.Collector;
-                ViewerListViewItem listViewItem = wrapper.ViewerListViewItem;
-                ViewerItem viewerItem = listViewItem.ViewerItem;
-
-                switch (collector.FieldAvgMaxType)
-                {
-                    case FieldUomType.Watts:
-                        viewerItem.AverageMax = e.MaxAvgPower.ToString();
-                        break;
-
-                    case FieldUomType.Wkg:
-                        if (m_currentUser.WeightAsKgs > 0)
-                            viewerItem.AverageMax = Math.Round(e.MaxAvgPower / m_currentUser.WeightAsKgs, 2).ToString("#.00");
-                        break;
-                }
-
-                // Save the fact that this moving average has fulfilled it's time duration
-                wrapper.MaxDurationTriggered = true;
-
-                // The FTP column will now track the MaxAvgPower now that the time duration is satisfied.
-                switch (collector.FieldFtpType)
-                {
-                    case FieldUomType.Watts:
-                        viewerItem.Ftp = Math.Round(e.MaxAvgPower * 0.95, 0).ToString();
-                        break;
-
-                    case FieldUomType.Wkg:
-                        if (m_currentUser.WeightAsKgs > 0)
-                            viewerItem.Ftp = Math.Round((e.MaxAvgPower / m_currentUser.WeightAsKgs) * 0.95, 2).ToString("#.00");
-                        break;
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// A delegate used solely by the MovingAverageChangedEventHandler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private delegate void NormalizedPowerChangedEventHandlerDelegate(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e);
-
-        /// <summary>
-        /// Occurs each time the normalized power changes.  Allows for UI update by marshalling the call accordingly.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NormalizedPowerChangedEventHandler(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e)
-        {
-            //if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    m_dispatcher.BeginInvoke(new NormalizedPowerChangedEventHandlerDelegate(NormalizedPowerChangedEventHandler), new object[] { sender, e });
-            //    return;
-            //}
-
-            lock (this.lvOverall)
-            {
-                SummaryListViewItem listViewItem = m_summaryHelper.SummaryListViewItem;
-                SummaryItem summaryItem = listViewItem.SummaryItem;
-
-
-                if (m_currentUser.PowerThreshold > 0)
-                {
-                    summaryItem.If = Math.Round(e.NormalizedPower / (double)m_currentUser.PowerThreshold, 2).ToString("#.00");
-                }
-                else
-                {
-                    summaryItem.If = ".00";
-                }
-
-                summaryItem.Normalized = e.NormalizedPower.ToString();
-
-                if (m_currentUser.WeightAsKgs > 0)
-                    summaryItem.NormalizedWkg = Math.Round(e.NormalizedPower / m_currentUser.WeightAsKgs, 2).ToString("#.00");
-            }
-        }
-
-
-        /// <summary>
-        /// A delegate used solely by the MetricsChangedEventHandler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private delegate void MetricsChangedEventHandlerDelegate(object sender, NormalizedPower.MetricsChangedEventArgs e);
-
-
-        /// <summary>
-        /// Occurs each time the average speed changes.  Allows for UI update by marshalling the call accordingly.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MetricsChangedEventHandler(object sender, NormalizedPower.MetricsChangedEventArgs e)
-        {
-            //if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    m_dispatcher.BeginInvoke(new MetricsChangedEventHandlerDelegate(MetricsChangedEventHandler), new object[] { sender, e });
-            //    return;
-            //}
-
-            lock (this.lvOverall)
-            {
-                SummaryListViewItem listViewItem = m_summaryHelper.SummaryListViewItem;
-                SummaryItem summaryItem = listViewItem.SummaryItem;
-
-                summaryItem.Average = e.OverallPower.ToString();
-
-                if (m_currentUser.WeightAsKgs > 0)
-                    summaryItem.AverageWkg = Math.Round(e.OverallPower / m_currentUser.WeightAsKgs, 2).ToString("#.00");
-
-
-                summaryItem.Speed = e.AverageMph.ToString("#.0");
-                summaryItem.SpeedKph = e.AverageKph.ToString("#.0");
-            }
-        }
-
-
-        /// <summary>
-        /// A delegate used solely by the RefreshListViews
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private delegate void RefreshListViewsDelegate(bool clearValues);
-
-        /// <summary>
-        /// Refresh the two ListViews on the screen with current information.
-        /// This routine is called approx every second while collection is occuring.
-        /// In order to moderate screen refreshes, we only update the lvViewer every 5 seconds, and the lvOverall every 10 seconds.
-        /// </summary>
-        /// <param name="clearDataFields"></param>
-        private void RefreshListViews(bool clearDataFields = false)
+        private void SplitCompletedEventHandler(object sender, EventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
                 // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-                m_dispatcher.BeginInvoke(new RefreshListViewsDelegate(RefreshListViews), new object[] { clearDataFields });
+                m_dispatcher.BeginInvoke(new SplitCompletedEventHandlerDelegate(SplitCompletedEventHandler), new object[] { sender, e });
                 return;
             }
 
-            if (clearDataFields || (DateTime.Now - m_lastViewerRefresh).TotalSeconds >= 5)
+            if (!this.IsControlAtFront(SplitsView))
             {
-                lock (this.lvViewer)
-                {
-                    lvViewer.BeginUpdate();
-                    foreach (var wrapper in m_maCollection)
-                    {
-                        if (clearDataFields)
-                            (wrapper.Value as MovingAverageWrapper).ViewerListViewItem.ViewerItem.ClearDataFields();
-
-                        (wrapper.Value as MovingAverageWrapper).ViewerListViewItem.Refresh();
-                    }
-                    lvViewer.EndUpdate();
-
-                    if (!clearDataFields)
-                    {
-                        m_lastViewerRefresh = DateTime.Now;
-                    }
-                }
+                tsbSplits.PerformClick();
+                m_splitsViewDisplayTime = DateTime.Now;
             }
 
-            if (clearDataFields || (DateTime.Now - m_lastSummaryRefresh).TotalSeconds >= 10)
-            {
-                lock (this.lvOverall)
-                {
-                    lvOverall.BeginUpdate();
-                    if (clearDataFields)
-                        m_summaryHelper.SummaryListViewItem.SummaryItem.ClearDataFields();
-
-                    m_summaryHelper.SummaryListViewItem.Refresh(m_summaryRefreshCount % 2 == 0 ? SummaryListViewItem.RefreshUom.RefreshImperial : SummaryListViewItem.RefreshUom.RefreshMetric);
-                    lvOverall.EndUpdate();
-
-                    if (!clearDataFields)
-                    {
-                        m_summaryRefreshCount++; // for alternating between imperial and metric
-                        m_lastSummaryRefresh = DateTime.Now;
-                    }
-                }
-            }
-
-            //m_logger.LogInformation($"RefreshListViews called.");
+            //Logger.LogInformation($"SplitGoalCompletedEventHandler {e.SplitNumberStr}, {e.SplitTimeStr}, {e.SplitSpeedStr}, {e.TotalDistanceStr}, {e.TotalTimeStr}");
         }
 
-        #endregion
 
         #region Timer menu and tick event handling
 
         private void tsmiSetupTimer_Click(object sender, EventArgs e)
         {
-            if (!m_zpMonitorService.IsStarted)
+            if (!ZAMsettings.ZPMonitorService.IsStarted)
             {
                 MessageBox.Show("Please use the Advanced Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -871,7 +407,7 @@ namespace ZwiftActivityMonitor
 
                 m_timerCompletion = DateTime.Now.AddSeconds((mt.Minutes * 60) + mt.Seconds);
 
-                m_logger.LogInformation($"Minutes: {mt.Minutes} Seconds: {mt.Seconds} Completion Time: {m_timerCompletion.ToString()}");
+                Logger.LogInformation($"Minutes: {mt.Minutes} Seconds: {mt.Seconds} Completion Time: {m_timerCompletion.ToString()}");
 
                 countdownTimer.Enabled = true;
 
@@ -894,7 +430,7 @@ namespace ZwiftActivityMonitor
             if (ts.TotalSeconds <= 0)
             {
                 countdownTimer.Enabled = false;
-                m_logger.LogInformation($"Go! Go! Go!");
+                Logger.LogInformation($"Go! Go! Go!");
 
                 Collection_OnStart();
             }
@@ -910,7 +446,37 @@ namespace ZwiftActivityMonitor
 
             tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
 
-            RefreshListViews();
+            if (m_splitsViewDisplayTime != null) // Splits control was displayed, timer in progress
+            {
+                if (IsControlAtFront(SplitsView)) // Splits control still displayed?
+                {
+                    if ((DateTime.Now - (DateTime)m_splitsViewDisplayTime).TotalSeconds >= 5) // Swap back to analysis window after 5 seconds
+                    {
+                        tsbAnalysis.PerformClick();
+                        m_splitsViewDisplayTime = null;
+                    }
+                }
+                else
+                {
+                    // Clear time since Splits control no longer displayed
+                    m_splitsViewDisplayTime = null;
+                }
+            }
+        }
+
+        private void postStartupTimer_Tick(object sender, EventArgs e)
+        {
+            postStartupTimer.Enabled = false;
+
+            if (ZAMsettings.Settings.AutoStart)
+            {
+                ZAMsettings.ZPMonitorService.StartMonitor();
+            }
+            else
+            {
+                // Bring up the options dialog
+                tsmiOptions.PerformClick();
+            }
         }
 
         #endregion
@@ -976,7 +542,7 @@ namespace ZwiftActivityMonitor
 
         private void tsmiOptions_Click(object sender, EventArgs e)
         {
-            var form = new ConfigurationOptions(m_loggerFactory, m_serviceProvider, this.Location);
+            var form = new ConfigurationOptions(m_serviceProvider, this.Location);
 
             DialogResult result = form.ShowDialog(this);
 
@@ -988,9 +554,9 @@ namespace ZwiftActivityMonitor
 
         private void tsmiStart_Click(object sender, EventArgs e)
         {
-            if (!m_zpMonitorService.IsStarted)
+            if (!ZAMsettings.ZPMonitorService.IsStarted)
             {
-                MessageBox.Show("Please use the Advanced Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please use the Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -1010,66 +576,41 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
-
-        #region Static ListView helpers
-        private void Listview_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        private void tsbAnalysis_Click(object sender, EventArgs e)
         {
-            e.DrawDefault = true;
+            SplitsView.SendToBack();
+            //SplitsView.Dock = DockStyle.None;
+            MainView.BringToFront();
+            MainView.Dock = DockStyle.Fill;
         }
 
-        public static void SetListViewHeaderColor(ref ListView list, Color backColor, Color foreColor)
+        private void tsbSplits_Click(object sender, EventArgs e)
         {
-            list.OwnerDraw = true;
-            list.DrawColumnHeader +=
-                new DrawListViewColumnHeaderEventHandler
-                (
-                    (sender, e) => ListView_DrawListViewColumnHeader(sender, e, backColor, foreColor)
-                );
-            
-            list.DrawItem += new DrawListViewItemEventHandler(ListView_DrawListViewItem);
+            MainView.SendToBack();
+            //MainView.Dock = DockStyle.None;
+            SplitsView.BringToFront();
+            SplitsView.Dock = DockStyle.Fill;
         }
 
-        private static void ListView_DrawListViewColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e, Color backColor, Color foreColor)
+        private bool IsControlAtFront(Control control)
         {
-            using (SolidBrush backBrush = new SolidBrush(backColor))
+            while (control.Parent != null)
             {
-                e.Graphics.FillRectangle(backBrush, e.Bounds);
-            }
-
-            using (StringFormat sf = new StringFormat())
-            {
-                // Store the column text alignment, letting it default
-                // to Left if it has not been set to Center or Right.
-                switch (e.Header.TextAlign)
+                if (control.Parent.Controls.GetChildIndex(control) == 0)
                 {
-                    case HorizontalAlignment.Center:
-                        sf.Alignment = StringAlignment.Center;
-                        break;
-                    case HorizontalAlignment.Right:
-                        sf.Alignment = StringAlignment.Far;
-                        break;
+                    control = control.Parent;
+                    if (control.Parent == null)
+                    {
+                        return true;
+                    }
                 }
-                sf.LineAlignment = StringAlignment.Center;
-
-                using (SolidBrush foreBrush = new SolidBrush(foreColor))
+                else
                 {
-                    e.Graphics.DrawString(e.Header.Text, e.Font, foreBrush, e.Bounds, sf);
+                    return false;
                 }
             }
+            return false;
         }
 
-        private static void ListView_DrawListViewItem(object sender, DrawListViewItemEventArgs e)
-        {
-            e.DrawDefault = true;
-        }
-        #endregion
-
-        private void ListView_ItemSelectionChanged_Disable(object sender, ListViewItemSelectionChangedEventArgs e)
-        {
-            if (e.IsSelected)
-                e.Item.Selected = false;
-
-            //m_logger.LogInformation($"ListView_ItemSelectionChanged ItemIndex: {e.ItemIndex}, IsSelected: {e.IsSelected}");
-        }
     }
 }

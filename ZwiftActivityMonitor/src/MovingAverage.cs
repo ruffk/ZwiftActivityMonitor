@@ -12,6 +12,7 @@ namespace ZwiftActivityMonitor
         ThirtySeconds,
         OneMinute,
         FiveMinutes,
+        SixMinutes,
         TenMinutes,
         TwentyMinutes,
         ThirtyMinutes,
@@ -22,7 +23,6 @@ namespace ZwiftActivityMonitor
 
     public class MovingAverage
     {
-        private readonly ZPMonitorService m_zpMonitorService;
         private readonly ILogger<MovingAverage> Logger;
         private readonly Queue<Statistics> m_statsQueue;
         private readonly DurationType m_durationType;
@@ -181,18 +181,17 @@ namespace ZwiftActivityMonitor
         #endregion
 
 
-        public MovingAverage(ZPMonitorService zpMonitorService, ILoggerFactory loggerFactory, DurationType durationType, bool excludeZeroPowerValues)
+        public MovingAverage(DurationType durationType, bool excludeZeroPowerValues)
         {
-            m_zpMonitorService = zpMonitorService;
-            Logger = loggerFactory.CreateLogger<MovingAverage>();
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverage>();
+
             m_durationType = durationType;
             m_duration = MovingAverage.GetDuration(durationType);
             m_excludeZeroPowerValues = excludeZeroPowerValues;
 
             m_statsQueue = new Queue<Statistics>();
 
-            m_zpMonitorService.RiderStateEvent += RiderStateEventHandler;
-
+            ZAMsettings.ZPMonitorService.RiderStateEvent += RiderStateEventHandler;
         }
 
         static MovingAverage()
@@ -203,6 +202,7 @@ namespace ZwiftActivityMonitor
                 new DurationDetail(DurationType.ThirtySeconds, "30 sec", 30),
                 new DurationDetail(DurationType.OneMinute, "1 min", 60),
                 new DurationDetail(DurationType.FiveMinutes, "5 min", 300),
+                new DurationDetail(DurationType.SixMinutes, "6 min", 360),
                 new DurationDetail(DurationType.TenMinutes, "10 min", 600),
                 new DurationDetail(DurationType.TwentyMinutes, "20 min", 1200),
                 new DurationDetail(DurationType.ThirtyMinutes, "30 min", 1800),

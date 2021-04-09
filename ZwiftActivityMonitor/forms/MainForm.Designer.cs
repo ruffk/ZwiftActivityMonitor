@@ -30,31 +30,11 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
-            "20 Min",
-            "8.88",
-            "8.88",
-            "8.88",
-            "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
-            "20 Min",
-            "8.88",
-            "8.88",
-            "8.88",
-            "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
-            "20 Min",
-            "8.88",
-            "8.88",
-            "8.88",
-            "888"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
-            "Overall",
-            "888",
-            "888",
-            "8.88",
-            "88.8"}, -1);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.pnTitle = new System.Windows.Forms.Panel();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsbSplits = new System.Windows.Forms.ToolStripButton();
+            this.tsbAnalysis = new System.Windows.Forms.ToolStripButton();
             this.btnClose = new System.Windows.Forms.Button();
             this.lblTitle = new System.Windows.Forms.Label();
             this.pnMenu = new System.Windows.Forms.Panel();
@@ -86,33 +66,25 @@ namespace ZwiftActivityMonitor
             this.tsmiCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
             this.tssHelp1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
-            this.pnViewer = new System.Windows.Forms.Panel();
-            this.lvViewer = new System.Windows.Forms.ListView();
-            this.chDesc = new System.Windows.Forms.ColumnHeader();
-            this.chAvg = new System.Windows.Forms.ColumnHeader();
-            this.chAvgMax = new System.Windows.Forms.ColumnHeader();
-            this.chFTP = new System.Windows.Forms.ColumnHeader();
-            this.chHR = new System.Windows.Forms.ColumnHeader();
-            this.pnOverall = new System.Windows.Forms.Panel();
-            this.lvOverall = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.countdownTimer = new System.Windows.Forms.Timer(this.components);
             this.runTimer = new System.Windows.Forms.Timer(this.components);
+            this.pViews = new System.Windows.Forms.Panel();
+            this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
+            this.MainView = new ZwiftActivityMonitor.MainViewControl();
+            this.postStartupTimer = new System.Windows.Forms.Timer(this.components);
+            this.tsmi6min = new System.Windows.Forms.ToolStripMenuItem();
             this.pnTitle.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.pnMenu.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.pnViewer.SuspendLayout();
-            this.pnOverall.SuspendLayout();
+            this.pViews.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnTitle
             // 
             this.pnTitle.BackColor = System.Drawing.Color.White;
+            this.pnTitle.Controls.Add(this.toolStrip1);
             this.pnTitle.Controls.Add(this.btnClose);
             this.pnTitle.Controls.Add(this.lblTitle);
             this.pnTitle.Dock = System.Windows.Forms.DockStyle.Top;
@@ -121,6 +93,43 @@ namespace ZwiftActivityMonitor
             this.pnTitle.Name = "pnTitle";
             this.pnTitle.Size = new System.Drawing.Size(334, 26);
             this.pnTitle.TabIndex = 0;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.AutoSize = false;
+            this.toolStrip1.BackColor = System.Drawing.Color.White;
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSplits,
+            this.tsbAnalysis});
+            this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.toolStrip1.Size = new System.Drawing.Size(51, 26);
+            this.toolStrip1.TabIndex = 1;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbSplits
+            // 
+            this.tsbSplits.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSplits.Image = ((System.Drawing.Image)(resources.GetObject("tsbSplits.Image")));
+            this.tsbSplits.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSplits.Name = "tsbSplits";
+            this.tsbSplits.Size = new System.Drawing.Size(23, 23);
+            this.tsbSplits.Text = "Splits View";
+            this.tsbSplits.Click += new System.EventHandler(this.tsbSplits_Click);
+            // 
+            // tsbAnalysis
+            // 
+            this.tsbAnalysis.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAnalysis.Image = ((System.Drawing.Image)(resources.GetObject("tsbAnalysis.Image")));
+            this.tsbAnalysis.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAnalysis.Name = "tsbAnalysis";
+            this.tsbAnalysis.Size = new System.Drawing.Size(23, 23);
+            this.tsbAnalysis.Text = "Analysis View";
+            this.tsbAnalysis.Click += new System.EventHandler(this.tsbAnalysis_Click);
             // 
             // btnClose
             // 
@@ -218,6 +227,7 @@ namespace ZwiftActivityMonitor
             this.tsmi30sec,
             this.tsmi1min,
             this.tsmi5min,
+            this.tsmi6min,
             this.tsmi10min,
             this.tsmi20min,
             this.tsmi30min,
@@ -405,149 +415,6 @@ namespace ZwiftActivityMonitor
             this.tsmiAbout.Size = new System.Drawing.Size(226, 22);
             this.tsmiAbout.Text = "About Zwift Activity Monitor";
             // 
-            // pnViewer
-            // 
-            this.pnViewer.Controls.Add(this.lvViewer);
-            this.pnViewer.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnViewer.Location = new System.Drawing.Point(0, 50);
-            this.pnViewer.Name = "pnViewer";
-            this.pnViewer.Size = new System.Drawing.Size(334, 98);
-            this.pnViewer.TabIndex = 2;
-            // 
-            // lvViewer
-            // 
-            this.lvViewer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
-            this.lvViewer.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvViewer.CausesValidation = false;
-            this.lvViewer.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chDesc,
-            this.chAvg,
-            this.chAvgMax,
-            this.chFTP,
-            this.chHR});
-            this.lvViewer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvViewer.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lvViewer.ForeColor = System.Drawing.Color.White;
-            this.lvViewer.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.lvViewer.HideSelection = false;
-            this.lvViewer.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3});
-            this.lvViewer.Location = new System.Drawing.Point(0, 0);
-            this.lvViewer.MultiSelect = false;
-            this.lvViewer.Name = "lvViewer";
-            this.lvViewer.OwnerDraw = true;
-            this.lvViewer.Scrollable = false;
-            this.lvViewer.Size = new System.Drawing.Size(334, 98);
-            this.lvViewer.TabIndex = 0;
-            this.lvViewer.TabStop = false;
-            this.lvViewer.UseCompatibleStateImageBehavior = false;
-            this.lvViewer.View = System.Windows.Forms.View.Details;
-            this.lvViewer.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
-            this.lvViewer.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListView_ItemSelectionChanged_Disable);
-            this.lvViewer.Enter += new System.EventHandler(this.SkipControl_Enter);
-            // 
-            // chDesc
-            // 
-            this.chDesc.Text = "";
-            this.chDesc.Width = 75;
-            // 
-            // chAvg
-            // 
-            this.chAvg.Text = "Avg";
-            this.chAvg.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chAvg.Width = 50;
-            // 
-            // chAvgMax
-            // 
-            this.chAvgMax.Text = "Avg (Max)";
-            this.chAvgMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chAvgMax.Width = 105;
-            // 
-            // chFTP
-            // 
-            this.chFTP.Text = "FTP";
-            this.chFTP.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chFTP.Width = 50;
-            // 
-            // chHR
-            // 
-            this.chHR.Text = "HR";
-            this.chHR.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chHR.Width = 54;
-            // 
-            // pnOverall
-            // 
-            this.pnOverall.Controls.Add(this.lvOverall);
-            this.pnOverall.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnOverall.Location = new System.Drawing.Point(0, 148);
-            this.pnOverall.Margin = new System.Windows.Forms.Padding(0);
-            this.pnOverall.Name = "pnOverall";
-            this.pnOverall.Size = new System.Drawing.Size(334, 55);
-            this.pnOverall.TabIndex = 3;
-            // 
-            // lvOverall
-            // 
-            this.lvOverall.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
-            this.lvOverall.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvOverall.CausesValidation = false;
-            this.lvOverall.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4,
-            this.columnHeader5});
-            this.lvOverall.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvOverall.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lvOverall.ForeColor = System.Drawing.Color.White;
-            this.lvOverall.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.lvOverall.HideSelection = false;
-            this.lvOverall.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem4});
-            this.lvOverall.Location = new System.Drawing.Point(0, 0);
-            this.lvOverall.MultiSelect = false;
-            this.lvOverall.Name = "lvOverall";
-            this.lvOverall.OwnerDraw = true;
-            this.lvOverall.Scrollable = false;
-            this.lvOverall.Size = new System.Drawing.Size(334, 55);
-            this.lvOverall.TabIndex = 0;
-            this.lvOverall.TabStop = false;
-            this.lvOverall.UseCompatibleStateImageBehavior = false;
-            this.lvOverall.View = System.Windows.Forms.View.Details;
-            this.lvOverall.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
-            this.lvOverall.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.ListView_ItemSelectionChanged_Disable);
-            this.lvOverall.Enter += new System.EventHandler(this.SkipControl_Enter);
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "";
-            this.columnHeader1.Width = 75;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "Avg";
-            this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader2.Width = 50;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "Normalized";
-            this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader3.Width = 105;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "IF";
-            this.columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader4.Width = 50;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "Kph";
-            this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader5.Width = 54;
-            // 
             // countdownTimer
             // 
             this.countdownTimer.Interval = 1000;
@@ -558,13 +425,52 @@ namespace ZwiftActivityMonitor
             this.runTimer.Interval = 1000;
             this.runTimer.Tick += new System.EventHandler(this.runTimer_Tick);
             // 
+            // pViews
+            // 
+            this.pViews.Controls.Add(this.SplitsView);
+            this.pViews.Controls.Add(this.MainView);
+            this.pViews.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pViews.Location = new System.Drawing.Point(0, 50);
+            this.pViews.Name = "pViews";
+            this.pViews.Size = new System.Drawing.Size(334, 153);
+            this.pViews.TabIndex = 2;
+            // 
+            // SplitsView
+            // 
+            this.SplitsView.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.SplitsView.Location = new System.Drawing.Point(0, 130);
+            this.SplitsView.Name = "SplitsView";
+            this.SplitsView.Size = new System.Drawing.Size(334, 23);
+            this.SplitsView.TabIndex = 1;
+            // 
+            // MainView
+            // 
+            this.MainView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainView.Location = new System.Drawing.Point(0, 0);
+            this.MainView.Name = "MainView";
+            this.MainView.Size = new System.Drawing.Size(334, 153);
+            this.MainView.TabIndex = 0;
+            // 
+            // postStartupTimer
+            // 
+            this.postStartupTimer.Interval = 1000;
+            this.postStartupTimer.Tick += new System.EventHandler(this.postStartupTimer_Tick);
+            // 
+            // tsmi6min
+            // 
+            this.tsmi6min.CheckOnClick = true;
+            this.tsmi6min.Name = "tsmi6min";
+            this.tsmi6min.Size = new System.Drawing.Size(136, 22);
+            this.tsmi6min.Tag = "SixMinutes";
+            this.tsmi6min.Text = "6 min";
+            this.tsmi6min.Click += new System.EventHandler(this.anyDuration_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
             this.ClientSize = new System.Drawing.Size(334, 203);
-            this.Controls.Add(this.pnOverall);
-            this.Controls.Add(this.pnViewer);
+            this.Controls.Add(this.pViews);
             this.Controls.Add(this.pnMenu);
             this.Controls.Add(this.pnTitle);
             this.Font = new System.Drawing.Font("Franklin Gothic Heavy", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -577,14 +483,15 @@ namespace ZwiftActivityMonitor
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.pnTitle.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.pnMenu.ResumeLayout(false);
             this.pnMenu.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.pnViewer.ResumeLayout(false);
-            this.pnOverall.ResumeLayout(false);
+            this.pViews.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -620,24 +527,18 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
         private System.Windows.Forms.ToolStripMenuItem tsmi30sec;
         private System.Windows.Forms.ToolStripMenuItem tsmi30min;
-        private System.Windows.Forms.Panel pnViewer;
-        private System.Windows.Forms.ListView lvViewer;
-        private System.Windows.Forms.ColumnHeader chAvg;
-        private System.Windows.Forms.ColumnHeader chAvgMax;
-        private System.Windows.Forms.ColumnHeader chDesc;
-        private System.Windows.Forms.ColumnHeader chFTP;
-        private System.Windows.Forms.ColumnHeader chHR;
-        private System.Windows.Forms.Panel pnOverall;
-        private System.Windows.Forms.ListView lvOverall;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsslSeparator1;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
         private System.Windows.Forms.Timer countdownTimer;
         private System.Windows.Forms.Timer runTimer;
+        private System.Windows.Forms.Panel pViews;
+        private MainViewControl MainView;
+        private SplitsViewControl SplitsView;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tsbAnalysis;
+        private System.Windows.Forms.ToolStripButton tsbSplits;
+        private System.Windows.Forms.Timer postStartupTimer;
+        private System.Windows.Forms.ToolStripMenuItem tsmi6min;
     }
 }
