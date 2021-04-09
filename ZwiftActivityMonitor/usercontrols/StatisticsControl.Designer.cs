@@ -367,7 +367,7 @@ namespace ZwiftActivityMonitor
             this.lvCollectors.MultiSelect = false;
             this.lvCollectors.Name = "lvCollectors";
             this.lvCollectors.OwnerDraw = true;
-            this.lvCollectors.Size = new System.Drawing.Size(312, 215);
+            this.lvCollectors.Size = new System.Drawing.Size(312, 225);
             this.lvCollectors.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvCollectors.TabIndex = 10;
             this.lvCollectors.UseCompatibleStateImageBehavior = false;

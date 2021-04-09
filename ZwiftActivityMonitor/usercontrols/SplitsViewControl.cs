@@ -57,8 +57,8 @@ namespace ZwiftActivityMonitor
                 Y = (y as SplitListViewItem).SplitItem;
 
 
-                // Not using ColumnToSort because we're sorting on a string column with numeric data
-                compareResult = X.SplitNumber.CompareTo(Y.SplitNumber);
+                // Not using ColumnToSort because we're sorting numeric data
+                compareResult = X.SplitNumberVal.CompareTo(Y.SplitNumberVal);
 
                 // Compare the two items
                 //compareResult = ObjectCompare.Compare(listviewX.SubItems[ColumnToSort].Text, listviewY.SubItems[ColumnToSort].Text);
@@ -85,6 +85,7 @@ namespace ZwiftActivityMonitor
 
         internal class SplitItem
         {
+            public int SplitNumberVal { get; set; }
             public string SplitNumber { get; set; }
             public string Time { get; set; } = "";
             public string Speed { get; set; } = "";
@@ -93,8 +94,9 @@ namespace ZwiftActivityMonitor
             public string Delta { get; set; } = "";
             public bool SplitsInKm { get; set; }
 
-            public SplitItem()
+            public SplitItem(int splitNumber)
             {
+                this.SplitNumberVal = splitNumber;
             }
 
             public void ClearDataFields()
@@ -128,6 +130,7 @@ namespace ZwiftActivityMonitor
             {
                 return (new string[]
                 {
+                    "", // dummy first column
                     item.SplitNumber,
                     item.Time,
                     item.Speed,
@@ -142,8 +145,8 @@ namespace ZwiftActivityMonitor
                 string[] text = SubItemStrings(SplitItem);
 
                 // Update the speed column header text accordingly
-                this.ListView.Columns[2].Text = SplitItem.SplitsInKm ? "km/h" : "mi/h";
-                this.ListView.Columns[3].Text = SplitItem.SplitsInKm ? "km" : "mi";
+                this.ListView.Columns[3].Text = SplitItem.SplitsInKm ? "km/h" : "mi/h";
+                this.ListView.Columns[4].Text = SplitItem.SplitsInKm ? "km" : "mi";
 
                 for (int i = 0; i < text.Length; i++)
                     this.SubItems[i].Text = text[i];
@@ -254,7 +257,7 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            SplitItem splitItem = new SplitItem()
+            SplitItem splitItem = new SplitItem(e.SplitNumber)
             {
                 SplitNumber = e.SplitNumberStr,
                 Time = e.SplitTimeStr,
@@ -301,7 +304,7 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            SplitItem splitItem = new SplitItem()
+            SplitItem splitItem = new SplitItem(e.SplitNumber)
             {
                 SplitNumber = e.SplitNumberStr,
                 Time = e.SplitTimeStr,

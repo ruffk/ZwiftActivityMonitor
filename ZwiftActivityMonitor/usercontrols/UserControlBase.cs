@@ -86,6 +86,9 @@ namespace ZwiftActivityMonitor
         /// <param name="foreColor"></param>
         protected static void SetListViewHeaderColor(ref ListView list, Color backColor, Color foreColor)
         {
+            //ILogger logger = ZAMsettings.LoggerFactory.CreateLogger("SetListViewHeaderColor");
+            //logger.LogInformation($"ListView {list.Name}");
+
             list.OwnerDraw = true;
             list.DrawColumnHeader +=
                 new DrawListViewColumnHeaderEventHandler
@@ -93,11 +96,14 @@ namespace ZwiftActivityMonitor
                     (sender, e) => ListView_DrawListViewColumnHeader(sender, e, backColor, foreColor)
                 );
 
+
             //list.DrawItem += new DrawListViewItemEventHandler(ListView_DrawListViewItem);
         }
 
         private static void ListView_DrawListViewColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e, Color backColor, Color foreColor)
         {
+            //ILogger logger = ZAMsettings.LoggerFactory.CreateLogger("ListView_DrawListViewColumnHeader");
+
             using (SolidBrush backBrush = new SolidBrush(backColor))
             {
                 e.Graphics.FillRectangle(backBrush, e.Bounds);
@@ -127,6 +133,7 @@ namespace ZwiftActivityMonitor
                 e.Graphics.DrawLine(SystemPens.ControlDark, r.Right, r.Y + 1, r.Right, r.Bottom);
             }
 
+            
             using (StringFormat sf = new StringFormat())
             {
                 // Store the column text alignment, letting it default
@@ -140,7 +147,6 @@ namespace ZwiftActivityMonitor
                         sf.Alignment = StringAlignment.Far;
                         break;
                 }
-                sf.LineAlignment = StringAlignment.Center;
 
                 using (SolidBrush foreBrush = new SolidBrush(foreColor))
                 {

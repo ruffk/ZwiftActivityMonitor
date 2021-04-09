@@ -30,21 +30,24 @@ namespace ZwiftActivityMonitor
         private void InitializeComponent()
         {
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
-            "03",
+            "",
+            "888",
             "88:88",
             "88.8",
             "888.8",
             "88:88:88",
-            "+88:88"}, -1);
+            "+88:88"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font("Franklin Gothic Demi Cond", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point));
             System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
-            "02",
+            "",
+            "2",
             "88:88",
             "88.8",
             "888.8",
             "88:88:88",
             "+88:88"}, -1);
             System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
-            "01",
+            "",
+            "1",
             "88:88",
             "88.8",
             "888.8",
@@ -52,6 +55,7 @@ namespace ZwiftActivityMonitor
             "+88:88"}, -1);
             this.pSplits = new System.Windows.Forms.Panel();
             this.lvSplits = new System.Windows.Forms.ListView();
+            this.chFirst = new System.Windows.Forms.ColumnHeader();
             this.chSplitNum = new System.Windows.Forms.ColumnHeader();
             this.chTime = new System.Windows.Forms.ColumnHeader();
             this.chSpeed = new System.Windows.Forms.ColumnHeader();
@@ -85,6 +89,7 @@ namespace ZwiftActivityMonitor
             this.lvSplits.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvSplits.CausesValidation = false;
             this.lvSplits.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.chFirst,
             this.chSplitNum,
             this.chTime,
             this.chSpeed,
@@ -93,7 +98,7 @@ namespace ZwiftActivityMonitor
             this.chDelta,
             this.chBlank});
             this.lvSplits.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvSplits.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lvSplits.Font = new System.Drawing.Font("Franklin Gothic Demi Cond", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lvSplits.ForeColor = System.Drawing.Color.White;
             this.lvSplits.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvSplits.HideSelection = false;
@@ -114,45 +119,51 @@ namespace ZwiftActivityMonitor
             this.lvSplits.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
             this.lvSplits.Resize += new System.EventHandler(this.ListView_Resize_HideHorizontalScrollBar);
             // 
+            // chFirst
+            // 
+            this.chFirst.Text = "";
+            this.chFirst.Width = 0;
+            // 
             // chSplitNum
             // 
-            this.chSplitNum.Text = " #";
-            this.chSplitNum.Width = 27;
+            this.chSplitNum.Tag = "Center";
+            this.chSplitNum.Text = "#";
+            this.chSplitNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.chSplitNum.Width = 36;
             // 
             // chTime
             // 
             this.chTime.Text = "Time";
             this.chTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chTime.Width = 55;
+            this.chTime.Width = 48;
             // 
             // chSpeed
             // 
             this.chSpeed.Text = "km/h";
             this.chSpeed.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chSpeed.Width = 52;
+            this.chSpeed.Width = 48;
             // 
             // chDistance
             // 
             this.chDistance.Text = "km";
             this.chDistance.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chDistance.Width = 53;
+            this.chDistance.Width = 50;
             // 
             // chTime2
             // 
             this.chTime2.Text = "Time";
             this.chTime2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chTime2.Width = 75;
+            this.chTime2.Width = 72;
             // 
             // chDelta
             // 
             this.chDelta.Text = "+/-";
             this.chDelta.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.chDelta.Width = 62;
             // 
             // chBlank
             // 
             this.chBlank.Text = "";
-            this.chBlank.Width = 10;
+            this.chBlank.Width = 20;
             // 
             // pSplitChartTitle
             // 
@@ -170,9 +181,9 @@ namespace ZwiftActivityMonitor
             // label7
             // 
             this.label7.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label7.Location = new System.Drawing.Point(194, 2);
+            this.label7.Location = new System.Drawing.Point(192, 2);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(133, 19);
+            this.label7.Size = new System.Drawing.Size(111, 19);
             this.label7.TabIndex = 91;
             this.label7.Text = "Total";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -180,9 +191,9 @@ namespace ZwiftActivityMonitor
             // lblSplit
             // 
             this.lblSplit.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblSplit.Location = new System.Drawing.Point(41, 2);
+            this.lblSplit.Location = new System.Drawing.Point(50, 2);
             this.lblSplit.Name = "lblSplit";
-            this.lblSplit.Size = new System.Drawing.Size(140, 19);
+            this.lblSplit.Size = new System.Drawing.Size(111, 19);
             this.lblSplit.TabIndex = 90;
             this.lblSplit.Text = "Split";
             this.lblSplit.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -202,9 +213,9 @@ namespace ZwiftActivityMonitor
             // 
             // lblGoalSpeed
             // 
-            this.lblGoalSpeed.Location = new System.Drawing.Point(43, 1);
+            this.lblGoalSpeed.Location = new System.Drawing.Point(43, 0);
             this.lblGoalSpeed.Name = "lblGoalSpeed";
-            this.lblGoalSpeed.Size = new System.Drawing.Size(291, 19);
+            this.lblGoalSpeed.Size = new System.Drawing.Size(291, 22);
             this.lblGoalSpeed.TabIndex = 96;
             this.lblGoalSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -251,5 +262,6 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ColumnHeader chTime2;
         private System.Windows.Forms.ColumnHeader chDelta;
         private System.Windows.Forms.ColumnHeader chBlank;
+        private System.Windows.Forms.ColumnHeader chFirst;
     }
 }

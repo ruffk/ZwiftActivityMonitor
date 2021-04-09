@@ -154,7 +154,7 @@ namespace ZwiftActivityMonitor
             {
                 get
                 {
-                    return SplitNumber.ToString("0#");
+                    return SplitNumber.ToString();
                 }
             }
             public string SplitTimeStr
@@ -202,10 +202,20 @@ namespace ZwiftActivityMonitor
             {
                 get
                 {
-                    return DeltaTime.Minutes.ToString("0#") + ":" + DeltaTime.Seconds.ToString("0#");
+                    TimeSpan std = DeltaTime;
+                    bool negated = false;
+
+                    if (DeltaTime.TotalSeconds < 0)
+                    {
+                        std = DeltaTime.Negate();
+                        negated = true;
+                    }
+
+                    return $"{(negated ? "-" : "+")}{std.Minutes:0#}:{std.Seconds:0#}";
                 }
             }
         }
+
         //public class SplitCompletedEventArgs : SplitUpdatedEventArgs
         //{
         //    public SplitCompletedEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, bool splitsInKm) :

@@ -531,6 +531,7 @@ namespace ZwiftActivityMonitor
             ZPMonitorService = zpMonitorService;
 
             JObject parsedJson = null;
+            bool userFileExists = false;
 
             try
             {
@@ -539,6 +540,8 @@ namespace ZwiftActivityMonitor
                     // Try to load user .json file settings
                     string jsonStr = File.ReadAllText(FileName);
                     parsedJson = JObject.Parse(jsonStr);
+
+                    userFileExists = true;
 
                     _logger.LogInformation($"Configuration cached from user settings file {FileName}.");
                 }
@@ -562,6 +565,25 @@ namespace ZwiftActivityMonitor
                 _committedZAMsettings.CurrentUserProfile = _committedZAMsettings.DefaultUserProfile;
 
                 _initialized = true;
+
+                if (userFileExists)
+                {
+                    if (!Settings.Collectors.ContainsKey("6 min"))
+                    {
+                        BeginCachedConfiguration();
+                        Collector c = new Collector()
+                        {
+                            Name = "6 min",
+                            DurationDesc = "SixMinute",
+                            DurationSecs = 360,
+                            FieldAvgDesc = "Watts",
+                            FieldAvgMaxDesc = "Wkg",
+                            FieldFtpDesc = "Hidden"
+                        };
+                        Settings.Collectors.Add("6 min", c);
+                        CommitCachedConfiguration();
+                    }
+                }
             }
             catch (Exception ex)
             {

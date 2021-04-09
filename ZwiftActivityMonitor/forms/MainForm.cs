@@ -41,6 +41,7 @@ namespace ZwiftActivityMonitor
 
         #region Form Events
 
+
         /// <summary>
         /// On initial load, the desired collection durations are load from configuration.
         /// </summary>
@@ -105,18 +106,21 @@ namespace ZwiftActivityMonitor
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            if (ZAMsettings.Settings.AutoStart)
-            {
-                ZAMsettings.ZPMonitorService.StartMonitor();
-            }
-            else
-            {
-                // Bring up the options dialog
-                tsmiOptions.PerformClick();
-            }
-
             // Set control statuses
             OnCollectionStatusChanged();
+
+            postStartupTimer.Interval = 500;
+            postStartupTimer.Enabled = true;
+
+            //if (ZAMsettings.Settings.AutoStart)
+            //{
+            //    ZAMsettings.ZPMonitorService.StartMonitor();
+            //}
+            //else
+            //{
+            //    // Bring up the options dialog
+            //    tsmiOptions.PerformClick();
+            //}
 
             Logger.LogInformation("MainForm_Shown");
         }
@@ -152,6 +156,8 @@ namespace ZwiftActivityMonitor
 
                 // update all the menu items accordingly
                 OnCollectionStatusChanged();
+
+                tsbAnalysis.PerformClick();
 
                 m_cancellationTokenSource = new CancellationTokenSource();
 
@@ -254,6 +260,7 @@ namespace ZwiftActivityMonitor
                 tsmi30sec.Enabled = false;
                 tsmi5min.Enabled = false;
                 tsmi5sec.Enabled = false;
+                tsmi6min.Enabled = false;
                 tsmi60min.Enabled = false;
                 tsmi90min.Enabled = false;
 
@@ -273,6 +280,7 @@ namespace ZwiftActivityMonitor
                 tsmi30sec.Enabled = true;
                 tsmi5min.Enabled = true;
                 tsmi5sec.Enabled = true;
+                tsmi6min.Enabled = true;
                 tsmi60min.Enabled = true;
                 tsmi90min.Enabled = true;
 
@@ -456,6 +464,21 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        private void postStartupTimer_Tick(object sender, EventArgs e)
+        {
+            postStartupTimer.Enabled = false;
+
+            if (ZAMsettings.Settings.AutoStart)
+            {
+                ZAMsettings.ZPMonitorService.StartMonitor();
+            }
+            else
+            {
+                // Bring up the options dialog
+                tsmiOptions.PerformClick();
+            }
+        }
+
         #endregion
 
         #region Misc Form events
@@ -588,5 +611,6 @@ namespace ZwiftActivityMonitor
             }
             return false;
         }
+
     }
 }

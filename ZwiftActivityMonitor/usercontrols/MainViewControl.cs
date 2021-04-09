@@ -94,6 +94,7 @@ namespace ZwiftActivityMonitor
             public string Normalized { get; set; } = "";
             public string NormalizedWkg { get; set; } = "";
             public string If { get; set; } = "";
+            public string Tss { get; set; } = "";
             public string Speed { get; set; } = "";
             public string SpeedKph { get; set; } = "";
 
@@ -136,7 +137,7 @@ namespace ZwiftActivityMonitor
                     item.Description,
                     refreshUom == RefreshUom.RefreshImperial ? item.Average : item.AverageWkg,
                     refreshUom == RefreshUom.RefreshImperial ? item.Normalized : item.NormalizedWkg,
-                    item.If,
+                    refreshUom == RefreshUom.RefreshImperial ? item.If : item.Tss,
                     refreshUom == RefreshUom.RefreshImperial ? item.Speed : item.SpeedKph
                 });
             }
@@ -146,6 +147,7 @@ namespace ZwiftActivityMonitor
                 string[] text = SubItemStrings(SummaryItem, refreshUom);
 
                 // Update the speed column header text accordingly
+                this.ListView.Columns[3].Text = refreshUom == RefreshUom.RefreshImperial ? "IF" : "TSS";
                 this.ListView.Columns[4].Text = refreshUom == RefreshUom.RefreshImperial ? "mi/h" : "km/h";
 
                 for (int i = 0; i < 5; i++)
@@ -174,6 +176,7 @@ namespace ZwiftActivityMonitor
         private DateTime m_lastViewerRefresh;   // Time of last Viewer list view refresh
         private DateTime m_lastSummaryRefresh;  // Time of last Summary list view refresh
         private int m_summaryRefreshCount;      // Number of times Summary list view has been refreshed
+        private DateTime m_collectionStartTime; // Time when collection started
 
         private Timer refreshTimer = new Timer();
 
@@ -228,6 +231,8 @@ namespace ZwiftActivityMonitor
             m_normalizedPower.Start();
 
             refreshTimer.Enabled = true;
+
+            m_collectionStartTime = DateTime.Now;
 
             this.ResetCounters();
         }
@@ -438,22 +443,34 @@ namespace ZwiftActivityMonitor
             //    return;
             //}
 
-            string If = "";
+            double If;
+            int Tss;
+            string IfStr = "";
+            string TssStr = "";
             string Normalized;
             string NormalizedWkg = "";
 
             if (CurrentUser.PowerThreshold > 0)
-                If = Math.Round(e.NormalizedPower / (double)CurrentUser.PowerThreshold, 2).ToString("#.00");
+            {
+                // Calculate Intensity Factor
+                If = Math.Round(e.NormalizedPower / (double)CurrentUser.PowerThreshold, 2);
+                IfStr = If.ToString("#.00");
+
+                // Calculate TSS
+                TimeSpan runningTime = DateTime.Now - m_collectionStartTime;
+                Tss = (int)Math.Round((runningTime.TotalSeconds * e.NormalizedPower * If) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
+                TssStr = Tss.ToString();
+            }
 
             Normalized = e.NormalizedPower.ToString();
 
             if (CurrentUser.WeightAsKgs > 0)
                 NormalizedWkg = Math.Round(e.NormalizedPower / CurrentUser.WeightAsKgs, 2).ToString("#.00");
 
-            this.UpdateSummaryNormalizedPower(If, Normalized, NormalizedWkg);
+            this.UpdateSummaryNormalizedPower(IfStr, Normalized, NormalizedWkg, TssStr);
         }
 
-        private void UpdateSummaryNormalizedPower(string If, string Normalized, string NormalizedWkg)
+        private void UpdateSummaryNormalizedPower(string If, string Normalized, string NormalizedWkg, string Tss)
         {
             lock (this.lvOverall)
             {
@@ -463,6 +480,7 @@ namespace ZwiftActivityMonitor
                 summaryItem.If = If;
                 summaryItem.Normalized = Normalized;
                 summaryItem.NormalizedWkg = NormalizedWkg;
+                summaryItem.Tss = Tss;
             }
         }
 

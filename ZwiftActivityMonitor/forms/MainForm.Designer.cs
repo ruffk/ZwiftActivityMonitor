@@ -71,6 +71,8 @@ namespace ZwiftActivityMonitor
             this.pViews = new System.Windows.Forms.Panel();
             this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
             this.MainView = new ZwiftActivityMonitor.MainViewControl();
+            this.postStartupTimer = new System.Windows.Forms.Timer(this.components);
+            this.tsmi6min = new System.Windows.Forms.ToolStripMenuItem();
             this.pnTitle.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.pnMenu.SuspendLayout();
@@ -225,6 +227,7 @@ namespace ZwiftActivityMonitor
             this.tsmi30sec,
             this.tsmi1min,
             this.tsmi5min,
+            this.tsmi6min,
             this.tsmi10min,
             this.tsmi20min,
             this.tsmi30min,
@@ -448,6 +451,20 @@ namespace ZwiftActivityMonitor
             this.MainView.Size = new System.Drawing.Size(334, 153);
             this.MainView.TabIndex = 0;
             // 
+            // postStartupTimer
+            // 
+            this.postStartupTimer.Interval = 1000;
+            this.postStartupTimer.Tick += new System.EventHandler(this.postStartupTimer_Tick);
+            // 
+            // tsmi6min
+            // 
+            this.tsmi6min.CheckOnClick = true;
+            this.tsmi6min.Name = "tsmi6min";
+            this.tsmi6min.Size = new System.Drawing.Size(136, 22);
+            this.tsmi6min.Tag = "SixMinutes";
+            this.tsmi6min.Text = "6 min";
+            this.tsmi6min.Click += new System.EventHandler(this.anyDuration_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -521,5 +538,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbAnalysis;
         private System.Windows.Forms.ToolStripButton tsbSplits;
+        private System.Windows.Forms.Timer postStartupTimer;
+        private System.Windows.Forms.ToolStripMenuItem tsmi6min;
     }
 }
