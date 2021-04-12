@@ -19,25 +19,32 @@ namespace ZwiftActivityMonitor
         private int m_countMovingAvgPow4;
 
         private int m_curNormalizedPower;
+        private double? m_curIntensityFactor;
+        private int? m_curTotalSufferScore;
         private bool m_started;
 
         private double m_curAvgKph;
         private double m_curAvgMph;
         private int m_curOverallPower;
+        private DateTime m_collectionStartTime; // Time when collection started
+
+        private UserProfile CurrentUser { get; set; }
+
+        #region Public EventArgs classes
 
         public class NormalizedPowerChangedEventArgs : EventArgs
         {
-            private int m_normalizedPower;
+            public int NormalizedPower { get; }
+            public double? IntensityFactor { get; }
+            public int? TotalSufferScore { get; }
 
-            public NormalizedPowerChangedEventArgs(int normalizedPower)
+            public NormalizedPowerChangedEventArgs(int normalizedPower, double? intensityFactor, int? totalSufferScore)
             {
-                m_normalizedPower = normalizedPower;
+                NormalizedPower = normalizedPower;
+                IntensityFactor = intensityFactor;
+                TotalSufferScore = totalSufferScore;
             }
 
-            public int NormalizedPower
-            {
-                get { return m_normalizedPower; }
-            }
         }
         public class MetricsChangedEventArgs : EventArgs
         {
@@ -52,6 +59,8 @@ namespace ZwiftActivityMonitor
                 OverallPower = overallPower;
             }
         }
+
+        #endregion
 
         public event EventHandler<NormalizedPowerChangedEventArgs> NormalizedPowerChangedEvent;
         public event EventHandler<MetricsChangedEventArgs> MetricsChangedEvent;
@@ -74,12 +83,18 @@ namespace ZwiftActivityMonitor
         {
             if (!m_started)
             {
+                this.CurrentUser = ZAMsettings.Settings.CurrentUser;
+
                 m_countMovingAvgPow4 = 0;
                 m_curNormalizedPower = 0;
+                m_curIntensityFactor = null;
+                m_curTotalSufferScore = null;
                 m_sumMovingAvgPow4 = 0;
                 m_curAvgKph = 0;
                 m_curAvgMph = 0;
                 m_curOverallPower = 0;
+
+                m_collectionStartTime = DateTime.Now;
 
                 m_started = true;
 
@@ -102,6 +117,9 @@ namespace ZwiftActivityMonitor
             if (!m_started)
                 return;
 
+            double? intensityFactor = null;
+            int? totalSufferScore = null;
+
             ulong movingAvgPow4 = (ulong)Math.Pow(e.AveragePower, 4);
 
             m_sumMovingAvgPow4 += movingAvgPow4;
@@ -111,12 +129,25 @@ namespace ZwiftActivityMonitor
 
             int normalizedPower = (int)Math.Round(Math.Pow(avgMovingAvgPow4, 0.25), 0);
 
+            if (CurrentUser.PowerThreshold > 0)
+            {
+                // Calculate Intensity Factor
+                intensityFactor = Math.Round(normalizedPower / (double)CurrentUser.PowerThreshold, 2);
+
+                // Calculate TSS
+                TimeSpan runningTime = DateTime.Now - m_collectionStartTime;
+                totalSufferScore = (int)Math.Round((runningTime.TotalSeconds * normalizedPower * (double)intensityFactor) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
+            }
+
+
             // when NP changes, send it and the current overall average power through
-            if (normalizedPower != m_curNormalizedPower)
+            if (normalizedPower != m_curNormalizedPower || intensityFactor != m_curIntensityFactor || totalSufferScore != m_curTotalSufferScore)
             {
                 m_curNormalizedPower = normalizedPower;
+                m_curTotalSufferScore = totalSufferScore;
+                m_curIntensityFactor = intensityFactor;
 
-                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs(normalizedPower));
+                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs(normalizedPower, intensityFactor, totalSufferScore));
             }
         }
         private void MetricsCalculatedEventHandler(object sender, MovingAverage.MetricsCalculatedEventArgs e)

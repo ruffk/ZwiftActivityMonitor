@@ -443,31 +443,23 @@ namespace ZwiftActivityMonitor
             //    return;
             //}
 
-            double If;
-            int Tss;
-            string IfStr = "";
-            string TssStr = "";
-            string Normalized;
-            string NormalizedWkg = "";
+            string intensityFactorStr = "";
+            string totalSufferScoreStr = "";
+            string normalizedPowerStr;
+            string normalizedWkgStr = "";
 
-            if (CurrentUser.PowerThreshold > 0)
+            if (e.IntensityFactor != null && e.TotalSufferScore != null)
             {
-                // Calculate Intensity Factor
-                If = Math.Round(e.NormalizedPower / (double)CurrentUser.PowerThreshold, 2);
-                IfStr = If.ToString("#.00");
-
-                // Calculate TSS
-                TimeSpan runningTime = DateTime.Now - m_collectionStartTime;
-                Tss = (int)Math.Round((runningTime.TotalSeconds * e.NormalizedPower * If) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
-                TssStr = Tss.ToString();
+                intensityFactorStr = e.IntensityFactor.Value.ToString("#.00");
+                totalSufferScoreStr = e.TotalSufferScore.ToString();
             }
 
-            Normalized = e.NormalizedPower.ToString();
+            normalizedPowerStr = e.NormalizedPower.ToString();
 
             if (CurrentUser.WeightAsKgs > 0)
-                NormalizedWkg = Math.Round(e.NormalizedPower / CurrentUser.WeightAsKgs, 2).ToString("#.00");
+                normalizedWkgStr = Math.Round(e.NormalizedPower / CurrentUser.WeightAsKgs, 2).ToString("#.00");
 
-            this.UpdateSummaryNormalizedPower(IfStr, Normalized, NormalizedWkg, TssStr);
+            this.UpdateSummaryNormalizedPower(intensityFactorStr, normalizedPowerStr, normalizedWkgStr, totalSufferScoreStr);
         }
 
         private void UpdateSummaryNormalizedPower(string If, string Normalized, string NormalizedWkg, string Tss)

@@ -71,6 +71,9 @@ namespace ZwiftActivityMonitor
             SplitsView.SplitGoalCompletedEvent += SplitCompletedEventHandler;
             SplitsView.SplitCompletedEvent += SplitCompletedEventHandler;
 
+            var form = new SplashScreen();
+            DialogResult result = form.ShowDialog(this);
+
             Logger.LogInformation("MainForm_Load");
         }
 
@@ -534,11 +537,24 @@ namespace ZwiftActivityMonitor
 
         private void tsmiCheckForUpdates_Click(object sender, EventArgs e)
         {
-            //using (var mgr = UpdateManager.GitHubUpdateManager("https://github.com/myuser/myapp"))
-            //{
-            //    await mgr.Result.UpdateApp();
-            //}
+            var form = new SplashScreen();
+
+            DialogResult result = form.ShowDialog(this);
         }
+
+        private void tsmiAbout_Click(object sender, EventArgs e)
+        {
+            var form = new AboutForm();
+
+            DialogResult result = form.ShowDialog(this);
+
+            if (result == DialogResult.Yes)
+            {
+                var form2 = new SplashScreen();
+                form2.ShowDialog(this);
+            }
+        }
+
 
         private void tsmiOptions_Click(object sender, EventArgs e)
         {

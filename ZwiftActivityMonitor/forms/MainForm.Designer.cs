@@ -63,8 +63,6 @@ namespace ZwiftActivityMonitor
             this.tsmiOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAdvanced = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiHelp = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
-            this.tssHelp1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.countdownTimer = new System.Windows.Forms.Timer(this.components);
             this.runTimer = new System.Windows.Forms.Timer(this.components);
@@ -398,30 +396,17 @@ namespace ZwiftActivityMonitor
             // tsmiHelp
             // 
             this.tsmiHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiCheckForUpdates,
-            this.tssHelp1,
             this.tsmiAbout});
             this.tsmiHelp.Name = "tsmiHelp";
             this.tsmiHelp.Size = new System.Drawing.Size(44, 20);
             this.tsmiHelp.Text = "Help";
-            // 
-            // tsmiCheckForUpdates
-            // 
-            this.tsmiCheckForUpdates.Name = "tsmiCheckForUpdates";
-            this.tsmiCheckForUpdates.Size = new System.Drawing.Size(226, 22);
-            this.tsmiCheckForUpdates.Text = "Check For Updates";
-            this.tsmiCheckForUpdates.Click += new System.EventHandler(this.tsmiCheckForUpdates_Click);
-            // 
-            // tssHelp1
-            // 
-            this.tssHelp1.Name = "tssHelp1";
-            this.tssHelp1.Size = new System.Drawing.Size(223, 6);
             // 
             // tsmiAbout
             // 
             this.tsmiAbout.Name = "tsmiAbout";
             this.tsmiAbout.Size = new System.Drawing.Size(226, 22);
             this.tsmiAbout.Text = "About Zwift Activity Monitor";
+            this.tsmiAbout.Click += new System.EventHandler(this.tsmiAbout_Click);
             // 
             // countdownTimer
             // 
@@ -521,8 +506,6 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmiAdvanced;
         private System.Windows.Forms.ToolStripMenuItem tsmiHelp;
         private System.Windows.Forms.ToolStripMenuItem tsmiAbout;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCheckForUpdates;
-        private System.Windows.Forms.ToolStripSeparator tssHelp1;
         private System.Windows.Forms.ToolStripMenuItem tsmiOptions;
         private System.Windows.Forms.ToolStripMenuItem tsmi30sec;
         private System.Windows.Forms.ToolStripMenuItem tsmi30min;

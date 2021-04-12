@@ -1,0 +1,139 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace ZwiftActivityMonitor
+{
+    public partial class SplashScreen : Form
+    {
+        private System.Drawing.Point m_offset;                      // for moving window
+        private bool m_mouseDown;                                   // for moving window
+        private int m_currentImage;
+
+        public SplashScreen()
+        {
+            InitializeComponent();
+
+            // This rounds the edges of the borderless window
+            this.Region = System.Drawing.Region.FromHrgn(ZAMsettings.CreateRoundRectRgn(0, 0, Width, Height, 50, 50));
+            //btnClose.FlatAppearance.BorderColor = Color.FromArgb(0, 255, 255, 255); //transparent
+
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void AboutForm_Load(object sender, EventArgs e)
+        {
+            this.timer1.Interval = 1000;
+            this.timer1.Enabled = true;
+            //Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            //lblProductVersion.Text = version.Major + "." + version.Minor + "." + version.Build;
+        }
+        /*
+        private void pbEnjoyFitness_Click(object sender, EventArgs e)
+        {
+            ProcessStartInfo psInfo = new ProcessStartInfo
+            {
+                FileName = linkProjectSponsor.Text,
+                UseShellExecute = true
+            };
+            Process.Start(psInfo);
+        }
+
+        private void btnOk_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void linkProjectWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var link = (LinkLabel)sender;
+            link.LinkVisited = true;
+            ProcessStartInfo psInfo = new ProcessStartInfo
+            {
+                FileName = link.Text,
+                UseShellExecute = true
+            };
+            Process.Start(psInfo);
+        }
+
+        private void linkLatestReleases_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var link = (LinkLabel)sender;
+            link.LinkVisited = true;
+            ProcessStartInfo psInfo = new ProcessStartInfo
+            {
+                FileName = link.Text,
+                UseShellExecute = true
+            };
+            Process.Start(psInfo);
+        }
+
+        private void linkProjectSponsor_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var link = (LinkLabel)sender;
+            link.LinkVisited = true;
+            ProcessStartInfo psInfo = new ProcessStartInfo
+            {
+                FileName = link.Text,
+                UseShellExecute = true
+            };
+            Process.Start(psInfo);
+        }
+        */
+        private void lblTitle_MouseDown(object sender, MouseEventArgs e)
+        {
+            m_offset.X = e.X;
+            m_offset.Y = e.Y;
+            m_mouseDown = true;
+        }
+
+        private void lblTitle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (m_mouseDown)
+            {
+                Point currentPos = this.PointToScreen(e.Location);
+                this.Location = new Point(currentPos.X - m_offset.X, currentPos.Y - m_offset.Y);
+            }
+        }
+
+        private void lblTitle_MouseUp(object sender, MouseEventArgs e)
+        {
+            m_mouseDown = false;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            switch(m_currentImage++)
+            {
+                case 0:
+                    this.pbZamCyclist.Image = global::ZwiftActivityMonitor.Properties.Resources.Tron2;
+                    break;
+                case 1:
+                    this.pbZamCyclist.Image = global::ZwiftActivityMonitor.Properties.Resources.Tron3;
+                    break;
+                case 2:
+                    this.pbZamCyclist.Image = global::ZwiftActivityMonitor.Properties.Resources.Tron4;
+                    break;
+                case 3:
+                    this.pbZamCyclist.Image = global::ZwiftActivityMonitor.Properties.Resources.Tron1;
+                    break;
+                case 4:
+                    this.timer1.Enabled = false;
+                    this.Close();
+                    break;
+            }
+        }
+    }
+}
