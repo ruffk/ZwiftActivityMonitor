@@ -47,6 +47,8 @@ namespace ZwiftActivityMonitor
             this.pHeading = new System.Windows.Forms.Panel();
             this.label6 = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.linkFacebookPage = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pbEnjoyFitness)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbZamCyclist)).BeginInit();
             this.pnTitle.SuspendLayout();
@@ -74,10 +76,10 @@ namespace ZwiftActivityMonitor
             this.linkProjectWebsite.Location = new System.Drawing.Point(113, 120);
             this.linkProjectWebsite.Name = "linkProjectWebsite";
             this.linkProjectWebsite.Size = new System.Drawing.Size(254, 15);
-            this.linkProjectWebsite.TabIndex = 1;
+            this.linkProjectWebsite.TabIndex = 10;
             this.linkProjectWebsite.TabStop = true;
             this.linkProjectWebsite.Text = "https://github.com/ruffk/ZwiftActivityMonitor";
-            this.linkProjectWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkProjectWebsite_LinkClicked);
+            this.linkProjectWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.Launch_LinkClicked);
             // 
             // linkProjectSponsor
             // 
@@ -85,10 +87,10 @@ namespace ZwiftActivityMonitor
             this.linkProjectSponsor.Location = new System.Drawing.Point(113, 170);
             this.linkProjectSponsor.Name = "linkProjectSponsor";
             this.linkProjectSponsor.Size = new System.Drawing.Size(152, 15);
-            this.linkProjectSponsor.TabIndex = 2;
+            this.linkProjectSponsor.TabIndex = 30;
             this.linkProjectSponsor.TabStop = true;
             this.linkProjectSponsor.Text = "https://enjoyfitnessjax.com";
-            this.linkProjectSponsor.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkProjectSponsor_LinkClicked);
+            this.linkProjectSponsor.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.Launch_LinkClicked);
             // 
             // pbZamCyclist
             // 
@@ -210,16 +212,16 @@ namespace ZwiftActivityMonitor
             this.linkLatestReleases.Location = new System.Drawing.Point(113, 145);
             this.linkLatestReleases.Name = "linkLatestReleases";
             this.linkLatestReleases.Size = new System.Drawing.Size(300, 15);
-            this.linkLatestReleases.TabIndex = 11;
+            this.linkLatestReleases.TabIndex = 20;
             this.linkLatestReleases.TabStop = true;
             this.linkLatestReleases.Text = "https://github.com/ruffk/ZwiftActivityMonitor/releases";
-            this.linkLatestReleases.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLatestReleases_LinkClicked);
+            this.linkLatestReleases.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.Launch_LinkClicked);
             // 
             // pSponsor
             // 
             this.pSponsor.Controls.Add(this.pbEnjoyFitness);
             this.pSponsor.Controls.Add(this.pHeading);
-            this.pSponsor.Location = new System.Drawing.Point(12, 220);
+            this.pSponsor.Location = new System.Drawing.Point(12, 234);
             this.pSponsor.Name = "pSponsor";
             this.pSponsor.Size = new System.Drawing.Size(431, 291);
             this.pSponsor.TabIndex = 12;
@@ -247,20 +249,42 @@ namespace ZwiftActivityMonitor
             // 
             this.btnOk.AutoSize = true;
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(359, 517);
+            this.btnOk.Location = new System.Drawing.Point(359, 531);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(86, 25);
-            this.btnOk.TabIndex = 13;
+            this.btnOk.TabIndex = 50;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
             this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(47, 195);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(61, 15);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "Facebook:";
+            // 
+            // linkFacebookPage
+            // 
+            this.linkFacebookPage.AutoSize = true;
+            this.linkFacebookPage.Location = new System.Drawing.Point(113, 195);
+            this.linkFacebookPage.Name = "linkFacebookPage";
+            this.linkFacebookPage.Size = new System.Drawing.Size(264, 15);
+            this.linkFacebookPage.TabIndex = 40;
+            this.linkFacebookPage.TabStop = true;
+            this.linkFacebookPage.Text = "https://www.facebook.com/zwiftactivitymonitor";
+            this.linkFacebookPage.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.Launch_LinkClicked);
             // 
             // AboutForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(455, 551);
+            this.ClientSize = new System.Drawing.Size(455, 569);
+            this.Controls.Add(this.linkFacebookPage);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.pSponsor);
             this.Controls.Add(this.linkLatestReleases);
@@ -309,5 +333,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Panel pHeading;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button btnOk;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.LinkLabel linkFacebookPage;
     }
 }

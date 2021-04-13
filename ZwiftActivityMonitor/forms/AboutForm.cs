@@ -53,7 +53,7 @@ namespace ZwiftActivityMonitor
             this.Close();
         }
 
-        private void linkProjectWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void Launch_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var link = (LinkLabel)sender;
             link.LinkVisited = true;
@@ -65,29 +65,7 @@ namespace ZwiftActivityMonitor
             Process.Start(psInfo);
         }
 
-        private void linkLatestReleases_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            var link = (LinkLabel)sender;
-            link.LinkVisited = true;
-            ProcessStartInfo psInfo = new ProcessStartInfo
-            {
-                FileName = link.Text,
-                UseShellExecute = true
-            };
-            Process.Start(psInfo);
-        }
 
-        private void linkProjectSponsor_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            var link = (LinkLabel)sender;
-            link.LinkVisited = true;
-            ProcessStartInfo psInfo = new ProcessStartInfo
-            {
-                FileName = link.Text,
-                UseShellExecute = true
-            };
-            Process.Start(psInfo);
-        }
         private void lblTitle_MouseDown(object sender, MouseEventArgs e)
         {
             m_offset.X = e.X;
