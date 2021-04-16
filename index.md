@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Zwift Activity Monitor
 
 You can use the [editor on GitHub](https://github.com/ruffk/ZwiftActivityMonitor/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
