@@ -9,3 +9,4 @@
 ## Developed in collaboration with:
 
 ![enjoy_fitness](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Enjoy-Fitness-Logo-red.png)
+https://www.EnJoyFitnessJax.com
