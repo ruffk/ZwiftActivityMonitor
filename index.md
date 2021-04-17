@@ -2,9 +2,12 @@
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainView.png)
 
-![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
+<div class="square">
+  <img src="https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg">
+  <p>Certified safe download</p>
+</div>
 
-Certified safe download
+<!--![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)-->
 
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
 
