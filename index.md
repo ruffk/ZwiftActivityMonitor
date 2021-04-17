@@ -4,6 +4,10 @@
 
 ![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
 
+Certified safe download
+
+[View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
+
 [Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
 
 ## Developed in collaboration with:
