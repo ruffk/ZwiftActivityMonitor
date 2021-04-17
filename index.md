@@ -8,7 +8,7 @@
 
 ![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
 
-Certified safe download
+**Certified safe download**
 
 ## Developed in collaboration with:
 
