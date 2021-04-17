@@ -7,8 +7,7 @@
 [Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
 
 ![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
-
-**Certified safe download**
+<br>**Certified safe download**
 
 ## Developed in collaboration with:
 
