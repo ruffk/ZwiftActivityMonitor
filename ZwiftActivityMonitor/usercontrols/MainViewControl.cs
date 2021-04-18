@@ -110,6 +110,7 @@ namespace ZwiftActivityMonitor
                 this.AverageWkg = "";
                 this.NormalizedWkg = "";
                 this.If = "";
+                this.Tss = "";
                 this.Speed = "";
                 this.SpeedKph = "";
             }
