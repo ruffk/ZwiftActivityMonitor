@@ -313,7 +313,7 @@ namespace ZwiftActivityMonitor
 
             string average = "";
             string Ftp = null;
-            string heartRate;
+            string heartRate = "";
 
             MovingAverageWrapper wrapper = m_maCollection[e.DurationType];
             Collector collector = wrapper.Collector;
@@ -330,7 +330,8 @@ namespace ZwiftActivityMonitor
                     break;
             }
 
-            heartRate = e.AverageHR.ToString();
+            if (e.AverageHR > 0)
+                heartRate = e.AverageHR.ToString();
 
             // The FTP column will track the AvgPower until the time duration is satisfied.
             // This enables the rider to see what his FTP would be real-time.

@@ -2,7 +2,7 @@
 Unicode True
 
 !define PRODUCT_NAME "Zwift Activity Monitor"
-!define PRODUCT_VERSION "1.2.2"
+!define PRODUCT_VERSION "1.2.3"
 !define PRODUCT_PUBLISHER "Kevin Ruff p/b EnJoy Fitness"
 !define PRODUCT_WEB_SITE "https://github.com/ruffk/ZwiftActivityMonitor"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\ZwiftActivityMonitor.exe"

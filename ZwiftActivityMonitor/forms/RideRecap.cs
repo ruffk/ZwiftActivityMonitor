@@ -42,8 +42,8 @@ namespace ZwiftActivityMonitor
             lblDuration.Text = $"{m_rideRecapMetrics.Duration.Hours:0#}:{m_rideRecapMetrics.Duration.Minutes:0#}:{m_rideRecapMetrics.Duration.Seconds:0#}";
             lblDistance.Text = $"{m_rideRecapMetrics.DistanceMi:0.0} mi ({m_rideRecapMetrics.DistanceKm:0.0} km)";
             lblAvgSpeed.Text = $"{m_rideRecapMetrics.AverageMph:0.0} mi/hr ({m_rideRecapMetrics.AverageKph:0.0} km/hr)";
-            lblAvgPower.Text = $"{m_rideRecapMetrics.OverallPower} watts";
-            lblNp.Text = $"{m_rideRecapMetrics.NormalizedPower} watts";
+            lblAvgPower.Text = $"{m_rideRecapMetrics.OverallPower} watts  {WattsToWkg(m_rideRecapMetrics.OverallPower)}";
+            lblNp.Text = $"{m_rideRecapMetrics.NormalizedPower} watts  {WattsToWkg(m_rideRecapMetrics.NormalizedPower)}";
             lblIf.Text = $"{(m_rideRecapMetrics.IntensityFactor.HasValue ? m_rideRecapMetrics.IntensityFactor.Value.ToString("#.00") : "N/A")}";
             lblTss.Text = $"{(m_rideRecapMetrics.TotalSufferScore.HasValue ? m_rideRecapMetrics.TotalSufferScore.Value : "N/A")}";
 
@@ -55,6 +55,18 @@ namespace ZwiftActivityMonitor
             else
             {
                 lblEmailAddr.Text = "Please set email address in your user profile to use this feature.";
+            }
+        }
+
+        private string WattsToWkg(int watts)
+        {
+            if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
+            {
+                return Math.Round(watts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2).ToString("#.00") + " w/kg";
+            }
+            else
+            {
+                return "";
             }
         }
 
