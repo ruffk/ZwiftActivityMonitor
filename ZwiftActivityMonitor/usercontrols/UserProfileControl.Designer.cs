@@ -33,6 +33,8 @@ namespace ZwiftActivityMonitor
             this.tbDescUsers = new System.Windows.Forms.TextBox();
             this.gbUserProfiles = new System.Windows.Forms.GroupBox();
             this.pUserProfiles = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tbEmailAddr = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.clbCollectors = new System.Windows.Forms.CheckedListBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -57,8 +59,6 @@ namespace ZwiftActivityMonitor
             this.chWeight = new System.Windows.Forms.ColumnHeader();
             this.chThreshold = new System.Windows.Forms.ColumnHeader();
             this.chBlank = new System.Windows.Forms.ColumnHeader();
-            this.tbEmailAddr = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.pBase.SuspendLayout();
             this.pControl.SuspendLayout();
@@ -137,6 +137,27 @@ namespace ZwiftActivityMonitor
             this.pUserProfiles.Size = new System.Drawing.Size(539, 406);
             this.pUserProfiles.TabIndex = 0;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(17, 233);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(84, 15);
+            this.label2.TabIndex = 123;
+            this.label2.Text = "Email Address:";
+            // 
+            // tbEmailAddr
+            // 
+            this.tbEmailAddr.Location = new System.Drawing.Point(109, 230);
+            this.tbEmailAddr.MaxLength = 100;
+            this.tbEmailAddr.Name = "tbEmailAddr";
+            this.tbEmailAddr.PlaceholderText = "Enter email address";
+            this.tbEmailAddr.Size = new System.Drawing.Size(265, 23);
+            this.tbEmailAddr.TabIndex = 72;
+            this.tbEmailAddr.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
+            this.tbEmailAddr.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
+            this.tbEmailAddr.Validating += new System.ComponentModel.CancelEventHandler(this.UserProfiles_Validating);
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -154,7 +175,7 @@ namespace ZwiftActivityMonitor
             this.clbCollectors.FormattingEnabled = true;
             this.clbCollectors.Location = new System.Drawing.Point(106, 262);
             this.clbCollectors.Name = "clbCollectors";
-            this.clbCollectors.Size = new System.Drawing.Size(114, 90);
+            this.clbCollectors.Size = new System.Drawing.Size(114, 126);
             this.clbCollectors.TabIndex = 75;
             this.clbCollectors.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
             this.clbCollectors.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
@@ -400,27 +421,6 @@ namespace ZwiftActivityMonitor
             // 
             this.chBlank.Text = "";
             this.chBlank.Width = 20;
-            // 
-            // tbEmailAddr
-            // 
-            this.tbEmailAddr.Location = new System.Drawing.Point(109, 230);
-            this.tbEmailAddr.MaxLength = 100;
-            this.tbEmailAddr.Name = "tbEmailAddr";
-            this.tbEmailAddr.PlaceholderText = "Enter email address";
-            this.tbEmailAddr.Size = new System.Drawing.Size(265, 23);
-            this.tbEmailAddr.TabIndex = 72;
-            this.tbEmailAddr.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
-            this.tbEmailAddr.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
-            this.tbEmailAddr.Validating += new System.ComponentModel.CancelEventHandler(this.UserProfiles_Validating);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(17, 233);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(84, 15);
-            this.label2.TabIndex = 123;
-            this.label2.Text = "Email Address:";
             // 
             // UserProfileControl
             // 
