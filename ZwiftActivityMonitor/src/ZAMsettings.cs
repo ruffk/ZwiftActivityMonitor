@@ -29,6 +29,7 @@ namespace ZwiftActivityMonitor
         public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
         private string m_name = "";
+        private string m_email = "";
         private double m_weight;
         private bool m_weightInKgs;
 
@@ -101,6 +102,20 @@ namespace ZwiftActivityMonitor
                     throw new FormatException("Name must be between 1 and 30 characters.");
 
                 m_name = value;
+            }
+        }
+        public string EmailAddress
+        {
+            get { return new string(m_email.Take(100).ToArray()); }
+            set
+            {
+                if (value.Length < 0 || value.Length > 100)
+                    throw new FormatException("Email address must be between 0 and 100 characters.");
+
+                if (value.Length > 0)
+                    new System.Net.Mail.MailAddress(value); // this will throw exception if in invalid format
+
+                m_email = value;
             }
         }
 

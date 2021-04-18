@@ -57,6 +57,8 @@ namespace ZwiftActivityMonitor
             this.chWeight = new System.Windows.Forms.ColumnHeader();
             this.chThreshold = new System.Windows.Forms.ColumnHeader();
             this.chBlank = new System.Windows.Forms.ColumnHeader();
+            this.tbEmailAddr = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.pBase.SuspendLayout();
             this.pControl.SuspendLayout();
@@ -110,6 +112,8 @@ namespace ZwiftActivityMonitor
             // 
             // pUserProfiles
             // 
+            this.pUserProfiles.Controls.Add(this.label2);
+            this.pUserProfiles.Controls.Add(this.tbEmailAddr);
             this.pUserProfiles.Controls.Add(this.label4);
             this.pUserProfiles.Controls.Add(this.clbCollectors);
             this.pUserProfiles.Controls.Add(this.label3);
@@ -136,7 +140,7 @@ namespace ZwiftActivityMonitor
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(38, 231);
+            this.label4.Location = new System.Drawing.Point(35, 292);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(63, 15);
             this.label4.TabIndex = 122;
@@ -148,9 +152,9 @@ namespace ZwiftActivityMonitor
             this.clbCollectors.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.clbCollectors.CheckOnClick = true;
             this.clbCollectors.FormattingEnabled = true;
-            this.clbCollectors.Location = new System.Drawing.Point(109, 231);
+            this.clbCollectors.Location = new System.Drawing.Point(106, 262);
             this.clbCollectors.Name = "clbCollectors";
-            this.clbCollectors.Size = new System.Drawing.Size(114, 162);
+            this.clbCollectors.Size = new System.Drawing.Size(114, 90);
             this.clbCollectors.TabIndex = 75;
             this.clbCollectors.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
             this.clbCollectors.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
@@ -204,7 +208,7 @@ namespace ZwiftActivityMonitor
             // 
             // tbWeight
             // 
-            this.tbWeight.Location = new System.Drawing.Point(109, 165);
+            this.tbWeight.Location = new System.Drawing.Point(109, 166);
             this.tbWeight.MaxLength = 5;
             this.tbWeight.Name = "tbWeight";
             this.tbWeight.Size = new System.Drawing.Size(43, 23);
@@ -397,6 +401,27 @@ namespace ZwiftActivityMonitor
             this.chBlank.Text = "";
             this.chBlank.Width = 20;
             // 
+            // tbEmailAddr
+            // 
+            this.tbEmailAddr.Location = new System.Drawing.Point(109, 230);
+            this.tbEmailAddr.MaxLength = 100;
+            this.tbEmailAddr.Name = "tbEmailAddr";
+            this.tbEmailAddr.PlaceholderText = "Enter email address";
+            this.tbEmailAddr.Size = new System.Drawing.Size(265, 23);
+            this.tbEmailAddr.TabIndex = 72;
+            this.tbEmailAddr.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
+            this.tbEmailAddr.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
+            this.tbEmailAddr.Validating += new System.ComponentModel.CancelEventHandler(this.UserProfiles_Validating);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(17, 233);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(84, 15);
+            this.label2.TabIndex = 123;
+            this.label2.Text = "Email Address:";
+            // 
             // UserProfileControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -448,5 +473,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ColumnHeader chWeight;
         private System.Windows.Forms.ColumnHeader chThreshold;
         private System.Windows.Forms.ColumnHeader chBlank;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbEmailAddr;
     }
 }

@@ -180,6 +180,8 @@ namespace ZwiftActivityMonitor
 
         private Timer refreshTimer = new Timer();
 
+        private TimeSpan m_collectionDuration;
+
         private UserProfile CurrentUser { get; set; }
 
         public MainViewControl()
@@ -245,6 +247,8 @@ namespace ZwiftActivityMonitor
             m_normalizedPower.Stop();
 
             refreshTimer.Enabled = false;
+
+            m_collectionDuration = DateTime.Now - m_collectionStartTime;
         }
 
         public void ClearViewerItems()
@@ -260,6 +264,15 @@ namespace ZwiftActivityMonitor
         {
             get { return this.lvViewer.Items.Count; }
         }
+
+        public RideRecapMetrics RideRecap
+        {
+            get
+            {
+                return m_normalizedPower.RideRecap;
+            }
+        }
+
 
         public void AddViewerItem(DurationType durationType, string durationDesc)
         {

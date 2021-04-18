@@ -114,11 +114,18 @@ namespace ZwiftActivityMonitor
             public double AverageKph { get; }
             public double AverageMph { get; }
 
-            public MetricsCalculatedEventArgs(int overallPower, double averageKph, double averageMph)
+            public TimeSpan Duration { get; }
+            public double DistanceKm { get; }
+            public double DistanceMi { get; }
+
+            public MetricsCalculatedEventArgs(int overallPower, double averageKph, double averageMph, TimeSpan duration, double distanceKm, double distanceMi)
             {
                 OverallPower = overallPower;
                 AverageKph = averageKph;
                 AverageMph = averageMph;
+                Duration = duration;
+                DistanceKm = distanceKm;
+                DistanceMi = distanceMi;
             }
         }
 
@@ -180,8 +187,13 @@ namespace ZwiftActivityMonitor
         }
         #endregion
 
-
-        public MovingAverage(DurationType durationType, bool excludeZeroPowerValues)
+        /// <summary>
+        /// Generic moving average collector
+        /// </summary>
+        /// <param name="durationType"></param>The duration of collection
+        /// <param name="excludeZeroPowerValues"></param>Whether to exclude zeros when collecting
+        /// <param name="allowHighRes"></param>Whether to allow use of high-res packets.  Currently only collectors under 30 seconds use these. 
+        public MovingAverage(DurationType durationType, bool excludeZeroPowerValues, bool allowHighRes = true)
         {
             Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverage>();
 
@@ -191,7 +203,16 @@ namespace ZwiftActivityMonitor
 
             m_statsQueue = new Queue<Statistics>();
 
-            ZAMsettings.ZPMonitorService.RiderStateEvent += RiderStateEventHandler;
+            if (m_duration <= 30 && allowHighRes)
+            {
+                ZAMsettings.ZPMonitorService.HighResRiderStateEvent += RiderStateEventHandler;
+                Logger.LogInformation($"{m_duration} seconds moving average collector using high-res packets.");
+            }
+            else
+            {
+                ZAMsettings.ZPMonitorService.RiderStateEvent += RiderStateEventHandler;
+            }
+
         }
 
         static MovingAverage()
@@ -301,7 +322,7 @@ namespace ZwiftActivityMonitor
                 double averageKph = Math.Round((kmsTravelled / runningTime.TotalSeconds) * 3600, 1);
                 double averageMph = Math.Round((milesTravelled / runningTime.TotalSeconds) * 3600, 1);
 
-                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(overallPower, averageKph, averageMph));
+                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(overallPower, averageKph, averageMph, runningTime, kmsTravelled, milesTravelled));
             }
 
             // For calculating normalized power zeros are ignored.

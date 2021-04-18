@@ -241,8 +241,15 @@ namespace ZwiftActivityMonitor
                 m_isStarted = false;
 
                 OnCollectionStatusChanged();
-                Logger.LogInformation($"Collection_OnStop");
+
+                if (m_cancellationTokenSource == null)
+                {
+                    var form = new RideRecap(MainView.RideRecap);
+                    form.Show(this);
+                }
+
             }
+            Logger.LogInformation($"Collection_OnStop");
         }
 
         private void OnCollectionStatusChanged()

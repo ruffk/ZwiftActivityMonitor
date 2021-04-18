@@ -46,6 +46,7 @@ namespace ZwiftActivityMonitor
         private PlayerStateEventArgs m_latestPlayerStateEventArgs;
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
+        public event EventHandler<RiderStateEventArgs> HighResRiderStateEvent;
 
         #region Internal classes
 
@@ -275,7 +276,7 @@ namespace ZwiftActivityMonitor
                 // We can use this to know when the Zwift ride actually starts so that the ZAM clocks start simutaneously. 
                 //
                 // Packets come in randomly but usually more than once per second.  Here we always capture the latest packet,
-                // but it's only distributed once every second when the timer fires.
+                // but it's only distributed once every second when the timer fires.  This is standard collection process.
                 lock (this)
                 {
                     // Lock is used to avoid contention between threads
@@ -283,17 +284,8 @@ namespace ZwiftActivityMonitor
                     m_latestPlayerStateEventArgs = e;
                 }
 
-                //// only receive updates approx once/sec
-                //if ((DateTime.Now - m_lastPlayerStateUpdate).TotalMilliseconds < 900)
-                //{
-                //    return;
-                //}
-                //m_lastPlayerStateUpdate = DateTime.Now;
-
-
-
-                //// Do work here
-                //OnPlayerStateEvent(e);
+                // For some applications we might want to see every packet, so provide a high-resolution event.
+                OnHighResRiderStateEvent(new RiderStateEventArgs(e));
             }
             catch (Exception ex)
             {
@@ -335,6 +327,21 @@ namespace ZwiftActivityMonitor
         private void OnRiderStateEvent(RiderStateEventArgs e)
         {
             EventHandler<RiderStateEventArgs> handler = RiderStateEvent;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch
+                {
+                    // Don't let downstream exceptions bubble up
+                }
+            }
+        }
+        private void OnHighResRiderStateEvent(RiderStateEventArgs e)
+        {
+            EventHandler<RiderStateEventArgs> handler = HighResRiderStateEvent;
             if (handler != null)
             {
                 try

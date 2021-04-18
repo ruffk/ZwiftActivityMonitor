@@ -335,7 +335,7 @@ namespace ZwiftActivityMonitor
             // tbWindowPosY
             // 
             this.tbWindowPosY.Location = new System.Drawing.Point(221, 107);
-            this.tbWindowPosY.MaxLength = 3;
+            this.tbWindowPosY.MaxLength = 4;
             this.tbWindowPosY.Name = "tbWindowPosY";
             this.tbWindowPosY.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosY.TabIndex = 35;
@@ -355,7 +355,7 @@ namespace ZwiftActivityMonitor
             // tbWindowPosX
             // 
             this.tbWindowPosX.Location = new System.Drawing.Point(183, 107);
-            this.tbWindowPosX.MaxLength = 3;
+            this.tbWindowPosX.MaxLength = 4;
             this.tbWindowPosX.Name = "tbWindowPosX";
             this.tbWindowPosX.Size = new System.Drawing.Size(32, 23);
             this.tbWindowPosX.TabIndex = 30;

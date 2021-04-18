@@ -118,17 +118,32 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Tron4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tron1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="split" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\split.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tron2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cycling" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\cycling.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="cyclingimg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\cyclingimg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Enjoy-Fitness-Logo-red" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Enjoy-Fitness-Logo-red.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Tron3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="cycling1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\cycling1.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="split" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\split.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Enjoy-Fitness-Logo-red" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Enjoy-Fitness-Logo-red.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Enjoy-Fitness-Logo-Short" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\Enjoy-Fitness-Logo-Short.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -136,19 +151,7 @@
   <data name="analytics" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\analytics.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="cycling" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\cycling.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tron1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tron2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tron3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tron4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Enjoy-Fitness-Logo-Short-25%" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Enjoy-Fitness-Logo-Short-25%.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

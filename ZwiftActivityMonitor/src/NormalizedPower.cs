@@ -3,13 +3,30 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
+    public class RideRecapMetrics
+    {
+        public TimeSpan Duration { get; set; }
+        public double DistanceKm { get; set; }
+        public double DistanceMi { get; set; }
+        public double AverageKph { get; set; }
+        public double AverageMph { get; set; }
+        public int OverallPower { get; set; }
+        public int NormalizedPower { get; set; }
+        public double? IntensityFactor { get; set; } // null if FTP not set
+        public int? TotalSufferScore { get; set; } // null if FTP not set
 
-        /// <summary>
-        /// rolling_average = 30 second rolling average
-        /// rolling_avg_powered = rolling_average ^ 4
-        /// avg_powered_values = average of rolling_avg_powered
-        /// NP = avg_powered_values ^ 0.25
-        /// </summary>
+        public RideRecapMetrics()
+        {
+        }
+    }
+
+
+    /// <summary>
+    /// rolling_average = 30 second rolling average
+    /// rolling_avg_powered = rolling_average ^ 4
+    /// avg_powered_values = average of rolling_avg_powered
+    /// NP = avg_powered_values ^ 0.25
+    /// </summary>
     public class NormalizedPower
     {
         private readonly ILogger<NormalizedPower> Logger;
@@ -26,7 +43,12 @@ namespace ZwiftActivityMonitor
         private double m_curAvgKph;
         private double m_curAvgMph;
         private int m_curOverallPower;
+        private TimeSpan m_curDuration;
+        private double m_curDistanceKm;
+        private double m_curDistanceMi;
+
         private DateTime m_collectionStartTime; // Time when collection started
+
 
         private UserProfile CurrentUser { get; set; }
 
@@ -73,8 +95,8 @@ namespace ZwiftActivityMonitor
 
             Logger = ZAMsettings.LoggerFactory.CreateLogger<NormalizedPower>();
 
-            // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).
-            m_movingAvg = new MovingAverage(DurationType.ThirtySeconds, false);
+            // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).  Don't use high-res packet collection.
+            m_movingAvg = new MovingAverage(DurationType.ThirtySeconds, false, false);
             m_movingAvg.MovingAverageCalculatedEvent += MovingAverageCalculatedEventHandler;
             m_movingAvg.MetricsCalculatedEvent += MetricsCalculatedEventHandler;
         }
@@ -93,6 +115,9 @@ namespace ZwiftActivityMonitor
                 m_curAvgKph = 0;
                 m_curAvgMph = 0;
                 m_curOverallPower = 0;
+                m_curDuration = TimeSpan.Zero;
+                m_curDistanceKm = 0;
+                m_curDistanceMi = 0;
 
                 m_collectionStartTime = DateTime.Now;
 
@@ -109,6 +134,25 @@ namespace ZwiftActivityMonitor
                 m_started = false;
 
                 m_movingAvg.Stop();
+            }
+        }
+
+        public RideRecapMetrics RideRecap
+        {
+            get 
+            {
+                return new RideRecapMetrics()
+                {
+                    Duration = m_curDuration,
+                    DistanceKm = m_curDistanceKm,
+                    DistanceMi = m_curDistanceMi,
+                    AverageKph = m_curAvgKph,
+                    AverageMph = m_curAvgMph,
+                    OverallPower = m_curOverallPower,
+                    TotalSufferScore = m_curTotalSufferScore,
+                    IntensityFactor = m_curIntensityFactor,
+                    NormalizedPower = m_curNormalizedPower,
+                };
             }
         }
 
@@ -154,6 +198,11 @@ namespace ZwiftActivityMonitor
         {
             if (!m_started)
                 return;
+
+            // just saving these most recent values for ride recap
+            m_curDuration = e.Duration;
+            m_curDistanceKm = e.DistanceKm;
+            m_curDistanceMi = e.DistanceMi;
 
             if (e.AverageKph != m_curAvgKph || e.AverageMph != m_curAvgMph || e.OverallPower != m_curOverallPower)
             {

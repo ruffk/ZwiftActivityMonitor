@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Mail;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
 
@@ -157,6 +158,7 @@ namespace ZwiftActivityMonitor
                 rbKgs.Checked = user.WeightInKgs;
                 rbLbs.Checked = !user.WeightInKgs;
                 nPowerThreshold.Value = user.PowerThreshold;
+                tbEmailAddr.Text = user.EmailAddress;
 
                 for (int i = 0; i < clbCollectors.Items.Count; i++)
                 {
@@ -173,6 +175,7 @@ namespace ZwiftActivityMonitor
                 ckbDefault.Checked = false;
                 rbLbs.Checked = true;
                 nPowerThreshold.Value = nPowerThreshold.Minimum;
+                tbEmailAddr.Text = "";
 
                 for (int i = 0; i < clbCollectors.Items.Count; i++)
                 {
@@ -215,6 +218,7 @@ namespace ZwiftActivityMonitor
                 rbKgs.Enabled = value;
                 rbLbs.Enabled = value;
                 nPowerThreshold.Enabled = value;
+                tbEmailAddr.Enabled = value;
                 clbCollectors.Enabled = value;
 
                 m_editMode = value;
@@ -318,6 +322,7 @@ namespace ZwiftActivityMonitor
             errorOccurred = (errorOccurred || ValidateUserProfiles(rbLbs));
             errorOccurred = (errorOccurred || ValidateUserProfiles(rbKgs));
             errorOccurred = (errorOccurred || ValidateUserProfiles(nPowerThreshold));
+            errorOccurred = (errorOccurred || ValidateUserProfiles(tbEmailAddr));
             errorOccurred = (errorOccurred || ValidateUserProfiles(clbCollectors));
 
             if (!errorOccurred)
@@ -440,6 +445,20 @@ namespace ZwiftActivityMonitor
                     }
                     break;
 
+                case "tbEmailAddr":
+                    try
+                    {
+                        tbEmailAddr.Text = tbEmailAddr.Text.Trim();
+
+                        user.EmailAddress = tbEmailAddr.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
+
                 case "ckbDefault":
                     try
                     {
@@ -554,6 +573,10 @@ namespace ZwiftActivityMonitor
             {
                 case "tbName":
                     toolStripStatusLabel.Text = "";
+                    break;
+
+                case "tbEmailAddr":
+                    toolStripStatusLabel.Text = "Optional email address used to send ride reports on request.";
                     break;
 
                 case "ckbDefault":

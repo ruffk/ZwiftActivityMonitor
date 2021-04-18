@@ -89,6 +89,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="forms\RideRecap.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="forms\SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
