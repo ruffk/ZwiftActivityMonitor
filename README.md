@@ -124,6 +124,8 @@ An example of the Splits View window is shown at the beginning of this readme fi
 
 #### Quick Start
 
+**Important Note: The activity monitor can only overlay Zwift if it (Zwift) is configured to run in windowed mode.**
+
 <ol>
 	<li>Start the Zwift Packet Monitoring service from the Analyze->Options System Tab by pressing Start.  Maybe while you're there select the Auto-Start option.</li>
 	<li>Click Analyze->Start.</li>
