@@ -33,14 +33,14 @@ Before you begin, ensure you have met the following requirements:
 
 ## Installing Zwift Activity Monitor (Windows Only)
 
-Note: The Setup-ZAM.exe file is not signed by certificate as that costs money.  You therefore might get warning messages from your Anti-Virus software.
+Note: The Setup-ZAM.exe file is signed by a certificate.
 
 To install Zwift Activity Monitor, follow these steps:
 
 <ol>
 	<li>Make sure you've installed the latest version of Npcap from the link above in Prerequisites.</li>
-	<li>Download the latest Setup-ZAM.exe release from this GitHub repository.  You may get some weird messages from your Anti-Virus software.</li>
-	<li>Run the installation.  Again, you may get some messages from your Anti-Virus software.</li>
+	<li>Download the latest Setup-ZAM.exe release from this GitHub repository.</li>
+	<li>Run the installation.  The installation is signed, but you may still receive a popup from Windows SmartScreen.</li>
 </ol>
 
 ## Using Zwift Activity Monitor
