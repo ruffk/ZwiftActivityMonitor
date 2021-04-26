@@ -63,7 +63,7 @@ namespace ZwiftActivityMonitor
 
                     serviceCollection.AddTransient<AdvancedOptions>();
                     serviceCollection.AddTransient<ConfigurationOptions>();
-                    serviceCollection.AddSingleton<MonitorTimer>();
+                    serviceCollection.AddTransient<MonitorTimer>();
                 })
                 .UseWinFormsLifetime()
                 .Build();

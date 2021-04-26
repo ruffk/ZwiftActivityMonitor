@@ -26,6 +26,7 @@ namespace ZwiftActivityMonitor
         private UserProfile m_currentUser;                          // Current user, selected in Options dialog
         private CancellationTokenSource m_cancellationTokenSource;  // For cancelling thread awaiting rider start
         private DateTime? m_splitsViewDisplayTime;
+        private bool m_startWithEventTimer;                         // When Start selected, will wait for Event Timer to start
 
         public MainForm(IServiceProvider serviceProvider)
         {
@@ -160,22 +161,26 @@ namespace ZwiftActivityMonitor
                 // update all the menu items accordingly
                 OnCollectionStatusChanged();
 
+                // view analysis window
                 tsbAnalysis.PerformClick();
 
-                m_cancellationTokenSource = new CancellationTokenSource();
-
-
-                // Start a thread to wait for the PlayerState.Time to become non-zero.  
-                // This can be cancelled by selecting Stop from the menu.
-                await WaitForRiderStartAsync(m_cancellationTokenSource.Token);
-
-                bool cancelled = m_cancellationTokenSource.IsCancellationRequested;
-                m_cancellationTokenSource = null;
-
-                if (cancelled)
+                if (m_startWithEventTimer)
                 {
-                    Logger.LogInformation($"Collection_OnStart - Cancelled");
-                    return;
+                    m_cancellationTokenSource = new CancellationTokenSource();
+
+
+                    // Start a thread to wait for the PlayerState.Time to become non-zero.  
+                    // This can be cancelled by selecting Stop from the menu.
+                    await WaitForRiderStartAsync(m_cancellationTokenSource.Token);
+
+                    bool cancelled = m_cancellationTokenSource.IsCancellationRequested;
+                    m_cancellationTokenSource = null;
+
+                    if (cancelled)
+                    {
+                        Logger.LogInformation($"Collection_OnStart - Cancelled");
+                        return;
+                    }
                 }
 
                 MainView.StartCollection();
@@ -298,6 +303,9 @@ namespace ZwiftActivityMonitor
                 tsmiOptions.Enabled = true;
                 tsmiAdvanced.Enabled = true;
 
+                tsmiSetupTimer.Enabled = true;
+                tsmiStopTimer.Enabled = false;
+
                 // set Timer menu sub-items
                 if (countdownTimer.Enabled)
                 {
@@ -307,11 +315,9 @@ namespace ZwiftActivityMonitor
 
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
-                }
-                else
-                {
-                    tsmiSetupTimer.Enabled = true;
-                    tsmiStopTimer.Enabled = false;
+                    tsmiStart.Enabled = false;
+                    tsmiOptions.Enabled = false;
+                    tsmiAdvanced.Enabled = false;
                 }
 
                 if (ZAMsettings.ZPMonitorService.IsStarted)
@@ -414,14 +420,19 @@ namespace ZwiftActivityMonitor
 
             if (result == DialogResult.OK)
             {
+                TimeSpan time = new TimeSpan(0, mt.Minutes, mt.Seconds);
 
-                m_timerCompletion = DateTime.Now.AddSeconds((mt.Minutes * 60) + mt.Seconds);
+                if (time.TotalSeconds > 0)
+                {
+                    m_timerCompletion = DateTime.Now.AddSeconds(time.TotalSeconds);
+                    m_startWithEventTimer = mt.StartWithEventTimer;
 
-                Logger.LogInformation($"Minutes: {mt.Minutes} Seconds: {mt.Seconds} Completion Time: {m_timerCompletion.ToString()}");
+                    Logger.LogInformation($"Minutes: {mt.Minutes} Seconds: {mt.Seconds} Completion Time: {m_timerCompletion.ToString()} StartWithEventTimer: {m_startWithEventTimer.ToString()}");
 
-                countdownTimer.Enabled = true;
+                    countdownTimer.Enabled = true;
 
-                OnCollectionStatusChanged();
+                    OnCollectionStatusChanged();
+                }
             }
         }
 
@@ -582,6 +593,9 @@ namespace ZwiftActivityMonitor
                 MessageBox.Show("Please use the Options dialog to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            // This is the default if pressing Start.  Use timer to have option to start immediately.
+            m_startWithEventTimer = true;  
 
             Collection_OnStart();
         }

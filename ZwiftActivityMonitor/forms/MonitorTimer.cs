@@ -1,24 +1,43 @@
 ﻿using System;
 using System.Windows.Forms;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
     public partial class MonitorTimer : Form
     {
-        public MonitorTimer()
+        private readonly ILogger<MonitorTimer> Logger;
+
+        public MonitorTimer(ILogger<MonitorTimer> logger)
         {
+            Logger = logger;
+
             InitializeComponent();
         }
 
-        public int Minutes 
-        { 
-            get { return Convert.ToInt32(this.updnMinutes.Value); } 
-            set { this.updnMinutes.Value = value; }
+        public int Minutes
+        {
+            get { return ucTimerSetup.Minutes; }
         }
-        public int Seconds 
-        { 
-            get { return Convert.ToInt32(this.updnSeconds.Value); } 
-            set { this.updnSeconds.Value = value; }
+        public int Seconds
+        {
+            get { return ucTimerSetup.Seconds; }
+        }
+
+        public bool StartWithEventTimer
+        {
+            get { return ucTimerSetup.StartWithEventTimer; }
+        }
+      
+
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            if (ucTimerSetup.ValidateChildren())
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
     }
 }
