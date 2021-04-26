@@ -158,9 +158,16 @@ namespace ZwiftActivityMonitor
         private SplitsManager m_splitsManager;
         private Dispatcher m_dispatcher;
 
+        private Timer backcolorTimer = new Timer();
+
+
         public SplitsViewControl()
         {
             InitializeComponent();
+
+            // When goal splits complete, either Red or Green will show in background for this period
+            backcolorTimer.Interval = 2000;
+            backcolorTimer.Tick += backcolorTimer_Tick;
 
             UserControlBase.SetListViewHeaderColor(ref this.lvSplits, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
         }
@@ -188,6 +195,12 @@ namespace ZwiftActivityMonitor
             base.UserControlBase_Load(sender, e);
         }
 
+        public override void ControlGainingFocus(object sender, CancelEventArgs e)
+        {
+            base.ControlGainingFocus(sender, e);
+        }
+
+
         public void StartCollection()
         {
             this.lvSplits.Items.Clear();
@@ -205,7 +218,7 @@ namespace ZwiftActivityMonitor
         /// <summary>
         /// Allow owner class to tie into the SplitGoalCompletedEvent and SplitCompletedEvent.  This allows the MainForm to bring this control into focus.
         /// </summary>
-        public event EventHandler<SplitsManager.SplitGoalCompletedEventArgs> SplitGoalCompletedEvent
+        public event EventHandler<SplitsManager.SplitEventArgs> SplitGoalCompletedEvent
         {
             add
             {
@@ -244,7 +257,7 @@ namespace ZwiftActivityMonitor
         private delegate void SplitEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
 
         /// <summary>
-        /// Occurs each time split gets updated.  Allows for UI update by marshalling the call accordingly.
+        /// Occurs each time a split gets updated or completes.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -264,7 +277,7 @@ namespace ZwiftActivityMonitor
                 Speed = e.SplitSpeedStr,
                 TotalDistance = e.TotalDistanceStr,
                 TotalTime = e.TotalTimeStr,
-                Delta = "",
+                Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
                 SplitsInKm = e.SplitsInKm
             };
 
@@ -283,19 +296,20 @@ namespace ZwiftActivityMonitor
             Logger.LogInformation($"SplitEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
         }
 
+        
         /// <summary>
         /// A delegate used solely by the SplitGoalCompletedEventHandler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void SplitGoalCompletedEventHandlerDelegate(object sender, SplitsManager.SplitGoalCompletedEventArgs e);
+        private delegate void SplitGoalCompletedEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
 
         /// <summary>
-        /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
+        /// Occurs each time a goal split gets completed.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SplitGoalCompletedEventHandler(object sender, SplitsManager.SplitGoalCompletedEventArgs e)
+        private void SplitGoalCompletedEventHandler(object sender, SplitsManager.SplitEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
@@ -304,32 +318,40 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            SplitItem splitItem = new SplitItem(e.SplitNumber)
-            {
-                SplitNumber = e.SplitNumberStr,
-                Time = e.SplitTimeStr,
-                Speed = e.SplitSpeedStr,
-                TotalDistance = e.TotalDistanceStr,
-                TotalTime = e.TotalTimeStr,
-                Delta = e.DeltaTimeStr,
-                SplitsInKm = e.SplitsInKm
-            };
+            // do normal update to split window
+            this.SplitEventHandler(sender, e);
 
-            if (lvSplits.Items.ContainsKey(splitItem.SplitNumber))
+            if (!e.DeltaTime.HasValue)  // should always have a value as it's a goal split
+                return;
+
+            TimeSpan deltaTime = (TimeSpan)e.DeltaTime;
+
+            if (deltaTime.TotalSeconds < 0)
             {
-                SplitListViewItem item = (SplitListViewItem)lvSplits.Items[splitItem.SplitNumber];
-                item.SplitItem = splitItem; // Replace with current splitItem object and refresh
-                item.Refresh();
+                lvSplits.BackColor = Color.FromArgb(255, 192, 0, 0); // red
             }
             else
             {
-                // This should not happen
-                lvSplits.Items.Add(new SplitListViewItem(splitItem));
-                lvSplits.Sort();
+                lvSplits.BackColor = Color.FromArgb(255, 0, 192, 0); // green
             }
 
-            Logger.LogInformation($"SplitGoalCompletedEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
+            // when timer expires color will revert to normal
+            this.backcolorTimer.Enabled = true;
+
+            //Logger.LogInformation($"SplitGoalCompletedEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
         }
+
+        /// <summary>
+        /// When timer fires revert backcolor to normal.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backcolorTimer_Tick(object sender, EventArgs e)
+        {
+            this.backcolorTimer.Enabled = false;
+            lvSplits.BackColor = Color.FromArgb(255, 17, 146, 204); // transparent (based upon key)
+        }
+
 
         #region Base class overrides for event selection
 
