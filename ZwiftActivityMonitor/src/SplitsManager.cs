@@ -373,22 +373,29 @@ namespace ZwiftActivityMonitor
             // Calculate how deep into the split distance the rider is.
             int splitMeters = totalMeters - (m_splits.SplitDistanceAsMeters * m_splitCount);
 
-            double splitKmTravelled = Math.Round(splitMeters / 1000.0, 1);
-            double splitMiTravelled = Math.Round(splitKmTravelled / 1.609, 1);
+            // How much of the split is completed (expressed as percentage)
+            double splitCompletedPct = Math.Round(splitMeters / (double)m_splits.SplitDistanceAsMeters, 2);
+
+            // Compute distance, leave unrounded
+            double splitKmTravelled = splitMeters / 1000.0;
+            double splitMiTravelled = splitKmTravelled / 1.609;
 
             double splitDistance = m_splits.SplitsInKm ? splitKmTravelled : splitMiTravelled;
             double splitSpeed = Math.Round((splitDistance / splitTime.TotalSeconds) * 3600, 1);
+
+            // Now round the distance
+            splitDistance = Math.Round(splitDistance, 1);
 
             //double splitAverageKph = Math.Round((splitKmTravelled / splitTime.TotalSeconds) * 3600, 1);
             //double splitAverageMph = Math.Round((splitMiTravelled / splitTime.TotalSeconds) * 3600, 1);
 
             if (goal != null)
             {
-                // Calculate the deltaTime, positive number is good, negative bad.
-                TimeSpan deltaTime = goal.TotalTime.Subtract(runningTime);
-
                 if (splitKmTravelled >= goal.SplitDistanceKm)
                 {
+                    // Calculate the deltaTime, positive number is good, negative bad.
+                    TimeSpan deltaTime = goal.TotalTime.Subtract(runningTime);
+
                     // This completes the split.  TotalDistance travelled and Delta is included.
                     SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm, deltaTime);
                     OnSplitGoalCompletedEvent(args);
@@ -401,8 +408,17 @@ namespace ZwiftActivityMonitor
                 }
                 else
                 {
-                    if (splitMeters - m_lastSplitMeters >= 100) // only raise update event every 100 meters or so
+                    if (splitMeters - m_lastSplitMeters >= 1) // only raise update event every 100 meters or so
                     {
+                        // Goal time of split start
+                        TimeSpan splitStartTime = goal.TotalTime.Subtract(goal.SplitTime);
+                        
+                        // Goal time to get to this point in the split
+                        TimeSpan splitWaypointTime = splitStartTime.Add(goal.SplitTime.Multiply(splitCompletedPct));
+                        
+                        // Calculate the deltaTime, positive number is good, negative bad.
+                        TimeSpan deltaTime = splitWaypointTime.Subtract(runningTime);
+
                         // This is an update to the split in-progress.  SplitDistance travelled is included.
                         SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm, deltaTime);
                         OnSplitUpdatedEvent(args);

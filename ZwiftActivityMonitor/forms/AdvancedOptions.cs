@@ -24,7 +24,7 @@ namespace ZwiftActivityMonitor
 
             InitializeComponent();
 
-            m_logger.LogInformation($"Class {this.GetType()} initialized.");
+            this.Icon = Properties.Resources.cycling1;
         }
 
         private delegate void ProcessedRiderStateEventHandlerDelegate(object sender, RiderStateEventArgs e);

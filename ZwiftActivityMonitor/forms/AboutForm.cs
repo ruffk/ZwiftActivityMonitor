@@ -35,7 +35,7 @@ namespace ZwiftActivityMonitor
         private void AboutForm_Load(object sender, EventArgs e)
         {
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            lblProductVersion.Text = version.Major + "." + version.Minor + "." + version.Build;
+            lblProductVersion.Text = version.Major + "." + version.Minor + "." + version.Build + "." + version.Revision;
         }
 
         private void pbEnjoyFitness_Click(object sender, EventArgs e)

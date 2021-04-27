@@ -41,11 +41,10 @@ namespace ZwiftActivityMonitor
 
             switch (control.Name)
             {
-                case "tbMins":
+                case "nMins":
                     try
                     {
-                        tbMins.Text = tbMins.Text.Trim();
-                        this.Minutes = int.Parse(tbMins.Text == "" ? "0" : tbMins.Text);
+                        this.Minutes = Convert.ToInt32(nMins.Value);
 
                         if (this.Minutes < 0 || this.Minutes > 59)
                         {
@@ -59,11 +58,10 @@ namespace ZwiftActivityMonitor
                     }
                     break;
 
-                case "tbSecs":
+                case "nSecs":
                     try
                     {
-                        tbSecs.Text = tbSecs.Text.Trim();
-                        this.Seconds = int.Parse(tbSecs.Text == "" ? "0" : tbSecs.Text);
+                        this.Seconds = Convert.ToInt32(nSecs.Value);
 
                         if (this.Seconds < 0 || this.Seconds > 59)
                         {
@@ -112,11 +110,11 @@ namespace ZwiftActivityMonitor
 
             switch (control.Name)
             {
-                case "tbMins":
+                case "nMins":
                     toolStripStatusLabel.Text = "Enter timer duration minutes.";
                     break;
 
-                case "tbSecs":
+                case "nSecs":
                     toolStripStatusLabel.Text = "Enter timer duration seconds.";
                     break;
             }
@@ -139,8 +137,8 @@ namespace ZwiftActivityMonitor
         {
             bool errorOccurred = false;
 
-            errorOccurred = (errorOccurred || ValidateSystemSettings(tbMins));
-            errorOccurred = (errorOccurred || ValidateSystemSettings(tbSecs));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(nMins));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(nSecs));
             errorOccurred = (errorOccurred || ValidateSystemSettings(rbStartImmediately));
             errorOccurred = (errorOccurred || ValidateSystemSettings(rbStartWithEventTimer));
 

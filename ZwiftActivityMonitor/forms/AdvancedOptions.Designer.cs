@@ -29,7 +29,6 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AdvancedOptions));
             this.gbZwiftPacketMonitor = new System.Windows.Forms.GroupBox();
             this.lblWatts = new System.Windows.Forms.Label();
             this.tbTargetPower = new System.Windows.Forms.TextBox();
@@ -327,7 +326,6 @@ namespace ZwiftActivityMonitor
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.gbZwiftPacketMonitor);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "AdvancedOptions";

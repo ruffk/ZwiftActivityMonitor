@@ -33,17 +33,19 @@ namespace ZwiftActivityMonitor
             this.pTimer = new System.Windows.Forms.Panel();
             this.rbStartImmediately = new System.Windows.Forms.RadioButton();
             this.rbStartWithEventTimer = new System.Windows.Forms.RadioButton();
-            this.tbSecs = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tbMins = new System.Windows.Forms.TextBox();
             this.lblGoalTimeMin = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lblGoalTimeSec = new System.Windows.Forms.Label();
             this.tbDescSystem = new System.Windows.Forms.TextBox();
+            this.nMins = new System.Windows.Forms.NumericUpDown();
+            this.nSecs = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.pBase.SuspendLayout();
             this.gbTimer.SuspendLayout();
             this.pTimer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMins)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSecs)).BeginInit();
             this.SuspendLayout();
             // 
             // pBase
@@ -64,11 +66,11 @@ namespace ZwiftActivityMonitor
             // 
             // pTimer
             // 
+            this.pTimer.Controls.Add(this.nSecs);
+            this.pTimer.Controls.Add(this.nMins);
             this.pTimer.Controls.Add(this.rbStartImmediately);
             this.pTimer.Controls.Add(this.rbStartWithEventTimer);
-            this.pTimer.Controls.Add(this.tbSecs);
             this.pTimer.Controls.Add(this.label1);
-            this.pTimer.Controls.Add(this.tbMins);
             this.pTimer.Controls.Add(this.lblGoalTimeMin);
             this.pTimer.Controls.Add(this.label2);
             this.pTimer.Controls.Add(this.lblGoalTimeSec);
@@ -107,19 +109,6 @@ namespace ZwiftActivityMonitor
             this.rbStartWithEventTimer.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             this.rbStartWithEventTimer.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
-            // tbSecs
-            // 
-            this.tbSecs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tbSecs.Location = new System.Drawing.Point(165, 15);
-            this.tbSecs.MaxLength = 2;
-            this.tbSecs.Name = "tbSecs";
-            this.tbSecs.Size = new System.Drawing.Size(23, 23);
-            this.tbSecs.TabIndex = 30;
-            this.tbSecs.Text = "30";
-            this.tbSecs.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.tbSecs.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
-            this.tbSecs.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -129,22 +118,10 @@ namespace ZwiftActivityMonitor
             this.label1.TabIndex = 1;
             this.label1.Text = "Time Remaining:";
             // 
-            // tbMins
-            // 
-            this.tbMins.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tbMins.Location = new System.Drawing.Point(100, 15);
-            this.tbMins.MaxLength = 2;
-            this.tbMins.Name = "tbMins";
-            this.tbMins.Size = new System.Drawing.Size(23, 23);
-            this.tbMins.TabIndex = 20;
-            this.tbMins.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
-            this.tbMins.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
-            this.tbMins.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
-            // 
             // lblGoalTimeMin
             // 
             this.lblGoalTimeMin.AutoSize = true;
-            this.lblGoalTimeMin.Location = new System.Drawing.Point(123, 17);
+            this.lblGoalTimeMin.Location = new System.Drawing.Point(146, 17);
             this.lblGoalTimeMin.Name = "lblGoalTimeMin";
             this.lblGoalTimeMin.Size = new System.Drawing.Size(28, 15);
             this.lblGoalTimeMin.TabIndex = 71;
@@ -162,7 +139,7 @@ namespace ZwiftActivityMonitor
             // lblGoalTimeSec
             // 
             this.lblGoalTimeSec.AutoSize = true;
-            this.lblGoalTimeSec.Location = new System.Drawing.Point(189, 17);
+            this.lblGoalTimeSec.Location = new System.Drawing.Point(221, 17);
             this.lblGoalTimeSec.Name = "lblGoalTimeSec";
             this.lblGoalTimeSec.Size = new System.Drawing.Size(24, 15);
             this.lblGoalTimeSec.TabIndex = 72;
@@ -182,6 +159,43 @@ namespace ZwiftActivityMonitor
             this.tbDescSystem.Text = "Set a timer to automatically \'Start\' monitoring when countdown expires.  When mon" +
     "itoring actually begins can also be configured.  ";
             // 
+            // nMins
+            // 
+            this.nMins.Location = new System.Drawing.Point(105, 15);
+            this.nMins.Maximum = new decimal(new int[] {
+            59,
+            0,
+            0,
+            0});
+            this.nMins.Name = "nMins";
+            this.nMins.Size = new System.Drawing.Size(35, 23);
+            this.nMins.TabIndex = 20;
+            this.nMins.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nMins.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.nMins.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.nMins.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
+            // 
+            // nSecs
+            // 
+            this.nSecs.Location = new System.Drawing.Point(180, 15);
+            this.nSecs.Maximum = new decimal(new int[] {
+            59,
+            0,
+            0,
+            0});
+            this.nSecs.Name = "nSecs";
+            this.nSecs.Size = new System.Drawing.Size(35, 23);
+            this.nSecs.TabIndex = 30;
+            this.nSecs.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nSecs.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.nSecs.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.nSecs.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.nSecs.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
+            // 
             // TimerSetupControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -194,6 +208,8 @@ namespace ZwiftActivityMonitor
             this.gbTimer.ResumeLayout(false);
             this.pTimer.ResumeLayout(false);
             this.pTimer.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nMins)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSecs)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -203,14 +219,14 @@ namespace ZwiftActivityMonitor
 
         private System.Windows.Forms.GroupBox gbTimer;
         private System.Windows.Forms.Panel pTimer;
-        private System.Windows.Forms.TextBox tbSecs;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox tbMins;
         private System.Windows.Forms.Label lblGoalTimeMin;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblGoalTimeSec;
         private System.Windows.Forms.TextBox tbDescSystem;
         private System.Windows.Forms.RadioButton rbStartImmediately;
         private System.Windows.Forms.RadioButton rbStartWithEventTimer;
+        private System.Windows.Forms.NumericUpDown nSecs;
+        private System.Windows.Forms.NumericUpDown nMins;
     }
 }

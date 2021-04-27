@@ -29,7 +29,6 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MonitorTimer));
             this.ucTimerSetup = new ZwiftActivityMonitor.TimerSetupControl();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -77,7 +76,6 @@ namespace ZwiftActivityMonitor
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.ucTimerSetup);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MonitorTimer";

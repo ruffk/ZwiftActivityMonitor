@@ -13,6 +13,8 @@ namespace ZwiftActivityMonitor
             Logger = logger;
 
             InitializeComponent();
+
+            this.Icon = Properties.Resources.cycling1;
         }
 
         public int Minutes
