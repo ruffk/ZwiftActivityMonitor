@@ -4,7 +4,7 @@
 
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
 
-**Release 1.2.4 now available**
+**Release 1.2.4.1 now available**
 This mini-release contains a couple of enhancements requested by ZAM users.
 
 * Split goal display changes: When the split screen comes automatically into view it will have a color coded background (for two seconds). Green if you're ahead of your goal, Red if you're behind.  This was suggested as the auto-display was often missed during hard TTT efforts.  Another addition is a real-time running delta time field, so you can actively monitor your progress without waiting for the split to complete. 
