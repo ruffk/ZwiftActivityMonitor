@@ -465,7 +465,8 @@ namespace ZwiftActivityMonitor
         {
             TimeSpan ts = DateTime.Now - m_collectionStart;
 
-            tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
+            //tsslStatus.Text = "Running time: " + ts.Hours.ToString("0#") + ":" + ts.Minutes.ToString("0#") + ":" + ts.Seconds.ToString("0#");
+            tsslStatus.Text = $"Elapsed time: {(ts.Hours > 0 ? ts.ToString("hh':'mm':'ss") : ts.ToString("mm':'ss"))}";
 
             if (m_splitsViewDisplayTime != null) // Splits control was displayed, timer in progress
             {

@@ -48,7 +48,8 @@ namespace ZwiftActivityMonitor
             {
                 get
                 {
-                    return GoalTime.Hours.ToString("0#") + ":" + GoalTime.Minutes.ToString("0#") + ":" + GoalTime.Seconds.ToString("0#");
+                    //return GoalTime.Hours.ToString("0#") + ":" + GoalTime.Minutes.ToString("0#") + ":" + GoalTime.Seconds.ToString("0#");
+                    return GoalTime.Hours > 0 ? Math.Floor(GoalTime.TotalHours) + GoalTime.ToString("'h 'm'm 's's'") : GoalTime.ToString("m'm 's's'");
                 }
             }
 
@@ -100,6 +101,7 @@ namespace ZwiftActivityMonitor
                 get
                 {
                     return SplitTime.Hours.ToString("0#") + ":" + SplitTime.Minutes.ToString("0#") + ":" + SplitTime.Seconds.ToString("0#");
+                    //return SplitTime.Hours > 0 ? Math.Floor(SplitTime.TotalHours) + SplitTime.ToString("'h 'm'm 's's'") : SplitTime.ToString("m'm 's's'");
                 }
             }
             public string TotalTimeStr
@@ -107,6 +109,7 @@ namespace ZwiftActivityMonitor
                 get
                 {
                     return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+                    //return TotalTime.Hours > 0 ? Math.Floor(TotalTime.TotalHours) + TotalTime.ToString("'h 'm'm 's's'") : TotalTime.ToString("m'm 's's'");
                 }
             }
 
@@ -195,9 +198,27 @@ namespace ZwiftActivityMonitor
             {
                 get
                 {
-                    return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+                    //return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+                    return $"{(TotalTime.Hours > 0 ? TotalTime.ToString("hh':'mm':'ss") : TotalTime.ToString("mm':'ss"))}";
                 }
             }
+
+            public bool? AheadOfGoalTime 
+            { 
+                get 
+                {
+                    if (DeltaTime.HasValue)
+                    {
+                        TimeSpan std = (TimeSpan)DeltaTime;
+                        return std.TotalSeconds <= 0;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                } 
+            }
+
             public string DeltaTimeStr
             {
                 get
@@ -213,7 +234,8 @@ namespace ZwiftActivityMonitor
                             negated = true;
                         }
 
-                        return $"{(negated ? "-" : "+")}{std.Minutes:0#}:{std.Seconds:0#}";
+                        //return $"{(negated ? "-" : "+")}{std.Minutes:0#}:{std.Seconds:0#}";
+                        return $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
                     }
                     else
                     {
@@ -374,7 +396,8 @@ namespace ZwiftActivityMonitor
             int splitMeters = totalMeters - (m_splits.SplitDistanceAsMeters * m_splitCount);
 
             // How much of the split is completed (expressed as percentage)
-            double splitCompletedPct = Math.Round(splitMeters / (double)m_splits.SplitDistanceAsMeters, 2);
+            //double splitCompletedPct = Math.Round(splitMeters / (double)m_splits.SplitDistanceAsMeters, 4);
+            double splitCompletedPct = splitMeters / (double)m_splits.SplitDistanceAsMeters;
 
             // Compute distance, leave unrounded
             double splitKmTravelled = splitMeters / 1000.0;
@@ -394,7 +417,10 @@ namespace ZwiftActivityMonitor
                 if (splitKmTravelled >= goal.SplitDistanceKm)
                 {
                     // Calculate the deltaTime, positive number is good, negative bad.
-                    TimeSpan deltaTime = goal.TotalTime.Subtract(runningTime);
+                    //TimeSpan deltaTime = goal.TotalTime.Subtract(runningTime);
+
+                    // Calculate the deltaTime, positive number is bad, negative good.
+                    TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(goal.TotalTime).TotalSeconds, 0));
 
                     // This completes the split.  TotalDistance travelled and Delta is included.
                     SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm, deltaTime);
@@ -408,22 +434,28 @@ namespace ZwiftActivityMonitor
                 }
                 else
                 {
-                    if (splitMeters - m_lastSplitMeters >= 1) // only raise update event every 100 meters or so
+                    if (splitMeters - m_lastSplitMeters >= 1) 
                     {
                         // Goal time of split start
                         TimeSpan splitStartTime = goal.TotalTime.Subtract(goal.SplitTime);
                         
                         // Goal time to get to this point in the split
                         TimeSpan splitWaypointTime = splitStartTime.Add(goal.SplitTime.Multiply(splitCompletedPct));
-                        
+
                         // Calculate the deltaTime, positive number is good, negative bad.
-                        TimeSpan deltaTime = splitWaypointTime.Subtract(runningTime);
+                        //TimeSpan deltaTime = splitWaypointTime.Subtract(runningTime);
+
+                        // Calculate the deltaTime, positive number is bad, negative good.
+                        TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(splitWaypointTime).TotalSeconds, 0));
 
                         // This is an update to the split in-progress.  SplitDistance travelled is included.
                         SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm, deltaTime);
                         OnSplitUpdatedEvent(args);
 
                         m_lastSplitMeters = splitMeters;
+
+                        Logger.LogInformation($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
+
                     }
                 }
             }
@@ -443,7 +475,7 @@ namespace ZwiftActivityMonitor
                 }
                 else
                 {
-                    if (splitMeters - m_lastSplitMeters >= 100) // only raise update event every 100 meters or so
+                    if (splitMeters - m_lastSplitMeters >= 1)
                     {
                         // This is an update to the split in-progress.  SplitDistance traveled is included.
                         SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm);

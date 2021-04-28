@@ -93,6 +93,7 @@ namespace ZwiftActivityMonitor
             public string TotalTime { get; set; } = "";
             public string Delta { get; set; } = "";
             public bool SplitsInKm { get; set; }
+            public bool? AheadOfGoalTime { get; set; }
 
             public SplitItem(int splitNumber)
             {
@@ -113,12 +114,6 @@ namespace ZwiftActivityMonitor
         internal class SplitListViewItem : ListViewItem
         {
             public SplitItem SplitItem { get; set; }
-
-            //public enum RefreshUom
-            //{
-            //    RefreshImperial,
-            //    RefreshMetric
-            //}
 
             public SplitListViewItem(SplitItem item) : base(SubItemStrings(item))
             {
@@ -144,12 +139,27 @@ namespace ZwiftActivityMonitor
             {
                 string[] text = SubItemStrings(SplitItem);
 
-                // Update the speed column header text accordingly
+                // Update the speed and distance header text accordingly
                 this.ListView.Columns[3].Text = SplitItem.SplitsInKm ? "km/h" : "mi/h";
                 this.ListView.Columns[4].Text = SplitItem.SplitsInKm ? "km" : "mi";
 
                 for (int i = 0; i < text.Length; i++)
                     this.SubItems[i].Text = text[i];
+
+                if (SplitItem.AheadOfGoalTime.HasValue)
+                {
+                    this.SubItems[6].BackColor = SplitItem.AheadOfGoalTime.Value ? GREEN : RED;
+
+                    if (this.UseItemStyleForSubItems)
+                        this.UseItemStyleForSubItems = false;
+                }
+            }
+
+            public void ClearDeltaBackground()
+            {
+                if (!this.UseItemStyleForSubItems)
+                    this.UseItemStyleForSubItems = true;
+                //this.SubItems[6].BackColor = TRANSPARENCY;
             }
         }
         #endregion
@@ -160,6 +170,9 @@ namespace ZwiftActivityMonitor
 
         private Timer backcolorTimer = new Timer();
 
+        public static Color RED = Color.FromArgb(255, 192, 0, 0); // red 
+        public static Color GREEN = Color.FromArgb(255, 0, 192, 0); // green
+        public static Color TRANSPARENCY = Color.FromArgb(255, 17, 146, 204); // ZAM transparency key
 
         public SplitsViewControl()
         {
@@ -278,7 +291,8 @@ namespace ZwiftActivityMonitor
                 TotalDistance = e.TotalDistanceStr,
                 TotalTime = e.TotalTimeStr,
                 Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
-                SplitsInKm = e.SplitsInKm
+                SplitsInKm = e.SplitsInKm,
+                AheadOfGoalTime = e.AheadOfGoalTime // null if not a goal based split
             };
 
             if (lvSplits.Items.ContainsKey(splitItem.SplitNumber))
@@ -289,11 +303,22 @@ namespace ZwiftActivityMonitor
             }
             else
             {
+                if (e.SplitNumber > 1)
+                {
+                    // remove any color coding from previous split
+                    string prevSplit = (e.SplitNumber - 1).ToString();
+                    if (lvSplits.Items.ContainsKey(prevSplit))
+                    {
+                        SplitListViewItem item = (SplitListViewItem)lvSplits.Items[prevSplit];
+                        item.ClearDeltaBackground();
+                    }
+                }
+
                 lvSplits.Items.Add(new SplitListViewItem(splitItem));
                 lvSplits.Sort();
             }
 
-            Logger.LogInformation($"SplitEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
+            //Logger.LogInformation($"SplitEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
         }
 
         
@@ -324,16 +349,8 @@ namespace ZwiftActivityMonitor
             if (!e.DeltaTime.HasValue)  // should always have a value as it's a goal split
                 return;
 
-            TimeSpan deltaTime = (TimeSpan)e.DeltaTime;
-
-            if (deltaTime.TotalSeconds < 0)
-            {
-                lvSplits.BackColor = Color.FromArgb(255, 192, 0, 0); // red
-            }
-            else
-            {
-                lvSplits.BackColor = Color.FromArgb(255, 0, 192, 0); // green
-            }
+            // Positive number is bad, negative good
+            lvSplits.BackColor = e.DeltaTime.Value.TotalSeconds >= 1 ? RED : GREEN;
 
             // when timer expires color will revert to normal
             this.backcolorTimer.Enabled = true;
