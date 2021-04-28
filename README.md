@@ -75,6 +75,7 @@ A default profile is provided for you, but you should configure it properly befo
 	<li>Name - Identifies the rider.</li>
 	<li>Weight - In Kilos or Pounds, preferably </li>
 	<li>FTP - From your last FTP test or the value that Zwift has.</li>
+	<li>Email Address - This allows you to email yourself the rider recap sheet.</li>
 	<li>Default moving average collector selection</li>
 </ol>
 
