@@ -3,7 +3,7 @@ Zwift Activity Monitor
 
 ## The Power is Within You
 
-This application allows Zwift users to monitor their moving average power and FTP in real-time.  It also provides valuable metrics to the rider such as average and normalized power (NP), intensity factor (IF), and total suffer score (TSS).  For the racer and time-trialist, there's also the ability to configure distance based splits with optional goals.  
+This application allows Zwift users to monitor their moving average power and FTP in real-time.  It also provides valuable metrics to the rider such as average and normalized power (NP), intensity factor (IF), and total stress score (TSS).  For the racer and time-trialist, there's also the ability to configure distance based splits with optional goals.  
 
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainView.png)
