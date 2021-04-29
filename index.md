@@ -5,6 +5,7 @@
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
 
 **Release 1.2.4.2 now available**
+
 Fixes some issues in the splits window when goals have been set.
 
 * It was pointed out that if you're riding AHEAD of your goal time, the delta value should be negative, not positive.
