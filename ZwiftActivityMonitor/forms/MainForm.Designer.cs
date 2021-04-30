@@ -32,8 +32,9 @@ namespace ZwiftActivityMonitor
             this.components = new System.ComponentModel.Container();
             this.pnTitle = new System.Windows.Forms.Panel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tsbSplits = new System.Windows.Forms.ToolStripButton();
             this.tsbAnalysis = new System.Windows.Forms.ToolStripButton();
+            this.tsbSplits = new System.Windows.Forms.ToolStripButton();
+            this.tsbLaps = new System.Windows.Forms.ToolStripButton();
             this.btnClose = new System.Windows.Forms.Button();
             this.lblTitle = new System.Windows.Forms.Label();
             this.pnMenu = new System.Windows.Forms.Panel();
@@ -67,8 +68,9 @@ namespace ZwiftActivityMonitor
             this.countdownTimer = new System.Windows.Forms.Timer(this.components);
             this.runTimer = new System.Windows.Forms.Timer(this.components);
             this.pViews = new System.Windows.Forms.Panel();
-            this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
             this.MainView = new ZwiftActivityMonitor.MainViewControl();
+            this.SplitsView = new ZwiftActivityMonitor.SplitsViewControl();
+            this.LapView = new ZwiftActivityMonitor.LapViewControl();
             this.postStartupTimer = new System.Windows.Forms.Timer(this.components);
             this.pnTitle.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -98,15 +100,26 @@ namespace ZwiftActivityMonitor
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Left;
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbAnalysis,
             this.tsbSplits,
-            this.tsbAnalysis});
+            this.tsbLaps});
             this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.toolStrip1.Size = new System.Drawing.Size(51, 26);
+            this.toolStrip1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.toolStrip1.Size = new System.Drawing.Size(79, 26);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbAnalysis
+            // 
+            this.tsbAnalysis.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAnalysis.Image = global::ZwiftActivityMonitor.Properties.Resources.analytics;
+            this.tsbAnalysis.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAnalysis.Name = "tsbAnalysis";
+            this.tsbAnalysis.Size = new System.Drawing.Size(23, 23);
+            this.tsbAnalysis.Text = "Analysis View";
+            this.tsbAnalysis.Click += new System.EventHandler(this.tsbAnalysis_Click);
             // 
             // tsbSplits
             // 
@@ -118,15 +131,15 @@ namespace ZwiftActivityMonitor
             this.tsbSplits.Text = "Splits View";
             this.tsbSplits.Click += new System.EventHandler(this.tsbSplits_Click);
             // 
-            // tsbAnalysis
+            // tsbLaps
             // 
-            this.tsbAnalysis.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAnalysis.Image = global::ZwiftActivityMonitor.Properties.Resources.analytics;
-            this.tsbAnalysis.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbAnalysis.Name = "tsbAnalysis";
-            this.tsbAnalysis.Size = new System.Drawing.Size(23, 23);
-            this.tsbAnalysis.Text = "Analysis View";
-            this.tsbAnalysis.Click += new System.EventHandler(this.tsbAnalysis_Click);
+            this.tsbLaps.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbLaps.Image = global::ZwiftActivityMonitor.Properties.Resources.stopwatch;
+            this.tsbLaps.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLaps.Name = "tsbLaps";
+            this.tsbLaps.Size = new System.Drawing.Size(23, 23);
+            this.tsbLaps.Text = "Lap View";
+            this.tsbLaps.Click += new System.EventHandler(this.tsbLaps_Click);
             // 
             // btnClose
             // 
@@ -420,29 +433,39 @@ namespace ZwiftActivityMonitor
             // 
             // pViews
             // 
-            this.pViews.Controls.Add(this.SplitsView);
             this.pViews.Controls.Add(this.MainView);
+            this.pViews.Controls.Add(this.SplitsView);
+            this.pViews.Controls.Add(this.LapView);
             this.pViews.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pViews.Location = new System.Drawing.Point(0, 50);
             this.pViews.Name = "pViews";
             this.pViews.Size = new System.Drawing.Size(334, 153);
             this.pViews.TabIndex = 2;
             // 
-            // SplitsView
-            // 
-            this.SplitsView.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.SplitsView.Location = new System.Drawing.Point(0, 130);
-            this.SplitsView.Name = "SplitsView";
-            this.SplitsView.Size = new System.Drawing.Size(334, 23);
-            this.SplitsView.TabIndex = 1;
-            // 
             // MainView
             // 
             this.MainView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainView.Location = new System.Drawing.Point(0, 0);
+            this.MainView.Margin = new System.Windows.Forms.Padding(0);
             this.MainView.Name = "MainView";
             this.MainView.Size = new System.Drawing.Size(334, 153);
             this.MainView.TabIndex = 0;
+            // 
+            // SplitsView
+            // 
+            this.SplitsView.Location = new System.Drawing.Point(0, -23);
+            this.SplitsView.Margin = new System.Windows.Forms.Padding(0);
+            this.SplitsView.Name = "SplitsView";
+            this.SplitsView.Size = new System.Drawing.Size(334, 23);
+            this.SplitsView.TabIndex = 1;
+            // 
+            // LapView
+            // 
+            this.LapView.Location = new System.Drawing.Point(0, 0);
+            this.LapView.Margin = new System.Windows.Forms.Padding(0);
+            this.LapView.Name = "LapView";
+            this.LapView.Size = new System.Drawing.Size(334, 66);
+            this.LapView.TabIndex = 2;
             // 
             // postStartupTimer
             // 
@@ -522,5 +545,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ToolStripButton tsbSplits;
         private System.Windows.Forms.Timer postStartupTimer;
         private System.Windows.Forms.ToolStripMenuItem tsmi6min;
+        private System.Windows.Forms.ToolStripButton tsbLaps;
+        private LapViewControl LapView;
     }
 }

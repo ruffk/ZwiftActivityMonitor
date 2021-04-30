@@ -210,7 +210,7 @@ namespace ZwiftActivityMonitor
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainViewControl>();
 
             // NormalizedPower is instantiated here rather than constructor because it was preventing ability to drag/drop control on to a form.
-            // This was because it creates a Logger in its constructor and the LoggerFactor isn't of course available.
+            // This was because it creates a Logger in its constructor and the LoggerFactory isn't of course available.
             m_normalizedPower = new NormalizedPower();
             m_normalizedPower.NormalizedPowerChangedEvent += NormalizedPowerChangedEventHandler;
             m_normalizedPower.MetricsChangedEvent += MetricsChangedEventHandler;
