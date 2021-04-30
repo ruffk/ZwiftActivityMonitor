@@ -65,9 +65,12 @@ namespace ZwiftActivityMonitor
 
             // Make sure the analysis control is shown
             SplitsView.SendToBack();
-            SplitsView.Dock = DockStyle.Fill;
+            LapView.SendToBack();
+
             MainView.BringToFront();
             MainView.Dock = DockStyle.Fill;
+            SplitsView.Dock = DockStyle.Fill;
+            LapView.Dock = DockStyle.Fill;
 
             SplitsView.SplitGoalCompletedEvent += SplitCompletedEventHandler;
             SplitsView.SplitCompletedEvent += SplitCompletedEventHandler;
@@ -185,6 +188,7 @@ namespace ZwiftActivityMonitor
 
                 MainView.StartCollection();
                 SplitsView.StartCollection();
+                LapView.StartCollection();
 
                 m_collectionStart = DateTime.Now;
                 runTimer.Enabled = true;
@@ -234,6 +238,7 @@ namespace ZwiftActivityMonitor
                 {
                     MainView.StopCollection();
                     SplitsView.StopCollection();
+                    LapView.StopCollection();
 
                     runTimer.Enabled = false;
                 }
@@ -264,6 +269,7 @@ namespace ZwiftActivityMonitor
                 // Clear any values on the screen
                 MainView.RefreshListViews(true);
                 SplitsView.ClearListView();
+                LapView.ClearListView();
 
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
@@ -312,6 +318,7 @@ namespace ZwiftActivityMonitor
                     // Clear any values on the screen
                     MainView.RefreshListViews(true);
                     SplitsView.ClearListView();
+                    LapView.ClearListView();
 
                     tsmiSetupTimer.Enabled = false;
                     tsmiStopTimer.Enabled = true;
@@ -337,6 +344,7 @@ namespace ZwiftActivityMonitor
         {
             MainView.RefreshListViews(true);
             SplitsView.ClearListView();
+            LapView.ClearListView();
 
             // Remove all moving average collectors and ListView items
             MainView.ClearViewerItems();
@@ -616,7 +624,7 @@ namespace ZwiftActivityMonitor
         private void tsbAnalysis_Click(object sender, EventArgs e)
         {
             SplitsView.SendToBack();
-            //SplitsView.Dock = DockStyle.None;
+            LapView.SendToBack();
             MainView.BringToFront();
             MainView.Dock = DockStyle.Fill;
         }
@@ -624,9 +632,17 @@ namespace ZwiftActivityMonitor
         private void tsbSplits_Click(object sender, EventArgs e)
         {
             MainView.SendToBack();
-            //MainView.Dock = DockStyle.None;
+            LapView.SendToBack();
             SplitsView.BringToFront();
             SplitsView.Dock = DockStyle.Fill;
+        }
+
+        private void tsbLaps_Click(object sender, EventArgs e)
+        {
+            MainView.SendToBack();
+            SplitsView.SendToBack();
+            LapView.BringToFront();
+            LapView.Dock = DockStyle.Fill;
         }
 
         private bool IsControlAtFront(Control control)
