@@ -15,6 +15,12 @@ namespace ZwiftActivityMonitor
         public int Distance { get; }
         public int Time { get; }
         public long WorldTime { get; }
+        public int RoadId { get; }
+        public bool IsForward { get; }
+        public int Course { get; }
+        public int RoadTime { get; }
+        //public int RoadPosition { get; }
+        public int WatchingRiderId { get; }
 
         public RiderStateEventArgs(PlayerStateEventArgs e)
         {
@@ -24,6 +30,14 @@ namespace ZwiftActivityMonitor
             this.Distance = e.PlayerState.Distance;
             this.Time = e.PlayerState.Time;
             this.WorldTime = e.PlayerState.WorldTime;
+            this.RoadTime = e.PlayerState.RoadTime;
+            //this.RoadPosition = e.PlayerState.RoadPosition;
+            this.WatchingRiderId = e.PlayerState.WatchingRiderId;
+
+            // credit for decoding these goes to zoffline/zwift-offline/standalone.py
+            this.RoadId = (e.PlayerState.F20 & 0xFF00) >> 8;
+            this.IsForward = (e.PlayerState.F19 & 0x04) != 0;
+            this.Course = (e.PlayerState.F19 & 0xFF0000) >> 16;
         }
     }
 
@@ -259,6 +273,7 @@ namespace ZwiftActivityMonitor
                         else // randomly choose, not recommended
                         { 
                             m_trackedPlayerId = e.PlayerState.Id;
+                            //m_trackedPlayerId = 98597;
                         }
                     }
 
@@ -270,6 +285,7 @@ namespace ZwiftActivityMonitor
                 else
                 {
                     //Logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
+
                 }
 
                 // Capture the latest PlayerState.Time value.  This corresponds to the elapsed time the player sees on screen.
@@ -310,11 +326,11 @@ namespace ZwiftActivityMonitor
             {
                 if (m_debugMode)
                 {
-                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {riderState.Id}, Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}");
+                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {riderState.Id}, Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
                 }
                 else
                 {
-                    Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}");
+                    Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
                 }
 
                 m_eventsProcessed++;

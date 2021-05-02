@@ -89,9 +89,9 @@ namespace ZwiftActivityMonitor
             public string LapNumber { get; set; }
             public string Time { get; set; } = "";
             public string Speed { get; set; } = "";
-            public string TotalDistance { get; set; } = "";
+            public string Distance { get; set; } = "";
+            public string AvgPower { get; set; } = "";
             public string TotalTime { get; set; } = "";
-            public string Delta { get; set; } = "";
             public bool LapsInKm { get; set; }
 
             public LapItem(int LapNumber)
@@ -104,9 +104,9 @@ namespace ZwiftActivityMonitor
                 this.LapNumber = "";
                 this.Time = "";
                 this.Speed = "";
-                this.TotalDistance = "";
+                this.Distance = "";
+                this.AvgPower = "";
                 this.TotalTime = "";
-                this.Delta = "";
             }
         }
 
@@ -134,9 +134,9 @@ namespace ZwiftActivityMonitor
                     item.LapNumber,
                     item.Time,
                     item.Speed,
-                    item.TotalDistance,
+                    item.Distance,
+                    item.AvgPower,
                     item.TotalTime,
-                    item.Delta
                 });
             }
 
@@ -166,6 +166,8 @@ namespace ZwiftActivityMonitor
             InitializeComponent();
 
             m_LapsManager = new LapsManager();
+            m_LapsManager.LapUpdatedEvent += this.LapEventHandler;
+
 
             // When goal Laps complete, either Red or Green will show in background for this period
             //backcolorTimer.Interval = 2000;
@@ -200,14 +202,14 @@ namespace ZwiftActivityMonitor
         {
             this.lvLaps.Items.Clear();
 
-            m_LapsManager.Start();
+            m_LapsManager.BeginLapMonitoring();
 
             //lblGoalSpeed.Text = m_LapsManager.GoalText;
         }
 
         public void StopCollection()
         {
-            m_LapsManager.Stop();
+            m_LapsManager.EndLapMonitoring();
         }
 
         private void OnCollectionStatusChanged()
@@ -221,54 +223,53 @@ namespace ZwiftActivityMonitor
             //lblGoalSpeed.Text = "";
         }
 
-        
-        ///// <summary>
-        ///// A delegate used solely by the LapEventHandler
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private delegate void LapEventHandlerDelegate(object sender, LapsManager.LapEventArgs e);
 
-        ///// <summary>
-        ///// Occurs each time a lap gets updated or completes.  Allows for UI update by marshalling the call accordingly.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void LapEventHandler(object sender, LapsManager.LapEventArgs e)
-        //{
-        //    if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
-        //    {
-        //        // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-        //        m_dispatcher.BeginInvoke(new LapEventHandlerDelegate(LapEventHandler), new object[] { sender, e });
-        //        return;
-        //    }
+        /// <summary>
+        /// A delegate used solely by the LapEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void LapEventHandlerDelegate(object sender, LapsManager.LapEventArgs e);
 
-        //    LapItem LapItem = new LapItem(e.LapNumber)
-        //    {
-        //        LapNumber = e.LapNumberStr,
-        //        Time = e.LapTimeStr,
-        //        Speed = e.LapSpeedStr,
-        //        TotalDistance = e.TotalDistanceStr,
-        //        TotalTime = e.TotalTimeStr,
-        //        Delta = e.DeltaTimeStr,  // will return empty string if not a goal based Lap
-        //        LapsInKm = e.LapsInKm
-        //    };
+        /// <summary>
+        /// Occurs each time a lap gets updated or completes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LapEventHandler(object sender, LapsManager.LapEventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new LapEventHandlerDelegate(LapEventHandler), new object[] { sender, e });
+                return;
+            }
 
-        //    if (lvLaps.Items.ContainsKey(LapItem.LapNumber))
-        //    {
-        //        LapListViewItem item = (LapListViewItem)lvLaps.Items[LapItem.LapNumber];
-        //        item.LapItem = LapItem; // Replace with current LapItem object and refresh
-        //        item.Refresh();
-        //    }
-        //    else
-        //    {
-        //        lvLaps.Items.Add(new LapListViewItem(LapItem));
-        //        lvLaps.Sort();
-        //    }
+            LapItem LapItem = new LapItem(e.LapNumber)
+            {
+                LapNumber = e.LapNumberStr,
+                Time = e.LapTimeStr,
+                Speed = e.LapSpeedStr,
+                Distance = e.LapDistanceStr,
+                AvgPower = e.LapAvgPowerStr,
+                TotalTime = e.TotalTimeStr,
+                LapsInKm = e.LapsInKm
+            };
 
-        //    Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.Time}, {LapItem.Speed}, {LapItem.TotalDistance}, {LapItem.TotalTime}");
-        //}
+            if (lvLaps.Items.ContainsKey(LapItem.LapNumber))
+            {
+                LapListViewItem item = (LapListViewItem)lvLaps.Items[LapItem.LapNumber];
+                item.LapItem = LapItem; // Replace with current LapItem object and refresh
+                item.Refresh();
+            }
+            else
+            {
+                lvLaps.Items.Add(new LapListViewItem(LapItem));
+                lvLaps.Sort();
+            }
 
+            Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.Time}, {LapItem.Speed}, {LapItem.Distance}, {LapItem.TotalTime}");
+        }
 
         /// <summary>
         /// When timer fires revert backcolor to normal.
@@ -310,5 +311,15 @@ namespace ZwiftActivityMonitor
 
         #endregion
 
+        private void tsbReset_Click(object sender, EventArgs e)
+        {
+            m_LapsManager.Reset();
+            this.ClearListView();
+        }
+
+        private void tsbLap_Click(object sender, EventArgs e)
+        {
+            m_LapsManager.BeginNewLap();
+        }
     }
 }

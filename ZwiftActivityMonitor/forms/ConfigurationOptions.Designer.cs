@@ -39,14 +39,17 @@ namespace ZwiftActivityMonitor
             this.ucStatistics = new ZwiftActivityMonitor.StatisticsControl();
             this.tpSplits = new System.Windows.Forms.TabPage();
             this.ucSplits = new ZwiftActivityMonitor.SplitsConfigControl();
+            this.tpLaps = new System.Windows.Forms.TabPage();
             this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ucLaps = new ZwiftActivityMonitor.LapConfigControl();
             this.tabOptions.SuspendLayout();
             this.tpSystem.SuspendLayout();
             this.tpUserProfiles.SuspendLayout();
             this.tpCollectors.SuspendLayout();
             this.tpSplits.SuspendLayout();
+            this.tpLaps.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -57,6 +60,7 @@ namespace ZwiftActivityMonitor
             this.tabOptions.Controls.Add(this.tpUserProfiles);
             this.tabOptions.Controls.Add(this.tpCollectors);
             this.tabOptions.Controls.Add(this.tpSplits);
+            this.tabOptions.Controls.Add(this.tpLaps);
             this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabOptions.Location = new System.Drawing.Point(0, 0);
             this.tabOptions.Name = "tabOptions";
@@ -152,6 +156,17 @@ namespace ZwiftActivityMonitor
             this.ucSplits.Size = new System.Drawing.Size(584, 548);
             this.ucSplits.TabIndex = 0;
             // 
+            // tpLaps
+            // 
+            this.tpLaps.BackColor = System.Drawing.SystemColors.Control;
+            this.tpLaps.Controls.Add(this.ucLaps);
+            this.tpLaps.Location = new System.Drawing.Point(4, 24);
+            this.tpLaps.Name = "tpLaps";
+            this.tpLaps.Padding = new System.Windows.Forms.Padding(3);
+            this.tpLaps.Size = new System.Drawing.Size(590, 554);
+            this.tpLaps.TabIndex = 7;
+            this.tpLaps.Text = "Laps";
+            // 
             // errorProvider
             // 
             this.errorProvider.ContainerControl = this;
@@ -171,6 +186,16 @@ namespace ZwiftActivityMonitor
             // 
             this.tsslStatus.Name = "tsslStatus";
             this.tsslStatus.Size = new System.Drawing.Size(0, 17);
+            // 
+            // ucLaps
+            // 
+            this.ucLaps.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
+            this.ucLaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucLaps.Location = new System.Drawing.Point(3, 3);
+            this.ucLaps.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
+            this.ucLaps.Name = "ucLaps";
+            this.ucLaps.Size = new System.Drawing.Size(584, 548);
+            this.ucLaps.TabIndex = 0;
             // 
             // ConfigurationOptions
             // 
@@ -193,6 +218,7 @@ namespace ZwiftActivityMonitor
             this.tpUserProfiles.ResumeLayout(false);
             this.tpCollectors.ResumeLayout(false);
             this.tpSplits.ResumeLayout(false);
+            this.tpLaps.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
@@ -215,5 +241,7 @@ namespace ZwiftActivityMonitor
         private SystemControl ucSystem;
         private System.Windows.Forms.TabPage tpSplits;
         private SplitsConfigControl ucSplits;
+        private System.Windows.Forms.TabPage tpLaps;
+        private LapConfigControl ucLaps;
     }
 }

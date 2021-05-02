@@ -29,7 +29,7 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "88",
             "8:88:88",
@@ -37,7 +37,7 @@ namespace ZwiftActivityMonitor
             "888.8",
             "888",
             "88:88:88"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font("Franklin Gothic Demi Cond", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point));
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "2",
             "8:88:88",
@@ -45,7 +45,7 @@ namespace ZwiftActivityMonitor
             "888.8",
             "888",
             "88:88:88"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "1",
             "8:88:88",
@@ -64,13 +64,13 @@ namespace ZwiftActivityMonitor
             this.chTime2 = new System.Windows.Forms.ColumnHeader();
             this.chBlank = new System.Windows.Forms.ColumnHeader();
             this.pChartTitle = new System.Windows.Forms.Panel();
+            this.lblSplit = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbStart = new System.Windows.Forms.ToolStripButton();
             this.tsbStop = new System.Windows.Forms.ToolStripButton();
             this.tsbLap = new System.Windows.Forms.ToolStripButton();
             this.tsbReset = new System.Windows.Forms.ToolStripButton();
             this.label7 = new System.Windows.Forms.Label();
-            this.lblSplit = new System.Windows.Forms.Label();
             this.pSplitChartFooter = new System.Windows.Forms.Panel();
             this.lblGoalSpeed = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
@@ -109,9 +109,9 @@ namespace ZwiftActivityMonitor
             this.lvLaps.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvLaps.HideSelection = false;
             this.lvLaps.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3});
+            listViewItem4,
+            listViewItem5,
+            listViewItem6});
             this.lvLaps.Location = new System.Drawing.Point(0, 0);
             this.lvLaps.MultiSelect = false;
             this.lvLaps.Name = "lvLaps";
@@ -186,6 +186,16 @@ namespace ZwiftActivityMonitor
             this.pChartTitle.Size = new System.Drawing.Size(334, 22);
             this.pChartTitle.TabIndex = 1;
             // 
+            // lblSplit
+            // 
+            this.lblSplit.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblSplit.Location = new System.Drawing.Point(89, 2);
+            this.lblSplit.Name = "lblSplit";
+            this.lblSplit.Size = new System.Drawing.Size(96, 19);
+            this.lblSplit.TabIndex = 90;
+            this.lblSplit.Text = "Lap";
+            this.lblSplit.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            // 
             // toolStrip1
             // 
             this.toolStrip1.AutoSize = false;
@@ -234,6 +244,7 @@ namespace ZwiftActivityMonitor
             this.tsbLap.Name = "tsbLap";
             this.tsbLap.Size = new System.Drawing.Size(22, 22);
             this.tsbLap.Text = "Begin new lap";
+            this.tsbLap.Click += new System.EventHandler(this.tsbLap_Click);
             // 
             // tsbReset
             // 
@@ -244,6 +255,7 @@ namespace ZwiftActivityMonitor
             this.tsbReset.Name = "tsbReset";
             this.tsbReset.Size = new System.Drawing.Size(22, 22);
             this.tsbReset.Text = "Reset lap counter";
+            this.tsbReset.Click += new System.EventHandler(this.tsbReset_Click);
             // 
             // label7
             // 
@@ -254,16 +266,6 @@ namespace ZwiftActivityMonitor
             this.label7.TabIndex = 91;
             this.label7.Text = "Total";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            // 
-            // lblSplit
-            // 
-            this.lblSplit.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblSplit.Location = new System.Drawing.Point(89, 2);
-            this.lblSplit.Name = "lblSplit";
-            this.lblSplit.Size = new System.Drawing.Size(96, 19);
-            this.lblSplit.TabIndex = 90;
-            this.lblSplit.Text = "Lap";
-            this.lblSplit.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // pSplitChartFooter
             // 
