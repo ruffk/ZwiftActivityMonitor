@@ -42,17 +42,22 @@ namespace ZwiftActivityMonitor
             if (m_isUserControlLoaded)
                 return;
 
-            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsConfigControl>();
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<LapConfigControl>();
 
             cbDistanceUom.BeginUpdate();
             cbDistanceUom.Items.Clear();
-            cbDistanceUom.Items.AddRange(new string[] { "km", "mi" });
+            //cbDistanceUom.Items.AddRange(new string[] { "km", "mi" });
+            cbDistanceUom.Items.AddRange(ZAMsettings.Settings.Laps.TriggerDistanceUomItems);
             cbDistanceUom.EndUpdate();
 
             cbPosition.BeginUpdate();
             cbPosition.Items.Clear();
-            cbPosition.Items.AddRange(new string[] { "Start and Lap Button", "Lap Button Only" });
+            //cbPosition.Items.AddRange(new string[] { "Start and Lap Button", "Lap Button Only" });
+            cbPosition.Items.AddRange(ZAMsettings.Settings.Laps.TriggerPositionItems);
             cbPosition.EndUpdate();
+
+            rbManual.Tag = Lap.LapStyleType.Manual;
+            rbAutomatic.Tag = Lap.LapStyleType.Automatic;
 
             // initialize
             EditingSystemSettings = false;
@@ -78,28 +83,20 @@ namespace ZwiftActivityMonitor
 
         private void SystemSettings_LoadFields()
         {
-            //ckbShowSplits.Checked = ZAMsettings.Settings.Splits.ShowSplits;
+            tbDistance.Text = ZAMsettings.Settings.Laps.TriggerDistance.ToString();
 
-            //tbSplitDistance.Text = ZAMsettings.Settings.Splits.SplitDistance.ToString();
-            
-            //foreach (string item in cbSplitUom.Items)
-            //    if (item == ZAMsettings.Settings.Splits.SplitUom)
-            //    {
-            //        cbSplitUom.SelectedItem = item;
-            //        break;
-            //    }
+            if (cbDistanceUom.Items.Contains(ZAMsettings.Settings.Laps.TriggerDistanceUom))
+                cbDistanceUom.SelectedItem = ZAMsettings.Settings.Laps.TriggerDistanceUom;
 
-            //lblGoalDistanceUom.Text = ZAMsettings.Settings.Splits.SplitUom;
+            tbHrs.Text = ZAMsettings.Settings.Laps.TriggerHours.ToString();
+            tbMins.Text = ZAMsettings.Settings.Laps.TriggerMinutes.ToString();
+            tbSecs.Text = ZAMsettings.Settings.Laps.TriggerSeconds.ToString();
 
-            //ckbCalculateGoal.Checked = ZAMsettings.Settings.Splits.CalculateGoal;
+            if (cbPosition.Items.Contains(ZAMsettings.Settings.Laps.TriggerPosition))
+                cbPosition.SelectedItem = ZAMsettings.Settings.Laps.TriggerPosition;
 
-            //tbGoalHrs.Text = ZAMsettings.Settings.Splits.GoalHours.ToString();
-            //tbGoalMins.Text = ZAMsettings.Settings.Splits.GoalMinutes.ToString();
-            //tbGoalSecs.Text = ZAMsettings.Settings.Splits.GoalSeconds.ToString();
-            //tbGoalDistance.Text = ZAMsettings.Settings.Splits.GoalDistance.ToString();
-
-            //this.LoadSplitChart();
-
+            rbManual.Checked = (Lap.LapStyleType)rbManual.Tag == ZAMsettings.Settings.Laps.LapStyleSetting;
+            rbAutomatic.Checked = (Lap.LapStyleType)rbAutomatic.Tag == ZAMsettings.Settings.Laps.LapStyleSetting;
         }
 
 
@@ -107,22 +104,19 @@ namespace ZwiftActivityMonitor
         {
             set
             {
-                //btnEditSettings.Enabled = !value;
-                //btnSaveSettings.Enabled = value;
-                //btnCancelSettings.Enabled = value;
+                btnEditSettings.Enabled = !value;
+                btnSaveSettings.Enabled = value;
+                btnCancelSettings.Enabled = value;
 
-                //ckbShowSplits.Enabled = value;
-                //lblSplitsEvery.Enabled = value;
-                //tbSplitDistance.Enabled = value;
-                //cbSplitUom.Enabled = value;
+                rbManual.Enabled = value;
+                rbAutomatic.Enabled = value;
 
-                //ckbCalculateGoal.Enabled = value;
-                //lblGoalTime.Enabled = value;
-                //tbGoalHrs.Enabled = value;
-                //tbGoalMins.Enabled = value;
-                //tbGoalSecs.Enabled = value;
-                //lblGoalDistance.Enabled = value;
-                //tbGoalDistance.Enabled = value;
+                tbDistance.Enabled = value;
+                cbDistanceUom.Enabled = value;
+                tbHrs.Enabled = value;
+                tbMins.Enabled = value;
+                tbSecs.Enabled = value;
+                cbPosition.Enabled = value;
 
                 m_editMode = value;
             }
@@ -140,24 +134,20 @@ namespace ZwiftActivityMonitor
         {
             bool errorOccurred = false;
 
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.ckbShowSplits));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbSplitDistance));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.cbSplitUom));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.ckbCalculateGoal));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbGoalHrs));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbGoalMins));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbGoalSecs));
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbGoalDistance));
-
-            //// Check to make sure selections / values all make sense
-            //errorOccurred = (errorOccurred || ValidateSystemSettings(this.lvSplits));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbManual));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbAutomatic));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.cbDistanceUom));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.cbPosition));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbDistance));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbHrs));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbMins));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbSecs));
 
             if (!errorOccurred)
             {
                 ZAMsettings.CommitCachedConfiguration();
                 EditingSystemSettings = false;
             }
-
         }
 
         private void btnCancelSettings_Click(object sender, EventArgs e)
@@ -185,98 +175,112 @@ namespace ZwiftActivityMonitor
 
             switch (control.Name)
             {
-                //case "tbDistance":
-                //    try
-                //    {
-                //        tbSplitDistance.Text = tbSplitDistance.Text.Trim();
-                //        ZAMsettings.Settings.Splits.SplitDistance = int.Parse(tbSplitDistance.Text == "" ? "0" : tbSplitDistance.Text);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "tbDistance":
+                    try
+                    {
+                        tbDistance.Text = tbDistance.Text.Trim();
+                        ZAMsettings.Settings.Laps.TriggerDistance = int.Parse(tbDistance.Text == "" ? "0" : tbDistance.Text);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
-                //case "cbDistanceUom":
-                //    try
-                //    {
-                //        if (cbSplitUom.SelectedItem != null)
-                //        {
-                //            ZAMsettings.Settings.Splits.SplitUom = (string)cbSplitUom.SelectedItem;
-                //        }
-                //        else
-                //        {
-                //            throw new ApplicationException("Please select a distance unit of measure.");
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "cbDistanceUom":
+                    try
+                    {
+                        if (cbDistanceUom.SelectedItem != null)
+                        {
+                            ZAMsettings.Settings.Laps.TriggerDistanceUomSetting = (cbDistanceUom.SelectedItem as KeyStringPair<Lap.DistanceUomType>).Key;
+                        }
+                        else
+                        {
+                            throw new ApplicationException("Please select a distance unit of measure.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
-                //case "tbHrs":
-                //    try
-                //    {
-                //        tbGoalHrs.Text = tbGoalHrs.Text.Trim();
-                //        ZAMsettings.Settings.Splits.GoalHours = int.Parse(tbGoalHrs.Text == "" ? "0" : tbGoalHrs.Text);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "cbPosition":
+                    try
+                    {
+                        if (cbPosition.SelectedItem != null)
+                        {
+                            ZAMsettings.Settings.Laps.TriggerPositionSetting = (cbPosition.SelectedItem as KeyStringPair<Lap.TriggerPositionType>).Key;
+                        }
+                        else
+                        {
+                            throw new ApplicationException("Please select a distance unit of measure.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
-                //case "tbMins":
-                //    try
-                //    {
-                //        tbGoalMins.Text = tbGoalMins.Text.Trim();
-                //        ZAMsettings.Settings.Splits.GoalMinutes = int.Parse(tbGoalMins.Text == "" ? "0" : tbGoalMins.Text);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "tbHrs":
+                    try
+                    {
+                        tbHrs.Text = tbHrs.Text.Trim();
+                        ZAMsettings.Settings.Laps.TriggerHours = int.Parse(tbHrs.Text == "" ? "0" : tbHrs.Text);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
-                //case "tbSecs":
-                //    try
-                //    {
-                //        tbGoalSecs.Text = tbGoalSecs.Text.Trim();
-                //        ZAMsettings.Settings.Splits.GoalSeconds = int.Parse(tbGoalSecs.Text == "" ? "0" : tbGoalSecs.Text);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "tbMins":
+                    try
+                    {
+                        tbMins.Text = tbMins.Text.Trim();
+                        ZAMsettings.Settings.Laps.TriggerMinutes = int.Parse(tbMins.Text == "" ? "0" : tbMins.Text);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
-                //case "cbPosition":
-                //    try
-                //    {
-                //        if (cbSplitUom.SelectedItem != null)
-                //        {
-                //            ZAMsettings.Settings.Splits.SplitUom = (string)cbSplitUom.SelectedItem;
-                //        }
-                //        else
-                //        {
-                //            throw new ApplicationException("Please select a distance unit of measure.");
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        errorProvider.SetError(control, ex.Message);
-                //        errorOccurred = true;
-                //    }
-                //    break;
+                case "tbSecs":
+                    try
+                    {
+                        tbSecs.Text = tbSecs.Text.Trim();
+                        ZAMsettings.Settings.Laps.TriggerSeconds = int.Parse(tbSecs.Text == "" ? "0" : tbSecs.Text);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
+
+                case "rbManual":
+                case "rbAutomatic":
+                    try
+                    {
+                        if ((control as RadioButton).Checked)
+                            ZAMsettings.Settings.Laps.LapStyleSetting = (Lap.LapStyleType)control.Tag;
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
 
                 default:
-                    //Debug.Assert(1 == 0, $"Unknown control {control.Name} passed to validate method.");
+                    Debug.Assert(1 == 0, $"Unknown control {control.Name} passed to validate method.");
                     break;
             }
 

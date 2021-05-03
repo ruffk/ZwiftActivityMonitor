@@ -80,11 +80,11 @@ namespace ZwiftActivityMonitor
 
         public bool WeightInKgs
         {
-            get 
+            get
             {
                 return m_weightInKgs;
             }
-            set 
+            set
             {
                 m_weightInKgs = value;
 
@@ -124,7 +124,7 @@ namespace ZwiftActivityMonitor
             get
             {
                 this.WeightInKgs = m_weightInKgs; // fixup weight if necessary
-                
+
                 return m_weight;
             }
 
@@ -219,6 +219,249 @@ namespace ZwiftActivityMonitor
             return $"{m_network} ({m_ip_address})";
         }
     }
+
+    #endregion
+
+    public class KeyStringPair<TKey>
+    {
+        public TKey Key { get; }
+        public string Value { get; }
+
+        public KeyStringPair(TKey key, string value)
+        {
+            this.Key = key;
+            this.Value = value;
+        }
+
+        //public override bool Equals(object obj)
+        //{
+        //    KeyStringPair<TKey> k = obj as KeyStringPair<TKey>;
+
+        //    if (k != null)
+        //    {
+        //        if (this.Key.Equals(k.Key))
+        //            return true;
+        //    }
+        //    return false;
+        //}
+
+        public override string ToString()
+        {
+            return this.Value;
+        }
+
+        //public override int GetHashCode()
+        //{
+        //    throw new NotImplementedException();
+        //}
+    }
+
+    #region Laps
+
+    public class Lap : ICloneable
+    {
+        public enum DistanceUomType { Kilometers, Miles }
+        public enum TriggerPositionType { StartAndLapButton, LapButtonOnly }
+        public enum LapStyleType { Manual, Automatic }
+        public enum LapTriggerType { Distance, Time, Position }
+
+        public KeyStringPair<LapStyleType> LapStyle { get; internal set; }
+        public KeyStringPair<DistanceUomType> TriggerDistanceUom { get; internal set; }
+        public KeyStringPair<TriggerPositionType> TriggerPosition { get; internal set; }
+        public KeyStringPair<LapTriggerType> LapTrigger { get; internal set; }
+
+        private double m_triggerDistance = 5.0;
+        private int m_triggerHours;
+        private int m_triggerMinutes = 10;
+        private int m_triggerSeconds;
+
+
+        private readonly Dictionary<DistanceUomType, KeyStringPair<DistanceUomType>> m_uomItemList = new();
+        private readonly Dictionary<TriggerPositionType, KeyStringPair<TriggerPositionType>> m_positionItemList = new();
+        private readonly Dictionary<LapStyleType, KeyStringPair<LapStyleType>> m_lapStyleList = new();
+        private readonly Dictionary<LapTriggerType, KeyStringPair<LapTriggerType>> m_lapTriggerList = new();
+
+        public Lap()
+        {
+            m_uomItemList.Add(DistanceUomType.Kilometers, new (DistanceUomType.Kilometers, "km"));
+            m_uomItemList.Add(DistanceUomType.Miles, new (DistanceUomType.Miles, "mi"));
+
+            TriggerDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
+
+            m_positionItemList.Add(TriggerPositionType.StartAndLapButton, new (TriggerPositionType.StartAndLapButton, "Start and Lap Button"));
+            m_positionItemList.Add(TriggerPositionType.LapButtonOnly, new (TriggerPositionType.LapButtonOnly, "Lap Button Only"));
+
+            TriggerPosition = m_positionItemList[TriggerPositionType.StartAndLapButton]; // default
+
+            m_lapStyleList.Add(LapStyleType.Manual, new(LapStyleType.Manual, "Manual"));
+            m_lapStyleList.Add(LapStyleType.Automatic, new(LapStyleType.Automatic, "Automatic"));
+
+            LapStyle = m_lapStyleList[LapStyleType.Automatic]; // default
+
+            m_lapTriggerList.Add(LapTriggerType.Distance, new(LapTriggerType.Distance, "Distance"));
+            m_lapTriggerList.Add(LapTriggerType.Time, new(LapTriggerType.Time, "Time"));
+            m_lapTriggerList.Add(LapTriggerType.Position, new(LapTriggerType.Position, "Position"));
+
+            LapTrigger = m_lapTriggerList[LapTriggerType.Position]; // default
+        }
+
+        /// <summary>
+        /// ComboBox items
+        /// </summary>
+        [JsonIgnore]
+        public KeyStringPair<DistanceUomType>[] TriggerDistanceUomItems
+        {
+            get
+            {
+                return m_uomItemList.Values.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// ComboBox items
+        /// </summary>
+        [JsonIgnore]
+        public KeyStringPair<TriggerPositionType>[] TriggerPositionItems
+        {
+            get
+            {
+                return m_positionItemList.Values.ToArray();
+            }
+        }
+
+        public double TriggerDistance
+        {
+            get { return m_triggerDistance; }
+
+            set
+            {
+                if (value < 1 || value > 999)
+                    throw new FormatException("Trigger distance value must be between 1 and 999.");
+
+                m_triggerDistance = value;
+            }
+        }
+
+        [JsonIgnore]
+        public bool TriggerDistanceInKm
+        {
+            get { return TriggerDistanceUom.Key == DistanceUomType.Kilometers; }
+        }
+
+        [JsonIgnore]
+        public double TriggerDistanceAsKm
+        {
+            get { return TriggerDistanceInKm ? m_triggerDistance : m_triggerDistance * 1.609; }
+        }
+
+        [JsonIgnore]
+        public int TriggerDistanceAsMeters
+        {
+            get { return (int)Math.Round(TriggerDistanceAsKm * 1000, 0); }
+        }
+
+        [JsonIgnore]
+        public DistanceUomType TriggerDistanceUomSetting
+        {
+            get { return TriggerDistanceUom.Key; }
+            set
+            {
+                if (!m_uomItemList.ContainsKey(value))
+                    throw new FormatException("DistanceUomType key not found.");
+
+                TriggerDistanceUom = m_uomItemList[value];
+            }
+        }
+
+        [JsonIgnore]
+        public TriggerPositionType TriggerPositionSetting
+        {
+            get { return TriggerPosition.Key; }
+            set
+            {
+                if (!m_positionItemList.ContainsKey(value))
+                    throw new FormatException("TriggerPositionType key not found.");
+
+                TriggerPosition = m_positionItemList[value];
+            }
+        }
+
+        /// <summary>
+        /// LapStyle is a Radio Button / Checkbox control.  The enum is stored in the control's Tag.
+        /// </summary>
+        [JsonIgnore]
+        public LapStyleType LapStyleSetting
+        {
+            get { return LapStyle.Key; }
+            set
+            {
+                if (!m_lapStyleList.ContainsKey(value))
+                    throw new FormatException("LapStyleType key not found.");
+
+                LapStyle = m_lapStyleList[value];
+            }
+        }
+
+        /// <summary>
+        /// LapTrigger is a Radio Button / Checkbox control.  The enum is stored in the control's Tag.
+        /// </summary>
+        [JsonIgnore]
+        public LapTriggerType LapTriggerSetting
+        {
+            get { return LapTrigger.Key; }
+            set
+            {
+                if (!m_lapTriggerList.ContainsKey(value))
+                    throw new FormatException("LapTriggerType key not found.");
+
+                LapTrigger = m_lapTriggerList[value];
+            }
+        }
+
+        public int TriggerHours
+        {
+            get { return m_triggerHours; }
+
+            set
+            {
+                if (value < 0 || value > 23)
+                    throw new FormatException("Trigger hours value must be between 0 and 23.");
+
+                m_triggerHours = value;
+            }
+        }
+        public int TriggerMinutes
+        {
+            get { return m_triggerMinutes; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Trigger minutes value must be between 0 and 59.");
+
+                m_triggerMinutes = value;
+            }
+        }
+        public int TriggerSeconds
+        {
+            get { return m_triggerSeconds; }
+
+            set
+            {
+                if (value < 0 || value > 59)
+                    throw new FormatException("Trigger seconds value must be between 0 and 59.");
+
+                m_triggerSeconds = value;
+            }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+    }
+
 
     #endregion
 
@@ -360,6 +603,7 @@ namespace ZwiftActivityMonitor
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
         public Splits Splits { get; }
+        public Lap Laps { get; }
 
         #endregion
 
@@ -389,6 +633,7 @@ namespace ZwiftActivityMonitor
             UserProfiles = new SortedList<string, UserProfile>();
             Collectors = new SortedList<string, Collector>();
             Splits = new Splits();
+            Laps = new Lap();
         }
 
         public void UpsertUserProfile(UserProfile user)

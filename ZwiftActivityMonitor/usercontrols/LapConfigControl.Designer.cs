@@ -45,7 +45,7 @@ namespace ZwiftActivityMonitor
             this.tbSecs = new System.Windows.Forms.TextBox();
             this.lblGoalTimeHrs = new System.Windows.Forms.Label();
             this.tbMins = new System.Windows.Forms.TextBox();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pLapStyle = new System.Windows.Forms.Panel();
             this.rbManual = new System.Windows.Forms.RadioButton();
             this.rbAutomatic = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
@@ -57,7 +57,7 @@ namespace ZwiftActivityMonitor
             this.gbLaps.SuspendLayout();
             this.pLaps.SuspendLayout();
             this.gbTriggers.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.pLapStyle.SuspendLayout();
             this.SuspendLayout();
             // 
             // pBase
@@ -94,7 +94,7 @@ namespace ZwiftActivityMonitor
             // pLaps
             // 
             this.pLaps.Controls.Add(this.gbTriggers);
-            this.pLaps.Controls.Add(this.panel1);
+            this.pLaps.Controls.Add(this.pLapStyle);
             this.pLaps.Controls.Add(this.label1);
             this.pLaps.Controls.Add(this.btnCancelSettings);
             this.pLaps.Controls.Add(this.btnSaveSettings);
@@ -122,7 +122,7 @@ namespace ZwiftActivityMonitor
             this.gbTriggers.Controls.Add(this.tbMins);
             this.gbTriggers.Location = new System.Drawing.Point(96, 106);
             this.gbTriggers.Name = "gbTriggers";
-            this.gbTriggers.Size = new System.Drawing.Size(337, 131);
+            this.gbTriggers.Size = new System.Drawing.Size(302, 131);
             this.gbTriggers.TabIndex = 30;
             this.gbTriggers.TabStop = false;
             this.gbTriggers.Text = "Lap Trigger";
@@ -133,7 +133,7 @@ namespace ZwiftActivityMonitor
             this.cbPosition.FormattingEnabled = true;
             this.cbPosition.Location = new System.Drawing.Point(129, 89);
             this.cbPosition.Name = "cbPosition";
-            this.cbPosition.Size = new System.Drawing.Size(202, 23);
+            this.cbPosition.Size = new System.Drawing.Size(159, 23);
             this.cbPosition.TabIndex = 90;
             this.cbPosition.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
             this.cbPosition.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
@@ -175,11 +175,11 @@ namespace ZwiftActivityMonitor
             // tbDistance
             // 
             this.tbDistance.Location = new System.Drawing.Point(129, 25);
-            this.tbDistance.MaxLength = 3;
+            this.tbDistance.MaxLength = 5;
             this.tbDistance.Name = "tbDistance";
-            this.tbDistance.Size = new System.Drawing.Size(26, 23);
+            this.tbDistance.Size = new System.Drawing.Size(35, 23);
             this.tbDistance.TabIndex = 40;
-            this.tbDistance.Text = "888";
+            this.tbDistance.Text = "888.8";
             this.tbDistance.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
             this.tbDistance.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             this.tbDistance.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
@@ -188,7 +188,7 @@ namespace ZwiftActivityMonitor
             // 
             this.cbDistanceUom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbDistanceUom.FormattingEnabled = true;
-            this.cbDistanceUom.Location = new System.Drawing.Point(161, 25);
+            this.cbDistanceUom.Location = new System.Drawing.Point(170, 25);
             this.cbDistanceUom.Name = "cbDistanceUom";
             this.cbDistanceUom.Size = new System.Drawing.Size(47, 23);
             this.cbDistanceUom.TabIndex = 45;
@@ -260,15 +260,15 @@ namespace ZwiftActivityMonitor
             this.tbMins.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
             this.tbMins.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
             // 
-            // panel1
+            // pLapStyle
             // 
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.rbManual);
-            this.panel1.Controls.Add(this.rbAutomatic);
-            this.panel1.Location = new System.Drawing.Point(96, 20);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(189, 69);
-            this.panel1.TabIndex = 10;
+            this.pLapStyle.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pLapStyle.Controls.Add(this.rbManual);
+            this.pLapStyle.Controls.Add(this.rbAutomatic);
+            this.pLapStyle.Location = new System.Drawing.Point(96, 20);
+            this.pLapStyle.Name = "pLapStyle";
+            this.pLapStyle.Size = new System.Drawing.Size(189, 69);
+            this.pLapStyle.TabIndex = 10;
             // 
             // rbManual
             // 
@@ -347,8 +347,8 @@ namespace ZwiftActivityMonitor
             this.pLaps.PerformLayout();
             this.gbTriggers.ResumeLayout(false);
             this.gbTriggers.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pLapStyle.ResumeLayout(false);
+            this.pLapStyle.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -377,7 +377,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.RadioButton rbPosition;
         private System.Windows.Forms.RadioButton rbTime;
         private System.Windows.Forms.RadioButton rbDistance;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pLapStyle;
         private System.Windows.Forms.ComboBox cbPosition;
     }
 }
