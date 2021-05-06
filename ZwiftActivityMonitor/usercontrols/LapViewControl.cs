@@ -14,9 +14,51 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
+    public class LapDetailItem
+    {
+        public int LapNumber { get; }
+        public TimeSpan LapTime { get; } = TimeSpan.Zero;
+        public double LapDistanceKm { get; }
+        public int LapAvgWatts { get; }
+        public TimeSpan TotalTime { get; } = TimeSpan.Zero;
+
+        public double LapDistanceMi { get; }
+        public double LapSpeedKph { get; }
+        public double LapSpeedMph { get; }
+        public double LapAvgWkg { get; }
+
+
+
+        public LapDetailItem(int lapNumber, TimeSpan lapTime, double lapDistanceKm, int lapAvgWatts, TimeSpan totalTime)
+        {
+            this.LapNumber = lapNumber;
+            this.LapTime = lapTime;
+            this.LapDistanceKm = Math.Round(lapDistanceKm, 1);
+            this.LapAvgWatts = lapAvgWatts;
+            this.TotalTime = totalTime;
+
+            this.LapDistanceMi = Math.Round(lapDistanceKm / 1.609, 1);
+
+            if (lapTime.TotalSeconds > 0)
+            {
+                this.LapSpeedKph = Math.Round((this.LapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
+                this.LapSpeedMph = Math.Round((this.LapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
+            }
+
+            if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
+            {
+                this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
+            }
+        }
+
+        public LapDetailItem()
+        {
+        }
+    }
+
     public partial class LapViewControl : UserControlBase
     {
-        #region Internal LapItem and LapListViewItem classes
+        #region Internal LapListViewItem Class
 
         internal class LapListViewColumnSorter : IComparer
         {
@@ -50,7 +92,7 @@ namespace ZwiftActivityMonitor
             public int Compare(object x, object y)
             {
                 int compareResult;
-                LapItem X, Y;
+                LapDetailItem X, Y;
 
                 // Cast the objects to be compared to ListViewItem objects
                 X = (x as LapListViewItem).LapItem;
@@ -58,7 +100,7 @@ namespace ZwiftActivityMonitor
 
 
                 // Not using ColumnToSort because we're sorting numeric data
-                compareResult = X.LapNumberVal.CompareTo(Y.LapNumberVal);
+                compareResult = X.LapNumber.CompareTo(Y.LapNumber);
 
                 // Compare the two items
                 //compareResult = ObjectCompare.Compare(listviewX.SubItems[ColumnToSort].Text, listviewY.SubItems[ColumnToSort].Text);
@@ -83,70 +125,47 @@ namespace ZwiftActivityMonitor
         }
 
 
-        internal class LapItem
-        {
-            public int LapNumberVal { get; set; }
-            public string LapNumber { get; set; }
-            public string Time { get; set; } = "";
-            public string Speed { get; set; } = "";
-            public string Distance { get; set; } = "";
-            public string AvgPower { get; set; } = "";
-            public string TotalTime { get; set; } = "";
-            public bool LapsInKm { get; set; }
-
-            public LapItem(int LapNumber)
-            {
-                this.LapNumberVal = LapNumber;
-            }
-
-            public void ClearDataFields()
-            {
-                this.LapNumber = "";
-                this.Time = "";
-                this.Speed = "";
-                this.Distance = "";
-                this.AvgPower = "";
-                this.TotalTime = "";
-            }
-        }
-
         internal class LapListViewItem : ListViewItem
         {
-            public LapItem LapItem { get; set; }
+            public LapDetailItem LapItem { get; set; }
 
-            //public enum RefreshUom
-            //{
-            //    RefreshImperial,
-            //    RefreshMetric
-            //}
-
-            public LapListViewItem(LapItem item) : base(SubItemStrings(item))
+            public enum RefreshUom
             {
-                this.LapItem = item;
-                this.Name = item.LapNumber; // this is the Key in the listview.items collection
+                RefreshImperial,
+                RefreshMetric
             }
 
-            private static string[] SubItemStrings(LapItem item)
+            public LapListViewItem(LapDetailItem item) : base(SubItemStrings(item, RefreshUom.RefreshMetric))
             {
+                this.LapItem = item;
+                this.Name = item.LapNumber.ToString(); // this is the Key in the listview.items collection
+            }
+
+            private static string[] SubItemStrings(LapDetailItem item, RefreshUom refreshUom)
+            {
+                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
+
                 return (new string[]
                 {
                     "", // dummy first column
-                    item.LapNumber,
-                    item.Time,
-                    item.Speed,
-                    item.Distance,
-                    item.AvgPower,
-                    item.TotalTime,
+                    item.LapNumber.ToString(),
+                    $"{item.LapTime.Minutes:0#}:{item.LapTime.Seconds:0#}",
+                    isMetric ? $"{item.LapSpeedKph:#.0}" : $"{item.LapSpeedMph:#.0}",
+                    isMetric ? $"{item.LapDistanceKm:0.0}" : $"{item.LapDistanceMi:0.0}",
+                    isMetric ? $"{item.LapAvgWkg:#.00}" : $"{item.LapAvgWatts}",
+                    $"{item.TotalTime.Hours:0#}:{item.TotalTime.Minutes:0#}:{item.TotalTime.Seconds:0#}"
                 });
             }
 
-            public void Refresh()
+            public void Refresh(RefreshUom refreshUom)
             {
-                string[] text = SubItemStrings(LapItem);
+                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
+
+                string[] text = SubItemStrings(LapItem, refreshUom);
 
                 // Update the speed column header text accordingly
-                this.ListView.Columns[3].Text = LapItem.LapsInKm ? "km/h" : "mi/h";
-                this.ListView.Columns[4].Text = LapItem.LapsInKm ? "km" : "mi";
+                this.ListView.Columns[3].Text = isMetric ? "km/h" : "mi/h";
+                this.ListView.Columns[4].Text = isMetric ? "km" : "mi";
 
                 for (int i = 0; i < text.Length; i++)
                     this.SubItems[i].Text = text[i];
@@ -245,22 +264,13 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            LapItem LapItem = new LapItem(e.LapNumber)
-            {
-                LapNumber = e.LapNumberStr,
-                Time = e.LapTimeStr,
-                Speed = e.LapSpeedStr,
-                Distance = e.LapDistanceStr,
-                AvgPower = e.LapAvgPowerStr,
-                TotalTime = e.TotalTimeStr,
-                LapsInKm = e.LapsInKm
-            };
+            LapDetailItem LapItem = new(e.LapNumber, e.LapTime, e.LapDistanceKm, e.LapAvgWatts, e.TotalTime);
 
-            if (lvLaps.Items.ContainsKey(LapItem.LapNumber))
+            if (lvLaps.Items.ContainsKey(LapItem.LapNumber.ToString()))
             {
-                LapListViewItem item = (LapListViewItem)lvLaps.Items[LapItem.LapNumber];
-                item.LapItem = LapItem; // Replace with current LapItem object and refresh
-                item.Refresh();
+                LapListViewItem item = (LapListViewItem)lvLaps.Items[LapItem.LapNumber.ToString()];
+                item.LapItem = LapItem; // Replace with current LapDetailItem object and refresh
+                item.Refresh(LapListViewItem.RefreshUom.RefreshMetric);
             }
             else
             {
@@ -268,7 +278,7 @@ namespace ZwiftActivityMonitor
                 lvLaps.Sort();
             }
 
-            Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.Time}, {LapItem.Speed}, {LapItem.Distance}, {LapItem.TotalTime}");
+            Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.LapTime}, {LapItem.LapSpeedKph}km/h, {LapItem.LapDistanceKm}km, {LapItem.TotalTime}");
         }
 
         /// <summary>

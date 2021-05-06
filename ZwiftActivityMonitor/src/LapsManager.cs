@@ -96,66 +96,103 @@ namespace ZwiftActivityMonitor
         {
             public int LapNumber { get; }
             public TimeSpan LapTime { get; }
-            public double LapSpeed { get; }
-            public double LapDistance { get; }
-            public int LapAvgPower { get; }
+            public double LapDistanceKm { get; }
+            public int LapAvgWatts { get; }
             public TimeSpan TotalTime { get; }
-            public bool LapsInKm { get; }
+
+            //public double LapDistanceMi { get; }
+            //public double LapSpeedKph { get; }
+            //public double LapSpeedMph { get; }
+            //public double LapAvgWkg { get; }
 
 
-            public LapEventArgs(int LapNumber, TimeSpan LapTime, double LapSpeed, double LapDistance, int LapAvgPower, TimeSpan TotalTime, bool LapsInKm)
+
+            public LapEventArgs(int lapNumber, TimeSpan lapTime, double lapDistanceKm, int lapAvgWatts, TimeSpan totalTime)
             {
-                this.LapNumber = LapNumber;
-                this.LapTime = LapTime;
-                this.LapSpeed = LapSpeed;
-                this.LapDistance = LapDistance;
-                this.LapAvgPower = LapAvgPower;
-                this.TotalTime = TotalTime;
-                this.LapsInKm = LapsInKm;
+                this.LapNumber = lapNumber;
+                this.LapTime = lapTime;
+                this.LapDistanceKm = Math.Round(lapDistanceKm, 1);
+                this.LapAvgWatts = lapAvgWatts;
+                this.TotalTime = totalTime;
+
+                //this.LapDistanceMi = Math.Round(lapDistanceKm / 1.609, 1);
+
+                //if (lapTime.TotalSeconds > 0)
+                //{
+                //    this.LapSpeedKph = Math.Round((this.LapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
+                //    this.LapSpeedMph = Math.Round((this.LapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
+                //}
+
+                //if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
+                //{
+                //    this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
+                //}
             }
 
-            public string LapNumberStr
-            {
-                get
-                {
-                    return LapNumber.ToString();
-                }
-            }
-            public string LapTimeStr
-            {
-                get
-                {
-                    return LapTime.Minutes.ToString("0#") + ":" + LapTime.Seconds.ToString("0#");
-                }
-            }
-            public string LapSpeedStr
-            {
-                get
-                {
-                    return $"{LapSpeed:#.0}";
-                }
-            }
-            public string LapDistanceStr
-            {
-                get
-                {
-                    return $"{LapDistance:0.0}";
-                }
-            }
-            public string LapAvgPowerStr
-            {
-                get
-                {
-                    return LapAvgPower.ToString();
-                }
-            }
-            public string TotalTimeStr
-            {
-                get
-                {
-                    return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
-                }
-            }
+
+
+            //public int LapNumber { get; }
+            //public TimeSpan LapTime { get; }
+            //public double LapSpeed { get; }
+            //public double LapDistance { get; }
+            //public int LapAvgPower { get; }
+            //public TimeSpan TotalTime { get; }
+            //public bool LapsInKm { get; }
+
+
+            //public LapEventArgs(int LapNumber, TimeSpan LapTime, double LapSpeed, double LapDistance, int LapAvgPower, TimeSpan TotalTime, bool LapsInKm)
+            //{
+            //    this.LapNumber = LapNumber;
+            //    this.LapTime = LapTime;
+            //    this.LapSpeed = LapSpeed;
+            //    this.LapDistance = LapDistance;
+            //    this.LapAvgPower = LapAvgPower;
+            //    this.TotalTime = TotalTime;
+            //    this.LapsInKm = LapsInKm;
+            //}
+
+            //public string LapNumberStr
+            //{
+            //    get
+            //    {
+            //        return LapNumber.ToString();
+            //    }
+            //}
+            //public string LapTimeStr
+            //{
+            //    get
+            //    {
+            //        return LapTime.Minutes.ToString("0#") + ":" + LapTime.Seconds.ToString("0#");
+            //    }
+            //}
+            //public string LapSpeedStr
+            //{
+            //    get
+            //    {
+            //        return $"{LapSpeed:#.0}";
+            //    }
+            //}
+            //public string LapDistanceStr
+            //{
+            //    get
+            //    {
+            //        return $"{LapDistance:0.0}";
+            //    }
+            //}
+            //public string LapAvgPowerStr
+            //{
+            //    get
+            //    {
+            //        return LapAvgPower.ToString();
+            //    }
+            //}
+            //public string TotalTimeStr
+            //{
+            //    get
+            //    {
+            //        return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+            //    }
+            //}
         }
 
         #endregion
@@ -253,7 +290,6 @@ namespace ZwiftActivityMonitor
                 return;
 
             DateTime now = DateTime.Now;
-            bool lapsInKm = true;
 
             // Event count will be zero on startup or after a reset
             if (m_eventCount == 0)
@@ -311,36 +347,27 @@ namespace ZwiftActivityMonitor
 
 
             double kmsTravelled = totalMeters / 1000.0;
-            double milesTravelled = kmsTravelled / 1.609;
+            //double milesTravelled = kmsTravelled / 1.609;
 
-            double totalDistance = Math.Round(lapsInKm ? kmsTravelled : milesTravelled, 1);
+            //double totalDistance = Math.Round(lapsInKm ? kmsTravelled : milesTravelled, 1);
 
             // Calculate how deep into the lap distance the rider is.
             int lapMeters = e.Distance - m_lapSeedValue;
 
-            // How much of the lap is completed (expressed as percentage)
-            //double lapCompletedPct = lapMeters / (double)m_laps.SplitDistanceAsMeters;
-
             // Compute distance, leave unrounded
-            double lapKmTravelled = lapMeters / 1000.0;
-            double lapMiTravelled = lapKmTravelled / 1.609;
+            double lapDistanceKm = lapMeters / 1000.0;
+            //double lapMiTravelled = lapKmTravelled / 1.609;
 
-            double lapDistance = lapsInKm ? lapKmTravelled : lapMiTravelled;
-            double lapSpeed = Math.Round((lapDistance / lapTime.TotalSeconds) * 3600, 1);
+            //double lapDistance = lapsInKm ? lapKmTravelled : lapMiTravelled;
+            //double lapSpeed = Math.Round((lapDistance / lapTime.TotalSeconds) * 3600, 1);
 
             // Now round the distance
-            lapDistance = Math.Round(lapDistance, 1);
+            //lapDistance = Math.Round(lapDistance, 1);
 
-            int lapAvgPower = (int)Math.Round(m_lapPowerTotal / (double)m_lapEventCount, 0);
-
-            //// Has there been movement?
-            //if (totalMeters - m_lastEventMeters < 1)
-            //    return;
-
-            //m_lastEventMeters = totalMeters;
+            int lapAvgWatts = (int)Math.Round(m_lapPowerTotal / (double)m_lapEventCount, 0);
 
             // This is an update to the lap in-progress.  LapDistance traveled is included.
-            LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapSpeed, lapDistance, lapAvgPower, totalTime, lapsInKm);
+            LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapDistanceKm, lapAvgWatts, totalTime);
             OnLapUpdatedEvent(args);
 
             switch (Laps.LapStyleSetting)

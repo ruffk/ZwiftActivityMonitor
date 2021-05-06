@@ -571,7 +571,10 @@ namespace ZwiftActivityMonitor
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-            var form = new AboutForm();
+            var form = new EventCompletion();
+            form.InitLapEventCompletion(new LapDetailItem());
+
+            //var form = new AboutForm();
 
             DialogResult result = form.ShowDialog(this);
 
