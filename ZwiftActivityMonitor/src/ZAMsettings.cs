@@ -19,10 +19,94 @@ namespace ZwiftActivityMonitor
         Wkg
     }
 
+    #region ConfigItemBase
+    public class ConfigItemBase
+    {
+        public ConfigItemBase()
+        {
+
+        }
+
+        /// <summary>
+        /// This method is called during ZAMsettings initialization.
+        /// It is only called once and allows a Config class to perform more advanced initialization, like creating internal objects, etc.
+        /// 
+        /// Returns true if any initialization occurred.
+        /// </summary>
+        public virtual bool InitializeDefaultValues()
+        {
+            return false;
+        }
+    }
+    #endregion
+
+    #region NetworkListItem
+
+    public class NetworkListItem
+    {
+        private string m_network;
+        private string m_ip_address;
+
+        public NetworkListItem(string network, string ip_address)
+        {
+            m_network = network;
+            m_ip_address = ip_address;
+        }
+
+        public string Network { get { return m_network; } }
+
+        public override string ToString()
+        {
+            return $"{m_network} ({m_ip_address})";
+        }
+    }
+
+    #endregion
+
+    #region KeyStringPair
+    /// <summary>
+    /// This class was developed mainly for use with populating DropDownLists.  It then allows for the key value
+    /// to be verified as valid before updating configuration.  I didn't use KeyValuePair struct as I needed to override ToString().
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    public class KeyStringPair<TKey>
+    {
+        public TKey Key { get; }
+        public string Value { get; }
+
+        public KeyStringPair(TKey key, string value)
+        {
+            this.Key = key;
+            this.Value = value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            KeyStringPair<TKey> k = obj as KeyStringPair<TKey>;
+
+            if (k != null)
+            {
+                if (this.Key.Equals(k.Key))
+                    return true;
+            }
+            return false;
+        }
+
+        public override string ToString()
+        {
+            return this.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    #endregion
 
     #region UserProfile
 
-    public class UserProfile : ICloneable
+    public class UserProfile : ConfigItemBase, ICloneable
     {
         public string UniqueId { get; set; } = "";
         public int PowerThreshold { get; set; }
@@ -161,7 +245,7 @@ namespace ZwiftActivityMonitor
 
     #region Collector
 
-    public class Collector : ICloneable
+    public class Collector : ConfigItemBase, ICloneable
     {
         public string Name { get; set; }
         public string DurationDesc { get; set; }
@@ -198,77 +282,25 @@ namespace ZwiftActivityMonitor
     }
 
     #endregion
-
-    #region NetworkListItem
-
-    public class NetworkListItem
-    {
-        private string m_network;
-        private string m_ip_address;
-
-        public NetworkListItem(string network, string ip_address)
-        {
-            m_network = network;
-            m_ip_address = ip_address;
-        }
-
-        public string Network { get { return m_network; } }
-
-        public override string ToString()
-        {
-            return $"{m_network} ({m_ip_address})";
-        }
-    }
-
-    #endregion
-
-    public class KeyStringPair<TKey>
-    {
-        public TKey Key { get; }
-        public string Value { get; }
-
-        public KeyStringPair(TKey key, string value)
-        {
-            this.Key = key;
-            this.Value = value;
-        }
-
-        //public override bool Equals(object obj)
-        //{
-        //    KeyStringPair<TKey> k = obj as KeyStringPair<TKey>;
-
-        //    if (k != null)
-        //    {
-        //        if (this.Key.Equals(k.Key))
-        //            return true;
-        //    }
-        //    return false;
-        //}
-
-        public override string ToString()
-        {
-            return this.Value;
-        }
-
-        //public override int GetHashCode()
-        //{
-        //    throw new NotImplementedException();
-        //}
-    }
-
+        
     #region Laps
-
-    public class Lap : ICloneable
+    /// <summary>
+    /// Uses a new technique of enums and dictionary lookups for validation of items used in ComboBoxes and RadioButtons
+    /// </summary>
+    public class Lap : ConfigItemBase, ICloneable
     {
         public enum DistanceUomType { Kilometers, Miles }
         public enum TriggerPositionType { StartAndLapButton, LapButtonOnly }
         public enum LapStyleType { Manual, Automatic }
         public enum LapTriggerType { Distance, Time, Position }
+        public enum MeasurementSystemType { Imperial, Metric }
 
-        public KeyStringPair<LapStyleType> LapStyle { get; internal set; }
-        public KeyStringPair<DistanceUomType> TriggerDistanceUom { get; internal set; }
-        public KeyStringPair<TriggerPositionType> TriggerPosition { get; internal set; }
-        public KeyStringPair<LapTriggerType> LapTrigger { get; internal set; }
+        // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
+        public KeyStringPair<LapStyleType> LapStyle { get; set; }
+        public KeyStringPair<DistanceUomType> TriggerDistanceUom { get; set; }
+        public KeyStringPair<TriggerPositionType> TriggerPosition { get; set; }
+        public KeyStringPair<LapTriggerType> LapTrigger { get; set; }
+        public KeyStringPair<MeasurementSystemType> MeasurementSystem { get; set; }
 
         private double m_triggerDistance = 5.0;
         private int m_triggerHours;
@@ -280,29 +312,85 @@ namespace ZwiftActivityMonitor
         private readonly Dictionary<TriggerPositionType, KeyStringPair<TriggerPositionType>> m_positionItemList = new();
         private readonly Dictionary<LapStyleType, KeyStringPair<LapStyleType>> m_lapStyleList = new();
         private readonly Dictionary<LapTriggerType, KeyStringPair<LapTriggerType>> m_lapTriggerList = new();
+        private readonly Dictionary<MeasurementSystemType, KeyStringPair<MeasurementSystemType>> m_measurementSystemList = new();
+
+        private ILogger<Lap> Logger { get; }
+
 
         public Lap()
         {
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<Lap>();
+
+            //Logger.LogInformation("CTOR");
+
+            // define all the valid choices for the UI
+
+            // ComboBox will display these items
             m_uomItemList.Add(DistanceUomType.Kilometers, new (DistanceUomType.Kilometers, "km"));
             m_uomItemList.Add(DistanceUomType.Miles, new (DistanceUomType.Miles, "mi"));
 
-            TriggerDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
-
+            // ComboBox will display these items
             m_positionItemList.Add(TriggerPositionType.StartAndLapButton, new (TriggerPositionType.StartAndLapButton, "Start and Lap Button"));
             m_positionItemList.Add(TriggerPositionType.LapButtonOnly, new (TriggerPositionType.LapButtonOnly, "Lap Button Only"));
 
-            TriggerPosition = m_positionItemList[TriggerPositionType.StartAndLapButton]; // default
+            // ComboBox will display these items
+            m_measurementSystemList.Add(MeasurementSystemType.Imperial, new(MeasurementSystemType.Imperial, "Imperial"));
+            m_measurementSystemList.Add(MeasurementSystemType.Metric, new(MeasurementSystemType.Metric, "Metric"));
 
+            // RadioButtons, text is only used in configuration file
             m_lapStyleList.Add(LapStyleType.Manual, new(LapStyleType.Manual, "Manual"));
             m_lapStyleList.Add(LapStyleType.Automatic, new(LapStyleType.Automatic, "Automatic"));
 
-            LapStyle = m_lapStyleList[LapStyleType.Automatic]; // default
-
+            // RadioButtons, text is only used in configuration file
             m_lapTriggerList.Add(LapTriggerType.Distance, new(LapTriggerType.Distance, "Distance"));
             m_lapTriggerList.Add(LapTriggerType.Time, new(LapTriggerType.Time, "Time"));
             m_lapTriggerList.Add(LapTriggerType.Position, new(LapTriggerType.Position, "Position"));
+        }
 
-            LapTrigger = m_lapTriggerList[LapTriggerType.Position]; // default
+        public override bool InitializeDefaultValues()
+        {
+            bool isInitialized = false;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            if (TriggerDistanceUom == null)
+            {
+                Logger.LogInformation($"Initializing TriggerDistanceUom");
+                TriggerDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
+                isInitialized = true;
+            }
+
+            if (TriggerPosition == null)
+            {
+                Logger.LogInformation($"Initializing TriggerPosition");
+                TriggerPosition = m_positionItemList[TriggerPositionType.StartAndLapButton]; // default
+                isInitialized = true;
+            }
+
+            if (MeasurementSystem == null)
+            {
+                Logger.LogInformation($"Initializing MeasurementSystem");
+                MeasurementSystem = m_measurementSystemList[MeasurementSystemType.Metric]; // default
+                isInitialized = true;
+            }
+
+            if (LapStyle == null)
+            {
+                Logger.LogInformation($"Initializing LapStyle");
+                LapStyle = m_lapStyleList[LapStyleType.Automatic]; // default
+                isInitialized = true;
+            }
+
+            if (LapTrigger == null)
+            {
+                Logger.LogInformation($"Initializing LapTrigger");
+                LapTrigger = m_lapTriggerList[LapTriggerType.Position]; // default
+                isInitialized = true;
+            }
+
+            return isInitialized;
         }
 
         /// <summary>
@@ -329,6 +417,18 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// ComboBox items
+        /// </summary>
+        [JsonIgnore]
+        public KeyStringPair<MeasurementSystemType>[] MeasurementSystemItems
+        {
+            get
+            {
+                return m_measurementSystemList.Values.ToArray();
+            }
+        }
+
         public double TriggerDistance
         {
             get { return m_triggerDistance; }
@@ -338,7 +438,7 @@ namespace ZwiftActivityMonitor
                 if (value < 1 || value > 999)
                     throw new FormatException("Trigger distance value must be between 1 and 999.");
 
-                m_triggerDistance = value;
+                m_triggerDistance = Math.Round(value, 1);
             }
         }
 
@@ -360,6 +460,10 @@ namespace ZwiftActivityMonitor
             get { return (int)Math.Round(TriggerDistanceAsKm * 1000, 0); }
         }
 
+        /// <summary>
+        /// TriggerDistanceUom is a ComboBox control.  The full KeyStringPair is stored in the item array for display.
+        /// During validation, just the Key is checked for validity.
+        /// </summary>
         [JsonIgnore]
         public DistanceUomType TriggerDistanceUomSetting
         {
@@ -373,6 +477,10 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// TriggerPosition is a ComboBox control.  The full KeyStringPair is stored in the item array for display.
+        /// During validation, just the Key is checked for validity.
+        /// </summary>
         [JsonIgnore]
         public TriggerPositionType TriggerPositionSetting
         {
@@ -383,6 +491,23 @@ namespace ZwiftActivityMonitor
                     throw new FormatException("TriggerPositionType key not found.");
 
                 TriggerPosition = m_positionItemList[value];
+            }
+        }
+
+        /// <summary>
+        /// MeasurementSystem is a ComboBox control.  The full KeyStringPair is stored in the item array for display.
+        /// During validation, just the Key is checked for validity.
+        /// </summary>
+        [JsonIgnore]
+        public MeasurementSystemType MeasurementSystemSetting
+        {
+            get { return MeasurementSystem.Key; }
+            set
+            {
+                if (!m_measurementSystemList.ContainsKey(value))
+                    throw new FormatException("MeasurementSystemType key not found.");
+
+                MeasurementSystem = m_measurementSystemList[value];
             }
         }
 
@@ -417,6 +542,21 @@ namespace ZwiftActivityMonitor
                 LapTrigger = m_lapTriggerList[value];
             }
         }
+
+        /// <summary>
+        /// Helper method.  Returns true if auto-lapping by position
+        /// </summary>
+        [JsonIgnore]
+        public bool AutoLapByPosition
+        {
+            get
+            {
+                return (LapStyleSetting == LapStyleType.Automatic && LapTriggerSetting == LapTriggerType.Position);
+            }
+        }
+
+
+
 
         public int TriggerHours
         {
@@ -455,6 +595,16 @@ namespace ZwiftActivityMonitor
             }
         }
 
+
+        [JsonIgnore]
+        public TimeSpan TriggerTime
+        {
+            get
+            {
+                return new TimeSpan(TriggerHours, TriggerMinutes, TriggerSeconds);
+            }
+        }
+
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -467,7 +617,7 @@ namespace ZwiftActivityMonitor
 
     #region Splits
 
-    public class Splits : ICloneable
+    public class Splits : ConfigItemBase, ICloneable
     {
         public bool ShowSplits { get; set; }
         public bool CalculateGoal { get; set; }
@@ -630,10 +780,10 @@ namespace ZwiftActivityMonitor
 
         private ZAMsettings()
         {
-            UserProfiles = new SortedList<string, UserProfile>();
-            Collectors = new SortedList<string, Collector>();
-            Splits = new Splits();
-            Laps = new Lap();
+            UserProfiles    = new SortedList<string, UserProfile>();
+            Collectors      = new SortedList<string, Collector>();
+            Splits          = new Splits();
+            Laps            = new Lap();
         }
 
         public void UpsertUserProfile(UserProfile user)
@@ -826,74 +976,56 @@ namespace ZwiftActivityMonitor
 
                 _initialized = true;
 
-                if (userFileExists)
+                // Allow any configuration classes to do default initialization (if needed)
+                BeginCachedConfiguration();
+                
+                bool isInitialized = Settings.Laps.InitializeDefaultValues();
+                isInitialized = isInitialized || Settings.Splits.InitializeDefaultValues();
+
+                // If a Collector or UserProfile needs to be added manually for some reason, that will need to be coded separately
+                foreach (Collector c in Settings.Collectors.Values)
+                    isInitialized = isInitialized || c.InitializeDefaultValues();
+                foreach (UserProfile p in Settings.UserProfiles.Values)
+                    isInitialized = isInitialized || p.InitializeDefaultValues();
+                
+                if (isInitialized)
                 {
-                    if (!Settings.Collectors.ContainsKey("6 min"))
-                    {
-                        BeginCachedConfiguration();
-                        Collector c = new Collector()
-                        {
-                            Name = "6 min",
-                            DurationDesc = "SixMinute",
-                            DurationSecs = 360,
-                            FieldAvgDesc = "Watts",
-                            FieldAvgMaxDesc = "Wkg",
-                            FieldFtpDesc = "Hidden"
-                        };
-                        Settings.Collectors.Add("6 min", c);
-                        CommitCachedConfiguration();
-                    }
+                    // Something changed
+                    CommitCachedConfiguration();
                 }
+                else
+                {
+                    // Nothing changed
+                    RollbackCachedConfiguration();
+                }
+
+                //if (userFileExists)
+                //{
+                //    BeginCachedConfiguration();
+
+                //    if (!Settings.Collectors.ContainsKey("6 min"))
+                //    {
+                //        Collector c = new Collector()
+                //        {
+                //            Name = "6 min",
+                //            DurationDesc = "SixMinute",
+                //            DurationSecs = 360,
+                //            FieldAvgDesc = "Watts",
+                //            FieldAvgMaxDesc = "Wkg",
+                //            FieldFtpDesc = "Hidden"
+                //        };
+                //        Settings.Collectors.Add("6 min", c);
+                //    }
+
+                //    Settings.Laps.InitializeDefaultValues();
+
+                //    CommitCachedConfiguration();
+                //}
             }
             catch (Exception ex)
             {
                 throw new ApplicationException($"Exception occurred while trying to load configuration.", ex);
             }
-
-
-            // This version would first read the default json settings file, and merge the user json settings file into it.
-            // Problem is things like UserProfiles would suddenly have Collectors from the default showing up as selected by the user.
-            //try
-            //{
-            //    string defaultJsonStr = File.ReadAllText(FileNameDefault);
-            //    JObject defaultJson = JObject.Parse(defaultJsonStr);
-
-            //    try
-            //    {
-            //        string userJsonStr = File.ReadAllText(FileName);
-            //        JObject userJson = JObject.Parse(userJsonStr);
-
-            //        defaultJson.Merge(userJson, new JsonMergeSettings
-            //        {
-            //            // union array values together to avoid duplicates
-            //            MergeArrayHandling = MergeArrayHandling.Union
-            //        });
-
-            //        _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault} and merged with user settings file {FileName}.");
-            //    }
-            //    catch (FileNotFoundException)
-            //    {
-            //        // this is okay as defaults will be used
-            //        _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
-            //    }
-
-            //    _committedJsonStr = defaultJson.ToString();
-
-            //    _committedZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_committedJsonStr);
-
-            //    _committedZAMsettings.m_readOnly = true;
-
-            //    // Set current user according to default selection.  This value is not persisted in json file.
-            //    _committedZAMsettings.CurrentUserProfile = _committedZAMsettings.DefaultUserProfile;
-
-            //    _initialized = true;
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new ApplicationException($"Exception occurred trying to load configuration from file: {FileName}", ex);
-            //}
-
         }
 
         public static List<NetworkListItem> Networks

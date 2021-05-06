@@ -330,7 +330,7 @@ namespace ZwiftActivityMonitor
                 }
                 else
                 {
-                    Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
+                    Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
                 }
 
                 m_eventsProcessed++;

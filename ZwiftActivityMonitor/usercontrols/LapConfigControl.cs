@@ -46,18 +46,25 @@ namespace ZwiftActivityMonitor
 
             cbDistanceUom.BeginUpdate();
             cbDistanceUom.Items.Clear();
-            //cbDistanceUom.Items.AddRange(new string[] { "km", "mi" });
             cbDistanceUom.Items.AddRange(ZAMsettings.Settings.Laps.TriggerDistanceUomItems);
             cbDistanceUom.EndUpdate();
 
             cbPosition.BeginUpdate();
             cbPosition.Items.Clear();
-            //cbPosition.Items.AddRange(new string[] { "Start and Lap Button", "Lap Button Only" });
             cbPosition.Items.AddRange(ZAMsettings.Settings.Laps.TriggerPositionItems);
             cbPosition.EndUpdate();
 
+            cbMeasurementSystem.BeginUpdate();
+            cbMeasurementSystem.Items.Clear();
+            cbMeasurementSystem.Items.AddRange(ZAMsettings.Settings.Laps.MeasurementSystemItems);
+            cbMeasurementSystem.EndUpdate();
+
             rbManual.Tag = Lap.LapStyleType.Manual;
             rbAutomatic.Tag = Lap.LapStyleType.Automatic;
+
+            rbPosition.Tag = Lap.LapTriggerType.Position;
+            rbTime.Tag = Lap.LapTriggerType.Time;
+            rbDistance.Tag = Lap.LapTriggerType.Distance;
 
             // initialize
             EditingSystemSettings = false;
@@ -83,6 +90,9 @@ namespace ZwiftActivityMonitor
 
         private void SystemSettings_LoadFields()
         {
+            if (cbMeasurementSystem.Items.Contains(ZAMsettings.Settings.Laps.MeasurementSystem))
+                cbMeasurementSystem.SelectedItem = ZAMsettings.Settings.Laps.MeasurementSystem;
+
             tbDistance.Text = ZAMsettings.Settings.Laps.TriggerDistance.ToString();
 
             if (cbDistanceUom.Items.Contains(ZAMsettings.Settings.Laps.TriggerDistanceUom))
@@ -97,6 +107,10 @@ namespace ZwiftActivityMonitor
 
             rbManual.Checked = (Lap.LapStyleType)rbManual.Tag == ZAMsettings.Settings.Laps.LapStyleSetting;
             rbAutomatic.Checked = (Lap.LapStyleType)rbAutomatic.Tag == ZAMsettings.Settings.Laps.LapStyleSetting;
+
+            rbPosition.Checked = (Lap.LapTriggerType)rbPosition.Tag == ZAMsettings.Settings.Laps.LapTriggerSetting;
+            rbTime.Checked = (Lap.LapTriggerType)rbTime.Tag == ZAMsettings.Settings.Laps.LapTriggerSetting;
+            rbDistance.Checked = (Lap.LapTriggerType)rbDistance.Tag == ZAMsettings.Settings.Laps.LapTriggerSetting;
         }
 
 
@@ -108,6 +122,8 @@ namespace ZwiftActivityMonitor
                 btnSaveSettings.Enabled = value;
                 btnCancelSettings.Enabled = value;
 
+                cbMeasurementSystem.Enabled = value;
+
                 rbManual.Enabled = value;
                 rbAutomatic.Enabled = value;
 
@@ -117,6 +133,10 @@ namespace ZwiftActivityMonitor
                 tbMins.Enabled = value;
                 tbSecs.Enabled = value;
                 cbPosition.Enabled = value;
+
+                rbPosition.Enabled = value;
+                rbTime.Enabled = value;
+                rbDistance.Enabled = value;
 
                 m_editMode = value;
             }
@@ -134,6 +154,7 @@ namespace ZwiftActivityMonitor
         {
             bool errorOccurred = false;
 
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.cbMeasurementSystem));
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbManual));
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbAutomatic));
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.cbDistanceUom));
@@ -142,6 +163,12 @@ namespace ZwiftActivityMonitor
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbHrs));
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbMins));
             errorOccurred = (errorOccurred || ValidateSystemSettings(this.tbSecs));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbDistance));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbTime));
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.rbPosition));
+
+            // final validation
+            errorOccurred = (errorOccurred || ValidateSystemSettings(this.gbLaps));
 
             if (!errorOccurred)
             {
@@ -175,11 +202,30 @@ namespace ZwiftActivityMonitor
 
             switch (control.Name)
             {
+                case "cbMeasurementSystem":
+                    try
+                    {
+                        if (cbMeasurementSystem.SelectedItem != null)
+                        {
+                            ZAMsettings.Settings.Laps.MeasurementSystemSetting = (cbMeasurementSystem.SelectedItem as KeyStringPair<Lap.MeasurementSystemType>).Key;
+                        }
+                        else
+                        {
+                            throw new ApplicationException("Please select a distance unit of measure.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
+
                 case "tbDistance":
                     try
                     {
                         tbDistance.Text = tbDistance.Text.Trim();
-                        ZAMsettings.Settings.Laps.TriggerDistance = int.Parse(tbDistance.Text == "" ? "0" : tbDistance.Text);
+                        ZAMsettings.Settings.Laps.TriggerDistance = double.Parse(tbDistance.Text == "" ? "0" : tbDistance.Text);
                     }
                     catch (Exception ex)
                     {
@@ -279,6 +325,53 @@ namespace ZwiftActivityMonitor
                     }
                     break;
 
+                case "rbDistance":
+                case "rbTime":
+                case "rbPosition":
+                    try
+                    {
+                        if ((control as RadioButton).Checked)
+                            ZAMsettings.Settings.Laps.LapTriggerSetting = (Lap.LapTriggerType)control.Tag;
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
+
+                case "gbLaps": // any final validations
+                    try
+                    {
+                        if (ZAMsettings.Settings.Laps.LapStyleSetting == Lap.LapStyleType.Automatic)
+                        {
+                            switch (ZAMsettings.Settings.Laps.LapTriggerSetting)
+                            {
+                                case Lap.LapTriggerType.Distance:
+                                    break;
+
+                                case Lap.LapTriggerType.Time:
+                                    if (ZAMsettings.Settings.Laps.TriggerTime.TotalSeconds < 60)
+                                    {
+                                        control = tbHrs;
+                                        tbHrs.Focus();
+
+                                        throw new ApplicationException("Trigger time must be a minimum of one minute.");
+                                    }
+                                    break;
+
+                                case Lap.LapTriggerType.Position:
+                                    break;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorProvider.SetError(control, ex.Message);
+                        errorOccurred = true;
+                    }
+                    break;
+
                 default:
                     Debug.Assert(1 == 0, $"Unknown control {control.Name} passed to validate method.");
                     break;
@@ -306,37 +399,34 @@ namespace ZwiftActivityMonitor
 
             switch (control.Name)
             {
-                //case "ckbShowSplits":
-                //    toolStripStatusLabel.Text = "Select to be shown split times at distance intervals.";
-                //    break;
+                case "cbMeasurementSystem":
+                    toolStripStatusLabel.Text = "Select measurement system to use when displaying laps.";
+                    break;
 
-                //case "tbSplitDistance":
-                //    toolStripStatusLabel.Text = "Enter the distance to travel for each split time.";
-                //    break;
+                case "tbDistance":
+                    toolStripStatusLabel.Text = "Enter distance amount for auto-laps by distance.";
+                    break;
 
-                //case "cbSplitUom":
-                //    toolStripStatusLabel.Text = "Select kilometers or miles.";
-                //    break;
+                case "cbDistanceUom":
+                    toolStripStatusLabel.Text = "Select distance units.";
+                    break;
 
-                //case "ckbCalculateGoal":
-                //    toolStripStatusLabel.Text = "Select to be shown goal times at distance intervals.";
-                //    break;
+                case "cbPosition":
+                    toolStripStatusLabel.Text = "Select position type to use for auto-laps by position.";
+                    break;
 
-                //case "tbGoalHrs":
-                //    toolStripStatusLabel.Text = "Enter goal hours.";
-                //    break;
+                case "tbHrs":
+                    toolStripStatusLabel.Text = "Enter hours to use for auto-laps by time.";
+                    break;
 
-                //case "tbGoalMins":
-                //    toolStripStatusLabel.Text = "Enter goal minutes.";
-                //    break;
+                case "tbMins":
+                    toolStripStatusLabel.Text = "Enter minutes to use for auto-laps by time.";
+                    break;
 
-                //case "tbGoalSecs":
-                //    toolStripStatusLabel.Text = "Enter goal seconds.";
-                //    break;
+                case "tbSecs":
+                    toolStripStatusLabel.Text = "Enter seconds to use for auto-laps by time.";
+                    break;
 
-                //case "tbGoalDistance":
-                //    toolStripStatusLabel.Text = "Enter the total goal distance.";
-                //    break;
                 default:
                     //toolStripStatusLabel.Text = control.Name;
                     break;

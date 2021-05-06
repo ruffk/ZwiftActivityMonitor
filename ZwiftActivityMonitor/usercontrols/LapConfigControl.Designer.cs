@@ -32,6 +32,8 @@ namespace ZwiftActivityMonitor
             this.tbDescSystem = new System.Windows.Forms.TextBox();
             this.gbLaps = new System.Windows.Forms.GroupBox();
             this.pLaps = new System.Windows.Forms.Panel();
+            this.cbMeasurementSystem = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.gbTriggers = new System.Windows.Forms.GroupBox();
             this.cbPosition = new System.Windows.Forms.ComboBox();
             this.rbPosition = new System.Windows.Forms.RadioButton();
@@ -93,6 +95,8 @@ namespace ZwiftActivityMonitor
             // 
             // pLaps
             // 
+            this.pLaps.Controls.Add(this.cbMeasurementSystem);
+            this.pLaps.Controls.Add(this.label2);
             this.pLaps.Controls.Add(this.gbTriggers);
             this.pLaps.Controls.Add(this.pLapStyle);
             this.pLaps.Controls.Add(this.label1);
@@ -105,6 +109,27 @@ namespace ZwiftActivityMonitor
             this.pLaps.Name = "pLaps";
             this.pLaps.Size = new System.Drawing.Size(542, 405);
             this.pLaps.TabIndex = 0;
+            // 
+            // cbMeasurementSystem
+            // 
+            this.cbMeasurementSystem.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMeasurementSystem.FormattingEnabled = true;
+            this.cbMeasurementSystem.Location = new System.Drawing.Point(110, 14);
+            this.cbMeasurementSystem.Name = "cbMeasurementSystem";
+            this.cbMeasurementSystem.Size = new System.Drawing.Size(117, 23);
+            this.cbMeasurementSystem.TabIndex = 5;
+            this.cbMeasurementSystem.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
+            this.cbMeasurementSystem.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
+            this.cbMeasurementSystem.Validating += new System.ComponentModel.CancelEventHandler(this.SystemSettings_Validating);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 17);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(83, 15);
+            this.label2.TabIndex = 121;
+            this.label2.Text = "Measurement:";
             // 
             // gbTriggers
             // 
@@ -120,7 +145,7 @@ namespace ZwiftActivityMonitor
             this.gbTriggers.Controls.Add(this.tbSecs);
             this.gbTriggers.Controls.Add(this.lblGoalTimeHrs);
             this.gbTriggers.Controls.Add(this.tbMins);
-            this.gbTriggers.Location = new System.Drawing.Point(96, 106);
+            this.gbTriggers.Location = new System.Drawing.Point(110, 137);
             this.gbTriggers.Name = "gbTriggers";
             this.gbTriggers.Size = new System.Drawing.Size(302, 131);
             this.gbTriggers.TabIndex = 30;
@@ -265,7 +290,7 @@ namespace ZwiftActivityMonitor
             this.pLapStyle.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pLapStyle.Controls.Add(this.rbManual);
             this.pLapStyle.Controls.Add(this.rbAutomatic);
-            this.pLapStyle.Location = new System.Drawing.Point(96, 20);
+            this.pLapStyle.Location = new System.Drawing.Point(110, 51);
             this.pLapStyle.Name = "pLapStyle";
             this.pLapStyle.Size = new System.Drawing.Size(189, 69);
             this.pLapStyle.TabIndex = 10;
@@ -297,7 +322,7 @@ namespace ZwiftActivityMonitor
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(19, 47);
+            this.label1.Location = new System.Drawing.Point(37, 77);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 15);
             this.label1.TabIndex = 117;
@@ -379,5 +404,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.RadioButton rbDistance;
         private System.Windows.Forms.Panel pLapStyle;
         private System.Windows.Forms.ComboBox cbPosition;
+        private System.Windows.Forms.ComboBox cbMeasurementSystem;
+        private System.Windows.Forms.Label label2;
     }
 }

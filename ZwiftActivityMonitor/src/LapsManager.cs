@@ -9,6 +9,87 @@ namespace ZwiftActivityMonitor
 {
     public class LapsManager
     {
+        internal class Waypoints
+        {
+            private List<Waypoint> WaypointList { get; }
+            private ILogger<Waypoints> Logger { get; }
+
+            public Waypoints()
+            {
+                if (ZAMsettings.LoggerFactory == null)
+                    return;
+
+                Logger = ZAMsettings.LoggerFactory.CreateLogger<Waypoints>();
+
+                WaypointList = new();
+            }
+
+            public void Clear()
+            {
+                WaypointList.Clear();
+            }
+
+            public void Add(Waypoint item)
+            {
+                WaypointList.Add(item);
+            }
+
+            public void Add(RiderStateEventArgs e)
+            {
+                this.Add(new Waypoint(e.RoadId, e.IsForward, e.Course, e.RoadTime));
+            }
+
+            public Waypoint CheckWaypointCrossings(RiderStateEventArgs e)
+            {
+                Waypoint searchWp;
+
+                Logger.LogInformation($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
+
+                if (e.IsForward) // RoadTime values are increasing
+                {
+                    searchWp = WaypointList.Find(item => item.Course == e.Course && item.IsForward == e.IsForward && item.RoadId == e.RoadId
+                        && item.LastRiderRoadTime < item.RoadTime   // Last check was behind Waypoint line (values going up)
+                        && e.RoadTime >= item.RoadTime              // Current check is at or past Waypoint line
+                    );
+                }
+                else // RoadTime values are decreasing
+                {
+                    searchWp = WaypointList.Find(item => item.Course == e.Course && item.IsForward == e.IsForward && item.RoadId == e.RoadId 
+                        && item.LastRiderRoadTime > item.RoadTime   // Last check was past Waypoint line (values going down)
+                        && e.RoadTime <= item.RoadTime              // Current check is at or behind Waypoint line
+                    );
+                }
+
+                return searchWp;
+            }
+
+            public void UpdateWaypointLastRoadTimes(int roadTime)
+            {
+                WaypointList.ForEach(item => item.LastRiderRoadTime = roadTime);
+            }
+
+        }
+
+        internal class Waypoint
+        {
+            public int RoadId { get; }
+            public bool IsForward { get; }
+            public int Course { get; }
+            public int RoadTime { get; }
+
+            public int LastRiderRoadTime { get; set; }
+
+            public Waypoint(int roadId, bool isForward, int course, int roadTime)
+            {
+                this.RoadId = roadId;
+                this.IsForward = isForward;
+                this.Course = course;
+                this.RoadTime = roadTime;
+                this.LastRiderRoadTime = roadTime;
+            }
+        }
+
+
         #region Public EventArgs classes
 
         public class LapEventArgs : EventArgs
@@ -96,8 +177,13 @@ namespace ZwiftActivityMonitor
         private long m_lapPowerTotal;       // The sum of all power values captured during the lap
 
 
-        private int m_lastEventMeters;
+        //private int m_lastEventMeters;
         private bool m_beginNewLap;
+        private bool m_userRequestedNewLap;
+
+        private Waypoints LapWaypoints { get; } = new();
+
+        private Lap Laps { get; set; }
 
         public LapsManager()
         {
@@ -114,7 +200,11 @@ namespace ZwiftActivityMonitor
         {
             if (!IsStarted)
             {
+                this.Laps = ZAMsettings.Settings.Laps;
+
                 IsStarted = true;
+
+                this.Reset();
             }
         }
 
@@ -126,18 +216,26 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        /// <summary>
+        /// Occurs when user clicks reset button
+        /// </summary>
         public void Reset()
         {
             if (IsStarted)
             {
+                LapWaypoints.Clear();
                 m_eventCount = 0;
             }
         }
 
+        /// <summary>
+        /// Occurs when user clicks lap button
+        /// </summary>
         public void BeginNewLap()
         {
             if (IsStarted)
             {
+                m_userRequestedNewLap = true;
                 m_beginNewLap = true;
             }
         }
@@ -163,8 +261,14 @@ namespace ZwiftActivityMonitor
                 // Capture the current distance traveled value to use as an offset to each successive distance value.
                 m_distanceSeedValue = e.Distance;
                 m_startTime = now;
-                m_lastEventMeters = 0;
+                //m_lastEventMeters = 0;
                 m_lapCount = 0;
+
+                if (Laps.AutoLapByPosition && Laps.TriggerPositionSetting == Lap.TriggerPositionType.StartAndLapButton)
+                {
+                    // Add a waypoint using current position
+                    LapWaypoints.Add(e);
+                }
 
                 m_beginNewLap = true;
             }
@@ -175,6 +279,17 @@ namespace ZwiftActivityMonitor
                 m_lapStartTime = now;
                 m_lapPowerTotal = 0; // to calculate average power
                 m_lapEventCount = 0; // to calculate average power
+
+                if (m_userRequestedNewLap)
+                {
+                    if (Laps.AutoLapByPosition 
+                        && (Laps.TriggerPositionSetting == Lap.TriggerPositionType.StartAndLapButton || Laps.TriggerPositionSetting == Lap.TriggerPositionType.LapButtonOnly))
+                    {
+                        // Add a waypoint using current position
+                        LapWaypoints.Add(e);
+                    }
+                    m_userRequestedNewLap = false;
+                }
 
                 // if not the first event captured, increment lap counter
                 if (m_eventCount > 0)
@@ -218,39 +333,50 @@ namespace ZwiftActivityMonitor
 
             int lapAvgPower = (int)Math.Round(m_lapPowerTotal / (double)m_lapEventCount, 0);
 
-            /*
-            if (lapKmTravelled >= m_laps.SplitDistanceAsKm)
+            //// Has there been movement?
+            //if (totalMeters - m_lastEventMeters < 1)
+            //    return;
+
+            //m_lastEventMeters = totalMeters;
+
+            // This is an update to the lap in-progress.  LapDistance traveled is included.
+            LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapSpeed, lapDistance, lapAvgPower, totalTime, lapsInKm);
+            OnLapUpdatedEvent(args);
+
+            switch (Laps.LapStyleSetting)
             {
-                // This completes the lap.  TotalDistance traveled is included.
-                SplitEventArgs args = new SplitEventArgs(m_lapCount + 1, lapTime, lapSpeed, totalDistance, runningTime, m_laps.SplitsInKm);
-                OnSplitCompletedEvent(args);
+                case Lap.LapStyleType.Manual:
+                    break;
 
-                // Reset time and begin next lap
-                m_lapStartTime = now;
-                m_lapCount++;
+                case Lap.LapStyleType.Automatic:
 
-                m_lastSplitMeters = 0;
+                    switch (Laps.LapTriggerSetting)
+                    {
+                        case Lap.LapTriggerType.Distance:
+                            if (lapMeters >= Laps.TriggerDistanceAsMeters)
+                            {
+                                m_beginNewLap = true;
+                            }
+                            break;
+
+                        case Lap.LapTriggerType.Time:
+                            if (lapTime >= Laps.TriggerTime)
+                            {
+                                m_beginNewLap = true;
+                            }
+                            break;
+
+                        case Lap.LapTriggerType.Position:
+                            if (LapWaypoints.CheckWaypointCrossings(e) != null)
+                            {
+                                m_beginNewLap = true;
+                            }
+                            break;
+                    }
+                    break;
             }
-            else
-            {
-                if (lapMeters - m_lastSplitMeters >= 1)
-                {
-                    // This is an update to the lap in-progress.  SplitDistance traveled is included.
-                    SplitEventArgs args = new SplitEventArgs(m_lapCount + 1, lapTime, lapSpeed, lapDistance, runningTime, m_laps.SplitsInKm);
-                    OnSplitUpdatedEvent(args);
 
-                    m_lastSplitMeters = lapMeters;
-                }
-            }
-            */
-            if (totalMeters - m_lastEventMeters >= 1)
-            {
-                // This is an update to the lap in-progress.  LapDistance traveled is included.
-                LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapSpeed, lapDistance, lapAvgPower , totalTime, lapsInKm);
-                OnLapUpdatedEvent(args);
-
-                m_lastEventMeters = totalMeters;
-            }
+            LapWaypoints.UpdateWaypointLastRoadTimes(e.RoadTime);
         }
 
 
