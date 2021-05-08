@@ -18,7 +18,7 @@ namespace ZwiftActivityMonitor
     {
         #region Internal SplitItem and SplitListViewItem classes
 
-        internal class SplitListViewColumnSorter : IComparer
+        public class SplitListViewColumnSorter : IComparer
         {
             /// <summary>
             /// Specifies the column to be sorted
@@ -81,9 +81,50 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
+        //public class SplitDetailItem
+        //{
+        //    public int SplitNumber { get; }
+        //    public TimeSpan SplitTime { get; } = TimeSpan.Zero;
+        //    public double SplitSpeedKph { get; }
+        //    public double TotalDistanceKm { get; }
+        //    public TimeSpan TotalTime { get; } = TimeSpan.Zero;
+        //    public TimeSpan Delta { get; } = TimeSpan.Zero;
+        //    public bool? AheadOfGoalTime { get; set; }
 
 
-        internal class SplitItem
+
+        //    public SplitDetailItem(int splitNumber, TimeSpan splitTime, double splitSpeedKph, double totalDistanceKm, TimeSpan totalTime, TimeSpan delta, bool? aheadOfGoalTime)
+        //    {
+        //        this.SplitNumber = splitNumber;
+        //        this.SplitTime = splitTime;
+        //        this.SplitSpeedKph = splitSpeedKph;
+        //        this.TotalDistanceKm = Math.Round(totalDistanceKm, 1);
+        //        this.TotalTime = totalTime;
+        //        this.Delta = delta;
+        //        this.AheadOfGoalTime = aheadOfGoalTime;
+
+        //        //lapDistanceMi = lapDistanceKm / 1.609;
+        //        //this.LapDistanceMi = Math.Round(lapDistanceMi, 1);
+
+        //        //if (lapTime.TotalSeconds > 0)
+        //        //{
+        //        //    this.LapSpeedKph = Math.Round((lapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
+        //        //    this.LapSpeedMph = Math.Round((lapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
+        //        //}
+
+        //        //if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
+        //        //{
+        //        //    this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
+        //        //}
+        //    }
+
+        //    public SplitDetailItem()
+        //    {
+        //    }
+        //}
+
+
+        public class SplitItem
         {
             public int SplitNumberVal { get; set; }
             public string SplitNumber { get; set; }
@@ -95,23 +136,35 @@ namespace ZwiftActivityMonitor
             public bool SplitsInKm { get; set; }
             public bool? AheadOfGoalTime { get; set; }
 
-            public SplitItem(int splitNumber)
+            //public SplitItem(int splitNumber)
+            //{
+            //    this.SplitNumberVal = splitNumber;
+            //}
+            public SplitItem(int splitNumber, string time, string speed, string totalDistance, string totalTime, string delta, bool splitsInKm, bool? aheadOfGoalTime)
             {
                 this.SplitNumberVal = splitNumber;
+                this.SplitNumber = splitNumber.ToString();
+                this.Time = time;
+                this.Speed = speed;
+                this.TotalDistance = totalDistance;
+                this.TotalTime = totalTime;
+                this.Delta = delta;
+                this.SplitsInKm = splitsInKm;
+                this.AheadOfGoalTime = aheadOfGoalTime;
             }
 
-            public void ClearDataFields()
-            {
-                this.SplitNumber = "";
-                this.Time = "";
-                this.Speed = "";
-                this.TotalDistance = "";
-                this.TotalTime = "";
-                this.Delta = "";
-            }
+            //public void ClearDataFields()
+            //{
+            //    this.SplitNumber = "";
+            //    this.Time = "";
+            //    this.Speed = "";
+            //    this.TotalDistance = "";
+            //    this.TotalTime = "";
+            //    this.Delta = "";
+            //}
         }
 
-        internal class SplitListViewItem : ListViewItem
+        public class SplitListViewItem : ListViewItem
         {
             public SplitItem SplitItem { get; set; }
 
@@ -159,7 +212,6 @@ namespace ZwiftActivityMonitor
             {
                 if (!this.UseItemStyleForSubItems)
                     this.UseItemStyleForSubItems = true;
-                //this.SubItems[6].BackColor = TRANSPARENCY;
             }
         }
         #endregion
@@ -283,17 +335,20 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            SplitItem splitItem = new SplitItem(e.SplitNumber)
-            {
-                SplitNumber = e.SplitNumberStr,
-                Time = e.SplitTimeStr,
-                Speed = e.SplitSpeedStr,
-                TotalDistance = e.TotalDistanceStr,
-                TotalTime = e.TotalTimeStr,
-                Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
-                SplitsInKm = e.SplitsInKm,
-                AheadOfGoalTime = e.AheadOfGoalTime // null if not a goal based split
-            };
+
+            SplitItem splitItem = new SplitItem(e.SplitNumber, e.SplitTimeStr, e.SplitSpeedStr, e.TotalDistanceStr, e.TotalTimeStr, e.DeltaTimeStr, e.SplitsInKm, e.AheadOfGoalTime);
+
+            //SplitItem splitItem = new SplitItem(e.SplitNumber)
+            //{
+            //    SplitNumber = e.SplitNumberStr,
+            //    Time = e.SplitTimeStr,
+            //    Speed = e.SplitSpeedStr,
+            //    TotalDistance = e.TotalDistanceStr,
+            //    TotalTime = e.TotalTimeStr,
+            //    Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
+            //    SplitsInKm = e.SplitsInKm,
+            //    AheadOfGoalTime = e.AheadOfGoalTime // null if not a goal based split
+            //};
 
             if (lvSplits.Items.ContainsKey(splitItem.SplitNumber))
             {
@@ -350,10 +405,10 @@ namespace ZwiftActivityMonitor
                 return;
 
             // Positive number is bad, negative good
-            lvSplits.BackColor = e.DeltaTime.Value.TotalSeconds >= 1 ? RED : GREEN;
+            //lvSplits.BackColor = e.DeltaTime.Value.TotalSeconds >= 1 ? RED : GREEN;
 
             // when timer expires color will revert to normal
-            this.backcolorTimer.Enabled = true;
+            //this.backcolorTimer.Enabled = true;
 
             //Logger.LogInformation($"SplitGoalCompletedEventHandler {splitItem.SplitNumber}, {splitItem.Time}, {splitItem.Speed}, {splitItem.TotalDistance}, {splitItem.TotalTime}");
         }

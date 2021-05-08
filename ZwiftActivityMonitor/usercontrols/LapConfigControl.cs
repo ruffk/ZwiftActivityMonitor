@@ -207,7 +207,7 @@ namespace ZwiftActivityMonitor
                     {
                         if (cbMeasurementSystem.SelectedItem != null)
                         {
-                            ZAMsettings.Settings.Laps.MeasurementSystemSetting = (cbMeasurementSystem.SelectedItem as KeyStringPair<Lap.MeasurementSystemType>).Key;
+                            ZAMsettings.Settings.Laps.MeasurementSystemSetting = (cbMeasurementSystem.SelectedItem as KeyStringPair<MeasurementSystemType>).Key;
                         }
                         else
                         {

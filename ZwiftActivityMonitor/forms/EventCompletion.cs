@@ -34,13 +34,24 @@ namespace ZwiftActivityMonitor
             btnClose.FlatAppearance.BorderColor = Color.FromArgb(0, 255, 255, 255); //transparent
         }
 
-        public void InitLapEventCompletion(LapDetailItem item)
+        public void InitLapEventCompletion(LapViewControl.LapDetailItem item)
         {
             this.lblTitle.Text = "Lap Completed";
 
             ucEventView.InitLapEventCompletion(item);
 
-            this.SecondsUntilAutoClose = 7;
+            this.SecondsUntilAutoClose = 9;
+            btnClose.Text = this.SecondsUntilAutoClose.ToString();
+
+            this.CountdownTimer.Enabled = true;
+        }
+        public void InitSplitEventCompletion(SplitsViewControl.SplitItem item)
+        {
+            this.lblTitle.Text = "Split Completed";
+
+            ucEventView.InitSplitEventCompletion(item);
+
+            this.SecondsUntilAutoClose = 9;
             btnClose.Text = this.SecondsUntilAutoClose.ToString();
 
             this.CountdownTimer.Enabled = true;

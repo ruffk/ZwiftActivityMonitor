@@ -171,7 +171,7 @@ namespace ZwiftActivityMonitor
                 m_zpMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
             }
 
-            m_packetSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback, null, 1000, 1000);
+            m_packetSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback, null, 0, 1000);
             m_isStarted = true;
 
             

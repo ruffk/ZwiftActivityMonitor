@@ -75,6 +75,8 @@ namespace ZwiftActivityMonitor
             SplitsView.SplitGoalCompletedEvent += SplitCompletedEventHandler;
             SplitsView.SplitCompletedEvent += SplitCompletedEventHandler;
 
+            LapView.LapCompletedEvent += LapCompletedEventHandler;
+
             var form = new SplashScreen();
             DialogResult result = form.ShowDialog(this);
 
@@ -382,18 +384,18 @@ namespace ZwiftActivityMonitor
         }
 
         /// <summary>
-        /// A delegate used solely by the SplitGoalCompletedEventHandler
+        /// A delegate used solely by the SplitCompletedEventHandler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void SplitCompletedEventHandlerDelegate(object sender, EventArgs e);
+        private delegate void SplitCompletedEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
 
         /// <summary>
         /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SplitCompletedEventHandler(object sender, EventArgs e)
+        private void SplitCompletedEventHandler(object sender, SplitsManager.SplitEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
@@ -402,13 +404,47 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            if (!this.IsControlAtFront(SplitsView))
-            {
-                tsbSplits.PerformClick();
-                m_splitsViewDisplayTime = DateTime.Now;
-            }
+            //if (!this.IsControlAtFront(SplitsView))
+            //{
+            //    tsbSplits.PerformClick();
+            //    m_splitsViewDisplayTime = DateTime.Now;
+            //}
+
+            var form = new EventCompletion();
+            form.InitSplitEventCompletion(new SplitsViewControl.SplitItem(e.SplitNumber, e.SplitTimeStr, e.SplitSpeedStr, e.TotalDistanceStr, e.TotalTimeStr, e.DeltaTimeStr, e.SplitsInKm, e.AheadOfGoalTime));
+
+            DialogResult result = form.ShowDialog(this);
+
 
             //Logger.LogInformation($"SplitGoalCompletedEventHandler {e.SplitNumberStr}, {e.SplitTimeStr}, {e.SplitSpeedStr}, {e.TotalDistanceStr}, {e.TotalTimeStr}");
+        }
+
+
+        /// <summary>
+        /// A delegate used solely by the LapCompletedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void LapCompletedEventHandlerDelegate(object sender, LapsManager.LapEventArgs e);
+
+        /// <summary>
+        /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LapCompletedEventHandler(object sender, LapsManager.LapEventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new LapCompletedEventHandlerDelegate(LapCompletedEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            var form = new EventCompletion();
+            form.InitLapEventCompletion(new LapViewControl.LapDetailItem(e.LapNumber, e.LapTime, e.LapDistanceKm, e.LapAvgWatts, e.TotalTime));
+
+            DialogResult result = form.ShowDialog(this);
         }
 
 
@@ -571,10 +607,7 @@ namespace ZwiftActivityMonitor
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-            var form = new EventCompletion();
-            form.InitLapEventCompletion(new LapDetailItem());
-
-            //var form = new AboutForm();
+            var form = new AboutForm();
 
             DialogResult result = form.ShowDialog(this);
 

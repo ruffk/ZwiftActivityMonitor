@@ -19,6 +19,13 @@ namespace ZwiftActivityMonitor
         Wkg
     }
 
+    public enum MeasurementSystemType 
+    { 
+        Imperial, 
+        Metric 
+    }
+
+
     #region ConfigItemBase
     public class ConfigItemBase
     {
@@ -293,7 +300,6 @@ namespace ZwiftActivityMonitor
         public enum TriggerPositionType { StartAndLapButton, LapButtonOnly }
         public enum LapStyleType { Manual, Automatic }
         public enum LapTriggerType { Distance, Time, Position }
-        public enum MeasurementSystemType { Imperial, Metric }
 
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
         public KeyStringPair<LapStyleType> LapStyle { get; set; }
@@ -941,7 +947,7 @@ namespace ZwiftActivityMonitor
             ZPMonitorService = zpMonitorService;
 
             JObject parsedJson = null;
-            bool userFileExists = false;
+            //bool userFileExists = false;
 
             try
             {
@@ -951,7 +957,7 @@ namespace ZwiftActivityMonitor
                     string jsonStr = File.ReadAllText(FileName);
                     parsedJson = JObject.Parse(jsonStr);
 
-                    userFileExists = true;
+                    //userFileExists = true;
 
                     _logger.LogInformation($"Configuration cached from user settings file {FileName}.");
                 }

@@ -12,56 +12,55 @@ namespace ZwiftActivityMonitor
 {
     public partial class EventCompletionViewControl : UserControlBase
     {
-        public enum RefreshUom
-        {
-            RefreshImperial,
-            RefreshMetric
-        }
-
         #region LapListViewItem Class
-        internal class LapListViewItem : ListViewItem
-        {
-            public LapDetailItem LapItem { get; set; }
+        //internal class LapListViewItem : ListViewItem
+        //{
+        //    public LapViewControl.LapDetailItem LapItem { get; set; }
 
-            public LapListViewItem(LapDetailItem item, RefreshUom refreshUom) : base(SubItemStrings(item, refreshUom))
-            {
-                this.LapItem = item;
-                this.Name = item.LapNumber.ToString(); // this is the Key in the listview.items collection
-            }
+        //    public LapListViewItem(LapViewControl.LapDetailItem item, MeasurementSystemType roadUom, MeasurementSystemType powerUom) : base(SubItemStrings(item, roadUom, powerUom))
+        //    {
+        //        this.LapItem = item;
+        //        this.Name = item.LapNumber.ToString(); // this is the Key in the listview.items collection
+        //    }
 
-            private static string[] SubItemStrings(LapDetailItem item, RefreshUom refreshUom)
-            {
-                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
+        //    private static string[] SubItemStrings(LapViewControl.LapDetailItem item, MeasurementSystemType roadUom, MeasurementSystemType powerUom)
+        //    {
+        //        return (new string[]
+        //        {
+        //            "", // dummy first column
+        //            item.LapNumber.ToString(),
+        //            $"{item.LapTime.Minutes:0#}:{item.LapTime.Seconds:0#}",
+        //            roadUom == MeasurementSystemType.Metric ? $"{item.LapSpeedKph:0.0}" : $"{item.LapSpeedMph:0.0}",
+        //            roadUom == MeasurementSystemType.Metric ? $"{item.LapDistanceKm:0.0}" : $"{item.LapDistanceMi:0.0}",
+        //            powerUom == MeasurementSystemType.Metric ? $"{item.LapAvgWkg:0.00}" : $"{item.LapAvgWatts}",
+        //            $"{item.TotalTime.Hours:0#}:{item.TotalTime.Minutes:0#}:{item.TotalTime.Seconds:0#}"
+        //        });
+        //    }
 
-                return (new string[]
-                {
-                    "", // dummy first column
-                    item.LapNumber.ToString(),
-                    $"{item.LapTime.Minutes:0#}:{item.LapTime.Seconds:0#}",
-                    isMetric ? $"{item.LapSpeedKph:#.0}" : $"{item.LapSpeedMph:#.0}",
-                    isMetric ? $"{item.LapDistanceKm:0.0}" : $"{item.LapDistanceMi:0.0}",
-                    isMetric ? $"{item.LapAvgWkg:#.00}" : $"{item.LapAvgWatts}",
-                    $"{item.TotalTime.Hours:0#}:{item.TotalTime.Minutes:0#}:{item.TotalTime.Seconds:0#}"
-                });
-            }
+        //    public static void RefreshAll(ListView listView, MeasurementSystemType roadUom, MeasurementSystemType powerUom)
+        //    {
+        //        foreach(ListViewItem item in listView.Items)
+        //        {
+        //            (item as LapListViewItem).Refresh(roadUom, powerUom);
+        //        }
+        //    }
 
-            public void Refresh(RefreshUom refreshUom)
-            {
-                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
+        //    public void Refresh(MeasurementSystemType roadUom, MeasurementSystemType powerUom)
+        //    {
+        //        string[] text = SubItemStrings(LapItem, roadUom, powerUom);
 
-                string[] text = SubItemStrings(LapItem, refreshUom);
+        //        // Update the speed column header text accordingly
+        //        this.ListView.Columns[3].Text = roadUom == MeasurementSystemType.Metric ? "km/h" : "mi/h";
+        //        this.ListView.Columns[4].Text = roadUom == MeasurementSystemType.Metric ? "km" : "mi";
+        //        this.ListView.Columns[5].Text = powerUom == MeasurementSystemType.Metric ? "w/kg" : "Avg";
 
-                // Update the speed column header text accordingly
-                this.ListView.Columns[3].Text = isMetric ? "km/h" : "mi/h";
-                this.ListView.Columns[4].Text = isMetric ? "km" : "mi";
-
-                for (int i = 0; i < text.Length; i++)
-                    this.SubItems[i].Text = text[i];
-            }
-        }
+        //        for (int i = 0; i < text.Length; i++)
+        //            this.SubItems[i].Text = text[i];
+        //    }
+        //}
         #endregion
 
-        private RefreshUom CurrentUom { get; set; }
+        private MeasurementSystemType CurrentPowerUom { get; set; }
         private int TimerTicks { get; set; }
         private Timer CountdownTimer { get; }
 
@@ -77,7 +76,7 @@ namespace ZwiftActivityMonitor
             UserControlBase.SetListViewHeaderColor(ref this.lvDetail, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
         }
 
-        public void InitLapEventCompletion(LapDetailItem item)
+        public void InitLapEventCompletion(LapViewControl.LapDetailItem item)
         {
             this.lvHeader.Columns.Clear();
             this.lvDetail.Columns.Clear();
@@ -95,27 +94,59 @@ namespace ZwiftActivityMonitor
                 new ColumnHeader() { Text = "", Width = 0 },
                 new ColumnHeader() { Text = "#", TextAlign = HorizontalAlignment.Center, Width = 28 },
                 new ColumnHeader() { Text = "Time", TextAlign = HorizontalAlignment.Center, Width = 66 },
-                new ColumnHeader() { Text = "km/h", TextAlign = HorizontalAlignment.Center, Width = 48 }, // toggles with RefreshUom
-                new ColumnHeader() { Text = "km", TextAlign = HorizontalAlignment.Center, Width = 50 }, // toggles with RefreshUom
+                new ColumnHeader() { Text = "km/h", TextAlign = HorizontalAlignment.Center, Width = 48 }, 
+                new ColumnHeader() { Text = "km", TextAlign = HorizontalAlignment.Center, Width = 50 }, 
                 new ColumnHeader() { Text = "Avg", TextAlign = HorizontalAlignment.Center, Width = 50 },
                 new ColumnHeader() { Text = "Time", TextAlign = HorizontalAlignment.Center, Width = 72 },
             });
 
-            this.CurrentUom = RefreshUom.RefreshMetric;
-            this.lvDetail.Items.Add(new LapListViewItem(item, this.CurrentUom));
+            this.CurrentPowerUom = MeasurementSystemType.Imperial;
+            this.lvDetail.Items.Add(new LapViewControl.LapListViewItem(item, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom));
+
+            LapViewControl.LapListViewItem.RefreshAll(lvDetail, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
 
             this.TimerTicks = 0;
             this.CountdownTimer.Enabled = true;
+        }
+
+        public void InitSplitEventCompletion(SplitsViewControl.SplitItem item)
+        {
+            this.lvHeader.Columns.Clear();
+            this.lvDetail.Columns.Clear();
+            this.lvDetail.Items.Clear();
+
+            this.lvHeader.Columns.AddRange(new ColumnHeader[]
+            {
+                new ColumnHeader() { Text = "", Width = 0 },
+                new ColumnHeader() { Text = "Split", TextAlign = HorizontalAlignment.Center, Width = 182 },
+                new ColumnHeader() { Text = "Total", TextAlign = HorizontalAlignment.Center, Width = 132 },
+            });
+
+            this.lvDetail.Columns.AddRange(new ColumnHeader[]
+            {
+                new ColumnHeader() { Text = "", Width = 0 },
+                new ColumnHeader() { Text = "#", TextAlign = HorizontalAlignment.Center, Width = 36 },
+                new ColumnHeader() { Text = "Time", TextAlign = HorizontalAlignment.Center, Width = 48 },
+                new ColumnHeader() { Text = "km/h", TextAlign = HorizontalAlignment.Center, Width = 48 }, 
+                new ColumnHeader() { Text = "km", TextAlign = HorizontalAlignment.Center, Width = 50 }, 
+                new ColumnHeader() { Text = "Time", TextAlign = HorizontalAlignment.Center, Width = 72 },
+                new ColumnHeader() { Text = "+/-", TextAlign = HorizontalAlignment.Center, Width = 60 },
+            });
+
+            this.lvDetail.Items.Add(new SplitsViewControl.SplitListViewItem(item));
+
+            (this.lvDetail.Items[0] as SplitsViewControl.SplitListViewItem).Refresh();
         }
 
         private void CountdownTimer_Tick(object sender, EventArgs e)
         {
             this.TimerTicks++;
 
-            if (this.TimerTicks % 2 == 0)
+            if (this.TimerTicks % 3 == 0)
             {
-                this.CurrentUom = this.CurrentUom == RefreshUom.RefreshMetric ? RefreshUom.RefreshImperial : RefreshUom.RefreshMetric;
-                (this.lvDetail.Items[0] as LapListViewItem).Refresh(this.CurrentUom);
+                this.CurrentPowerUom = this.CurrentPowerUom == MeasurementSystemType.Metric ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
+
+                (this.lvDetail.Items[0] as LapViewControl.LapListViewItem).Refresh(ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
             }
         }
 

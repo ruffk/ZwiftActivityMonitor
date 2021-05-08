@@ -14,53 +14,58 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitor
 {
-    public class LapDetailItem
-    {
-        public int LapNumber { get; }
-        public TimeSpan LapTime { get; } = TimeSpan.Zero;
-        public double LapDistanceKm { get; }
-        public int LapAvgWatts { get; }
-        public TimeSpan TotalTime { get; } = TimeSpan.Zero;
-
-        public double LapDistanceMi { get; }
-        public double LapSpeedKph { get; }
-        public double LapSpeedMph { get; }
-        public double LapAvgWkg { get; }
-
-
-
-        public LapDetailItem(int lapNumber, TimeSpan lapTime, double lapDistanceKm, int lapAvgWatts, TimeSpan totalTime)
-        {
-            this.LapNumber = lapNumber;
-            this.LapTime = lapTime;
-            this.LapDistanceKm = Math.Round(lapDistanceKm, 1);
-            this.LapAvgWatts = lapAvgWatts;
-            this.TotalTime = totalTime;
-
-            this.LapDistanceMi = Math.Round(lapDistanceKm / 1.609, 1);
-
-            if (lapTime.TotalSeconds > 0)
-            {
-                this.LapSpeedKph = Math.Round((this.LapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
-                this.LapSpeedMph = Math.Round((this.LapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
-            }
-
-            if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
-            {
-                this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
-            }
-        }
-
-        public LapDetailItem()
-        {
-        }
-    }
-
     public partial class LapViewControl : UserControlBase
     {
-        #region Internal LapListViewItem Class
+        #region public class LapDetailItem
+        public class LapDetailItem
+        {
+            public int LapNumber { get; }
+            public TimeSpan LapTime { get; } = TimeSpan.Zero;
+            public double LapDistanceKm { get; }
+            public int LapAvgWatts { get; }
+            public TimeSpan TotalTime { get; } = TimeSpan.Zero;
 
-        internal class LapListViewColumnSorter : IComparer
+            public double LapDistanceMi { get; }
+            public double LapSpeedKph { get; }
+            public double LapSpeedMph { get; }
+            public double LapAvgWkg { get; }
+
+
+
+            public LapDetailItem(int lapNumber, TimeSpan lapTime, double lapDistanceKm, int lapAvgWatts, TimeSpan totalTime)
+            {
+                double lapDistanceMi;
+
+                this.LapNumber = lapNumber;
+                this.LapTime = lapTime;
+                this.LapDistanceKm = Math.Round(lapDistanceKm, 1);
+                this.LapAvgWatts = lapAvgWatts;
+                this.TotalTime = totalTime;
+
+                lapDistanceMi = lapDistanceKm / 1.609;
+                this.LapDistanceMi = Math.Round(lapDistanceMi, 1);
+
+                if (lapTime.TotalSeconds > 0)
+                {
+                    this.LapSpeedKph = Math.Round((lapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
+                    this.LapSpeedMph = Math.Round((lapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
+                }
+
+                if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
+                {
+                    this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
+                }
+            }
+
+            public LapDetailItem()
+            {
+            }
+        }
+        #endregion
+
+        #region public class LapListViewColumnSorter and LapListViewItem
+
+        public class LapListViewColumnSorter : IComparer
         {
             /// <summary>
             /// Specifies the column to be sorted
@@ -125,47 +130,46 @@ namespace ZwiftActivityMonitor
         }
 
 
-        internal class LapListViewItem : ListViewItem
+        public class LapListViewItem : ListViewItem
         {
             public LapDetailItem LapItem { get; set; }
 
-            public enum RefreshUom
-            {
-                RefreshImperial,
-                RefreshMetric
-            }
-
-            public LapListViewItem(LapDetailItem item) : base(SubItemStrings(item, RefreshUom.RefreshMetric))
+            public LapListViewItem(LapViewControl.LapDetailItem item, MeasurementSystemType roadUom, MeasurementSystemType powerUom) : base(SubItemStrings(item, roadUom, powerUom))
             {
                 this.LapItem = item;
                 this.Name = item.LapNumber.ToString(); // this is the Key in the listview.items collection
             }
 
-            private static string[] SubItemStrings(LapDetailItem item, RefreshUom refreshUom)
+            private static string[] SubItemStrings(LapViewControl.LapDetailItem item, MeasurementSystemType roadUom, MeasurementSystemType powerUom)
             {
-                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
-
                 return (new string[]
                 {
                     "", // dummy first column
                     item.LapNumber.ToString(),
                     $"{item.LapTime.Minutes:0#}:{item.LapTime.Seconds:0#}",
-                    isMetric ? $"{item.LapSpeedKph:#.0}" : $"{item.LapSpeedMph:#.0}",
-                    isMetric ? $"{item.LapDistanceKm:0.0}" : $"{item.LapDistanceMi:0.0}",
-                    isMetric ? $"{item.LapAvgWkg:#.00}" : $"{item.LapAvgWatts}",
+                    roadUom == MeasurementSystemType.Metric ? $"{item.LapSpeedKph:0.0}" : $"{item.LapSpeedMph:0.0}",
+                    roadUom == MeasurementSystemType.Metric ? $"{item.LapDistanceKm:0.0}" : $"{item.LapDistanceMi:0.0}",
+                    powerUom == MeasurementSystemType.Metric ? $"{item.LapAvgWkg:0.00}" : $"{item.LapAvgWatts}",
                     $"{item.TotalTime.Hours:0#}:{item.TotalTime.Minutes:0#}:{item.TotalTime.Seconds:0#}"
                 });
             }
 
-            public void Refresh(RefreshUom refreshUom)
+            public static void RefreshAll(ListView listView, MeasurementSystemType roadUom, MeasurementSystemType powerUom)
             {
-                bool isMetric = refreshUom == RefreshUom.RefreshMetric;
+                foreach (ListViewItem item in listView.Items)
+                {
+                    (item as LapListViewItem).Refresh(roadUom, powerUom);
+                }
+            }
 
-                string[] text = SubItemStrings(LapItem, refreshUom);
+            public void Refresh(MeasurementSystemType roadUom, MeasurementSystemType powerUom)
+            {
+                string[] text = SubItemStrings(LapItem, roadUom, powerUom);
 
                 // Update the speed column header text accordingly
-                this.ListView.Columns[3].Text = isMetric ? "km/h" : "mi/h";
-                this.ListView.Columns[4].Text = isMetric ? "km" : "mi";
+                this.ListView.Columns[3].Text = roadUom == MeasurementSystemType.Metric ? "km/h" : "mi/h";
+                this.ListView.Columns[4].Text = roadUom == MeasurementSystemType.Metric ? "km" : "mi";
+                this.ListView.Columns[5].Text = powerUom == MeasurementSystemType.Metric ? "w/kg" : "Avg";
 
                 for (int i = 0; i < text.Length; i++)
                     this.SubItems[i].Text = text[i];
@@ -177,7 +181,9 @@ namespace ZwiftActivityMonitor
         private readonly LapsManager m_LapsManager;
         private Dispatcher m_dispatcher;
 
-        //private Timer backcolorTimer = new Timer();
+        private MeasurementSystemType CurrentPowerUom { get; set; }
+        private int TimerTicks { get; set; }
+        private Timer CountdownTimer { get; }
 
 
         public LapViewControl()
@@ -187,10 +193,9 @@ namespace ZwiftActivityMonitor
             m_LapsManager = new LapsManager();
             m_LapsManager.LapUpdatedEvent += this.LapEventHandler;
 
-
-            // When goal Laps complete, either Red or Green will show in background for this period
-            //backcolorTimer.Interval = 2000;
-            //backcolorTimer.Tick += backcolorTimer_Tick;
+            this.CountdownTimer = new();
+            this.CountdownTimer.Interval = 5000;
+            this.CountdownTimer.Tick += this.CountdownTimer_Tick;
 
             UserControlBase.SetListViewHeaderColor(ref this.lvLaps, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
         }
@@ -223,12 +228,16 @@ namespace ZwiftActivityMonitor
 
             m_LapsManager.BeginLapMonitoring();
 
+            CountdownTimer.Enabled = true;
+
             //lblGoalSpeed.Text = m_LapsManager.GoalText;
         }
 
         public void StopCollection()
         {
             m_LapsManager.EndLapMonitoring();
+
+            CountdownTimer.Enabled = false;
         }
 
         private void OnCollectionStatusChanged()
@@ -242,6 +251,17 @@ namespace ZwiftActivityMonitor
             //lblGoalSpeed.Text = "";
         }
 
+        public event EventHandler<LapsManager.LapEventArgs> LapCompletedEvent
+        {
+            add
+            {
+                m_LapsManager.LapCompletedEvent += value;
+            }
+            remove
+            {
+                m_LapsManager.LapCompletedEvent -= value;
+            }
+        }
 
         /// <summary>
         /// A delegate used solely by the LapEventHandler
@@ -270,27 +290,32 @@ namespace ZwiftActivityMonitor
             {
                 LapListViewItem item = (LapListViewItem)lvLaps.Items[LapItem.LapNumber.ToString()];
                 item.LapItem = LapItem; // Replace with current LapDetailItem object and refresh
-                item.Refresh(LapListViewItem.RefreshUom.RefreshMetric);
+                item.Refresh(ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
             }
             else
             {
-                lvLaps.Items.Add(new LapListViewItem(LapItem));
+                LapListViewItem item = new LapListViewItem(LapItem, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
+                lvLaps.Items.Add(item);
                 lvLaps.Sort();
+
+                // On first item added make sure the column headings match the data fields 
+                if (lvLaps.Items.Count == 1)
+                {
+                    item.Refresh(ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
+                }
             }
 
             Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.LapTime}, {LapItem.LapSpeedKph}km/h, {LapItem.LapDistanceKm}km, {LapItem.TotalTime}");
         }
 
-        /// <summary>
-        /// When timer fires revert backcolor to normal.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void backcolorTimer_Tick(object sender, EventArgs e)
-        //{
-        //    this.backcolorTimer.Enabled = false;
-        //    lvLaps.BackColor = Color.FromArgb(255, 17, 146, 204); // transparent (based upon key)
-        //}
+        private void CountdownTimer_Tick(object sender, EventArgs e)
+        {
+            this.TimerTicks++;
+
+            this.CurrentPowerUom = this.CurrentPowerUom == MeasurementSystemType.Metric ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
+
+            LapListViewItem.RefreshAll(lvLaps, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
+        }
 
 
         #region Base class overrides for event selection
