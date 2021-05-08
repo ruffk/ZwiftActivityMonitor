@@ -183,6 +183,7 @@ namespace ZwiftActivityMonitor
 
         private MeasurementSystemType CurrentPowerUom { get; set; }
         private int TimerTicks { get; set; }
+        private int StatusLabelSeconds { get; set; }
         private Timer CountdownTimer { get; }
 
 
@@ -192,9 +193,11 @@ namespace ZwiftActivityMonitor
 
             m_LapsManager = new LapsManager();
             m_LapsManager.LapUpdatedEvent += this.LapEventHandler;
+            m_LapsManager.LapStartedEvent += this.LapStartedEventHandler;
+
 
             this.CountdownTimer = new();
-            this.CountdownTimer.Interval = 5000;
+            this.CountdownTimer.Interval = 1000;
             this.CountdownTimer.Tick += this.CountdownTimer_Tick;
 
             UserControlBase.SetListViewHeaderColor(ref this.lvLaps, Color.FromArgb(255, 243, 108, 61), Color.White); // Orange ListView headers
@@ -308,13 +311,53 @@ namespace ZwiftActivityMonitor
             Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.LapTime}, {LapItem.LapSpeedKph}km/h, {LapItem.LapDistanceKm}km, {LapItem.TotalTime}");
         }
 
+
+        /// <summary>
+        /// A delegate used solely by the LapStartedEventHandler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void LapStartedEventHandlerDelegate(object sender, LapsManager.LapStartedEventArgs e);
+
+        /// <summary>
+        /// Occurs each time a lap gets updated or completes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LapStartedEventHandler(object sender, LapsManager.LapStartedEventArgs e)
+        {
+            if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                m_dispatcher.BeginInvoke(new LapStartedEventHandlerDelegate(LapStartedEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            SetStatusLabel(e.StatusMsg, 5);
+        }
+
         private void CountdownTimer_Tick(object sender, EventArgs e)
         {
             this.TimerTicks++;
 
-            this.CurrentPowerUom = this.CurrentPowerUom == MeasurementSystemType.Metric ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
+            if (this.TimerTicks % 5 == 0)
+            {
+                this.CurrentPowerUom = this.CurrentPowerUom == MeasurementSystemType.Metric ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
 
-            LapListViewItem.RefreshAll(lvLaps, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
+                LapListViewItem.RefreshAll(lvLaps, ZAMsettings.Settings.Laps.MeasurementSystemSetting, this.CurrentPowerUom);
+            }
+
+            if (this.StatusLabelSeconds > 0)
+            {
+                if (--this.StatusLabelSeconds == 0)
+                    this.toolStripStatusLabel.Text = "";
+            }
+        }
+
+        private void SetStatusLabel(string text, int seconds)
+        {
+            this.toolStripStatusLabel.Text = text;
+            this.StatusLabelSeconds = seconds;
         }
 
 
@@ -356,5 +399,6 @@ namespace ZwiftActivityMonitor
         {
             m_LapsManager.BeginNewLap();
         }
+
     }
 }

@@ -15,6 +15,7 @@
       },
       "WeightInKgs": false,
       "Name": "Default User",
+      "EmailAddress": "",
       "Weight": 165.0
     }
   },
@@ -109,5 +110,31 @@
     "GoalMinutes": 45,
     "GoalSeconds": 0,
     "GoalDistance": 25.0
+  },
+  "Laps": {
+    "LapStyle": {
+      "Key": 1,
+      "Value": "Automatic"
+    },
+    "TriggerDistanceUom": {
+      "Key": 0,
+      "Value": "km"
+    },
+    "TriggerPosition": {
+      "Key": 0,
+      "Value": "Start and Lap Button"
+    },
+    "LapTrigger": {
+      "Key": 2,
+      "Value": "Position"
+    },
+    "MeasurementSystem": {
+      "Key": 1,
+      "Value": "Metric"
+    },
+    "TriggerDistance": 5.0,
+    "TriggerHours": 0,
+    "TriggerMinutes": 10,
+    "TriggerSeconds": 0
   }
 }

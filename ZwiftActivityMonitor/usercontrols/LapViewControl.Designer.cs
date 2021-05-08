@@ -29,7 +29,8 @@ namespace ZwiftActivityMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "88",
             "8:88:88",
@@ -37,7 +38,7 @@ namespace ZwiftActivityMonitor
             "888.8",
             "888",
             "88:88:88"}, -1, System.Drawing.Color.Empty, System.Drawing.Color.Empty, new System.Drawing.Font("Franklin Gothic Demi Cond", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point));
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "2",
             "8:88:88",
@@ -45,7 +46,7 @@ namespace ZwiftActivityMonitor
             "888.8",
             "888",
             "88:88:88"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "",
             "1",
             "8:88:88",
@@ -66,18 +67,18 @@ namespace ZwiftActivityMonitor
             this.pChartTitle = new System.Windows.Forms.Panel();
             this.lblSplit = new System.Windows.Forms.Label();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tsbStart = new System.Windows.Forms.ToolStripButton();
-            this.tsbStop = new System.Windows.Forms.ToolStripButton();
             this.tsbLap = new System.Windows.Forms.ToolStripButton();
             this.tsbReset = new System.Windows.Forms.ToolStripButton();
             this.label7 = new System.Windows.Forms.Label();
-            this.pSplitChartFooter = new System.Windows.Forms.Panel();
-            this.lblGoalSpeed = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.pChartFooter = new System.Windows.Forms.Panel();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pSplits.SuspendLayout();
             this.pChartTitle.SuspendLayout();
             this.toolStrip1.SuspendLayout();
-            this.pSplitChartFooter.SuspendLayout();
+            this.pChartFooter.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pSplits
@@ -86,7 +87,7 @@ namespace ZwiftActivityMonitor
             this.pSplits.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pSplits.Location = new System.Drawing.Point(0, 22);
             this.pSplits.Name = "pSplits";
-            this.pSplits.Size = new System.Drawing.Size(334, 109);
+            this.pSplits.Size = new System.Drawing.Size(334, 107);
             this.pSplits.TabIndex = 0;
             // 
             // lvLaps
@@ -109,14 +110,14 @@ namespace ZwiftActivityMonitor
             this.lvLaps.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvLaps.HideSelection = false;
             this.lvLaps.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem4,
-            listViewItem5,
-            listViewItem6});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.lvLaps.Location = new System.Drawing.Point(0, 0);
             this.lvLaps.MultiSelect = false;
             this.lvLaps.Name = "lvLaps";
             this.lvLaps.OwnerDraw = true;
-            this.lvLaps.Size = new System.Drawing.Size(334, 109);
+            this.lvLaps.Size = new System.Drawing.Size(334, 107);
             this.lvLaps.TabIndex = 1;
             this.lvLaps.TabStop = false;
             this.lvLaps.UseCompatibleStateImageBehavior = false;
@@ -203,8 +204,6 @@ namespace ZwiftActivityMonitor
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbStart,
-            this.tsbStop,
             this.tsbLap,
             this.tsbReset});
             this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
@@ -214,36 +213,16 @@ namespace ZwiftActivityMonitor
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // tsbStart
-            // 
-            this.tsbStart.AutoSize = false;
-            this.tsbStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbStart.ForeColor = System.Drawing.Color.White;
-            this.tsbStart.Image = global::ZwiftActivityMonitor.Properties.Resources.start;
-            this.tsbStart.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbStart.Name = "tsbStart";
-            this.tsbStart.Size = new System.Drawing.Size(22, 22);
-            this.tsbStart.Text = "Start lap counter";
-            // 
-            // tsbStop
-            // 
-            this.tsbStop.AutoSize = false;
-            this.tsbStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbStop.Image = global::ZwiftActivityMonitor.Properties.Resources.stop;
-            this.tsbStop.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbStop.Name = "tsbStop";
-            this.tsbStop.Size = new System.Drawing.Size(22, 22);
-            this.tsbStop.Text = "Stop lap counter";
-            // 
             // tsbLap
             // 
             this.tsbLap.AutoSize = false;
             this.tsbLap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsbLap.Image = global::ZwiftActivityMonitor.Properties.Resources.stopwatch;
             this.tsbLap.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLap.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
             this.tsbLap.Name = "tsbLap";
             this.tsbLap.Size = new System.Drawing.Size(22, 22);
-            this.tsbLap.Text = "Begin new lap";
+            this.tsbLap.Text = "Click to start a new lap";
             this.tsbLap.Click += new System.EventHandler(this.tsbLap_Click);
             // 
             // tsbReset
@@ -252,9 +231,10 @@ namespace ZwiftActivityMonitor
             this.tsbReset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsbReset.Image = global::ZwiftActivityMonitor.Properties.Resources.reset;
             this.tsbReset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbReset.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
             this.tsbReset.Name = "tsbReset";
             this.tsbReset.Size = new System.Drawing.Size(22, 22);
-            this.tsbReset.Text = "Reset lap counter";
+            this.tsbReset.Text = "Click to clear laps and restart";
             this.tsbReset.Click += new System.EventHandler(this.tsbReset_Click);
             // 
             // label7
@@ -267,43 +247,49 @@ namespace ZwiftActivityMonitor
             this.label7.Text = "Total";
             this.label7.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
-            // pSplitChartFooter
+            // pChartFooter
             // 
-            this.pSplitChartFooter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(108)))), ((int)(((byte)(61)))));
-            this.pSplitChartFooter.Controls.Add(this.lblGoalSpeed);
-            this.pSplitChartFooter.Controls.Add(this.label8);
-            this.pSplitChartFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pSplitChartFooter.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.pSplitChartFooter.ForeColor = System.Drawing.Color.White;
-            this.pSplitChartFooter.Location = new System.Drawing.Point(0, 131);
-            this.pSplitChartFooter.Name = "pSplitChartFooter";
-            this.pSplitChartFooter.Size = new System.Drawing.Size(334, 22);
-            this.pSplitChartFooter.TabIndex = 82;
+            this.pChartFooter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(108)))), ((int)(((byte)(61)))));
+            this.pChartFooter.Controls.Add(this.statusStrip1);
+            this.pChartFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pChartFooter.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.pChartFooter.ForeColor = System.Drawing.Color.White;
+            this.pChartFooter.Location = new System.Drawing.Point(0, 129);
+            this.pChartFooter.Name = "pChartFooter";
+            this.pChartFooter.Size = new System.Drawing.Size(334, 24);
+            this.pChartFooter.TabIndex = 82;
             // 
-            // lblGoalSpeed
+            // statusStrip1
             // 
-            this.lblGoalSpeed.Location = new System.Drawing.Point(43, 0);
-            this.lblGoalSpeed.Name = "lblGoalSpeed";
-            this.lblGoalSpeed.Size = new System.Drawing.Size(291, 22);
-            this.lblGoalSpeed.TabIndex = 96;
-            this.lblGoalSpeed.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.statusStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(108)))), ((int)(((byte)(61)))));
+            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 0);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(334, 24);
+            this.statusStrip1.SizingGrip = false;
+            this.statusStrip1.TabIndex = 0;
+            this.statusStrip1.Text = "statusStrip1";
             // 
-            // label8
+            // toolStripStatusLabel
             // 
-            this.label8.Dock = System.Windows.Forms.DockStyle.Left;
-            this.label8.Location = new System.Drawing.Point(0, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(107, 22);
-            this.label8.TabIndex = 95;
-            this.label8.Text = "Goal:";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toolStripStatusLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(108)))), ((int)(((byte)(61)))));
+            this.toolStripStatusLabel.Font = new System.Drawing.Font("Franklin Gothic Heavy", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.toolStripStatusLabel.ForeColor = System.Drawing.Color.White;
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 19);
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.IsBalloon = true;
             // 
             // LapViewControl
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.Controls.Add(this.pSplits);
             this.Controls.Add(this.pChartTitle);
-            this.Controls.Add(this.pSplitChartFooter);
+            this.Controls.Add(this.pChartFooter);
             this.Name = "LapViewControl";
             this.Size = new System.Drawing.Size(334, 153);
             this.Load += new System.EventHandler(this.UserControlBase_Load);
@@ -311,7 +297,10 @@ namespace ZwiftActivityMonitor
             this.pChartTitle.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.pSplitChartFooter.ResumeLayout(false);
+            this.pChartFooter.ResumeLayout(false);
+            this.pChartFooter.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -322,9 +311,7 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.Panel pChartTitle;
         private System.Windows.Forms.Label lblSplit;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Panel pSplitChartFooter;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label lblGoalSpeed;
+        private System.Windows.Forms.Panel pChartFooter;
         private System.Windows.Forms.ListView lvLaps;
         private System.Windows.Forms.ColumnHeader chLapNum;
         private System.Windows.Forms.ColumnHeader chTime;
@@ -335,9 +322,10 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.ColumnHeader chBlank;
         private System.Windows.Forms.ColumnHeader chFirst;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripButton tsbStart;
-        private System.Windows.Forms.ToolStripButton tsbStop;
         private System.Windows.Forms.ToolStripButton tsbLap;
         private System.Windows.Forms.ToolStripButton tsbReset;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
     }
 }

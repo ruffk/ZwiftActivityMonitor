@@ -100,12 +100,6 @@ namespace ZwiftActivityMonitor
             public int LapAvgWatts { get; }
             public TimeSpan TotalTime { get; }
 
-            //public double LapDistanceMi { get; }
-            //public double LapSpeedKph { get; }
-            //public double LapSpeedMph { get; }
-            //public double LapAvgWkg { get; }
-
-
 
             public LapEventArgs(int lapNumber, TimeSpan lapTime, double lapDistanceKm, int lapAvgWatts, TimeSpan totalTime)
             {
@@ -114,91 +108,25 @@ namespace ZwiftActivityMonitor
                 this.LapDistanceKm = Math.Round(lapDistanceKm, 1);
                 this.LapAvgWatts = lapAvgWatts;
                 this.TotalTime = totalTime;
-
-                //this.LapDistanceMi = Math.Round(lapDistanceKm / 1.609, 1);
-
-                //if (lapTime.TotalSeconds > 0)
-                //{
-                //    this.LapSpeedKph = Math.Round((this.LapDistanceKm / lapTime.TotalSeconds) * 3600, 1);
-                //    this.LapSpeedMph = Math.Round((this.LapDistanceMi / lapTime.TotalSeconds) * 3600, 1);
-                //}
-
-                //if (ZAMsettings.Settings.CurrentUser.WeightAsKgs > 0)
-                //{
-                //    this.LapAvgWkg = Math.Round(lapAvgWatts / ZAMsettings.Settings.CurrentUser.WeightAsKgs, 2);
-                //}
             }
+        }
+        public class LapStartedEventArgs : EventArgs
+        {
+            public int LapNumber { get; }
+            public string StatusMsg { get; }
 
-
-
-            //public int LapNumber { get; }
-            //public TimeSpan LapTime { get; }
-            //public double LapSpeed { get; }
-            //public double LapDistance { get; }
-            //public int LapAvgPower { get; }
-            //public TimeSpan TotalTime { get; }
-            //public bool LapsInKm { get; }
-
-
-            //public LapEventArgs(int LapNumber, TimeSpan LapTime, double LapSpeed, double LapDistance, int LapAvgPower, TimeSpan TotalTime, bool LapsInKm)
-            //{
-            //    this.LapNumber = LapNumber;
-            //    this.LapTime = LapTime;
-            //    this.LapSpeed = LapSpeed;
-            //    this.LapDistance = LapDistance;
-            //    this.LapAvgPower = LapAvgPower;
-            //    this.TotalTime = TotalTime;
-            //    this.LapsInKm = LapsInKm;
-            //}
-
-            //public string LapNumberStr
-            //{
-            //    get
-            //    {
-            //        return LapNumber.ToString();
-            //    }
-            //}
-            //public string LapTimeStr
-            //{
-            //    get
-            //    {
-            //        return LapTime.Minutes.ToString("0#") + ":" + LapTime.Seconds.ToString("0#");
-            //    }
-            //}
-            //public string LapSpeedStr
-            //{
-            //    get
-            //    {
-            //        return $"{LapSpeed:#.0}";
-            //    }
-            //}
-            //public string LapDistanceStr
-            //{
-            //    get
-            //    {
-            //        return $"{LapDistance:0.0}";
-            //    }
-            //}
-            //public string LapAvgPowerStr
-            //{
-            //    get
-            //    {
-            //        return LapAvgPower.ToString();
-            //    }
-            //}
-            //public string TotalTimeStr
-            //{
-            //    get
-            //    {
-            //        return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
-            //    }
-            //}
+            public LapStartedEventArgs(int lapNumber, string statusMsg)
+            {
+                this.LapNumber = lapNumber;
+                this.StatusMsg = statusMsg;
+            }
         }
 
         #endregion
 
         public event EventHandler<LapEventArgs> LapUpdatedEvent;
         public event EventHandler<LapEventArgs> LapCompletedEvent;
+        public event EventHandler<LapStartedEventArgs> LapStartedEvent;
 
         private readonly ILogger<LapsManager> Logger;
 
@@ -215,7 +143,6 @@ namespace ZwiftActivityMonitor
         private long m_lapPowerTotal;       // The sum of all power values captured during the lap
 
 
-        //private int m_lastEventMeters;
         private bool m_beginNewLap;
         private bool m_userRequestedNewLap;
 
@@ -308,11 +235,17 @@ namespace ZwiftActivityMonitor
                 m_startTime = now;
                 m_lapCount = 0;
 
+                string statusMsg = "Lap timer started.";
+
                 if (Laps.AutoLapByPosition && Laps.TriggerPositionSetting == Lap.TriggerPositionType.StartAndLapButton)
                 {
                     // Add a waypoint using current position
                     LapWaypoints.Add(e);
+
+                    statusMsg = "Lap timer started.  Auto-Lap position saved.";
                 }
+
+                OnLapStartedEvent(new LapStartedEventArgs(m_lapCount + 1, statusMsg));
 
                 this.InitLapVars(e, now);
             }
@@ -341,6 +274,9 @@ namespace ZwiftActivityMonitor
             // Calculate Avg Watts
             int lapAvgWatts = (int)Math.Round(m_lapPowerTotal / (double)m_lapEventCount, 0);
 
+            bool autoLapOccurred = false;
+            string autoLapStatusMsg = "";
+
             // Determine if any thresholds have been hit (distance or time), or if we've passed a waypoint
             switch (Laps.LapStyleSetting)
             {
@@ -354,6 +290,8 @@ namespace ZwiftActivityMonitor
                         case Lap.LapTriggerType.Distance:
                             if (lapMeters >= Laps.TriggerDistanceAsMeters)
                             {
+                                autoLapOccurred = true;
+                                autoLapStatusMsg = "Auto-Lap by distance triggered.";
                                 m_beginNewLap = true;
                             }
                             break;
@@ -361,6 +299,8 @@ namespace ZwiftActivityMonitor
                         case Lap.LapTriggerType.Time:
                             if (lapTime >= Laps.TriggerTime)
                             {
+                                autoLapOccurred = true;
+                                autoLapStatusMsg = "Auto-Lap by time triggered.";
                                 m_beginNewLap = true;
                             }
                             break;
@@ -368,6 +308,8 @@ namespace ZwiftActivityMonitor
                         case Lap.LapTriggerType.Position:
                             if (LapWaypoints.CheckWaypointCrossings(e) != null)
                             {
+                                autoLapOccurred = true;
+                                autoLapStatusMsg = "Auto-Lap by position triggered.";
                                 m_beginNewLap = true;
                             }
                             break;
@@ -391,18 +333,27 @@ namespace ZwiftActivityMonitor
                 // Initialize for a new lap
                 this.InitLapVars(e, nextLapStart);
 
+                m_lapCount++;
+
                 if (m_userRequestedNewLap)
                 {
+                    string statusMsg = "Next lap started.";
                     if (Laps.AutoLapByPosition
                         && (Laps.TriggerPositionSetting == Lap.TriggerPositionType.StartAndLapButton || Laps.TriggerPositionSetting == Lap.TriggerPositionType.LapButtonOnly))
                     {
                         // Add a waypoint using current position
                         LapWaypoints.Add(e);
+
+                        statusMsg = "Next lap started.  Auto-Lap position saved.";
                     }
                     m_userRequestedNewLap = false;
-                }
 
-                m_lapCount++;
+                    OnLapStartedEvent(new LapStartedEventArgs(m_lapCount+1, statusMsg));
+                }
+                else if (autoLapOccurred)
+                {
+                    OnLapStartedEvent(new LapStartedEventArgs(m_lapCount + 1, autoLapStatusMsg));
+                }
 
                 m_beginNewLap = false;
             }
@@ -437,6 +388,23 @@ namespace ZwiftActivityMonitor
         private void OnLapCompletedEvent(LapEventArgs e)
         {
             EventHandler<LapEventArgs> handler = LapCompletedEvent;
+
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch (Exception ex)
+                {
+                    // Don't let downstream exceptions bubble up
+                    Logger.LogWarning(ex, ex.ToString());
+                }
+            }
+        }
+        private void OnLapStartedEvent(LapStartedEventArgs e)
+        {
+            EventHandler<LapStartedEventArgs> handler = LapStartedEvent;
 
             if (handler != null)
             {

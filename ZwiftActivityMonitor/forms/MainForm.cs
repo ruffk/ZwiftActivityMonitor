@@ -148,6 +148,7 @@ namespace ZwiftActivityMonitor
             }
 
             Collection_OnStop();
+            ZAMsettings.ZPMonitorService.StopMonitor();
 
             Logger.LogInformation("MainForm_FormClosing");
         }

@@ -138,7 +138,7 @@ namespace ZwiftActivityMonitor
             this.tsbLaps.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbLaps.Name = "tsbLaps";
             this.tsbLaps.Size = new System.Drawing.Size(23, 23);
-            this.tsbLaps.Text = "Lap View";
+            this.tsbLaps.Text = "Laps View";
             this.tsbLaps.Click += new System.EventHandler(this.tsbLaps_Click);
             // 
             // btnClose
