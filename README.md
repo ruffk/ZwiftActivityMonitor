@@ -121,6 +121,34 @@ An example of the Splits View window is shown at the beginning of this readme fi
 
 ![splits](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Splits.png)
 
+#### Options -> Laps Configuration Tab
+
+ZAM allows you to perform lap and/or segment timing while riding.  Similar to Garmin head units, laps can be either manual or automatic.  If automatic, laps can be triggered by  distance, time, or position.   A lap has the following attributes:
+
+* Measurement System
+  * Imperial - Display in Imperial units.
+  * Metric - Display in Metric units.
+* Lap Style
+  * Manual - Laps occur only on lap button press.
+  * Automatic - Laps occur when pre-defined actions are triggered.
+* Lap Trigger (applicable only when Lap Style is Automatic)
+  * Distance - Lap occurs when specified distance is reached.
+  * Time - Lap occurs when specified time has elapsed.
+  * Position (multiple position waypoints may be set while riding).
+    * Start and Lap button press - A waypoint occurs at the start and on each lap button press.
+    * Lap button press only - A waypoint occurs only on lap button press.
+
+Use the control icons on the Laps View window to:
+
+* Lap - Completes current lap and starts a new lap.
+  * Note: A waypoint is set if auto-lapping by position.
+* Reset - Clears all laps and waypoints and starts a new lap.
+  * Note: A waypoint is set if auto-lapping by position and the Start and Lap button press attribute has been selected.
+
+An example of the Laps View window is shown at the beginning of this readme file.
+
+![laps](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapConfig.png)
+
 ### Using While Zwifting
 
 #### Quick Start
