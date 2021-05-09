@@ -67,13 +67,11 @@ in order to use ZAM.  This can either be done manually each time you run ZAM (by
 Multiple user profiles are ideal for multi-rider households, or if you'd like to be able to quickly select a different collector set. 
 A default profile is provided for you, but you should configure it properly before using.
 
-<ol>
-	<li>Name - Identifies the rider.</li>
-	<li>Weight - In Kilos or Pounds, preferably </li>
-	<li>FTP - From your last FTP test or the value that Zwift has.</li>
-	<li>Email Address - This allows you to email yourself the rider recap sheet.</li>
-	<li>Default moving average collector selection</li>
-</ol>
+* Name - Identifies the rider.
+* Weight - In Kilos or Pounds.
+* FTP - From your last FTP test or the value that Zwift has.
+* Email Address - This allows you to email yourself the rider recap sheet.
+* Default moving average collector selection.
 
 The moving average collectors selected will be shown by default for this user.  However, you can select different collectors from the main ZAM window. 
 
@@ -85,20 +83,13 @@ Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  Th
 
 ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
 
-<ol>
-	<li>Time Duration - The period for which a collector retains data</li>
-	<li>Average Power display format - Moving average for all values currently in the collector.</li>
-	<li>Maximum Power display format - The maximum value attained from the moving average.</li>
-	<li>FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).</li>
-</ol>
-
-Display Format can be shown in:
-
-<ol>
-	<li>Watts - Rounded to nearest whole number.</li>
-	<li>Watts/Kilo - Shown as #.##</li>
-	<li>Hidden - Not shown.</li>
-</ol>
+* Time Duration - The period for which a collector retains data.
+* Average Power display format - Moving average for all values currently in the collector.
+* Maximum Power display format - The maximum value attained from the moving average.
+* FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
+  * Watts - Rounded to nearest whole number.
+  * Watts/Kilo - Shown as #.## (i.e 4.12)
+  * Hidden - Not shown.
 
 ![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
 
@@ -106,12 +97,10 @@ Display Format can be shown in:
 
 ZAM allows you to configure distance based splits to review your progress while riding.  Optionally, you can also configure goals so that you'll know if you're ahead or behind on your split times.  A split has the following attributes:
 
-<ol>
-	<li>Show Splits - When checked, the Splits View window will display automatically for 5 seconds when the distance is hit.</li>
-	<li>Splits Every - This determines the distance (in km or mi) that splits occur.</li>
-	<li>Calculate Goal - When checked, the splits view window will show a +/- indicator of your time vs the split time.</li>
-	<li>Goal Time and Goal Distance - Together these are used to automatically calculate the number of splits and the target split times.</li>
-</ol>
+* Show Splits - When checked, the Splits View window will display automatically for 5 seconds when the distance is hit.
+* Splits Every - This determines the distance (in km or mi) that splits occur.
+* Calculate Goal - When checked, the splits view window will show a +/- indicator of your time vs the split time.
+* Goal Time and Goal Distance - Together these are used to automatically calculate the number of splits and the target split times.
 
 An example of the Splits View window is shown at the beginning of this readme file.
 
@@ -151,24 +140,25 @@ An example of the Laps View window is shown at the beginning of this readme file
 
 **Important Note: The activity monitor can only overlay Zwift if it (Zwift) is configured to run in windowed mode.**
 
-<ol>
-	<li>Start the Zwift Packet Monitoring service from the Analyze->Options System Tab by pressing Start.  Maybe while you're there select the Auto-Start option.</li>
-	<li>Click Analyze->Start.</li>
-	<li>Pedal away!</li>
-	<li>Click Analyze->Stop when done.</li>
-</ol>
+* Start the Zwift Packet Monitoring service from the Analyze->Options System Tab by pressing Start.  Maybe while you're there select the Auto-Start option.
+* Click Analyze->Start.
+* Pedal away!
+* Click Analyze->Stop when done.  A ride recap window will appear.
 
 #### Timer Set-Up
 
 If you've ever done a WTRL TTT then you know there's usually a delayed start after the banner drops. Or, maybe you're in an event pen and don't want to worry about clicking Analyze->Start when the banner drops.  We've got you covered! Setting the timer allows you to pre-determine the ZAM start time.  You set it up and a countdown begins.  When the countdown ends, the system "clicks" Start for you.
 
-<ol>
-	<li>Click Analyze->Setup Timer.</li>
-	<li>Set your delay time.</li>
-	<li>Click the Start Timer button.</li>
-	<li>When the countdown ends, start pedalling!</li>
-	<li>If you change your mind or need to reset the timer, Click Analyze->Stop Timer and repeat the setup process.</li>
-</ol>
+* Click Analyze->Setup Timer.
+* Set your delay time.
+* Click the Start Timer button.
+* When the countdown ends, start pedalling!
+* If you change your mind or need to reset the timer, Click Analyze->Stop Timer and repeat the setup process.
+
+Timer behavior settings:
+* Monitoring starts when event timer starts (default).
+* Monitoring starts when countdown completes.
+  * Note: This is when the WTRL begins its TTT timing.
 
 ![setup_timer](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SetupTimer.png)
 
