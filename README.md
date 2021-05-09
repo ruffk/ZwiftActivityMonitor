@@ -3,15 +3,17 @@ Zwift Activity Monitor
 
 ## The Power is Within You
 
-This application allows Zwift users to monitor their moving average power and FTP in real-time.  It also provides valuable metrics to the rider such as average and normalized power (NP), intensity factor (IF), and total stress score (TSS).  For the racer and time-trialist, there's also the ability to configure distance based splits with optional goals.  
+This application allows Zwift users to monitor their moving average power and FTP in real-time.  It also provides valuable metrics to the rider such as average and normalized power (NP), intensity factor (IF), and total stress score (TSS).  For the racer and time-trialist, there's also the ability to configure distance based splits with optional goals.  And finally, you can time your own laps and segments (like Alpe De Zwift) using the laps feature.
 
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainView.png)
-Example of Main View window
-
+#### Example of Main View window
 
 ![split_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SplitView.png)
-Example of Split View window
+#### Example of Split View window
+
+![lap_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapView.png)
+#### Example of Lap View window
 
 ## How It Works
 
@@ -19,12 +21,10 @@ Zwift Activity Montitor (or ZAM for short), monitors outgoing network packets ge
 aggregates the data into statistical moving averages.
 
 The network packets that ZAM consumes contain some important statistics.  Some of them are:
-<ol>
-	<li>Current power output</li>
-	<li>Current heartrate (if wearing an HRM)</li>
-	<li>Distance travelled</li>
-	<li>Time spent riding</li>
-</ol>
+* Current power output
+* Current heartrate (if wearing an HRM)
+* Distance travelled
+* Time spent riding
 
 ## Prerequisites
 
@@ -37,11 +37,9 @@ Note: The Setup-ZAM.exe file is signed by a certificate.
 
 To install Zwift Activity Monitor, follow these steps:
 
-<ol>
-	<li>Make sure you've installed the latest version of Npcap from the link above in Prerequisites.</li>
-	<li>Download the latest Setup-ZAM.exe release from this GitHub repository.</li>
-	<li>Run the installation.  The installation is signed, but you may still receive a popup from Windows SmartScreen.</li>
-</ol>
+* Make sure you've installed the latest version of Npcap from the link above in Prerequisites.
+* Download the latest Setup-ZAM.exe release from this GitHub repository.
+* Run the installation.  The installation is signed, but you may still receive a popup from Windows SmartScreen.
 
 ## Using Zwift Activity Monitor
 
@@ -57,12 +55,10 @@ ZAM first and foremost needs to know what network you use when running Zwift.  I
 computers are either Wi-Fi or direct Ethernet cabled.  Within ZAM there is a packet monitoring system which MUST be started
 in order to use ZAM.  This can either be done manually each time you run ZAM (by clicking the Start button), or by checking Auto-Start.
 
-<ol>
-	<li>Current User - The user profile that will be used during this ZAM session.  This defaults to the Default User Profile.</li>
-	<li>Network - The network in your computer you use when running Zwift.</li>
-	<li>Auto-Start - Whether to start the Zwift Packet Monitoring service automatically when ZAM starts.</li>
-	<li>Window Position - Once you find where you like the ZAM window to sit, enter those coordinates and it will open there each time.</li>
-</ol>
+* Current User - The user profile that will be used during this ZAM session.  This defaults to the Default User Profile.
+* Network - The network in your computer you use when running Zwift.
+* Auto-Start - Whether to start the Zwift Packet Monitoring service automatically when ZAM starts.
+* Window Position - Once you find where you like the ZAM window to sit, enter those coordinates and it will open there each time.
 
 ![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SystemOptions.png)
 
