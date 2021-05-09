@@ -123,7 +123,8 @@ ZAM allows you to perform lap and/or segment timing while riding.  Similar to Ga
     * Start and Lap button press - A waypoint occurs at the start and on each lap button press.
     * Lap button press only - A waypoint occurs only on lap button press.
 
-Use the control icons on the Laps View window to:
+![lapbuttons](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapViewControlButtons.png)
+Use the control buttons on the Laps View window to:
 
 * Lap - Completes current lap and starts a new lap.
   * Note: A waypoint is set if auto-lapping by position.
