@@ -134,7 +134,7 @@ ZAM allows you to perform lap and/or segment timing while riding.  Similar to Ga
 * Lap Trigger (applicable only when Lap Style is Automatic)
   * Distance - Lap occurs when specified distance is reached.
   * Time - Lap occurs when specified time has elapsed.
-  * Position (multiple position Waypoints may be set while riding).
+  * Position (multiple position waypoints may be set while riding).
     * Start and Lap button press - A waypoint occurs at the start and on each lap button press.
     * Lap button press only - A waypoint occurs only on lap button press.
 
