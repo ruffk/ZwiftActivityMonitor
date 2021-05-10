@@ -169,9 +169,11 @@ See the GitHub documentation on [creating a pull request] (https://help.github.c
 
 ## Credits
 
-Brad Walker for development of the ZwiftPacketMonitor library (https://github.com/braddwalker/ZwiftPacketMonitor) and giving me great ideas.
+* Brad Walker for development of the ZwiftPacketMonitor library (https://github.com/braddwalker/ZwiftPacketMonitor) and giving me great ideas.
 
-<div>Icons made by <a href="" title="photo3idea_studio">photo3idea_studio</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+* Icons made by <a href="" title="photo3idea_studio">photo3idea_studio</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+
+* Normalized Power®, Training Stress Score® and Intensity Factor® are registered trademarks of TrainingPeaks, LLC.
 
 ## Contact
 
