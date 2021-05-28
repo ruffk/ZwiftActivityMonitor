@@ -93,7 +93,7 @@ ZAM uses moving average collectors to present statistics on the screen in real-t
 
 ![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
 
-#### Options -> Splits Configuration Tab
+#### Options -> Splits Configuration Tab 
 
 ZAM allows you to configure distance based splits to review your progress while riding.  Optionally, you can also configure goals so that you'll know if you're ahead or behind on your split times.  A split has the following attributes:
 
