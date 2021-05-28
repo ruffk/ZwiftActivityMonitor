@@ -217,7 +217,7 @@ namespace ZwiftActivityMonitor
         #endregion
 
 
-        private SplitsManager m_splitsManager;
+        private SplitsManagerV2 m_splitsManager;
         private Dispatcher m_dispatcher;
 
         private Timer backcolorTimer = new Timer();
@@ -247,7 +247,7 @@ namespace ZwiftActivityMonitor
 
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsViewControl>();
 
-            m_splitsManager = new SplitsManager();
+            m_splitsManager = new SplitsManagerV2();
 
             m_splitsManager.SplitGoalCompletedEvent += SplitGoalCompletedEventHandler;
             m_splitsManager.SplitUpdatedEvent += SplitEventHandler;
@@ -283,7 +283,7 @@ namespace ZwiftActivityMonitor
         /// <summary>
         /// Allow owner class to tie into the SplitGoalCompletedEvent and SplitCompletedEvent.  This allows the MainForm to bring this control into focus.
         /// </summary>
-        public event EventHandler<SplitsManager.SplitEventArgs> SplitGoalCompletedEvent
+        public event EventHandler<SplitsManagerV2.SplitEventArgs> SplitGoalCompletedEvent
         {
             add
             {
@@ -295,7 +295,7 @@ namespace ZwiftActivityMonitor
             }
         }
         
-        public event EventHandler<SplitsManager.SplitEventArgs> SplitCompletedEvent
+        public event EventHandler<SplitsManagerV2.SplitEventArgs> SplitCompletedEvent
         {
             add
             {
@@ -319,14 +319,14 @@ namespace ZwiftActivityMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void SplitEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
+        private delegate void SplitEventHandlerDelegate(object sender, SplitsManagerV2.SplitEventArgs e);
 
         /// <summary>
         /// Occurs each time a split gets updated or completes.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SplitEventHandler(object sender, SplitsManager.SplitEventArgs e)
+        private void SplitEventHandler(object sender, SplitsManagerV2.SplitEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {
@@ -382,14 +382,14 @@ namespace ZwiftActivityMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void SplitGoalCompletedEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
+        private delegate void SplitGoalCompletedEventHandlerDelegate(object sender, SplitsManagerV2.SplitEventArgs e);
 
         /// <summary>
         /// Occurs each time a goal split gets completed.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SplitGoalCompletedEventHandler(object sender, SplitsManager.SplitEventArgs e)
+        private void SplitGoalCompletedEventHandler(object sender, SplitsManagerV2.SplitEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {

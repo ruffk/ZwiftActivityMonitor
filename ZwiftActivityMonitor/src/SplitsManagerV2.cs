@@ -9,8 +9,8 @@ namespace ZwiftActivityMonitor
 {
     public class SplitsManagerV2
     {
+        /*
         #region Public SplitGoals and SplitGoal classes
-
         public class SplitGoals
         {
             public double GoalSpeed { get; }
@@ -130,6 +130,7 @@ namespace ZwiftActivityMonitor
         }
 
         #endregion
+        */
 
         #region Public EventArgs classes
 
@@ -298,7 +299,7 @@ namespace ZwiftActivityMonitor
         private int m_distanceSeedValue; // the PlayerState.Distance value when first started
         private DateTime m_splitStartTime;
         private DateTime m_startTime;
-        private SplitGoals m_splitGoals;
+        //private SplitGoals m_splitGoals;
         private int m_lastSplitMeters;
 
         public SplitsManagerV2()
@@ -318,7 +319,7 @@ namespace ZwiftActivityMonitor
             {
                 m_splits = ZAMsettings.Settings.SplitsV2;
 
-                m_splitGoals = SplitsManagerV2.GetSplitGoals(); // returns null if no goals
+                //m_splitGoals = SplitsManagerV2.GetSplitGoals(); // returns null if no goals
 
                 m_eventCount = 0;
                 m_splitCount = 0;
@@ -334,7 +335,7 @@ namespace ZwiftActivityMonitor
         {
             get
             {
-                return m_splitGoals == null ? "None" : $"{m_splitGoals.GoalDistanceStr} @ {m_splitGoals.GoalSpeedStr} in {m_splitGoals.GoalTimeStr}";
+                return m_splits.CalculateGoal == false ? "None" : $"{m_splits.GoalDistanceStr} @ {m_splits.GoalSpeedStr} in {m_splits.GoalTimeStr}";
             }
         }
 
@@ -358,15 +359,15 @@ namespace ZwiftActivityMonitor
             if (!m_started || !m_splits.ShowSplits)
                 return;
 
-            SplitGoal goal = null;
+            SplitV2 split = null;
 
-            if (m_splitGoals != null)
+            if (m_splits.CalculateGoal)
             {
-                if (m_splitCount >= m_splitGoals.Goals.Count)
+                if (m_splitCount >= m_splits.Splits.Count)
                     return;
 
-                // get the in-progress goal
-                goal = m_splitGoals.Goals[m_splitCount];
+                // get the in-progress split
+                split = m_splits.Splits[m_splitCount];
             }
 
             DateTime now = DateTime.Now;
@@ -383,24 +384,22 @@ namespace ZwiftActivityMonitor
             // Calculate total distance travelled
             int totalMeters = e.Distance - m_distanceSeedValue;
 
-
             double kmsTravelled = totalMeters / 1000.0;
             double milesTravelled = kmsTravelled / 1.609;
 
             double totalDistance = Math.Round(m_splits.SplitsInKm ? kmsTravelled : milesTravelled, 1);
 
-            //double averageKph = Math.Round((kmsTravelled / runningTime.TotalSeconds) * 3600, 1);
-            //double averageMph = Math.Round((milesTravelled / runningTime.TotalSeconds) * 3600, 1);
+            // Calculate how deep into the current split the rider is.
+            int splitMetersTravelled = totalMeters - m_lastSplitMeters;
 
-            // Calculate how deep into the split distance the rider is.
-            int splitMeters = totalMeters - (m_splits.SplitDistanceAsMeters * m_splitCount);
+            // How long is current split?  
+            int splitLengthMeters = split == null ? m_splits.SplitDistanceAsMeters : split.SplitDistanceAsMeters;
 
             // How much of the split is completed (expressed as percentage)
-            //double splitCompletedPct = Math.Round(splitMeters / (double)m_splits.SplitDistanceAsMeters, 4);
-            double splitCompletedPct = splitMeters / (double)m_splits.SplitDistanceAsMeters;
+            double splitCompletedPct = splitMetersTravelled / (double)splitLengthMeters;
 
             // Compute distance, leave unrounded
-            double splitKmTravelled = splitMeters / 1000.0;
+            double splitKmTravelled = splitMetersTravelled / 1000.0;
             double splitMiTravelled = splitKmTravelled / 1.609;
 
             double splitDistance = m_splits.SplitsInKm ? splitKmTravelled : splitMiTravelled;
@@ -409,18 +408,12 @@ namespace ZwiftActivityMonitor
             // Now round the distance
             splitDistance = Math.Round(splitDistance, 1);
 
-            //double splitAverageKph = Math.Round((splitKmTravelled / splitTime.TotalSeconds) * 3600, 1);
-            //double splitAverageMph = Math.Round((splitMiTravelled / splitTime.TotalSeconds) * 3600, 1);
-
-            if (goal != null)
+            if (split != null)
             {
-                if (splitKmTravelled >= goal.SplitDistanceKm)
+                if (splitMetersTravelled >= splitLengthMeters)
                 {
-                    // Calculate the deltaTime, positive number is good, negative bad.
-                    //TimeSpan deltaTime = goal.TotalTime.Subtract(runningTime);
-
                     // Calculate the deltaTime, positive number is bad, negative good.
-                    TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(goal.TotalTime).TotalSeconds, 0));
+                    TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(split.TotalTime).TotalSeconds, 0));
 
                     // This completes the split.  TotalDistance travelled and Delta is included.
                     SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm, deltaTime);
@@ -430,38 +423,29 @@ namespace ZwiftActivityMonitor
                     m_splitStartTime = now;
                     m_splitCount++;
 
-                    m_lastSplitMeters = 0;
+                    m_lastSplitMeters = split.TotalDistanceAsMeters;
                 }
                 else
                 {
-                    if (splitMeters - m_lastSplitMeters >= 1) 
-                    {
-                        // Goal time of split start
-                        TimeSpan splitStartTime = goal.TotalTime.Subtract(goal.SplitTime);
-                        
-                        // Goal time to get to this point in the split
-                        TimeSpan splitWaypointTime = splitStartTime.Add(goal.SplitTime.Multiply(splitCompletedPct));
+                    // Goal time of split start
+                    TimeSpan splitStartTime = split.TotalTime.Subtract(split.SplitTime);
 
-                        // Calculate the deltaTime, positive number is good, negative bad.
-                        //TimeSpan deltaTime = splitWaypointTime.Subtract(runningTime);
+                    // Goal time to get to this point in the split
+                    TimeSpan splitWaypointTime = splitStartTime.Add(split.SplitTime.Multiply(splitCompletedPct));
 
-                        // Calculate the deltaTime, positive number is bad, negative good.
-                        TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(splitWaypointTime).TotalSeconds, 0));
+                    // Calculate the deltaTime, positive number is bad, negative good.
+                    TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(splitWaypointTime).TotalSeconds, 0));
 
-                        // This is an update to the split in-progress.  SplitDistance travelled is included.
-                        SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm, deltaTime);
-                        OnSplitUpdatedEvent(args);
+                    // This is an update to the split in-progress.  SplitDistance travelled is included.
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm, deltaTime);
+                    OnSplitUpdatedEvent(args);
 
-                        m_lastSplitMeters = splitMeters;
-
-                        Logger.LogInformation($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
-
-                    }
+                    Logger.LogInformation($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
                 }
             }
             else
             {
-                if (splitKmTravelled >= m_splits.SplitDistanceAsKm)
+                if (splitMetersTravelled >= splitLengthMeters)
                 {
                     // This completes the split.  TotalDistance traveled is included.
                     SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm);
@@ -471,22 +455,16 @@ namespace ZwiftActivityMonitor
                     m_splitStartTime = now;
                     m_splitCount++;
 
-                    m_lastSplitMeters = 0;
+                    m_lastSplitMeters = totalMeters;
                 }
                 else
                 {
-                    if (splitMeters - m_lastSplitMeters >= 1)
-                    {
-                        // This is an update to the split in-progress.  SplitDistance traveled is included.
-                        SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm);
-                        OnSplitUpdatedEvent(args);
-
-                        m_lastSplitMeters = splitMeters;
-                    }
+                    // This is an update to the split in-progress.  SplitDistance traveled is included.
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm);
+                    OnSplitUpdatedEvent(args);
                 }
             }
         }
-
 
         private void OnSplitUpdatedEvent(SplitEventArgs e)
         {
@@ -505,6 +483,7 @@ namespace ZwiftActivityMonitor
                 }
             }
         }
+
         private void OnSplitCompletedEvent(SplitEventArgs e)
         {
             EventHandler<SplitEventArgs> handler = SplitCompletedEvent;
@@ -545,53 +524,53 @@ namespace ZwiftActivityMonitor
         /// Calculate split goals based upon configured values
         /// </summary>
         /// <returns>SplitGoals or null if no goals</returns>
-        public static SplitGoals GetSplitGoals()
-        {
-            SplitsV2 splits = ZAMsettings.Settings.SplitsV2;
+        //public static SplitGoals GetSplitGoals()
+        //{
+        //    SplitsV2 splits = ZAMsettings.Settings.SplitsV2;
 
-            if (!splits.ShowSplits || !splits.CalculateGoal)
-                return null;
+        //    if (!splits.ShowSplits || !splits.CalculateGoal)
+        //        return null;
 
-            double numSplits = splits.GoalDistance / splits.SplitDistance;
-            if (numSplits < 1)
-                return null;
+        //    double numSplits = splits.GoalDistance / splits.SplitDistance;
+        //    if (numSplits < 1)
+        //        return null;
 
-            if (splits.GoalTime.TotalSeconds < 1)
-                return null;
+        //    if (splits.GoalTime.TotalSeconds < 1)
+        //        return null;
 
-            double goalSpeed = Math.Round((splits.GoalDistance / splits.GoalTime.TotalSeconds) * 3600, 1);
-            double goalDistance = Math.Round(splits.GoalDistance, 1);
+        //    double goalSpeed = Math.Round((splits.GoalDistance / splits.GoalTime.TotalSeconds) * 3600, 1);
+        //    double goalDistance = Math.Round(splits.GoalDistance, 1);
 
-            SplitGoals splitGoals = new SplitGoals(goalSpeed, goalDistance, splits.SplitsInKm, splits.GoalTime);
+        //    SplitGoals splitGoals = new SplitGoals(goalSpeed, goalDistance, splits.SplitsInKm, splits.GoalTime);
 
-            TimeSpan splitTime = new TimeSpan(0, 0, (int)Math.Round(splits.GoalTime.TotalSeconds / numSplits, 0));
+        //    TimeSpan splitTime = new TimeSpan(0, 0, (int)Math.Round(splits.GoalTime.TotalSeconds / numSplits, 0));
 
-            int curDistance = 0;
-            TimeSpan curTime = new TimeSpan();
+        //    int curDistance = 0;
+        //    TimeSpan curTime = new TimeSpan();
 
-            for (int i = 0; i < (int)numSplits; i++)
-            {
-                int totalDistance = curDistance + splits.SplitDistance;
-                TimeSpan totalTime = curTime.Add(splitTime);
+        //    for (int i = 0; i < (int)numSplits; i++)
+        //    {
+        //        int totalDistance = curDistance + splits.SplitDistance;
+        //        TimeSpan totalTime = curTime.Add(splitTime);
 
-                SplitGoal item = new SplitGoal(splits.SplitDistance, splitTime, totalDistance, totalTime, splits.SplitsInKm);
-                splitGoals.Goals.Add(item);
+        //        SplitGoal item = new SplitGoal(splits.SplitDistance, splitTime, totalDistance, totalTime, splits.SplitsInKm);
+        //        splitGoals.Goals.Add(item);
 
-                curDistance = totalDistance;
-                curTime = totalTime;
-            }
+        //        curDistance = totalDistance;
+        //        curTime = totalTime;
+        //    }
 
-            if (numSplits != (int)numSplits)
-            {
-                double lastSplitDistance = Math.Round(splits.GoalDistance - curDistance, 1);
-                TimeSpan lastSplitTime = splits.GoalTime.Subtract(curTime);
+        //    if (numSplits != (int)numSplits)
+        //    {
+        //        double lastSplitDistance = Math.Round(splits.GoalDistance - curDistance, 1);
+        //        TimeSpan lastSplitTime = splits.GoalTime.Subtract(curTime);
 
-                SplitGoal item = new SplitGoal(lastSplitDistance, lastSplitTime, goalDistance, splits.GoalTime, splits.SplitsInKm);
-                splitGoals.Goals.Add(item);
-            }
+        //        SplitGoal item = new SplitGoal(lastSplitDistance, lastSplitTime, goalDistance, splits.GoalTime, splits.SplitsInKm);
+        //        splitGoals.Goals.Add(item);
+        //    }
 
-            return splitGoals;
-        }
+        //    return splitGoals;
+        //}
 
     }
 }

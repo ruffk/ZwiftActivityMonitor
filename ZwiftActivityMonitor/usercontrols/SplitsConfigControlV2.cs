@@ -133,6 +133,7 @@ namespace ZwiftActivityMonitor
         private bool m_editMode;
         private bool m_editSplitMode;
         private bool m_isUserControlLoaded;
+        private int m_rowIndexToDelete;
 
         private const int SplitDistanceCol = 0;
         private const int SplitTimeCol = 1;
@@ -175,6 +176,11 @@ namespace ZwiftActivityMonitor
             dgvSplits.Columns[SplitSpeedCol].DefaultCellStyle.Format = "0.0";
             dgvSplits.Columns[TotalDistanceCol].DefaultCellStyle.Format = "0.0";
             dgvSplits.Columns[AverageSpeedCol].DefaultCellStyle.Format = "0.0";
+
+            dgvSplits.Columns[SplitSpeedCol].ReadOnly = true;
+            dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
+            dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
+            dgvSplits.Columns[AverageSpeedCol].ReadOnly = true;
         }
 
 
@@ -315,7 +321,21 @@ namespace ZwiftActivityMonitor
                 btnSaveSettings.Enabled = value;
                 btnCancelSettings.Enabled = value;
                 btnSplitEdit.Enabled = !value;
-                gbSplitGoals.Enabled = value;
+
+                lblDeleteInstructions.Enabled = value;
+                ckbCustomized.Enabled = value;
+
+                // the grid will remain responsive even when not in EditMode by leaving enabled but just setting to readonly
+                dgvSplits.ReadOnly = !value;
+
+                // these columns must be reset to readonly each time the grid readonly status is set
+                dgvSplits.Columns[SplitSpeedCol].ReadOnly = true;
+                dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
+                dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
+                dgvSplits.Columns[AverageSpeedCol].ReadOnly = true;
+
+                dgvSplits.AllowUserToAddRows = value;
+
 
                 // if not editing and there are calculated split goals then enable edit
                 if (!value)
@@ -323,14 +343,16 @@ namespace ZwiftActivityMonitor
                     btnSplitEdit.Enabled = ZAMsettings.Settings.SplitsV2.Splits.Count > 0;
                 }
 
-                dgvSplits.Enabled = value;
+                //dgvSplits.Enabled = value;
 
-                // change various colors to give illusion of grid control being enabled / disabled
+                // change selected cell colors based on EditMode
                 dgvSplits.RowsDefaultCellStyle.SelectionBackColor = value ? System.Drawing.SystemColors.Highlight : System.Drawing.SystemColors.Control;
-                dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlDark;
+                dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlText;
+                //dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlDark;
 
-                dgvSplits.ColumnHeadersDefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
-                dgvSplits.DefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
+                // change column header and cell colors based on EditMode
+                //dgvSplits.ColumnHeadersDefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
+                //dgvSplits.DefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
 
                 if (dgvSplits.Rows.Count > 0)
                     dgvSplits.CurrentCell = dgvSplits[0, 0];
@@ -431,36 +453,40 @@ namespace ZwiftActivityMonitor
         {
             DataTable table = (DataTable)dgvSplits.DataSource;
 
-            ZAMsettings.Settings.SplitsV2.Splits.Clear();
+            SplitsV2 splits = ZAMsettings.Settings.SplitsV2;
+
+            splits.Splits.Clear();
 
             foreach (DataRow row in ((DataTable)dgvSplits.DataSource).Rows)
             {
+                if (this.IsNullorDBNull(row.Field<object>(SplitDistanceCol)) > 0 || this.IsNullorDBNull(row.Field<object>(SplitTimeCol)) > 0)
+                    continue;
+
                 ZAMsettings.Settings.SplitsV2.Splits.Add(new SplitV2(
                     row.Field<double>(SplitDistanceCol),
                     row.Field<TimeSpan>(SplitTimeCol),
                     row.Field<double>(SplitSpeedCol),
                     row.Field<double>(TotalDistanceCol), 
                     row.Field<TimeSpan>(TotalTimeCol),
-                    row.Field<double>(AverageSpeedCol)
+                    row.Field<double>(AverageSpeedCol),
+                    splits
                     ));
             }
 
-            ZAMsettings.Settings.SplitsV2.Customized = true;
+            splits.Customized = true;
 
             // the last split row has the totals
-            int lastSplitRow = ZAMsettings.Settings.SplitsV2.Splits.Count - 1;
+            int lastSplitRow = splits.Splits.Count - 1;
 
             if (lastSplitRow >= 0)
             {
-                SplitV2 lastSplit = ZAMsettings.Settings.SplitsV2.Splits[lastSplitRow];
+                SplitV2 lastSplit = splits.Splits[lastSplitRow];
 
                 // Setting of these values to invalid numbers can throw an exception
 
-                ZAMsettings.Settings.SplitsV2.GoalDistance = lastSplit.TotalDistance;
-
-                ZAMsettings.Settings.SplitsV2.GoalTime = lastSplit.TotalTime;
-
-                ZAMsettings.Settings.SplitsV2.GoalSpeed = lastSplit.AverageSpeed;
+                splits.GoalDistance = lastSplit.TotalDistance;
+                splits.GoalTime = lastSplit.TotalTime;
+                splits.GoalSpeed = lastSplit.AverageSpeed;
             }
             else
             {
@@ -693,7 +719,9 @@ namespace ZwiftActivityMonitor
             DataGridViewCell cell = dgvSplits[e.ColumnIndex, e.RowIndex];
 
             if (!cell.IsInEditMode)
+            {
                 return;
+            }
 
             Logger.LogInformation($"dgvSplits_CellValidating ({e.RowIndex}, {e.ColumnIndex}), value: {e.FormattedValue}, EditMode: {cell.IsInEditMode}");
 
@@ -732,18 +760,31 @@ namespace ZwiftActivityMonitor
         {
             Logger.LogInformation($"dgvSplits_CellValidated ({e.RowIndex}, {e.ColumnIndex}), value: {dgvSplits[e.ColumnIndex, e.RowIndex].Value}");
 
-            this.RecalculateTotals();
+            // if split distance and time have values, recalculate
+            if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) == 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) == 0)
+            {
+                this.RecalculateTotals();
+            }
         }
 
 
         private void dgvSplits_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
         {
-            if (e.RowIndex == -1 || dgvSplits.Rows[e.RowIndex].IsNewRow)
+            if (e.RowIndex == -1)
                 return;
+                
+            if (dgvSplits.Rows[e.RowIndex].IsNewRow)
+            {
+                Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
+                return;
+            }
 
             // if both are null then don't validate
             if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            {
+                Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, Distance/Time=NULL: true");
                 return;
+            }
 
             try
             {
@@ -768,13 +809,28 @@ namespace ZwiftActivityMonitor
             }
         }
 
-        private void btnSplitRemove_Click(object sender, EventArgs e)
-        {
-        }
-
         private void dgvSplits_RowValidated(object sender, DataGridViewCellEventArgs e)
         {
-            Logger.LogInformation($"dgvSplits_RowValidated ({e.RowIndex}, {e.ColumnIndex})");
+            if (e.RowIndex == -1)
+                return;
+            
+            if (dgvSplits.Rows[e.RowIndex].IsNewRow)
+            {
+                Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
+
+                // remove the empty row from the data table
+                ((DataTable)dgvSplits.DataSource).Rows[e.RowIndex].Delete();
+                return;
+            }
+
+            if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            {
+                Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, Distance/Time=NULL: true");
+                return;
+            }
+
+            Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}");
+
 
             this.RecalculateTotals();
         }
@@ -795,7 +851,7 @@ namespace ZwiftActivityMonitor
 
             for (int row = 0; row < dgvSplits.Rows.Count; row++)
             {
-                Logger.LogInformation($"Distance: {this.IsNullorDBNull(dgvSplits[SplitDistanceCol, row].Value)}, time: {this.IsNullorDBNull(dgvSplits[SplitTimeCol, row].Value)}, IsNewRow: {dgvSplits.Rows[row].IsNewRow}");
+                //Logger.LogInformation($"Distance: {this.IsNullorDBNull(dgvSplits[SplitDistanceCol, row].Value)}, time: {this.IsNullorDBNull(dgvSplits[SplitTimeCol, row].Value)}, IsNewRow: {dgvSplits.Rows[row].IsNewRow}");
 
                 if (dgvSplits.Rows[row].IsNewRow)
                     continue;
@@ -839,13 +895,14 @@ namespace ZwiftActivityMonitor
 
         private void dgvSplits_RowLeave(object sender, DataGridViewCellEventArgs e)
         {
-            Logger.LogInformation($"dgvSplits_RowLeave ({e.RowIndex}, {e.ColumnIndex})");
+            Logger.LogInformation($"dgvSplits_RowLeave ({e.RowIndex}, {e.ColumnIndex}, DataTable Rows: {((DataTable)dgvSplits.DataSource).Rows.Count})");
         }
-
-        private int m_rowIndexToDelete;
 
         private void dgvSplits_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (!this.EditingSplitSettings)
+                return;
+
             if (e.RowIndex == -1 || this.dgvSplits.Rows[e.RowIndex].IsNewRow)
                 return;
 

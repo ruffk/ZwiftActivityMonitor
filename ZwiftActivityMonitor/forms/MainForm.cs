@@ -389,14 +389,14 @@ namespace ZwiftActivityMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private delegate void SplitCompletedEventHandlerDelegate(object sender, SplitsManager.SplitEventArgs e);
+        private delegate void SplitCompletedEventHandlerDelegate(object sender, SplitsManagerV2.SplitEventArgs e);
 
         /// <summary>
         /// Occurs each time split gets completed.  Allows for UI update by marshalling the call accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SplitCompletedEventHandler(object sender, SplitsManager.SplitEventArgs e)
+        private void SplitCompletedEventHandler(object sender, SplitsManagerV2.SplitEventArgs e)
         {
             if (!m_dispatcher.CheckAccess()) // are we currently on the UI thread?
             {

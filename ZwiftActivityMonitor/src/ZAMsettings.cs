@@ -886,6 +886,34 @@ namespace ZwiftActivityMonitor
             }
         }
 
+        [JsonIgnore]
+        public string GoalSpeedStr
+        {
+            get
+            {
+                return $"{GoalSpeed:#.0} {(SplitsInKm ? "km/h" : "mi/h")}";
+            }
+        }
+
+        [JsonIgnore]
+        public string GoalDistanceStr
+        {
+            get
+            {
+                return $"{GoalDistance:#.0} {(SplitsInKm ? "km" : "mi")}";
+            }
+        }
+
+        [JsonIgnore]
+        public string GoalTimeStr
+        {
+            get
+            {
+                return GoalTime.Hours > 0 ? Math.Floor(GoalTime.TotalHours) + GoalTime.ToString("'h 'm'm 's's'") : GoalTime.ToString("m'm 's's'");
+            }
+        }
+
+
         public void CalculateDefaultSplits()
         {
             this.Splits.Clear();
@@ -896,8 +924,8 @@ namespace ZwiftActivityMonitor
                 return;
 
             double numSplits = this.GoalDistance / this.SplitDistance;
-            if (numSplits < 1)
-                return;
+            //if (numSplits < 1)
+            //    return;
 
             if (this.GoalTime.TotalSeconds < 1)
                 return;
@@ -917,7 +945,7 @@ namespace ZwiftActivityMonitor
                 double splitSpeed = Math.Round((this.SplitDistance / splitTime.TotalSeconds) * 3600, 1);
                 double averageSpeed = Math.Round((totalDistance / totalTime.TotalSeconds) * 3600, 1);
 
-                SplitV2 item = new SplitV2(this.SplitDistance, splitTime, splitSpeed, totalDistance, totalTime, averageSpeed);
+                SplitV2 item = new SplitV2(this.SplitDistance, splitTime, splitSpeed, totalDistance, totalTime, averageSpeed, this);
                 this.Splits.Add(item);
 
                 curDistance = totalDistance;
@@ -931,7 +959,7 @@ namespace ZwiftActivityMonitor
 
                 double lastSplitSpeed = Math.Round((lastSplitDistance / lastSplitTime.TotalSeconds) * 3600, 1);
 
-                SplitV2 item = new SplitV2(lastSplitDistance, lastSplitTime, lastSplitSpeed, this.GoalDistance, this.GoalTime, this.GoalSpeed);
+                SplitV2 item = new SplitV2(lastSplitDistance, lastSplitTime, lastSplitSpeed, this.GoalDistance, this.GoalTime, this.GoalSpeed, this);
                 this.Splits.Add(item);
             }
         }
@@ -953,7 +981,9 @@ namespace ZwiftActivityMonitor
         public TimeSpan TotalTime { get; }
         public double AverageSpeed { get; }
 
-        public SplitV2(double splitDistance, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, double averageSpeed)
+        private SplitsV2 ParentSplitContainer { get; }
+
+        public SplitV2(double splitDistance, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, double averageSpeed, SplitsV2 parentSplitContainer)
         {
             this.SplitDistance = splitDistance;
             this.SplitTime = splitTime;
@@ -961,7 +991,33 @@ namespace ZwiftActivityMonitor
             this.TotalDistance = totalDistance;
             this.TotalTime = totalTime;
             this.AverageSpeed = averageSpeed;
+            this.ParentSplitContainer = parentSplitContainer;
         }
+
+        [JsonIgnore]
+        public double SplitDistanceAsKm
+        {
+            get { return this.ParentSplitContainer.SplitsInKm ? this.SplitDistance : this.SplitDistance * 1.609; }
+        }
+
+        [JsonIgnore]
+        public int SplitDistanceAsMeters
+        {
+            get { return (int)Math.Round(this.SplitDistanceAsKm * 1000, 0); }
+        }
+
+        [JsonIgnore]
+        public double TotalDistanceAsKm
+        {
+            get { return this.ParentSplitContainer.SplitsInKm ? this.TotalDistance : this.TotalDistance * 1.609; }
+        }
+
+        [JsonIgnore]
+        public int TotalDistanceAsMeters
+        {
+            get { return (int)Math.Round(this.TotalDistanceAsKm * 1000, 0); }
+        }
+
     }
 
     #endregion

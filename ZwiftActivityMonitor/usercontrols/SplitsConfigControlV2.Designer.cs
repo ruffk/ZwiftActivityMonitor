@@ -39,7 +39,7 @@ namespace ZwiftActivityMonitor
             this.btnSplitEdit = new System.Windows.Forms.Button();
             this.gbSplitGoals = new System.Windows.Forms.GroupBox();
             this.ckbCustomized = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblDeleteInstructions = new System.Windows.Forms.Label();
             this.dgvSplits = new ZwiftActivityMonitor.SplitsConfigControlV2.DataGridViewExtended();
             this.lblGoalSpeed = new System.Windows.Forms.Label();
             this.lblGoalSpeedValue = new System.Windows.Forms.Label();
@@ -138,7 +138,7 @@ namespace ZwiftActivityMonitor
             // gbSplitGoals
             // 
             this.gbSplitGoals.Controls.Add(this.ckbCustomized);
-            this.gbSplitGoals.Controls.Add(this.label1);
+            this.gbSplitGoals.Controls.Add(this.lblDeleteInstructions);
             this.gbSplitGoals.Controls.Add(this.dgvSplits);
             this.gbSplitGoals.ForeColor = System.Drawing.SystemColors.ControlText;
             this.gbSplitGoals.Location = new System.Drawing.Point(34, 157);
@@ -160,17 +160,18 @@ namespace ZwiftActivityMonitor
             this.ckbCustomized.Text = "Customized";
             this.ckbCustomized.UseVisualStyleBackColor = true;
             // 
-            // label1
+            // lblDeleteInstructions
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 217);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(173, 15);
-            this.label1.TabIndex = 141;
-            this.label1.Text = "* Right-click row to delete goal.";
+            this.lblDeleteInstructions.AutoSize = true;
+            this.lblDeleteInstructions.Location = new System.Drawing.Point(6, 217);
+            this.lblDeleteInstructions.Name = "lblDeleteInstructions";
+            this.lblDeleteInstructions.Size = new System.Drawing.Size(173, 15);
+            this.lblDeleteInstructions.TabIndex = 141;
+            this.lblDeleteInstructions.Text = "* Right-click row to delete goal.";
             // 
             // dgvSplits
             // 
+            this.dgvSplits.AllowUserToAddRows = false;
             this.dgvSplits.AllowUserToDeleteRows = false;
             this.dgvSplits.AllowUserToResizeColumns = false;
             this.dgvSplits.AllowUserToResizeRows = false;
@@ -394,11 +395,11 @@ namespace ZwiftActivityMonitor
             this.tsmiDeleteRow.Text = "Delete Row";
             this.tsmiDeleteRow.Click += new System.EventHandler(this.tsmiDeleteRow_Click);
             // 
-            // SplitsConfigControlNew
+            // SplitsConfigControlV2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "SplitsConfigControlNew";
+            this.Name = "SplitsConfigControlV2";
             this.Size = new System.Drawing.Size(587, 540);
             this.Controls.SetChildIndex(this.pBase, 0);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
@@ -438,11 +439,10 @@ namespace ZwiftActivityMonitor
         private System.Windows.Forms.DateTimePicker dtpGoalTime;
         private System.Windows.Forms.Button btnSplitEdit;
         private System.Windows.Forms.GroupBox gbSplitGoals;
-        //private System.Windows.Forms.DataGridView dgvSplits;
         private DataGridViewExtended dgvSplits;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem tsmiDeleteRow;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblDeleteInstructions;
         private System.Windows.Forms.CheckBox ckbCustomized;
     }
 }
