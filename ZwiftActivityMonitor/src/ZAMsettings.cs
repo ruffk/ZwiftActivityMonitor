@@ -1027,7 +1027,6 @@ namespace ZwiftActivityMonitor
     {
         #region Public members included in .json configuration
 
-        //public string Version { get; set; } = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
         public string Network { get; set; }
         public bool AutoStart { get; set; }
         public string DefaultUserProfile { get; set; } = "";

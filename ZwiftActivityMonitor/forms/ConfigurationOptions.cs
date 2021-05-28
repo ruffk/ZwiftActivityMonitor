@@ -61,7 +61,7 @@ namespace ZwiftActivityMonitor
             if (e.Cancel)
                 return;
 
-            ucTest.ControlLosingFocus(sender, e);
+            ucSplits.ControlLosingFocus(sender, e);
             if (e.Cancel)
                 return;
         }
@@ -110,7 +110,6 @@ namespace ZwiftActivityMonitor
                         break;
 
                     case "tpTest":
-                        ucTest.ControlGainingFocus(sender, e);
                         break;
 
                 }
@@ -141,7 +140,6 @@ namespace ZwiftActivityMonitor
                         break;
 
                     case "tpTest":
-                        ucTest.ControlLosingFocus(sender, e);
                         break;
                 }
             }

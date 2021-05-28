@@ -244,7 +244,7 @@ namespace ZwiftActivityMonitor
             this.dtpGoalTime.Name = "dtpGoalTime";
             this.dtpGoalTime.ShowUpDown = true;
             this.dtpGoalTime.Size = new System.Drawing.Size(77, 23);
-            this.dtpGoalTime.TabIndex = 125;
+            this.dtpGoalTime.TabIndex = 50;
             this.dtpGoalTime.Value = new System.DateTime(2021, 5, 10, 23, 59, 59, 0);
             this.dtpGoalTime.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
             this.dtpGoalTime.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);

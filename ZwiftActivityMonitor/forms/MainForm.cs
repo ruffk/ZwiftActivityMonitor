@@ -54,7 +54,7 @@ namespace ZwiftActivityMonitor
             m_dispatcher = Dispatcher.CurrentDispatcher;
 
             // Determine window position
-            if (ZAMsettings.Settings.WindowPositionX > 0 && ZAMsettings.Settings.WindowPositionY > 0)
+            if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
             {
                 this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
