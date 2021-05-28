@@ -24,7 +24,7 @@ namespace ZwiftActivityMonitor
             if (DesignMode)
                 return;
 
-            UserControlBase.SetListViewHeaderColor(ref this.lvTrace, SystemColors.Control, Color.Black);
+            UserControlBase.SetListViewHeaderColor(ref this.lvTrace, SystemColors.Control, SystemColors.ControlText);
         }
 
         protected override void UserControlBase_Load(object sender, EventArgs e)
@@ -149,10 +149,13 @@ namespace ZwiftActivityMonitor
 
             ckbAutoStart.Checked = ZAMsettings.Settings.AutoStart;
 
-            if (ZAMsettings.Settings.WindowPositionX > 0)
+            tbWindowPosX.Text = "";
+            tbWindowPosY.Text = "";
+
+            if (ZAMsettings.Settings.WindowPositionX != 0)
                 tbWindowPosX.Text = ZAMsettings.Settings.WindowPositionX.ToString();
 
-            if (ZAMsettings.Settings.WindowPositionY > 0)
+            if (ZAMsettings.Settings.WindowPositionY != 0)
                 tbWindowPosY.Text = ZAMsettings.Settings.WindowPositionY.ToString();
 
             // Current position of Zwift Activity Monitor window (for user reference)
@@ -214,7 +217,12 @@ namespace ZwiftActivityMonitor
                 tbCurWindowPosX.Enabled = value;
                 tbCurWindowPosY.Enabled = value;
 
+                if (PacketMonitor.IsStarted)
+                    cbNetwork.Enabled = false;
+
                 m_editMode = value;
+
+                SetMonitorButtonStatus();
             }
 
             get { return m_editMode; }
@@ -255,7 +263,7 @@ namespace ZwiftActivityMonitor
             }
             else
             {
-                btnStart.Enabled = true;
+                btnStart.Enabled = (!m_editMode && cbNetwork.SelectedItem != null);
                 btnStop.Enabled = false;
                 ckbRunning.Checked = false;
             }

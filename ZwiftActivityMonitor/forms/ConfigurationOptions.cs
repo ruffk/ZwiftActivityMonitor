@@ -60,6 +60,10 @@ namespace ZwiftActivityMonitor
             ucLaps.ControlLosingFocus(sender, e);
             if (e.Cancel)
                 return;
+
+            ucSplits.ControlLosingFocus(sender, e);
+            if (e.Cancel)
+                return;
         }
 
         private void SkipControl_Enter(object sender, EventArgs e)
@@ -105,6 +109,9 @@ namespace ZwiftActivityMonitor
                         ucLaps.ControlGainingFocus(sender, e);
                         break;
 
+                    case "tpTest":
+                        break;
+
                 }
             }
 
@@ -130,6 +137,9 @@ namespace ZwiftActivityMonitor
 
                     case "tpLaps":
                         ucLaps.ControlLosingFocus(sender, e);
+                        break;
+
+                    case "tpTest":
                         break;
                 }
             }

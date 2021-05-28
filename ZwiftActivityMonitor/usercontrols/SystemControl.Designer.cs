@@ -288,7 +288,7 @@ namespace ZwiftActivityMonitor
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(259, 141);
+            this.label7.Location = new System.Drawing.Point(269, 141);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(148, 15);
             this.label7.TabIndex = 89;
@@ -306,9 +306,9 @@ namespace ZwiftActivityMonitor
             // tbCurWindowPosY
             // 
             this.tbCurWindowPosY.BackColor = System.Drawing.SystemColors.Control;
-            this.tbCurWindowPosY.Location = new System.Drawing.Point(221, 138);
+            this.tbCurWindowPosY.Location = new System.Drawing.Point(226, 138);
             this.tbCurWindowPosY.Name = "tbCurWindowPosY";
-            this.tbCurWindowPosY.Size = new System.Drawing.Size(32, 23);
+            this.tbCurWindowPosY.Size = new System.Drawing.Size(37, 23);
             this.tbCurWindowPosY.TabIndex = 87;
             this.tbCurWindowPosY.TabStop = false;
             this.tbCurWindowPosY.Enter += new System.EventHandler(this.SkipControl_Enter);
@@ -318,7 +318,7 @@ namespace ZwiftActivityMonitor
             this.tbCurWindowPosX.BackColor = System.Drawing.SystemColors.Control;
             this.tbCurWindowPosX.Location = new System.Drawing.Point(183, 138);
             this.tbCurWindowPosX.Name = "tbCurWindowPosX";
-            this.tbCurWindowPosX.Size = new System.Drawing.Size(32, 23);
+            this.tbCurWindowPosX.Size = new System.Drawing.Size(37, 23);
             this.tbCurWindowPosX.TabIndex = 86;
             this.tbCurWindowPosX.TabStop = false;
             this.tbCurWindowPosX.Enter += new System.EventHandler(this.SkipControl_Enter);
@@ -334,10 +334,10 @@ namespace ZwiftActivityMonitor
             // 
             // tbWindowPosY
             // 
-            this.tbWindowPosY.Location = new System.Drawing.Point(221, 107);
-            this.tbWindowPosY.MaxLength = 4;
+            this.tbWindowPosY.Location = new System.Drawing.Point(226, 107);
+            this.tbWindowPosY.MaxLength = 5;
             this.tbWindowPosY.Name = "tbWindowPosY";
-            this.tbWindowPosY.Size = new System.Drawing.Size(32, 23);
+            this.tbWindowPosY.Size = new System.Drawing.Size(37, 23);
             this.tbWindowPosY.TabIndex = 35;
             this.tbWindowPosY.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
             this.tbWindowPosY.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);
@@ -355,9 +355,9 @@ namespace ZwiftActivityMonitor
             // tbWindowPosX
             // 
             this.tbWindowPosX.Location = new System.Drawing.Point(183, 107);
-            this.tbWindowPosX.MaxLength = 4;
+            this.tbWindowPosX.MaxLength = 5;
             this.tbWindowPosX.Name = "tbWindowPosX";
-            this.tbWindowPosX.Size = new System.Drawing.Size(32, 23);
+            this.tbWindowPosX.Size = new System.Drawing.Size(37, 23);
             this.tbWindowPosX.TabIndex = 30;
             this.tbWindowPosX.Enter += new System.EventHandler(this.SystemSettings_TooltipOnEnter);
             this.tbWindowPosX.Leave += new System.EventHandler(this.SystemSettings_TooltipOnLeave);

@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.2.5</Version>
+    <Version>1.2.6</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -26,10 +26,17 @@
     <Compile Remove="forms\MonitorStatistics.cs" />
     <Compile Remove="forms\MonitorStatistics.Designer.cs" />
     <Compile Remove="src\ConfigurationBO.cs" />
+    <Compile Remove="src\SplitsManager.cs" />
+    <Compile Remove="usercontrols\ListViewControl.cs" />
+    <Compile Remove="usercontrols\ListViewControl.Designer.cs" />
+    <Compile Remove="usercontrols\SplitsConfigControl.cs" />
+    <Compile Remove="usercontrols\SplitsConfigControl.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="forms\MonitorStatistics.resx" />
+    <EmbeddedResource Remove="usercontrols\ListViewControl.resx" />
+    <EmbeddedResource Remove="usercontrols\SplitsConfigControl.resx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -102,6 +109,9 @@
     </Compile>
     <Compile Update="forms\EventCompletion.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="usercontrols\SplitsConfigControlV2.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="usercontrols\LapConfigControl.cs">
       <SubType>UserControl</SubType>
