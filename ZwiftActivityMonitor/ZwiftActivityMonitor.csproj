@@ -89,6 +89,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="usercontrols\ListViewControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="forms\RideRecap.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +105,9 @@
     </Compile>
     <Compile Update="forms\EventCompletion.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="usercontrols\SplitsConfigControlV2.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="usercontrols\LapConfigControl.cs">
       <SubType>UserControl</SubType>
