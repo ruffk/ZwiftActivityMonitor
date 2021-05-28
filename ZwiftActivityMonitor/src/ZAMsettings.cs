@@ -621,129 +621,129 @@ namespace ZwiftActivityMonitor
 
     #endregion
 
-    #region Splits
+    //#region Splits
 
-    public class Splits : ConfigItemBase, ICloneable
-    {
-        public bool ShowSplits { get; set; }
-        public bool CalculateGoal { get; set; }
+    //public class Splits : ConfigItemBase, ICloneable
+    //{
+    //    public bool ShowSplits { get; set; }
+    //    public bool CalculateGoal { get; set; }
 
-        private int m_splitDistance = 5;
-        private string m_splitUom = "km";
-        private int m_goalHours;
-        private int m_goalMinutes = 45;
-        private int m_goalSeconds;
-        private double m_goalDistance = 25;
+    //    private int m_splitDistance = 5;
+    //    private string m_splitUom = "km";
+    //    private int m_goalHours;
+    //    private int m_goalMinutes = 45;
+    //    private int m_goalSeconds;
+    //    private double m_goalDistance = 25;
 
-        [JsonIgnore]
-        public TimeSpan GoalTime { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
+    //    [JsonIgnore]
+    //    public TimeSpan GoalTime { get { return new TimeSpan(m_goalHours, m_goalMinutes, m_goalSeconds); } }
 
-        public Splits()
-        {
+    //    public Splits()
+    //    {
 
-        }
+    //    }
 
-        public int SplitDistance
-        {
-            get { return m_splitDistance; } 
+    //    public int SplitDistance
+    //    {
+    //        get { return m_splitDistance; } 
 
-            set
-            {
-                if (value < 1 || value > 999)
-                    throw new FormatException("Split distance value must be between 1 and 999.");
+    //        set
+    //        {
+    //            if (value < 1 || value > 999)
+    //                throw new FormatException("Split distance value must be between 1 and 999.");
 
-                m_splitDistance = value;
-            }
-        }
+    //            m_splitDistance = value;
+    //        }
+    //    }
 
-        [JsonIgnore]
-        public bool SplitsInKm
-        {
-            get { return m_splitUom == "km"; }
-        }
+    //    [JsonIgnore]
+    //    public bool SplitsInKm
+    //    {
+    //        get { return m_splitUom == "km"; }
+    //    }
 
-        [JsonIgnore]
-        public double SplitDistanceAsKm
-        {
-            get { return SplitsInKm ? m_splitDistance : m_splitDistance * 1.609; }
-        }
+    //    [JsonIgnore]
+    //    public double SplitDistanceAsKm
+    //    {
+    //        get { return SplitsInKm ? m_splitDistance : m_splitDistance * 1.609; }
+    //    }
 
-        [JsonIgnore]
-        public int SplitDistanceAsMeters
-        {
-            get { return (int)Math.Round(SplitDistanceAsKm * 1000, 0); }
-        }
+    //    [JsonIgnore]
+    //    public int SplitDistanceAsMeters
+    //    {
+    //        get { return (int)Math.Round(SplitDistanceAsKm * 1000, 0); }
+    //    }
 
-        public string SplitUom 
-        {
-            get { return m_splitUom; }
-            set 
-            { 
-                if (value != "km" && value != "mi")
-                    throw new FormatException("Distance UOM must be either km or mi.");
+    //    public string SplitUom 
+    //    {
+    //        get { return m_splitUom; }
+    //        set 
+    //        { 
+    //            if (value != "km" && value != "mi")
+    //                throw new FormatException("Distance UOM must be either km or mi.");
 
-                m_splitUom = value;
-            }
-        }
-        public int GoalHours
-        {
-            get { return m_goalHours; }
+    //            m_splitUom = value;
+    //        }
+    //    }
+    //    public int GoalHours
+    //    {
+    //        get { return m_goalHours; }
 
-            set
-            {
-                if (value < 0 || value > 23)
-                    throw new FormatException("Goal hours value must be between 0 and 23.");
+    //        set
+    //        {
+    //            if (value < 0 || value > 23)
+    //                throw new FormatException("Goal hours value must be between 0 and 23.");
 
-                m_goalHours = value;
-            }
-        }
-        public int GoalMinutes
-        {
-            get { return m_goalMinutes; }
+    //            m_goalHours = value;
+    //        }
+    //    }
+    //    public int GoalMinutes
+    //    {
+    //        get { return m_goalMinutes; }
 
-            set
-            {
-                if (value < 0 || value > 59)
-                    throw new FormatException("Goal minutes value must be between 0 and 59.");
+    //        set
+    //        {
+    //            if (value < 0 || value > 59)
+    //                throw new FormatException("Goal minutes value must be between 0 and 59.");
 
-                m_goalMinutes = value;
-            }
-        }
-        public int GoalSeconds
-        {
-            get { return m_goalSeconds; }
+    //            m_goalMinutes = value;
+    //        }
+    //    }
+    //    public int GoalSeconds
+    //    {
+    //        get { return m_goalSeconds; }
 
-            set
-            {
-                if (value < 0 || value > 59)
-                    throw new FormatException("Goal seconds value must be between 0 and 59.");
+    //        set
+    //        {
+    //            if (value < 0 || value > 59)
+    //                throw new FormatException("Goal seconds value must be between 0 and 59.");
 
-                m_goalSeconds = value;
-            }
-        }
+    //            m_goalSeconds = value;
+    //        }
+    //    }
 
-        public double GoalDistance
-        {
-            get { return m_goalDistance; }
+    //    public double GoalDistance
+    //    {
+    //        get { return m_goalDistance; }
 
-            set
-            {
-                if (value < 1 || value > 999)
-                    throw new FormatException("Goal distance value must be between 1 and 999.");
+    //        set
+    //        {
+    //            if (value < 1 || value > 999)
+    //                throw new FormatException("Goal distance value must be between 1 and 999.");
 
-                m_goalDistance = value;
-            }
-        }
+    //            m_goalDistance = value;
+    //        }
+    //    }
 
 
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
+    //    public object Clone()
+    //    {
+    //        return this.MemberwiseClone();
+    //    }
 
-    }
+    //}
 
-    #endregion
+    //#endregion
 
     #region SplitsV2
     /// <summary>
@@ -1035,7 +1035,7 @@ namespace ZwiftActivityMonitor
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
-        public Splits Splits { get; }
+        //public Splits Splits { get; }
         public Lap Laps { get; }
         public SplitsV2 SplitsV2 { get; }
 
@@ -1066,7 +1066,7 @@ namespace ZwiftActivityMonitor
         {
             UserProfiles    = new SortedList<string, UserProfile>();
             Collectors      = new SortedList<string, Collector>();
-            Splits          = new Splits();
+            //Splits          = new Splits();
             Laps            = new Lap();
             SplitsV2        = new SplitsV2();
         }
@@ -1265,7 +1265,7 @@ namespace ZwiftActivityMonitor
                 BeginCachedConfiguration();
                 
                 bool isInitialized = Settings.Laps.InitializeDefaultValues();
-                isInitialized = isInitialized || Settings.Splits.InitializeDefaultValues();
+                //isInitialized = isInitialized || Settings.Splits.InitializeDefaultValues();
                 isInitialized = isInitialized || Settings.SplitsV2.InitializeDefaultValues();
 
                 // If a Collector or UserProfile needs to be added manually for some reason, that will need to be coded separately

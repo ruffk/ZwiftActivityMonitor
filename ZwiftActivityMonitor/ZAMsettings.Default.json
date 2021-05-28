@@ -101,16 +101,6 @@
       "FieldFtpDesc": "Hidden"
     }
   },
-  "Splits": {
-    "ShowSplits": true,
-    "CalculateGoal": false,
-    "SplitDistance": 5,
-    "SplitUom": "km",
-    "GoalHours": 0,
-    "GoalMinutes": 45,
-    "GoalSeconds": 0,
-    "GoalDistance": 25.0
-  },
   "Laps": {
     "LapStyle": {
       "Key": 1,
@@ -136,5 +126,19 @@
     "TriggerHours": 0,
     "TriggerMinutes": 10,
     "TriggerSeconds": 0
+  },
+  "SplitsV2": {
+    "SplitDistanceUom": {
+      "Key": 0,
+      "Value": "km"
+    },
+    "ShowSplits": false,
+    "CalculateGoal": false,
+    "Customized": false,
+    "GoalSpeed": 0.0,
+    "Splits": [],
+    "SplitDistance": 5,
+    "GoalTime": "00:45:00",
+    "GoalDistance": 25.0
   }
 }
