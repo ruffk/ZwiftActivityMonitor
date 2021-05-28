@@ -723,7 +723,7 @@ namespace ZwiftActivityMonitor
                 return;
             }
 
-            Logger.LogInformation($"dgvSplits_CellValidating ({e.RowIndex}, {e.ColumnIndex}), value: {e.FormattedValue}, EditMode: {cell.IsInEditMode}");
+            //Logger.LogInformation($"dgvSplits_CellValidating ({e.RowIndex}, {e.ColumnIndex}), value: {e.FormattedValue}, EditMode: {cell.IsInEditMode}");
 
             bool success;
 
@@ -758,7 +758,7 @@ namespace ZwiftActivityMonitor
 
         private void dgvSplits_CellValidated(object sender, DataGridViewCellEventArgs e)
         {
-            Logger.LogInformation($"dgvSplits_CellValidated ({e.RowIndex}, {e.ColumnIndex}), value: {dgvSplits[e.ColumnIndex, e.RowIndex].Value}");
+            //Logger.LogInformation($"dgvSplits_CellValidated ({e.RowIndex}, {e.ColumnIndex}), value: {dgvSplits[e.ColumnIndex, e.RowIndex].Value}");
 
             // if split distance and time have values, recalculate
             if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) == 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) == 0)
@@ -775,20 +775,20 @@ namespace ZwiftActivityMonitor
                 
             if (dgvSplits.Rows[e.RowIndex].IsNewRow)
             {
-                Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
+                //Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
                 return;
             }
 
             // if both are null then don't validate
             if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
             {
-                Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, Distance/Time=NULL: true");
+                //Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, Distance/Time=NULL: true");
                 return;
             }
 
             try
             {
-                Logger.LogInformation($"dgvSplits_RowValidating ({e.RowIndex}, {e.ColumnIndex})");
+                //Logger.LogInformation($"dgvSplits_RowValidating ({e.RowIndex}, {e.ColumnIndex})");
 
                 if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0)
                 {
@@ -816,7 +816,7 @@ namespace ZwiftActivityMonitor
             
             if (dgvSplits.Rows[e.RowIndex].IsNewRow)
             {
-                Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
+                //Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, IsNewRow: {dgvSplits.Rows[e.RowIndex].IsNewRow}");
 
                 // remove the empty row from the data table
                 ((DataTable)dgvSplits.DataSource).Rows[e.RowIndex].Delete();
@@ -825,11 +825,11 @@ namespace ZwiftActivityMonitor
 
             if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
             {
-                Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, Distance/Time=NULL: true");
+                //Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, Distance/Time=NULL: true");
                 return;
             }
 
-            Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}");
+            //Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}");
 
 
             this.RecalculateTotals();
@@ -839,7 +839,7 @@ namespace ZwiftActivityMonitor
         {
             DataTable table = (DataTable)dgvSplits.DataSource;
 
-            Logger.LogInformation($"RecalculateTotals");
+            //Logger.LogInformation($"RecalculateTotals");
 
             TimeSpan totalTime = TimeSpan.Zero;
             double totalDistance = 0;
@@ -890,12 +890,12 @@ namespace ZwiftActivityMonitor
 
         private void dgvSplits_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
-            Logger.LogInformation($"dgvSplits_RowEnter ({e.RowIndex}, {e.ColumnIndex})");
+            //Logger.LogInformation($"dgvSplits_RowEnter ({e.RowIndex}, {e.ColumnIndex})");
         }
 
         private void dgvSplits_RowLeave(object sender, DataGridViewCellEventArgs e)
         {
-            Logger.LogInformation($"dgvSplits_RowLeave ({e.RowIndex}, {e.ColumnIndex}, DataTable Rows: {((DataTable)dgvSplits.DataSource).Rows.Count})");
+            //Logger.LogInformation($"dgvSplits_RowLeave ({e.RowIndex}, {e.ColumnIndex}, DataTable Rows: {((DataTable)dgvSplits.DataSource).Rows.Count})");
         }
 
         private void dgvSplits_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
