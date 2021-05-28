@@ -95,12 +95,17 @@ ZAM uses moving average collectors to present statistics on the screen in real-t
 
 #### Options -> Splits Configuration Tab 
 
-ZAM allows you to configure distance based splits to review your progress while riding.  Optionally, you can also configure goals so that you'll know if you're ahead or behind on your split times.  A split has the following attributes:
+ZAM allows you to configure distance based splits to review your progress while riding.  Optionally, you can also configure goals so that you'll know if you're ahead or behind on your split times.  Customization of goals is also supported.  A split has the following attributes:
 
 * Show Splits - When checked, the Splits View window will display automatically for 5 seconds when the distance is hit.
 * Splits Every - This determines the distance (in km or mi) that splits occur.
 * Calculate Goal - When checked, the splits view window will show a +/- indicator of your time vs the split time.
 * Goal Time and Goal Distance - Together these are used to automatically calculate the number of splits and the target split times.
+
+##### Customizing Splits
+
+* If you've checked both the Show Splits and Calculate Goals checkboxes, you will have the option to edit the templated splits.  New splits can be added (at the end only), and existing splits can be edited or removed.  
+* You can edit / save the bottom split goals grid as often as you like.  **Important Note: If you edit / save the upper split settings, any custom splits will be overwritten.**
 
 An example of the Splits View window is shown at the beginning of this readme file.
 
