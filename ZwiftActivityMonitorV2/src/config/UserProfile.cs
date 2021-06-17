@@ -64,6 +64,32 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        [JsonIgnore]
+        public List<Collector> GetCollectors
+        {
+            get
+            {
+                List<Collector> collectors = new();
+                foreach (var item in DefaultCollectors)
+                {
+                    if (item.Value == true)
+                    {
+                        if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
+                            collectors.Add(ZAMsettings.Settings.Collectors[item.Key]);
+                    }
+                }
+                collectors.Sort(
+                    delegate (Collector p1, Collector p2)
+                    {
+                        return p1.DurationSecs.CompareTo(p2.DurationSecs);
+                    }
+                );
+
+                return collectors.ToList<Collector>();
+            }
+        }
+
+
         public bool WeightInKgs
         {
             get

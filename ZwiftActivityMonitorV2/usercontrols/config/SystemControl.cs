@@ -11,6 +11,7 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class SystemControl : UserControlWithStatusBase
     {
+
         public static ZPMonitorService PacketMonitor { get; set; }
         public static Point ZAMWindowPos { get;  set; }
 
@@ -186,6 +187,8 @@ namespace ZwiftActivityMonitorV2
             {
                 ZAMsettings.CommitCachedConfiguration();
                 EditingSystemSettings = false;
+
+                ZAMsettings.OnSystemConfigChanged(this, new EventArgs());
             }
         }
 

@@ -13,8 +13,7 @@ namespace ZwiftActivityMonitorV2
 
     public partial class ActivityViewerControl : ViewerUserControlEx
     {
-        //public Color HeaderGradientBeginColor { get; set; } = SystemColors.Control;
-        //public Color HeaderGradientEndColor { get; set; } = SystemColors.ControlDark;
+        private UserProfile CurrentUserProfile { get; set; }
 
         private enum DetailColumn
         {
@@ -44,18 +43,36 @@ namespace ZwiftActivityMonitorV2
 
         public ActivityViewerControl()
         {
+            Debug.WriteLine($"ActivityViewerControl_ctor");
             InitializeComponent();
 
             InitializeDetailDataGrid();
-            LoadDetailDataGrid();
+            //LoadDetailDataGrid();
 
             InitializeSummaryDataGrid();
-            LoadSummaryDataGrid();
+            //LoadSummaryDataGrid();
+
+
+            // Subscribe to any SystemConfig changes
+            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+        }
+
+        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
+        {
+            this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
+            
+            Debug.WriteLine($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
         }
 
         private void ViewControl_Load(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"ViewControl_Load1");
+            Debug.WriteLine($"ActivityViewerControl_Load");
+
+            // Get the currently selected user
+            this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
+
+            this.LoadDetailDataGrid();
+            this.LoadSummaryDataGrid();
 
             this.SetRowVisibilityStatus();
 
@@ -146,17 +163,11 @@ namespace ZwiftActivityMonitorV2
             DataTable table = (DataTable)((BindingSource)dgDetail.DataSource).DataSource;
             table.Rows.Clear(); // not really necessary
 
-            table.Rows.Add("5 sec", 5, "250", "247", "", "166");
-            table.Rows.Add("30 sec", 30, "250", "247", "", "166");
-            table.Rows.Add("1 min", 60, "250", "247", "", "166");
-            table.Rows.Add("5 min", 300, "250", "247", "", "166");
-            table.Rows.Add("6 min", 360, "250", "247", "", "166");
-            table.Rows.Add("10 min", 600, "250", "247", "", "166");
-            table.Rows.Add("20 min", 1200, "250", "247", "4.02", "166");
-            table.Rows.Add("30 min", 1800, "250", "247", "4.02", "166");
-            table.Rows.Add("60 min", 3600, "250", "247", "4.02", "166");
-            table.Rows.Add("90 min", 5400, "250", "247", "4.02", "166");
-
+            // Add all known Collectors to the view.  Later, row visibility will be set.
+            foreach(var collector in ZAMsettings.Settings.GetCollectors)
+            {
+                table.Rows.Add(collector.Name, collector.DurationSecs, "", "", "", "");
+            }
 
             //Debug.WriteLine($"LoadDetailDataGrid2");
         }
@@ -233,7 +244,8 @@ namespace ZwiftActivityMonitorV2
         {
             //Debug.WriteLine($"SetRowVisibilityStatus1 - Row[0].Visible: {dgDetail.Rows[0].Visible}, CurrentCell: {dgDetail.CurrentCell} BindingSource.Position: {this.DetailBindingSource.Position}");
 
-            int[] list = { 60, 300, 1200 };
+            //int[] list = { 60, 300, 1200 };
+
 
             DetailBindingSource.SuspendBinding();
             dgDetail.CurrentCell = null;
@@ -242,12 +254,16 @@ namespace ZwiftActivityMonitorV2
                 DataGridViewRow r = dgDetail.Rows[i];
 
                 // determine whether to hide or show row
-                int? value = list.Cast<int?>().FirstOrDefault(n => n == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
+                //int? value = list.Cast<int?>().FirstOrDefault(n => n == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
+                //if (!value.HasValue)
+                //    r.Visible = false;
+
+                Collector c = CurrentUserProfile.GetCollectors.FirstOrDefault(c => c.DurationSecs == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
+                if (c == null)
+                    r.Visible = false;
 
                 //Debug.WriteLine($"value: {value}, rowval: {(int)r.Cells[(int)DetailColumn.PeriodSecs].Value}");
 
-                if (!value.HasValue)
-                    r.Visible = false;
             }
             DetailBindingSource.ResumeBinding();
             dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
@@ -286,14 +302,14 @@ namespace ZwiftActivityMonitorV2
 
             //Debug.WriteLine($"Row[0].Visible1: {dgDetail.Rows[0].Visible}, CurrentCell: {dgDetail.CurrentCell} BindingSource.Position: {this.DetailBindingSource.Position}");
 
-            DataTable table = (DataTable)((BindingSource)this.dgDetail.DataSource).DataSource;
+            //DataTable table = (DataTable)((BindingSource)this.dgDetail.DataSource).DataSource;
 
-            dgDetail.CurrentCell = null;
-            for (int i = 0; i < table.Rows.Count; i++)
-            {
-                DataRow r = table.Rows[i];
-                r.SetField<string>((int)DetailColumn.AP, (Convert.ToInt32(r.Field<string>((int)DetailColumn.AP)) + 1).ToString());
-            }
+            //dgDetail.CurrentCell = null;
+            //for (int i = 0; i < table.Rows.Count; i++)
+            //{
+            //    DataRow r = table.Rows[i];
+            //    r.SetField<string>((int)DetailColumn.AP, (Convert.ToInt32(r.Field<string>((int)DetailColumn.AP)) + 1).ToString());
+            //}
 
             //Debug.WriteLine($"Row[0].Visible2: {dgDetail.Rows[0].Visible}");
         }

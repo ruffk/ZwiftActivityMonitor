@@ -50,8 +50,6 @@ namespace ZwiftActivityMonitorV2
 
             this.tpUserProfiles.BackColor = this.ColorTable.FormBackground;
             this.tpUserProfiles.ForeColor = this.ColorTable.FormTextColor;
-
-
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)
@@ -63,6 +61,7 @@ namespace ZwiftActivityMonitorV2
             tabOptions.SelectedIndex = 1;
             tabOptions.SelectedIndex = 0;
         }
+
 
         private void ConfigurationOptions_FormClosing(object sender, FormClosingEventArgs args)
         {

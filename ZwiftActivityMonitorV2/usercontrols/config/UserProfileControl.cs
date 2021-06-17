@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net.Mail;
 using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -421,7 +422,7 @@ namespace ZwiftActivityMonitorV2
 
             if (lvUserProfiles.SelectedItems.Count < 1)
             {
-                errorProvider.SetError(lvUserProfiles, "Internal error occurred.  No item in list view is selected.");
+                //errorProvider.SetError(lvUserProfiles, $"Internal error occurred during validation.  No item in list view is selected. Control: {control.Name}");
                 return false;
             }
 

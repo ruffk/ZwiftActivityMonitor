@@ -92,6 +92,9 @@ namespace ZwiftActivityMonitorV2
         private const string FileNameDefault = "ZAMsettings.Default.json";
         private const string FileName = "ZAMsettings.json";
 
+        public static event EventHandler<EventArgs> SystemConfigChanged;
+
+
 
         private ZAMsettings()
         {
@@ -202,7 +205,10 @@ namespace ZwiftActivityMonitorV2
                 return null;
             }
         }
-
+        
+        /// <summary>
+        /// Get a sorted list of all known Collectors by DurationSecs asc
+        /// </summary>
         [JsonIgnore]
         public List<Collector> GetCollectors
         {
@@ -432,6 +438,23 @@ namespace ZwiftActivityMonitorV2
 
             _logger.LogInformation($"Cached configuration rolled back.");
         }
+
+        public static void OnSystemConfigChanged(object sender, EventArgs e)
+        {
+            EventHandler<EventArgs> handler = SystemConfigChanged;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(sender, e);
+                }
+                catch
+                {
+                    // Don't let downstream exceptions bubble up
+                }
+            }
+        }
+
 
         /// <summary>
         /// Region method to define rounded control corners

@@ -58,10 +58,10 @@
     <Compile Update="usercontrols\config\UserProfileControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="usercontrols\LapViewerControl.cs">
+    <Compile Update="usercontrols\viewer\LapViewerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="usercontrols\SplitViewerControl.cs" />
+    <Compile Update="usercontrols\viewer\SplitViewerControl.cs" />
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -71,7 +71,6 @@
   
   <ItemGroup>
     <Folder Include="resources\" />
-    <Folder Include="usercontrols\viewer\" />
   </ItemGroup>
   
   <ItemGroup>

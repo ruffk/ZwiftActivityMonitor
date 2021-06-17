@@ -21,6 +21,7 @@ namespace ZwiftActivityMonitorV2
 
     public partial class MainForm : Syncfusion.Windows.Forms.Office2010Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
+
         private readonly ILogger<MainForm> Logger;
         private readonly IServiceProvider ServiceProvider;
 
@@ -42,11 +43,26 @@ namespace ZwiftActivityMonitorV2
         {
             SetControlColors();
 
+            // for handling UI events
+            //m_dispatcher = Dispatcher.CurrentDispatcher;
+
+            // Determine window position
+            if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
+            {
+                this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+                this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
+            }
+
+
+            // Determine window size
+            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
+
+            // Set the environment based on the current user
+            SetupCurrentUser();
+
             // toggle the tabs so the first tab gets initialized
             tabControl.SelectedIndex = 1;
             tabControl.SelectedIndex = 0;
-
-            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
         }
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
@@ -293,5 +309,30 @@ namespace ZwiftActivityMonitorV2
             // Allow menus and status bar to update according to what user just did
             //OnCollectionStatusChanged();
         }
+
+        private void SetupCurrentUser()
+        {
+            // Get the currently selected user profile. This will be the user marked as default at startup, but can be changed at runtime.
+            //this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
+
+            //SortedList<string, Collector> selectedCollectors = m_currentUser.SelectedCollectors;
+
+            //// Check the menu items for user selected collectors, uncheck the others
+            //foreach (ToolStripItem mi in tsmiAnalyze.DropDownItems)
+            //{
+            //    ToolStripMenuItem tsmi = mi as ToolStripMenuItem;
+
+            //    if (tsmi != null)
+            //    {
+            //        tsmi.Checked = selectedCollectors.ContainsKey(tsmi.Text);
+            //    }
+            //}
+
+            //// Load collectors for whatever is defined in by the checked menu items
+            //LoadMovingAverageCollection();
+
+            Logger.LogInformation("SetupCurrentUser");
+        }
+
     }
 }
