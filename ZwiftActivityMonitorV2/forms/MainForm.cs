@@ -7,6 +7,8 @@ using System.Drawing.Text;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Syncfusion.Windows.Forms;
 using Syncfusion.WinForms.Controls;
@@ -19,10 +21,16 @@ namespace ZwiftActivityMonitorV2
 
     public partial class MainForm : Syncfusion.Windows.Forms.Office2010Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
+        private readonly ILogger<MainForm> Logger;
+        private readonly IServiceProvider ServiceProvider;
+
         private const string HomeTitle = "Activity Monitor";
 
-        public MainForm()
+        public MainForm(IServiceProvider serviceProvider)
         {
+            this.ServiceProvider = serviceProvider;
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
+
             InitializeComponent();
 
             //toolStrip.Renderer = new ToolStripProfessionalRendererEx();
@@ -47,24 +55,26 @@ namespace ZwiftActivityMonitorV2
 
         private void SetControlColors()
         {
-            this.UseOffice2010SchemeBackColor = true;
-
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
-            if (settings.ThemeSetting != ThemeType.Custom)
-            {
-                this.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+            ZAMappearance.ApplyColorScheme(this);
 
-                if (this.ColorScheme == Office2010Theme.Managed)
-                {
-                    Office2010Colors.ApplyManagedColors(this, managedColor.Value);
-                }
-            }
-            else
-            {
-                this.ColorScheme = Office2010Theme.Managed;
-                Office2010Colors.ApplyManagedColors(this, settings.ManagedColor);
-            }
+            //this.UseOffice2010SchemeBackColor = true;
+
+            //if (settings.ThemeSetting != ThemeType.Custom)
+            //{
+            //    this.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+
+            //    if (this.ColorScheme == Office2010Theme.Managed)
+            //    {
+            //        Office2010Colors.ApplyManagedColors(this, managedColor.Value);
+            //    }
+            //}
+            //else
+            //{
+            //    this.ColorScheme = Office2010Theme.Managed;
+            //    Office2010Colors.ApplyManagedColors(this, settings.ManagedColor);
+            //}
 
             Color foreColor = this.ColorTable.FormTextColor;
             Color backColor = this.ColorTable.FormBackground;
@@ -272,6 +282,16 @@ namespace ZwiftActivityMonitorV2
 
                 Debug.WriteLine($"MainForm_ResizeEnd - New window size saved, Size: {this.Size}");
             }
+        }
+
+        private void tsmiConfiguration_Click(object sender, EventArgs e)
+        {
+            new ConfigurationOptions(this.ServiceProvider, this.Location).ShowDialog(this);
+
+            //SetupCurrentUser();
+
+            // Allow menus and status bar to update according to what user just did
+            //OnCollectionStatusChanged();
         }
     }
 }

@@ -157,6 +157,29 @@ namespace ZwiftActivityMonitorV2
                     return Office2010Theme.Managed;
             }
         }
+
+        public static void ApplyColorScheme(Office2010Form form)
+        {
+            form.UseOffice2010SchemeBackColor = true;
+
+            ZAMappearance settings = ZAMsettings.Settings.Appearance;
+
+            if (settings.ThemeSetting != ThemeType.Custom)
+            {
+                form.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+
+                if (form.ColorScheme == Office2010Theme.Managed)
+                {
+                    Office2010Colors.ApplyManagedColors(form, managedColor.Value);
+                }
+            }
+            else
+            {
+                form.ColorScheme = Office2010Theme.Managed;
+                Office2010Colors.ApplyManagedColors(form, settings.ManagedColor);
+            }
+
+        }
     }
     #endregion
 }

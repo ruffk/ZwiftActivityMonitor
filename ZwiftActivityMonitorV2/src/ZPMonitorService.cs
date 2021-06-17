@@ -10,21 +10,25 @@ namespace ZwiftActivityMonitorV2
 
     public class ZPMonitorService
     {
-        private readonly ILogger<ZPMonitorService> Logger;
-        private readonly ZwiftPacketMonitor.Monitor m_zpMonitor;
 
-        private int m_trackedPlayerId;
-        private bool m_debugMode;
-        private int m_targetHR;
-        private int m_targetPower;
-        private bool m_isStarted;
-        private int m_eventsProcessed;
-        private DateTime m_lastPlayerStateUpdate;
+        public bool IsStarted { get; internal set; }
+        public int EventsProcessed { get; internal set; }
+        public string Network { get; internal set; }
+        public bool IsDebugMode { get; internal set; }
+        public int TargetHeartrate { get; internal set; }
+        public int TargetPower { get; internal set; }
+
+        private ILogger<ZPMonitorService> Logger { get; }
+        private ZwiftPacketMonitor.Monitor ZPMonitor { get; }
+
+        private int TrackedPlayerId { get; set; }
+        private DateTime LastPlayerStateUpdate { get; set; }
+        private Timer PacketSmoothingTimer { get; }
+        private PlayerStateEventArgs LatestPlayerStateEventArgs { get; set; }
+
+
         private TimeSpan m_playerStateTime = new TimeSpan(0); // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
-        private string m_zpMonitorNetwork;
 
-        private Timer m_packetSmoothingTimer;
-        private PlayerStateEventArgs m_latestPlayerStateEventArgs;
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
         public event EventHandler<RiderStateEventArgs> HighResRiderStateEvent;
@@ -59,7 +63,9 @@ namespace ZwiftActivityMonitorV2
         public ZPMonitorService(ILogger<ZPMonitorService> logger, ZwiftPacketMonitor.Monitor zpMonitor)
         {
             Logger = logger;
-            m_zpMonitor = zpMonitor;
+            ZPMonitor = zpMonitor;
+
+            PacketSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback);
 
             m_zwifters = new Dictionary<int, Zwifter>();
 
@@ -74,20 +80,20 @@ namespace ZwiftActivityMonitorV2
 
         public void StartMonitor(bool debugMode, int targetHR, int targetPower)
         {
-            if (m_isStarted)
+            if (IsStarted)
             {
                 Logger.LogWarning($"ZwiftPacketMonitor is already running.");
                 return;
             }
 
-            m_zpMonitorNetwork = ZAMsettings.Settings.Network;
+            Network = ZAMsettings.Settings.Network;
 
-            m_debugMode = debugMode;
-            m_targetHR = targetHR;
-            m_targetPower = targetPower;
+            IsDebugMode = debugMode;
+            TargetHeartrate = targetHR;
+            TargetPower = targetPower;
 
-            m_lastPlayerStateUpdate = DateTime.Now;
-            m_eventsProcessed = 0;
+            LastPlayerStateUpdate = DateTime.Now;
+            EventsProcessed = 0;
             m_playerStateTime = new TimeSpan(0);
 
             // Here we launch our own task to start monitoring.  It's not actually necessary
@@ -128,18 +134,18 @@ namespace ZwiftActivityMonitorV2
             // This way it's possible to test event dispatch w/o having to be on the bike with power meter 
             // and heart rate strap actually connected and outputting data.  Idea by Brad W.
 
-            if (m_debugMode == true)
+            if (IsDebugMode == true)
             {
-                m_trackedPlayerId = 0; // reset
-                m_zpMonitor.IncomingPlayerEvent += this.PlayerEventHandler;
+                TrackedPlayerId = 0; // reset
+                ZPMonitor.IncomingPlayerEvent += this.PlayerEventHandler;
             }
             else
             {
-                m_zpMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
+                ZPMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
             }
 
-            m_packetSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback, null, 0, 1000);
-            m_isStarted = true;
+            PacketSmoothingTimer.Change(0, 1000); // starts the timer
+            IsStarted = true;
 
             
 
@@ -150,39 +156,29 @@ namespace ZwiftActivityMonitorV2
 
         public void StopMonitor()
         {
-            m_packetSmoothingTimer = null;
+            PacketSmoothingTimer.Change(Timeout.Infinite, Timeout.Infinite); // stops the timer
 
-            if (m_debugMode == true)
+            if (IsDebugMode == true)
             {
-                m_zpMonitor.IncomingPlayerEvent -= this.PlayerEventHandler;
+                ZPMonitor.IncomingPlayerEvent -= this.PlayerEventHandler;
             }
             else
             {
-                m_zpMonitor.OutgoingPlayerEvent -= this.PlayerEventHandler;
+                ZPMonitor.OutgoingPlayerEvent -= this.PlayerEventHandler;
             }
 
             Task.Run(() => { StopMonitorAsync().Wait(); });
 
-            m_isStarted = false;
-            m_debugMode = false;
-            m_targetHR = 0;
-            m_targetPower = 0;
+            IsStarted = false;
+            IsDebugMode = false;
+            TargetHeartrate = 0;
+            TargetPower = 0;
 
             //m_zpMonitor.IncomingPlayerEnteredWorldEvent -= this.PlayerEnteredWorldEventHandler;
 
             Logger.LogInformation($"ZwiftPacketMonitor stopped.");
         }
 
-        public bool IsStarted { get { return m_isStarted; } }
-
-        public int EventsProcessed { get { return m_eventsProcessed; } }
-
-        public string Network { get { return m_zpMonitorNetwork; } }
-
-        public bool IsDebugMode { get { return m_debugMode; } } 
-
-        public int TargetHeartrate { get { return m_targetHR; } }
-        public int TargetPower { get { return m_targetPower; } }
 
         // Get the latest PlayerState.Time value. This corresponds to the elapsed time the player sees on screen. 
         public TimeSpan PlayerStateTime
@@ -198,7 +194,6 @@ namespace ZwiftActivityMonitorV2
 
         private void PlayerEnteredWorldEventHandler(object sender, PlayerEnteredWorldEventArgs e)
         {
-
             if (!m_zwifters.ContainsKey(e.PlayerUpdate.RiderId))
             {
                 m_zwifters.Add(e.PlayerUpdate.RiderId, new Zwifter(e.PlayerUpdate));
@@ -224,27 +219,26 @@ namespace ZwiftActivityMonitorV2
         {
             try
             {
-                if (m_debugMode)
+                if (IsDebugMode)
                 {
-                    if (m_trackedPlayerId == 0)
+                    if (TrackedPlayerId == 0)
                     {
-                        if (m_targetHR > 0 || m_targetPower > 0) // these will both be zero if randomly choosing a player
+                        if (TargetHeartrate > 0 || TargetPower > 0) // these will both be zero if randomly choosing a player
                         {
-                            if ((m_targetHR == 0 || (e.PlayerState.Heartrate >= m_targetHR - 2 && e.PlayerState.Heartrate <= m_targetHR + 2))
-                                && (m_targetPower == 0 || e.PlayerState.Power >= m_targetPower - 10 && e.PlayerState.Power <= m_targetPower + 10))
+                            if ((TargetHeartrate == 0 || (e.PlayerState.Heartrate >= TargetHeartrate - 2 && e.PlayerState.Heartrate <= TargetHeartrate + 2))
+                                && (TargetPower == 0 || e.PlayerState.Power >= TargetPower - 10 && e.PlayerState.Power <= TargetPower + 10))
                             {
-                                m_trackedPlayerId = e.PlayerState.Id;
-                                Logger.LogInformation($"Monitoring player: {m_trackedPlayerId}");
+                                TrackedPlayerId = e.PlayerState.Id;
+                                Logger.LogInformation($"Monitoring player: {TrackedPlayerId}");
                             }
                         }
                         else // randomly choose, not recommended
-                        { 
-                            m_trackedPlayerId = e.PlayerState.Id;
-                            //m_trackedPlayerId = 98597;
+                        {
+                            TrackedPlayerId = e.PlayerState.Id;
                         }
                     }
 
-                    if (m_trackedPlayerId != e.PlayerState.Id)
+                    if (TrackedPlayerId != e.PlayerState.Id)
                     {
                         return; // not our guy
                     }
@@ -252,7 +246,6 @@ namespace ZwiftActivityMonitorV2
                 else
                 {
                     //Logger.LogInformation($"TRACING-OUTGOING: {e.PlayerState}");
-
                 }
 
                 // Capture the latest PlayerState.Time value.  This corresponds to the elapsed time the player sees on screen.
@@ -262,9 +255,9 @@ namespace ZwiftActivityMonitorV2
                 // but it's only distributed once every second when the timer fires.  This is standard collection process.
                 lock (this)
                 {
-                    // Lock is used to avoid contention between threads
+                    // Lock is used to avoid contention between threads (this thread and the timer callback thread)
                     m_playerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
-                    m_latestPlayerStateEventArgs = e;
+                    LatestPlayerStateEventArgs = e;
                 }
 
                 // For some applications we might want to see every packet, so provide a high-resolution event.
@@ -276,22 +269,26 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        /// <summary>
+        /// Timer callback delegate, called once per second.  Determines if a packet has been received and if so, raises RiderStateEvent.
+        /// </summary>
+        /// <param name="state"></param>
         private void OnPacketSmoothingTimerCallback(object state)
         {
             RiderStateEventArgs riderState = null;
 
             lock(this)
             {
-                if (m_latestPlayerStateEventArgs != null)
+                if (LatestPlayerStateEventArgs != null)
                 {
-                    riderState = new RiderStateEventArgs(m_latestPlayerStateEventArgs);
-                    m_latestPlayerStateEventArgs = null;
+                    riderState = new RiderStateEventArgs(LatestPlayerStateEventArgs);
+                    LatestPlayerStateEventArgs = null;
                 }
             }
 
             if (riderState != null)
             {
-                if (m_debugMode)
+                if (IsDebugMode)
                 {
                     Logger.LogInformation($"TRACING-INCOMING: PlayerId: {riderState.Id}, Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
                 }
@@ -300,13 +297,16 @@ namespace ZwiftActivityMonitorV2
                     Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
                 }
 
-                m_eventsProcessed++;
+                EventsProcessed++;
 
                 OnRiderStateEvent(riderState);
             }
         }
 
-
+        /// <summary>
+        /// This event will occur once per second as long as packets are being received.  The latest packet received is delivered in the event args.
+        /// </summary>
+        /// <param name="e"></param>
         private void OnRiderStateEvent(RiderStateEventArgs e)
         {
             EventHandler<RiderStateEventArgs> handler = RiderStateEvent;
@@ -322,6 +322,11 @@ namespace ZwiftActivityMonitorV2
                 }
             }
         }
+
+        /// <summary>
+        /// This event will occur each time a packet is received.
+        /// </summary>
+        /// <param name="e"></param>
         private void OnHighResRiderStateEvent(RiderStateEventArgs e)
         {
             EventHandler<RiderStateEventArgs> handler = HighResRiderStateEvent;
@@ -338,14 +343,13 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-
         private async Task StartMonitorAsync(CancellationToken cancellationToken = default)
         {
             Logger.LogInformation($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             try
             {
-                await m_zpMonitor.StartCaptureAsync(m_zpMonitorNetwork, cancellationToken);
+                await ZPMonitor.StartCaptureAsync(Network, cancellationToken);
             }
             catch (Exception e)
             {
@@ -361,7 +365,7 @@ namespace ZwiftActivityMonitorV2
         {
             Logger.LogInformation($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
-            await m_zpMonitor.StopCaptureAsync(cancellationToken);
+            await ZPMonitor.StopCaptureAsync(cancellationToken);
 
             Logger.LogInformation($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }

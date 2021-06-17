@@ -289,6 +289,7 @@ namespace ZwiftActivityMonitorV2
             this.tsmiConfiguration.Name = "tsmiConfiguration";
             this.tsmiConfiguration.Size = new System.Drawing.Size(226, 22);
             this.tsmiConfiguration.Text = "Configuration...";
+            this.tsmiConfiguration.Click += new System.EventHandler(this.tsmiConfiguration_Click);
             // 
             // toolStripSeparator2
             // 

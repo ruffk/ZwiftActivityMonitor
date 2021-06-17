@@ -25,7 +25,7 @@
 
 <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 
-<PackageReference Include="SharpPcap" Version="6.0.0" />
+<PackageReference Include="SharpPcap" Version="5.4.0" />
 
 <PackageReference Include="Syncfusion.Shared.Base" Version="19.1.0.69" />
 <PackageReference Include="Syncfusion.Tools.Base" Version="19.1.0.69" />
@@ -36,6 +36,28 @@
 </ItemGroup>
   
   <ItemGroup>
+    <Compile Update="forms\ConfigurationOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\LapConfigControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\SplitsConfigControlV2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\StatisticsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\SystemControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\UserControlBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\UserControlWithStatusBase.cs" />
+    <Compile Update="usercontrols\config\UserProfileControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="usercontrols\LapViewerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -49,6 +71,7 @@
   
   <ItemGroup>
     <Folder Include="resources\" />
+    <Folder Include="usercontrols\viewer\" />
   </ItemGroup>
   
   <ItemGroup>
