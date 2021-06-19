@@ -36,6 +36,9 @@
 </ItemGroup>
   
   <ItemGroup>
+    <Compile Update="forms\AdvancedOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="forms\ConfigurationOptions.cs">
       <SubType>Form</SubType>
     </Compile>

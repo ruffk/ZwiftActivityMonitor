@@ -12,7 +12,7 @@ namespace ZwiftActivityMonitorV2
     public partial class SystemControl : UserControlWithStatusBase
     {
 
-        public static ZPMonitorService PacketMonitor { get; set; }
+        //public static ZPMonitorService PacketMonitor { get; set; }
         public static Point ZAMWindowPos { get;  set; }
 
         private Dispatcher m_dispatcher;
@@ -85,7 +85,7 @@ namespace ZwiftActivityMonitorV2
 
             //SetMonitorButtonStatus();
 
-            PacketMonitor.RiderStateEvent += ProcessedRiderStateEventHandler;
+            ZAMsettings.ZPMonitorService.RiderStateEvent += ProcessedRiderStateEventHandler;
 
             // initialize
             EditingSystemSettings = false;
@@ -221,7 +221,7 @@ namespace ZwiftActivityMonitorV2
                 tbCurWindowPosX.Enabled = value;
                 tbCurWindowPosY.Enabled = value;
 
-                if (PacketMonitor.IsStarted)
+                if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
                     cbNetwork.Enabled = false;
 
                 m_editMode = value;
@@ -237,7 +237,7 @@ namespace ZwiftActivityMonitorV2
         {
             try
             {
-                PacketMonitor.StartMonitor();
+                ZAMsettings.ZPMonitorService.StartMonitor();
                 SetMonitorButtonStatus();
             }
             catch (ArgumentException ex)
@@ -253,13 +253,13 @@ namespace ZwiftActivityMonitorV2
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            PacketMonitor.StopMonitor();
+            ZAMsettings.ZPMonitorService.StopMonitor();
             SetMonitorButtonStatus();
         }
 
         private void SetMonitorButtonStatus()
         {
-            if (PacketMonitor.IsStarted)
+            if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
             {
                 btnStart.Enabled = false;
                 btnStop.Enabled = true;
@@ -285,7 +285,7 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            lblEventCount.Text = PacketMonitor.EventsProcessed.ToString();
+            lblEventCount.Text = ZAMsettings.ZPMonitorService.EventsProcessed.ToString();
 
             string[] row = { e.Id.ToString(), e.Power.ToString(), e.Heartrate.ToString(), DateTime.Now.ToString() };
 

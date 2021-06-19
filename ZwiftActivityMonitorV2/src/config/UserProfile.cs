@@ -8,6 +8,24 @@ using Newtonsoft.Json;
 
 namespace ZwiftActivityMonitorV2
 {
+    public enum PowerFieldType
+    {
+        None,
+        Watts,
+        WattsPerKg,
+        Both
+    }
+    public class PowerField
+    {
+        public PowerFieldType PowerFieldSetting { get; set; }
+    }
+    public class UserCollector
+    {
+        public DurationType DurationType { get; set; }
+
+
+    }
+
     public class UserProfile : ConfigItemBase, ICloneable
     {
         public string UniqueId { get; set; } = "";

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.ComponentModel;
+using System.Threading;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -36,14 +37,136 @@ namespace ZwiftActivityMonitorV2
             Blank
         }
 
-        // A height of 19 is minimum when using Segoe UI 9pt font
-        //private const int DataGridRowMinimumHeight = 19;
+        /// <summary>
+        /// Since the DataGridView is getting updated on non-gui threads, we're using a syncronized binding source to marshall the updates.  See link for details.
+        /// https://stackoverflow.com/questions/32885552/update-elements-in-bindingsource-via-separate-task
+        /// </summary>
+        public class SyncBindingSource : BindingSource
+        {
+            private SynchronizationContext syncContext;
+            public SyncBindingSource()
+            {
+                syncContext = SynchronizationContext.Current;
+            }
+            public SyncBindingSource(object dataSource, string dataMember) : base(dataSource, dataMember)
+            {
+                syncContext = SynchronizationContext.Current;
+            }
+            public SyncBindingSource(IContainer container) : base (container)
+            {
+                syncContext = SynchronizationContext.Current;
+            }
 
-        private BindingSource DetailBindingSource { get; set; }
+            protected override void OnListChanged(ListChangedEventArgs e)
+            {
+                if (syncContext != null)
+                    syncContext.Send(_ => base.OnListChanged(e), null);
+                else
+                    base.OnListChanged(e);
+            }
+        }
+
+
+        private SyncBindingSource DetailBindingSource { get; set; }
+        private SyncBindingSource SummaryBindingSource { get; set; }
+
+        protected class MovingAverageManager
+        {
+            public class CollectorAttributes
+            {
+                public DurationType DurationType { get; }
+                public string Label { get; }
+                public MovingAverage MAcollector { get; }
+                public DataRow DetailDataRow { get; set; } = null;
+
+
+                #region Static data and constructor
+                private static Dictionary<DurationType, string> sLabels = new();
+                static CollectorAttributes()
+                {
+                    sLabels.Add(DurationType.FiveSeconds, "5 sec");
+                    sLabels.Add(DurationType.ThirtySeconds, "30 sec");
+                    sLabels.Add(DurationType.OneMinute, "1 min");
+                    sLabels.Add(DurationType.FiveMinutes, "5 min");
+                    sLabels.Add(DurationType.SixMinutes, "6 min");
+                    sLabels.Add(DurationType.TenMinutes, "10 min");
+                    sLabels.Add(DurationType.TwentyMinutes, "20 min");
+                    sLabels.Add(DurationType.ThirtyMinutes, "30 min");
+                    sLabels.Add(DurationType.SixtyMinutes, "60 min");
+                    sLabels.Add(DurationType.NinetyMinutes, "90 min");
+                }
+                #endregion
+
+                public CollectorAttributes(DurationType durationType)
+                {
+                    this.DurationType = durationType;
+                    this.Label = sLabels[durationType];
+                    this.MAcollector = new MovingAverage(durationType);
+
+                    this.MAcollector.MovingAverageChangedEvent += MAcollector_MovingAverageChangedEvent;
+                    this.MAcollector.MovingAverageMaxChangedEvent += MAcollector_MovingAverageMaxChangedEvent;
+                }
+
+                private void MAcollector_MovingAverageMaxChangedEvent(object sender, MovingAverageMaxChangedEventArgs e)
+                {
+                    this.DetailDataRow.SetField<string>((int)DetailColumn.APmax, e.MaxAvgPower.ToString());
+                }
+
+                private void MAcollector_MovingAverageChangedEvent(object sender, MovingAverageChangedEventArgs e)
+                {
+                    this.DetailDataRow.SetField<string>((int)DetailColumn.AP, e.AveragePower.ToString());
+                    this.DetailDataRow.SetField<string>((int)DetailColumn.HR, e.AverageHR.ToString());
+                }
+            }
+
+            public class CollectorAttributesCollection : Dictionary<DurationType, CollectorAttributes>
+            {
+            }
+
+            private CollectorAttributesCollection mCollectorAttributes = new();
+            private NormalizedPower mNormalizedPower;
+            public DataRow SummaryDataRow { get; set; } = null;
+
+
+            public MovingAverageManager()
+            {
+                // Create a CollectorAttributes class for each DurationType enum
+                foreach (var durationTypeName in Enum.GetNames<DurationType>())
+                {
+                    DurationType durationType = Enum.Parse<DurationType>(durationTypeName);
+                    mCollectorAttributes.Add(durationType, new CollectorAttributes(durationType));
+                }
+
+                mNormalizedPower = new();
+
+                mNormalizedPower.NormalizedPowerChangedEvent += NormalizedPower_NormalizedPowerChangedEvent;
+                mNormalizedPower.MetricsChangedEvent += NormalizedPower_MetricsChangedEvent;
+            }
+
+            private void NormalizedPower_MetricsChangedEvent(object sender, NormalizedPower.MetricsChangedEventArgs e)
+            {
+                this.SummaryDataRow.SetField<string>((int)SummaryColumn.AP, e.OverallPower.ToString());
+                this.SummaryDataRow.SetField<string>((int)SummaryColumn.Speed, e.AverageMph.ToString());
+            }
+
+            private void NormalizedPower_NormalizedPowerChangedEvent(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e)
+            {
+                this.SummaryDataRow.SetField<string>((int)SummaryColumn.IF, e.IntensityFactor.ToString());
+                this.SummaryDataRow.SetField<string>((int)SummaryColumn.TSS, e.TotalSufferScore.ToString());
+                this.SummaryDataRow.SetField<string>((int)SummaryColumn.NP, e.NormalizedPower.ToString());
+            }
+
+            public List<CollectorAttributes> GetCollectorAttributes()
+            {
+                return mCollectorAttributes.Values.ToList<CollectorAttributes>();
+            }
+        }
+
+        private MovingAverageManager mMovingAverageManager = new();
 
         public ActivityViewerControl()
         {
-            Debug.WriteLine($"ActivityViewerControl_ctor");
+            //Debug.WriteLine($"ActivityViewerControl_ctor started...");
             InitializeComponent();
 
             InitializeDetailDataGrid();
@@ -52,9 +175,15 @@ namespace ZwiftActivityMonitorV2
             InitializeSummaryDataGrid();
             //LoadSummaryDataGrid();
 
-
             // Subscribe to any SystemConfig changes
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+            ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
+            //Debug.WriteLine($"ActivityViewerControl_ctor completed.");
+        }
+
+        private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
+        {
+            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
@@ -79,6 +208,8 @@ namespace ZwiftActivityMonitorV2
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
 
+            //mMovingAverageManager.StartTimer();
+
             //Debug.WriteLine($"ViewControl_Load2 - Row[0].Visible: {dgDetail.Rows[0].Visible}");
         }
 
@@ -100,7 +231,7 @@ namespace ZwiftActivityMonitorV2
             // set in designer
             //dgDetail.ReadOnly = true;
 
-            this.DetailBindingSource = new BindingSource(table, null);
+            this.DetailBindingSource = new SyncBindingSource(table, null);
             this.dgDetail.DataSource = this.DetailBindingSource;
 
             this.dgDetail.Columns[(int)DetailColumn.Period].Width = 76; // minimum 75
@@ -164,9 +295,9 @@ namespace ZwiftActivityMonitorV2
             table.Rows.Clear(); // not really necessary
 
             // Add all known Collectors to the view.  Later, row visibility will be set.
-            foreach(var collector in ZAMsettings.Settings.GetCollectors)
+            foreach(var collector in mMovingAverageManager.GetCollectorAttributes())
             {
-                table.Rows.Add(collector.Name, collector.DurationSecs, "", "", "", "");
+                collector.DetailDataRow = table.Rows.Add(collector.Label, (int)collector.DurationType, "", "", "", "");
             }
 
             //Debug.WriteLine($"LoadDetailDataGrid2");
@@ -186,8 +317,8 @@ namespace ZwiftActivityMonitorV2
             // set in designer
             //dgSummary.ReadOnly = true;
 
-
-            this.dgSummary.DataSource = table;
+            this.SummaryBindingSource = new SyncBindingSource(table, null);
+            this.dgSummary.DataSource = this.SummaryBindingSource;
 
             this.dgSummary.Columns[(int)SummaryColumn.Speed].Width = 76;  // minimum 75
             this.dgSummary.Columns[(int)SummaryColumn.AP].Width = 51; // minimum 50
@@ -226,10 +357,10 @@ namespace ZwiftActivityMonitorV2
         }
         private void LoadSummaryDataGrid()
         {
-            DataTable table = (DataTable)dgSummary.DataSource;
+            DataTable table = (DataTable)((BindingSource)dgSummary.DataSource).DataSource;
             table.Rows.Clear();
 
-            table.Rows.Add("28.3", "250", "267", "0.87", "888");
+            this.mMovingAverageManager.SummaryDataRow = table.Rows.Add("", "", "", "", "");
 
             // A height of 19 is minimum when using Segoe UI 9pt font
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
@@ -258,9 +389,9 @@ namespace ZwiftActivityMonitorV2
                 //if (!value.HasValue)
                 //    r.Visible = false;
 
-                Collector c = CurrentUserProfile.GetCollectors.FirstOrDefault(c => c.DurationSecs == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
-                if (c == null)
-                    r.Visible = false;
+                //Collector c = CurrentUserProfile.GetCollectors.FirstOrDefault(c => c.DurationSecs == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
+                //if (c == null)
+                //    r.Visible = false;
 
                 //Debug.WriteLine($"value: {value}, rowval: {(int)r.Cells[(int)DetailColumn.PeriodSecs].Value}");
 

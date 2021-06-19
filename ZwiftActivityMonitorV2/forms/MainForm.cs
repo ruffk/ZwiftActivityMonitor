@@ -6,9 +6,11 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 using Syncfusion.Windows.Forms;
 using Syncfusion.WinForms.Controls;
@@ -22,6 +24,11 @@ namespace ZwiftActivityMonitorV2
     public partial class MainForm : Syncfusion.Windows.Forms.Office2010Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
 
+        private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
+        private bool mStartCollectionOnEventTimerStart;
+
+        private SynchronizationContext UISyncContext;
+
         private readonly ILogger<MainForm> Logger;
         private readonly IServiceProvider ServiceProvider;
 
@@ -34,17 +41,20 @@ namespace ZwiftActivityMonitorV2
 
             InitializeComponent();
 
-            //toolStrip.Renderer = new ToolStripProfessionalRendererEx();
             ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
+            ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
+            ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
+            ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
         }
 
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            SetControlColors();
-
             // for handling UI events
-            //m_dispatcher = Dispatcher.CurrentDispatcher;
+            mDispatcher = Dispatcher.CurrentDispatcher;
+            this.UISyncContext = WindowsFormsSynchronizationContext.Current;
+
+            this.SetControlColors();
 
             // Determine window position
             if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
@@ -53,16 +63,17 @@ namespace ZwiftActivityMonitorV2
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
             }
 
-
             // Determine window size
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
             // Set the environment based on the current user
-            SetupCurrentUser();
+            this.SetupCurrentUser();
 
             // toggle the tabs so the first tab gets initialized
             tabControl.SelectedIndex = 1;
             tabControl.SelectedIndex = 0;
+
+            this.OnCollectionStatusChanged();
         }
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
@@ -300,15 +311,6 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        private void tsmiConfiguration_Click(object sender, EventArgs e)
-        {
-            new ConfigurationOptions(this.ServiceProvider, this.Location).ShowDialog(this);
-
-            //SetupCurrentUser();
-
-            // Allow menus and status bar to update according to what user just did
-            //OnCollectionStatusChanged();
-        }
 
         private void SetupCurrentUser()
         {
@@ -334,5 +336,167 @@ namespace ZwiftActivityMonitorV2
             Logger.LogInformation("SetupCurrentUser");
         }
 
+        /// <summary>
+        /// A delegate used solely by the ZPMonitorService_CollectionStatusChanged
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void ZPMonitorService_CollectionStatusChangedDelegate(object sender, CollectionStatusChangedEventArgs e);
+
+        private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new ZPMonitorService_CollectionStatusChangedDelegate(ZPMonitorService_CollectionStatusChanged), new object[] { sender, e });
+                return;
+            }
+            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+
+            this.OnCollectionStatusChanged();
+        }
+
+        /// <summary>
+        /// A delegate used solely by the ZPMonitorService_ZPMonitorServiceStatusChanged
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void ZPMonitorService_ServiceStatusChangedDelegate(object sender, ZPMonitorServiceStatusChangedEventArgs e);
+
+        private void ZPMonitorService_ZPMonitorServiceStatusChanged(object sender, ZPMonitorServiceStatusChangedEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new ZPMonitorService_ServiceStatusChangedDelegate(ZPMonitorService_ZPMonitorServiceStatusChanged), new object[] { sender, e });
+                return;
+            }
+            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_ZPMonitorServiceStatusChanged - {e.Action}");
+
+            this.OnCollectionStatusChanged();
+        }
+
+        /// <summary>
+        /// A delegate used solely by the ZPMonitorService_RiderStateEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void ZPMonitorService_RiderStateEventDelegate(object sender, RiderStateEventArgs e);
+        private void ZPMonitorService_RiderStateEvent(object sender, RiderStateEventArgs e)
+        {
+            // ElapsedTime will be null if Monitoring but not Collecting
+            if (e.ElapsedTime == null)
+                return;
+
+            TimeSpan elapsedTime = e.ElapsedTime.Value;
+
+            SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
+
+            //this.UISyncContext.Post(x =>
+            //{
+            //    statusLabel.Text = $"Running time: {(e.ElapsedTime.TotalMinutes > 60 ? e.ElapsedTime.Hours.ToString() + " hr " : "")}{(e.ElapsedTime.TotalSeconds > 60 ? e.ElapsedTime.Minutes.ToString() + " min " : "")}{e.ElapsedTime.Seconds.ToString() + " sec"}";
+
+            //}, null);
+
+            //if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            //{
+            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+            //    mDispatcher.BeginInvoke(new ZPMonitorService_RiderStateEventDelegate(ZPMonitorService_RiderStateEvent), new object[] { sender, e });
+            //    return;
+            //}
+            //Debug.WriteLine($"{this.GetType()}.ZPMonitorService_RiderStateEvent");
+
+            statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours.ToString() + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes.ToString() + " min " : "")}{elapsedTime.Seconds.ToString() + " sec"}";
+        }
+
+        private void OnCollectionStatusChanged()
+        {
+            Debug.WriteLine($"OnCollectionStatusChanged - {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, {ZAMsettings.ZPMonitorService.IsCollectionStarted}");
+
+            if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
+            {
+                tsmiStop.Enabled = true;
+                tsmiStart.Enabled = false;
+
+                tsmiTimer.Enabled = false;
+                tsmiConfiguration.Enabled = false;
+                tsmiAdvanced.Enabled = false;
+
+                if (ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
+                    statusLabel.Text = "Waiting on Event clock...";
+                else
+                    statusLabel.Text = "Started";
+            }
+            else
+            {
+                tsmiStop.Enabled = false;
+                tsmiStart.Enabled = true;
+
+                tsmiTimer.Enabled = true;
+                tsmiConfiguration.Enabled = true;
+                tsmiAdvanced.Enabled = true;
+
+                //tsmiSetupTimer.Enabled = true;
+                //tsmiStopTimer.Enabled = false;
+
+                // set Timer menu sub-items
+                //if (countdownTimer.Enabled)
+                //{
+                //    // Clear any values on the screen
+                //    MainView.RefreshListViews(true);
+                //    SplitsView.ClearListView();
+                //    LapView.ClearListView();
+
+                //    tsmiSetupTimer.Enabled = false;
+                //    tsmiStopTimer.Enabled = true;
+                //    tsmiStart.Enabled = false;
+                //    tsmiOptions.Enabled = false;
+                //    tsmiAdvanced.Enabled = false;
+                //}
+
+                if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
+                    statusLabel.Text = "Select Menu->Start to begin";
+                else
+                    statusLabel.Text = "ZPM Service Not Running";
+
+            }
+        }
+
+        private void tsmiAbout_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tsmiAdvanced_Click(object sender, EventArgs e)
+        {
+            new AdvancedOptions().ShowDialog(this);
+        }
+
+        private void tsmiConfiguration_Click(object sender, EventArgs e)
+        {
+            new ConfigurationOptions(this.Location).ShowDialog(this);
+
+            //SetupCurrentUser();
+
+            // Allow menus and status bar to update according to what user just did
+            //OnCollectionStatusChanged();
+        }
+
+        private void tsmiStart_Click(object sender, EventArgs e)
+        {
+            if (!ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
+            {
+                MessageBox.Show("Select Menu->Configuration and use the System tab to start the service.", "ZwiftPacketMonitor Not Started", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // When Start is selected the default is to start collection when Event timer starts.  Use timer to have option to start immediately.
+            ZAMsettings.ZPMonitorService.StartCollection(true);
+        }
+
+        private void tsmiStop_Click(object sender, EventArgs e)
+        {
+            ZAMsettings.ZPMonitorService.StopCollection();
+        }
     }
 }

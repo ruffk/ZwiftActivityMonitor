@@ -11,24 +11,26 @@ namespace ZwiftActivityMonitorV2
     public class ZPMonitorService
     {
 
-        public bool IsStarted { get; internal set; }
+        public bool IsZPMonitorStarted { get; internal set; }
+        public bool IsCollectionStartWaiting { get; internal set; }
+        public bool IsCollectionStarted { get; internal set; }
         public int EventsProcessed { get; internal set; }
         public string Network { get; internal set; }
         public bool IsDebugMode { get; internal set; }
         public int TargetHeartrate { get; internal set; }
         public int TargetPower { get; internal set; }
 
-        private ILogger<ZPMonitorService> Logger { get; }
-        private ZwiftPacketMonitor.Monitor ZPMonitor { get; }
+        private readonly ILogger<ZPMonitorService> Logger;
+        private readonly ZwiftPacketMonitor.Monitor ZPMonitor;
+        private readonly Timer PacketSmoothingTimer;
 
-        private int TrackedPlayerId { get; set; }
-        private DateTime LastPlayerStateUpdate { get; set; }
-        private Timer PacketSmoothingTimer { get; }
-        private PlayerStateEventArgs LatestPlayerStateEventArgs { get; set; }
-
-
-        private TimeSpan m_playerStateTime = new TimeSpan(0); // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
-
+        private int mTrackedPlayerId;
+        //private DateTime mLastPlayerStateUpdate;
+        private DateTime? mCollectionStartTime;
+        private PlayerStateEventArgs mLatestPlayerStateEventArgs;
+        private TimeSpan mPlayerStateTime;                          // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
+        private Dictionary<int, Zwifter> mZwifters;                 // Used if tracking PlayerEnteredWorld events
+        private CancellationTokenSource mCancellationTokenSource;   // Used to cancel wait for event clock
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
         public event EventHandler<RiderStateEventArgs> HighResRiderStateEvent;
@@ -55,9 +57,8 @@ namespace ZwiftActivityMonitorV2
 
         #endregion
 
-        // Used if tracking PlayerEnteredWorld events
-        private Dictionary<int, Zwifter> m_zwifters;
-
+        public event EventHandler<ZPMonitorServiceStatusChangedEventArgs> ZPMonitorServiceStatusChanged;
+        public event EventHandler<CollectionStatusChangedEventArgs> CollectionStatusChanged;
 
 
         public ZPMonitorService(ILogger<ZPMonitorService> logger, ZwiftPacketMonitor.Monitor zpMonitor)
@@ -67,7 +68,8 @@ namespace ZwiftActivityMonitorV2
 
             PacketSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback);
 
-            m_zwifters = new Dictionary<int, Zwifter>();
+            mZwifters = new Dictionary<int, Zwifter>();
+            mPlayerStateTime = new();
 
             Logger.LogInformation($"Class {this.GetType()} constructed.");
         }
@@ -80,7 +82,7 @@ namespace ZwiftActivityMonitorV2
 
         public void StartMonitor(bool debugMode, int targetHR, int targetPower)
         {
-            if (IsStarted)
+            if (this.IsZPMonitorStarted)
             {
                 Logger.LogWarning($"ZwiftPacketMonitor is already running.");
                 return;
@@ -92,9 +94,9 @@ namespace ZwiftActivityMonitorV2
             TargetHeartrate = targetHR;
             TargetPower = targetPower;
 
-            LastPlayerStateUpdate = DateTime.Now;
+            //mLastPlayerStateUpdate = DateTime.Now;
             EventsProcessed = 0;
-            m_playerStateTime = new TimeSpan(0);
+            mPlayerStateTime = new TimeSpan(0);
 
             // Here we launch our own task to start monitoring.  It's not actually necessary
             // but it does allow some extra logging of threads used for startup, shutdown, etc.
@@ -136,7 +138,7 @@ namespace ZwiftActivityMonitorV2
 
             if (IsDebugMode == true)
             {
-                TrackedPlayerId = 0; // reset
+                mTrackedPlayerId = 0; // reset
                 ZPMonitor.IncomingPlayerEvent += this.PlayerEventHandler;
             }
             else
@@ -145,12 +147,11 @@ namespace ZwiftActivityMonitorV2
             }
 
             PacketSmoothingTimer.Change(0, 1000); // starts the timer
-            IsStarted = true;
+            this.IsZPMonitorStarted = true;
 
-            
+            this.OnZPMonitorServiceStatusChanged(this, new ZPMonitorServiceStatusChangedEventArgs(ZPMonitorServiceStatusChangedEventArgs.ActionType.Started));
 
             Logger.LogInformation($"ZwiftPacketMonitor started.");
-
         }
 
 
@@ -169,15 +170,147 @@ namespace ZwiftActivityMonitorV2
 
             Task.Run(() => { StopMonitorAsync().Wait(); });
 
-            IsStarted = false;
+            this.IsZPMonitorStarted = false;
             IsDebugMode = false;
             TargetHeartrate = 0;
             TargetPower = 0;
 
             //m_zpMonitor.IncomingPlayerEnteredWorldEvent -= this.PlayerEnteredWorldEventHandler;
 
+            this.OnZPMonitorServiceStatusChanged(this, new ZPMonitorServiceStatusChangedEventArgs(ZPMonitorServiceStatusChangedEventArgs.ActionType.Stopped));
+
             Logger.LogInformation($"ZwiftPacketMonitor stopped.");
         }
+
+        public async void StartCollection(bool startWithEventTimer)
+        {
+            if (!this.IsCollectionStarted && !this.IsCollectionStartWaiting)
+            {
+                // update all the menu items accordingly
+                //OnCollectionStatusChanged();
+
+                // view analysis window
+                //tsbAnalysis.PerformClick();
+
+                if (startWithEventTimer)
+                {
+                    mCancellationTokenSource = new CancellationTokenSource();
+
+                    this.IsCollectionStartWaiting = true;
+                    this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Waiting));
+
+                    // Start a thread to wait for the PlayerState.Time to become non-zero.  
+                    // This can be cancelled by selecting Stop from the menu.
+                    await WaitForRiderStartAsync(mCancellationTokenSource.Token);
+
+                    this.IsCollectionStartWaiting = false;
+
+                    bool isCancelled = mCancellationTokenSource.IsCancellationRequested;
+                    mCancellationTokenSource = null;
+
+                    if (isCancelled)
+                    {
+                        this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Cancelled));
+                        Logger.LogInformation($"StartCollection - Cancelled");
+                        return;
+                    }
+                }
+
+                mCollectionStartTime = DateTime.Now;
+
+                this.IsCollectionStarted = true;
+                this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Started));
+
+                Logger.LogInformation($"StartCollection");
+            }
+
+        }
+
+        /// <summary>
+        /// Wait for the rider clock to begin counting.
+        /// This allows user to select Start, and collection won't begin until the clock begins.  
+        /// On a freeride, this is when they start pedalling.
+        /// In a timed event, this is when banner drops.
+        /// In a non-timed event, this is when the user crosses the timing start line, which is usually shortly after the banner.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task WaitForRiderStartAsync(CancellationToken cancellationToken = default)
+        {
+            Logger.LogInformation($"WaitForRiderStartAsync, Begin Waiting...");
+
+
+            double currentTime = PlayerStateTime.TotalMilliseconds;
+
+            await Task.Run(() =>
+            {
+                while (!cancellationToken.IsCancellationRequested && PlayerStateTime.TotalMilliseconds == currentTime)
+                {
+                    Task.Delay(250).Wait();
+                }
+            }, cancellationToken);
+
+            Logger.LogInformation($"WaitForRiderStartAsync, Waiting completed.  Cancelled: {cancellationToken.IsCancellationRequested}");
+        }
+
+
+        /// <summary>
+        /// Stops the data collectors and sets menu item enabled statuses accordingly.
+        /// </summary>
+        public void StopCollection()
+        {
+            if (this.IsCollectionStartWaiting && mCancellationTokenSource != null)
+            {
+                // Cancel the waiting thread
+                mCancellationTokenSource.Cancel();
+            }
+            else if (this.IsCollectionStarted)
+            {
+                this.mCollectionStartTime = null;
+
+                this.IsCollectionStarted = false;
+                this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Stopped));
+            }
+            Logger.LogInformation($"StopCollection");
+        }
+
+        public void RequestStatusUpdate()
+        {
+
+        }
+
+
+        private void OnZPMonitorServiceStatusChanged(object sender, ZPMonitorServiceStatusChangedEventArgs e)
+        {
+            EventHandler<ZPMonitorServiceStatusChangedEventArgs> handler = ZPMonitorServiceStatusChanged;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(sender, e);
+                }
+                catch
+                {
+                    // Don't let downstream exceptions bubble up
+                }
+            }
+        }
+        private void OnCollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
+        {
+            EventHandler<CollectionStatusChangedEventArgs> handler = CollectionStatusChanged;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(sender, e);
+                }
+                catch
+                {
+                    // Don't let downstream exceptions bubble up
+                }
+            }
+        }
+
 
 
         // Get the latest PlayerState.Time value. This corresponds to the elapsed time the player sees on screen. 
@@ -187,20 +320,20 @@ namespace ZwiftActivityMonitorV2
             {
                 lock(this)
                 {
-                    return m_playerStateTime;
+                    return mPlayerStateTime;
                 }
             }
         }
 
         private void PlayerEnteredWorldEventHandler(object sender, PlayerEnteredWorldEventArgs e)
         {
-            if (!m_zwifters.ContainsKey(e.PlayerUpdate.RiderId))
+            if (!mZwifters.ContainsKey(e.PlayerUpdate.RiderId))
             {
-                m_zwifters.Add(e.PlayerUpdate.RiderId, new Zwifter(e.PlayerUpdate));
+                mZwifters.Add(e.PlayerUpdate.RiderId, new Zwifter(e.PlayerUpdate));
 
-                if (m_zwifters.Count % 100 == 0)
+                if (mZwifters.Count % 100 == 0)
                 {
-                    Logger.LogInformation($"Rider count: {m_zwifters.Count}");
+                    Logger.LogInformation($"Rider count: {mZwifters.Count}");
                 }
             }
             else
@@ -221,24 +354,24 @@ namespace ZwiftActivityMonitorV2
             {
                 if (IsDebugMode)
                 {
-                    if (TrackedPlayerId == 0)
+                    if (mTrackedPlayerId == 0)
                     {
                         if (TargetHeartrate > 0 || TargetPower > 0) // these will both be zero if randomly choosing a player
                         {
                             if ((TargetHeartrate == 0 || (e.PlayerState.Heartrate >= TargetHeartrate - 2 && e.PlayerState.Heartrate <= TargetHeartrate + 2))
                                 && (TargetPower == 0 || e.PlayerState.Power >= TargetPower - 10 && e.PlayerState.Power <= TargetPower + 10))
                             {
-                                TrackedPlayerId = e.PlayerState.Id;
-                                Logger.LogInformation($"Monitoring player: {TrackedPlayerId}");
+                                mTrackedPlayerId = e.PlayerState.Id;
+                                Logger.LogInformation($"Monitoring player: {mTrackedPlayerId}");
                             }
                         }
                         else // randomly choose, not recommended
                         {
-                            TrackedPlayerId = e.PlayerState.Id;
+                            mTrackedPlayerId = e.PlayerState.Id;
                         }
                     }
 
-                    if (TrackedPlayerId != e.PlayerState.Id)
+                    if (mTrackedPlayerId != e.PlayerState.Id)
                     {
                         return; // not our guy
                     }
@@ -256,12 +389,12 @@ namespace ZwiftActivityMonitorV2
                 lock (this)
                 {
                     // Lock is used to avoid contention between threads (this thread and the timer callback thread)
-                    m_playerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
-                    LatestPlayerStateEventArgs = e;
+                    mPlayerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
+                    mLatestPlayerStateEventArgs = e;
                 }
 
                 // For some applications we might want to see every packet, so provide a high-resolution event.
-                OnHighResRiderStateEvent(new RiderStateEventArgs(e));
+                OnHighResRiderStateEvent(new RiderStateEventArgs(e, mCollectionStartTime));
             }
             catch (Exception ex)
             {
@@ -279,10 +412,10 @@ namespace ZwiftActivityMonitorV2
 
             lock(this)
             {
-                if (LatestPlayerStateEventArgs != null)
+                if (mLatestPlayerStateEventArgs != null)
                 {
-                    riderState = new RiderStateEventArgs(LatestPlayerStateEventArgs);
-                    LatestPlayerStateEventArgs = null;
+                    riderState = new RiderStateEventArgs(mLatestPlayerStateEventArgs, mCollectionStartTime);
+                    mLatestPlayerStateEventArgs = null;
                 }
             }
 

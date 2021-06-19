@@ -7,18 +7,21 @@ using System.Drawing;
 
 namespace ZwiftActivityMonitorV2
 {
+    /// <summary>
+    /// Defines available collectors.  Each enum has the matching number of seconds as it's value.
+    /// </summary>
     public enum DurationType
     {
-        FiveSeconds,
-        ThirtySeconds,
-        OneMinute,
-        FiveMinutes,
-        SixMinutes,
-        TenMinutes,
-        TwentyMinutes,
-        ThirtyMinutes,
-        SixtyMinutes,
-        NinetyMinutes
+        FiveSeconds = 5,
+        ThirtySeconds = 30,
+        OneMinute = 60,
+        FiveMinutes = 300,
+        SixMinutes = 360,
+        TenMinutes = 600,
+        TwentyMinutes = 1200,
+        ThirtyMinutes = 1800,
+        SixtyMinutes = 3600,
+        NinetyMinutes = 5400
     }
 
     public enum FieldUomType
@@ -74,6 +77,89 @@ namespace ZwiftActivityMonitorV2
         }
 
     }
+
+    public class MovingAverageChangedEventArgs : EventArgs
+    {
+        private int m_avgPower;
+        private int m_avgHR;
+        private DurationType m_durationType;
+
+        public MovingAverageChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
+        {
+            m_avgPower = avgPower;
+            m_avgHR = avgHR;
+            m_durationType = durationType;
+        }
+
+        public int AveragePower
+        {
+            get { return m_avgPower; }
+        }
+        public int AverageHR
+        {
+            get { return m_avgHR; }
+        }
+
+        public DurationType DurationType { get { return m_durationType; } }
+    }
+    public class MovingAverageMaxChangedEventArgs : EventArgs
+    {
+        private int m_avgPower;
+        private int m_avgHR;
+        private DurationType m_durationType;
+
+        public MovingAverageMaxChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
+        {
+            m_avgPower = avgPower;
+            m_avgHR = avgHR;
+            m_durationType = durationType;
+        }
+
+        public int MaxAvgPower
+        {
+            get { return m_avgPower; }
+        }
+        public int MaxAvgHR
+        {
+            get { return m_avgHR; }
+        }
+        public DurationType DurationType { get { return m_durationType; } }
+    }
+    public class MovingAverageCalculatedEventArgs : EventArgs
+    {
+        public int AveragePower { get; }
+        public DurationType DurationType { get; }
+        public TimeSpan ElapsedTime { get; }
+
+        public MovingAverageCalculatedEventArgs(int avgPower, DurationType durationType, TimeSpan elapsedTime)
+        {
+            this.AveragePower = avgPower;
+            this.DurationType = durationType;
+            this.ElapsedTime = elapsedTime;
+        }
+    }
+
+    public class MetricsCalculatedEventArgs : EventArgs
+    {
+        public int OverallPower { get; }
+        public double AverageKph { get; }
+        public double AverageMph { get; }
+
+        public TimeSpan Duration { get; }
+        public double DistanceKm { get; }
+        public double DistanceMi { get; }
+
+        public MetricsCalculatedEventArgs(int overallPower, double averageKph, double averageMph, TimeSpan duration, double distanceKm, double distanceMi)
+        {
+            OverallPower = overallPower;
+            AverageKph = averageKph;
+            AverageMph = averageMph;
+            Duration = duration;
+            DistanceKm = distanceKm;
+            DistanceMi = distanceMi;
+        }
+    }
+
     public class RiderStateEventArgs : EventArgs
     {
         public int Id { get; }
@@ -88,8 +174,10 @@ namespace ZwiftActivityMonitorV2
         public int RoadTime { get; }
         //public int RoadPosition { get; }
         public int WatchingRiderId { get; }
+        public DateTime? CollectionStartTime { get; }
+        public TimeSpan? ElapsedTime { get; }
 
-        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e)
+        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e, DateTime? collectionStart)
         {
             this.Id = e.PlayerState.Id;
             this.Power = e.PlayerState.Power;
@@ -105,6 +193,44 @@ namespace ZwiftActivityMonitorV2
             this.RoadId = (e.PlayerState.F20 & 0xFF00) >> 8;
             this.IsForward = (e.PlayerState.F19 & 0x04) != 0;
             this.Course = (e.PlayerState.F19 & 0xFF0000) >> 16;
+
+            this.CollectionStartTime = collectionStart;
+            if (collectionStart != null)
+                this.ElapsedTime = DateTime.Now - collectionStart;
+        }
+
+
+    }
+
+    public class ZPMonitorServiceStatusChangedEventArgs : EventArgs
+    {
+        public enum ActionType
+        {
+            Started,
+            Stopped
+        }
+        public ActionType Action { get; }
+
+        public ZPMonitorServiceStatusChangedEventArgs(ActionType action)
+        {
+            this.Action = action;
+        }
+    }
+    public class CollectionStatusChangedEventArgs : EventArgs
+    {
+        public enum ActionType
+        {
+            Started,
+            Waiting,
+            Stopped,
+            Cancelled
+        }
+        public ActionType Action { get; }
+
+        public CollectionStatusChangedEventArgs(ActionType action)
+        {
+            this.Action = action;
+
         }
     }
 

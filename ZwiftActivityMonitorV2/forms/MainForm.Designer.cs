@@ -57,7 +57,6 @@ namespace ZwiftActivityMonitorV2
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
             this.tabControl.SuspendLayout();
-            this.tpActivity.SuspendLayout();
             this.tpSplit.SuspendLayout();
             this.tpLap.SuspendLayout();
             this.tpColor.SuspendLayout();
@@ -266,12 +265,14 @@ namespace ZwiftActivityMonitorV2
             this.tsmiStart.Name = "tsmiStart";
             this.tsmiStart.Size = new System.Drawing.Size(226, 22);
             this.tsmiStart.Text = "Start";
+            this.tsmiStart.Click += new System.EventHandler(this.tsmiStart_Click);
             // 
             // tsmiStop
             // 
             this.tsmiStop.Name = "tsmiStop";
             this.tsmiStop.Size = new System.Drawing.Size(226, 22);
             this.tsmiStop.Text = "Stop";
+            this.tsmiStop.Click += new System.EventHandler(this.tsmiStop_Click);
             // 
             // toolStripSeparator1
             // 
@@ -301,6 +302,7 @@ namespace ZwiftActivityMonitorV2
             this.tsmiAdvanced.Name = "tsmiAdvanced";
             this.tsmiAdvanced.Size = new System.Drawing.Size(226, 22);
             this.tsmiAdvanced.Text = "Advanced...";
+            this.tsmiAdvanced.Click += new System.EventHandler(this.tsmiAdvanced_Click);
             // 
             // toolStripSeparator3
             // 
@@ -312,6 +314,7 @@ namespace ZwiftActivityMonitorV2
             this.tsmiAbout.Name = "tsmiAbout";
             this.tsmiAbout.Size = new System.Drawing.Size(226, 22);
             this.tsmiAbout.Text = "About Zwift Activity Monitor";
+            this.tsmiAbout.Click += new System.EventHandler(this.tsmiAbout_Click);
             // 
             // tsslSeparator1
             // 
@@ -348,8 +351,6 @@ namespace ZwiftActivityMonitorV2
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).EndInit();
             this.tabControl.ResumeLayout(false);
-            this.tpActivity.ResumeLayout(false);
-            this.tpActivity.PerformLayout();
             this.tpSplit.ResumeLayout(false);
             this.tpSplit.PerformLayout();
             this.tpLap.ResumeLayout(false);

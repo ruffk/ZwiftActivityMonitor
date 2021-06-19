@@ -12,7 +12,7 @@ namespace ZwiftActivityMonitorV2
     {
         private readonly ILogger<ConfigurationOptions> m_logger;
 
-        public ConfigurationOptions(IServiceProvider serviceProvider, Point ZAMWindowPos)
+        public ConfigurationOptions(Point ZAMWindowPos)
         {
             m_logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
 
@@ -21,7 +21,7 @@ namespace ZwiftActivityMonitorV2
             ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
             ucUserProfiles.Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
             ucSystem.Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
-            SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
+            //SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
             SystemControl.ZAMWindowPos = ZAMWindowPos;
 
             this.Icon = Properties.Resources.ZAMicon;
