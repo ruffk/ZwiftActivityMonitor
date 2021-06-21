@@ -55,33 +55,6 @@ namespace ZwiftActivityMonitorV2
 
         #region Public EventArgs classes
 
-        public class NormalizedPowerChangedEventArgs : EventArgs
-        {
-            public int NormalizedPower { get; }
-            public double? IntensityFactor { get; }
-            public int? TotalSufferScore { get; }
-
-            public NormalizedPowerChangedEventArgs(int normalizedPower, double? intensityFactor, int? totalSufferScore)
-            {
-                NormalizedPower = normalizedPower;
-                IntensityFactor = intensityFactor;
-                TotalSufferScore = totalSufferScore;
-            }
-
-        }
-        public class MetricsChangedEventArgs : EventArgs
-        {
-            public double AverageKph { get; }
-            public double AverageMph { get; }
-            public int OverallPower { get; }
-
-            public MetricsChangedEventArgs(double averageKph, double averageMph, int overallPower)
-            {
-                AverageKph = averageKph;
-                AverageMph = averageMph;
-                OverallPower = overallPower;
-            }
-        }
 
         #endregion
 
@@ -173,7 +146,7 @@ namespace ZwiftActivityMonitorV2
             double? intensityFactor = null;
             int? totalSufferScore = null;
 
-            ulong movingAvgPow4 = (ulong)Math.Pow(e.AveragePower, 4);
+            ulong movingAvgPow4 = (ulong)Math.Pow(e.APwatts, 4);
 
             mSumMovingAvgPow4 += movingAvgPow4;
             mCountMovingAvgPow4 += 1;
@@ -209,17 +182,17 @@ namespace ZwiftActivityMonitorV2
                 return;
 
             // just saving these most recent values for ride recap
-            mCurDuration = e.Duration;
+            mCurDuration = e.ElapsedTime;
             mCurDistanceKm = e.DistanceKm;
             mCurDistanceMi = e.DistanceMi;
 
-            if (e.AverageKph != mCurAvgKph || e.AverageMph != mCurAvgMph || e.OverallPower != mCurOverallPower)
+            if (e.SpeedKph != mCurAvgKph || e.SpeedMph != mCurAvgMph || e.APwatts != mCurOverallPower)
             {
-                mCurAvgKph = e.AverageKph;
-                mCurAvgMph = e.AverageMph;
-                mCurOverallPower = e.OverallPower;
+                mCurAvgKph = e.SpeedKph;
+                mCurAvgMph = e.SpeedMph;
+                mCurOverallPower = e.APwatts;
 
-                OnMetricsChangedEvent(new MetricsChangedEventArgs(e.AverageKph, e.AverageMph, e.OverallPower));
+                OnMetricsChangedEvent(new MetricsChangedEventArgs(e.SpeedKph, e.SpeedMph, e.APwatts, e.APwattsPerKg));
             }
         }
 

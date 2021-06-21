@@ -80,60 +80,44 @@ namespace ZwiftActivityMonitorV2
 
     public class MovingAverageChangedEventArgs : EventArgs
     {
-        private int m_avgPower;
-        private int m_avgHR;
-        private DurationType m_durationType;
+        public int APwatts { get; }
+        public int HRbpm { get; }
+        public DurationType DurationType { get; }
+        public double APwattsPerKg { get; }
 
-        public MovingAverageChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
+        public MovingAverageChangedEventArgs(int apWatts, int hrBpm, DurationType durationType, double apWattsPerKg)
         {
-            m_avgPower = avgPower;
-            m_avgHR = avgHR;
-            m_durationType = durationType;
+            this.APwatts = apWatts;
+            this.HRbpm = hrBpm;
+            this.DurationType = durationType;
+            this.APwattsPerKg = apWattsPerKg;
         }
-
-        public int AveragePower
-        {
-            get { return m_avgPower; }
-        }
-        public int AverageHR
-        {
-            get { return m_avgHR; }
-        }
-
-        public DurationType DurationType { get { return m_durationType; } }
     }
     public class MovingAverageMaxChangedEventArgs : EventArgs
     {
-        private int m_avgPower;
-        private int m_avgHR;
-        private DurationType m_durationType;
+        public int APwattsMax { get; }
+        public int HRbpmMax { get; }
+        public DurationType DurationType { get; }
+        public double APwattsPerKgMax { get; }
 
-        public MovingAverageMaxChangedEventArgs(int avgPower, int avgHR, DurationType durationType)
+        public MovingAverageMaxChangedEventArgs(int apWattsMax, int hrBpmMax, DurationType durationType, double apWattsPerKgMax)
         {
-            m_avgPower = avgPower;
-            m_avgHR = avgHR;
-            m_durationType = durationType;
+            this.APwattsMax = apWattsMax;
+            this.HRbpmMax = hrBpmMax;
+            this.DurationType = durationType;
+            this.APwattsPerKgMax = apWattsPerKgMax;
         }
 
-        public int MaxAvgPower
-        {
-            get { return m_avgPower; }
-        }
-        public int MaxAvgHR
-        {
-            get { return m_avgHR; }
-        }
-        public DurationType DurationType { get { return m_durationType; } }
     }
     public class MovingAverageCalculatedEventArgs : EventArgs
     {
-        public int AveragePower { get; }
+        public int APwatts { get; }
         public DurationType DurationType { get; }
         public TimeSpan ElapsedTime { get; }
 
-        public MovingAverageCalculatedEventArgs(int avgPower, DurationType durationType, TimeSpan elapsedTime)
+        public MovingAverageCalculatedEventArgs(int apWatts, DurationType durationType, TimeSpan elapsedTime)
         {
-            this.AveragePower = avgPower;
+            this.APwatts = apWatts;
             this.DurationType = durationType;
             this.ElapsedTime = elapsedTime;
         }
@@ -141,24 +125,57 @@ namespace ZwiftActivityMonitorV2
 
     public class MetricsCalculatedEventArgs : EventArgs
     {
-        public int OverallPower { get; }
-        public double AverageKph { get; }
-        public double AverageMph { get; }
+        public double SpeedKph { get; }
+        public double SpeedMph { get; }
+        public int APwatts { get; }
+        public double APwattsPerKg { get; }
 
-        public TimeSpan Duration { get; }
+        public TimeSpan ElapsedTime { get; }
         public double DistanceKm { get; }
         public double DistanceMi { get; }
 
-        public MetricsCalculatedEventArgs(int overallPower, double averageKph, double averageMph, TimeSpan duration, double distanceKm, double distanceMi)
+        public MetricsCalculatedEventArgs(int apWatts, double apWattsPerKg, double speedKph, double speedMph, TimeSpan elapsedTime, double distanceKm, double distanceMi)
         {
-            OverallPower = overallPower;
-            AverageKph = averageKph;
-            AverageMph = averageMph;
-            Duration = duration;
-            DistanceKm = distanceKm;
-            DistanceMi = distanceMi;
+            this.APwatts = apWatts;
+            this.APwattsPerKg = apWattsPerKg;
+            this.SpeedKph = speedKph;
+            this.SpeedMph = speedMph;
+            this.ElapsedTime = elapsedTime;
+            this.DistanceKm = distanceKm;
+            this.DistanceMi = distanceMi;
         }
     }
+
+    public class NormalizedPowerChangedEventArgs : EventArgs
+    {
+        public int NormalizedPower { get; }
+        public double? IntensityFactor { get; }
+        public int? TotalSufferScore { get; }
+
+        public NormalizedPowerChangedEventArgs(int normalizedPower, double? intensityFactor, int? totalSufferScore)
+        {
+            NormalizedPower = normalizedPower;
+            IntensityFactor = intensityFactor;
+            TotalSufferScore = totalSufferScore;
+        }
+
+    }
+    public class MetricsChangedEventArgs : EventArgs
+    {
+        public double SpeedKph { get; }
+        public double SpeedMph { get; }
+        public int APwatts { get; }
+        public double APwattsPerKg { get; }
+
+        public MetricsChangedEventArgs(double speedKph, double speedMph, int apWatts, double apWattsPerKg)
+        {
+            this.SpeedKph = speedKph;
+            this.SpeedMph = speedMph;
+            this.APwatts = apWatts;
+            this.APwattsPerKg = apWattsPerKg;
+        }
+    }
+
 
     public class RiderStateEventArgs : EventArgs
     {

@@ -8,6 +8,7 @@ namespace ZwiftActivityMonitorV2
     public class MovingAverage
     {
         private readonly ILogger<MovingAverage> Logger;
+        private UserProfile CurrentUser;
 
         private readonly Queue<Statistics> mStatsQueue;
         private readonly DurationType mDurationType;
@@ -17,14 +18,14 @@ namespace ZwiftActivityMonitorV2
         private long mSumHR;
         private int  mCurAvgPower;
         private int  mCurAvgHR;
-        private int  mMaxAvgPower;
+        private int mMaxAvgPower;
+        private double mMaxAvgWkg;
         private int  mMaxAvgHR;
         private int  mDuration; // how long to store recorded readings
         private bool mStarted;
         private long mSumOverallPower;
         private int  mCountOverallPowerSamples;
         private int  mDistanceSeedValue; // the PlayerState.Distance value when first started
-        //private DateTime mCollectionStart;
 
         public event EventHandler<MovingAverageChangedEventArgs> MovingAverageChangedEvent;
         public event EventHandler<MovingAverageMaxChangedEventArgs> MovingAverageMaxChangedEvent;
@@ -130,11 +131,12 @@ namespace ZwiftActivityMonitorV2
                 mCurAvgPower = 0;
                 mCurAvgHR = 0;
                 mMaxAvgPower = 0;
+                mMaxAvgWkg = 0;
                 mMaxAvgHR = 0;
                 mSumOverallPower = 0;
                 mCountOverallPowerSamples = 0;
-                //mCollectionStart = DateTime.Now;
                 mStatsQueue.Clear();
+                this.CurrentUser = ZAMsettings.Settings.CurrentUser;
 
                 mStarted = true;
             }
@@ -156,14 +158,13 @@ namespace ZwiftActivityMonitorV2
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
             DateTime now = DateTime.Now; // fixed current time
-            //TimeSpan oldest = TimeSpan.Zero; // oldest item in queue
-            //DateTime start = now; // for duration timing
             int curAvgPower;
             int curAvgHR;
             int maxAvgPower;
             int maxAvgHR;
             bool calculateMax = false;
             bool triggerMax = false;
+            double curAvgWkg = 0;
 
             if (!mStarted)
                 return;
@@ -183,16 +184,22 @@ namespace ZwiftActivityMonitorV2
 
             if (MetricsCalculatedEvent != null)
             {
-                int overallPower = (int)Math.Round(mSumOverallPower / (double)mCountOverallPowerSamples, 0);
+                int apWatts = (int)Math.Round(mSumOverallPower / (double)mCountOverallPowerSamples, 0);
+
+                double apWattsPerKg = 0;
+
+                // calculate average w/kg
+                if (CurrentUser.WeightAsKgs > 0)
+                    apWattsPerKg = Math.Round(apWatts / CurrentUser.WeightAsKgs, 2);
 
                 // Calculate average speed, distance is given in meters.
                 //TimeSpan runningTime = (DateTime.Now - mCollectionStart);
-                double kmsTravelled = (e.Distance - mDistanceSeedValue) / 1000.0;
-                double milesTravelled = kmsTravelled / 1.609;
-                double averageKph = Math.Round((kmsTravelled / e.ElapsedTime.Value.TotalSeconds) * 3600, 1);
-                double averageMph = Math.Round((milesTravelled / e.ElapsedTime.Value.TotalSeconds) * 3600, 1);
+                double distanceKm = (e.Distance - mDistanceSeedValue) / 1000.0;
+                double distanceMi = distanceKm / 1.609;
+                double speedKph = Math.Round((distanceKm / e.ElapsedTime.Value.TotalSeconds) * 3600, 1);
+                double speedMph = Math.Round((distanceMi / e.ElapsedTime.Value.TotalSeconds) * 3600, 1);
 
-                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(overallPower, averageKph, averageMph, e.ElapsedTime.Value, kmsTravelled, milesTravelled));
+                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(apWatts, apWattsPerKg, speedKph, speedMph, e.ElapsedTime.Value, distanceKm, distanceMi));
             }
 
             // If power is zero and excluding values, exit
@@ -233,12 +240,17 @@ namespace ZwiftActivityMonitorV2
             curAvgPower = (int)Math.Round(mSumPower / (double)mStatsQueue.Count, 0);
             curAvgHR = (int)Math.Round(mSumHR / (double)mStatsQueue.Count, 0);
 
+            // calculate average w/kg
+            if (CurrentUser.WeightAsKgs > 0)
+                curAvgWkg = Math.Round(curAvgPower / CurrentUser.WeightAsKgs, 2);
+
             // if queue was full, check to see if we have any new max values
             if (calculateMax)
             {
                 if (curAvgPower > mMaxAvgPower)
                 {
                     mMaxAvgPower = curAvgPower;
+                    mMaxAvgWkg = curAvgWkg;
                     triggerMax = true;
                 }
                 if (curAvgHR > mMaxAvgHR)
@@ -257,13 +269,13 @@ namespace ZwiftActivityMonitorV2
                 mCurAvgPower = curAvgPower;
                 mCurAvgHR = curAvgHR;
 
-                OnMovingAverageChangedEvent(new MovingAverageChangedEventArgs(curAvgPower, curAvgHR, mDurationType));
+                OnMovingAverageChangedEvent(new MovingAverageChangedEventArgs(curAvgPower, curAvgHR, mDurationType, curAvgWkg));
             }
 
             // if either max average power or max HR changed, trigger event
             if (triggerMax)
             {
-                OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs(mMaxAvgPower, mMaxAvgHR, mDurationType));
+                OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs(mMaxAvgPower, mMaxAvgHR, mDurationType, mMaxAvgWkg));
             }
 
             //Logger.LogInformation($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");

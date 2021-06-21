@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.ComponentModel;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -24,18 +25,509 @@ namespace ZwiftActivityMonitorV2
             APmax,
             FTP,
             HR,
-            Blank
+            Blank,
+            AP_PowerDisplayType,
+            APmax_PowerDisplayType,
+            FTP_PowerDisplayType,
         }
 
         private enum SummaryColumn
         {
-            Speed = 0,
+            AS = 0,
             AP,
             NP,
             IF,
             TSS,
-            Blank
+            Blank,
+            AP_PowerDisplayType,
+            NP_PowerDisplayType,
+            AS_SpeedDisplayType,
         }
+
+        public class NotifyPropertyChangedBase : INotifyPropertyChanged
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+        }
+
+        protected class DetailRow : NotifyPropertyChangedBase
+        {
+            //Add the [Browsable(false)] attribute to any public properties you don't want columns created for in the DataGridView
+
+            public string Period { get; set; }
+            public int PeriodSecs { get; set; }
+            public string AP { get { return this.mAP; } set { this.mAP = value; this.NotifyPropertyChanged(); } }
+            public string APmax { get { return this.mAPmax; } set { this.mAPmax = value; this.NotifyPropertyChanged(); } }
+            public string FTP { get { return this.mFTP; } set { this.mFTP = value; this.NotifyPropertyChanged(); } }
+            public string HR { get { return this.mHR; } set { this.mHR = value; this.NotifyPropertyChanged(); } }
+            public string Blank { get; set; }
+            public PowerDisplayType AP_PowerDisplayType
+            {
+                get { return this.mAP_PowerDisplayType; }
+                set
+                {
+                    this.mAP_PowerDisplayType = value;
+                    UpdateAP(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+            public PowerDisplayType APmax_PowerDisplayType
+            {
+                get { return this.mAPmax_PowerDisplayType; }
+                set
+                {
+                    this.mAPmax_PowerDisplayType = value;
+                    UpdateAPmax(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+            public PowerDisplayType FTP_PowerDisplayType
+            {
+                get { return this.mFTP_PowerDisplayType; }
+                set
+                {
+                    this.mFTP_PowerDisplayType = value;
+                    UpdateFTP(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+
+            private string mAP;
+            private PowerDisplayType mAP_PowerDisplayType;
+            private PowerDisplayType mAPmax_PowerDisplayType;
+            private PowerDisplayType mFTP_PowerDisplayType;
+            private string mAPmax;
+            private string mFTP;
+            private string mHR;
+
+            private int mAPwatts;
+            private double mAPwattsPerKg;
+            private int mAPwattsMax;
+            private double mAPwattsPerKgMax;
+            private int mFTPwatts;
+            private double mFTPwattsPerKg;
+            private int mHRbpm;
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateAP(PowerDisplayType updatedType)
+            {
+                if (this.AP_PowerDisplayType == updatedType)
+                {
+                    switch (this.AP_PowerDisplayType)
+                    {
+                        case PowerDisplayType.Watts:
+                            this.AP = this.APwatts > 0 ? this.APwatts.ToString() : "";
+                            break;
+
+                        case PowerDisplayType.WattsPerKg:
+                            this.AP = this.APwattsPerKg > 0 ? this.APwattsPerKg.ToString("#.00") : "";
+                            break;
+
+                        default:
+                            this.AP = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateAPmax(PowerDisplayType updatedType)
+            {
+                if (this.APmax_PowerDisplayType == updatedType)
+                {
+                    switch (this.APmax_PowerDisplayType)
+                    {
+                        case PowerDisplayType.Watts:
+                            this.APmax = this.APwattsMax > 0 ? this.APwattsMax.ToString() : "";
+                            break;
+
+                        case PowerDisplayType.WattsPerKg:
+                            this.APmax = this.APwattsPerKgMax > 0 ? this.APwattsPerKgMax.ToString("#.00") : "";
+                            break;
+
+                        default:
+                            this.APmax = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateFTP(PowerDisplayType updatedType)
+            {
+                if (this.FTP_PowerDisplayType == updatedType)
+                {
+                    switch (this.FTP_PowerDisplayType)
+                    {
+                        case PowerDisplayType.Watts:
+                            this.FTP = this.FTPwatts > 0 ? this.FTPwatts.ToString() : "";
+                            break;
+
+                        case PowerDisplayType.WattsPerKg:
+                            this.FTP = this.FTPwattsPerKg > 0 ? this.FTPwattsPerKg.ToString("#.00") : "";
+                            break;
+
+                        default:
+                            this.FTP = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateHR()
+            {
+                this.HR = this.HRbpm > 0 ? this.HRbpm.ToString() : "";
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int APwatts
+            {
+                get { return this.mAPwatts; }
+                set
+                {
+                    this.mAPwatts = value;
+                    this.UpdateAP(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double APwattsPerKg
+            {
+                get { return this.mAPwattsPerKg; }
+                set
+                {
+                    this.mAPwattsPerKg = value;
+                    this.UpdateAP(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int APwattsMax
+            {
+                get { return this.mAPwattsMax; }
+                set
+                {
+                    this.mAPwattsMax = value;
+                    this.UpdateAPmax(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double APwattsPerKgMax
+            {
+                get { return this.mAPwattsPerKgMax; }
+                set
+                {
+                    this.mAPwattsPerKgMax = value;
+                    this.UpdateAPmax(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int FTPwatts
+            {
+                get { return this.mFTPwatts; }
+                set
+                {
+                    this.mFTPwatts = value;
+                    this.UpdateFTP(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double FTPwattsPerKg
+            {
+                get { return this.mFTPwattsPerKg; }
+                set
+                {
+                    this.mFTPwattsPerKg = value;
+                    this.UpdateFTP(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int HRbpm
+            {
+                get { return this.mHRbpm; }
+                set
+                {
+                    this.mHRbpm = value;
+                    this.UpdateHR();
+                }
+            }
+
+
+        }
+
+        private BindingList<DetailRow> DetailRows = new();
+        protected class SummaryRow : NotifyPropertyChangedBase
+        {
+            public string AS { get { return this.mAS; } set { this.mAS = value; this.NotifyPropertyChanged(); } }
+            public string AP { get { return this.mAP; } set { this.mAP = value; this.NotifyPropertyChanged(); } }
+            public string NP { get { return this.mNP; } set { this.mNP = value; this.NotifyPropertyChanged(); } }
+            public string IF { get { return this.mIF; } set { this.mIF = value; this.NotifyPropertyChanged(); } }
+            public string TSS { get { return this.mTSS; } set { this.mTSS = value; this.NotifyPropertyChanged(); } }
+            public string Blank { get; set; }
+            public PowerDisplayType AP_PowerDisplayType
+            {
+                get { return this.mAP_PowerDisplayType; }
+                set
+                {
+                    this.mAP_PowerDisplayType = value;
+                    UpdateAP(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+            public PowerDisplayType NP_PowerDisplayType
+            {
+                get { return this.mNP_PowerDisplayType; }
+                set
+                {
+                    this.mNP_PowerDisplayType = value;
+                    UpdateNP(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+            public SpeedDisplayType AS_SpeedDisplayType
+            {
+                get { return this.mAS_SpeedDisplayType; }
+                set
+                {
+                    this.mAS_SpeedDisplayType = value;
+                    UpdateAS(value);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+
+            private PowerDisplayType mAP_PowerDisplayType;
+            private PowerDisplayType mNP_PowerDisplayType;
+            private SpeedDisplayType mAS_SpeedDisplayType;
+            private string mAS;
+            private string mAP;
+            private string mNP;
+            private string mIF;
+            private string mTSS;
+
+            private int mAPwatts;
+            private double mAPwattsPerKg;
+            private int mNPwatts;
+            private double mNPwattsPerKg;
+            private double mSpeedKph;
+            private double mSpeedMph;
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateAP(PowerDisplayType updatedType)
+            {
+                if (this.AP_PowerDisplayType == updatedType)
+                {
+                    switch (this.AP_PowerDisplayType)
+                    {
+                        case PowerDisplayType.Watts:
+                            this.AP = this.APwatts > 0 ? this.APwatts.ToString() : "";
+                            break;
+
+                        case PowerDisplayType.WattsPerKg:
+                            this.AP = this.APwattsPerKg > 0 ? this.APwattsPerKg.ToString("#.00") : "";
+                            break;
+
+                        default:
+                            this.AP = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateNP(PowerDisplayType updatedType)
+            {
+                if (this.NP_PowerDisplayType == updatedType)
+                {
+                    switch (this.NP_PowerDisplayType)
+                    {
+                        case PowerDisplayType.Watts:
+                            this.NP = this.NPwatts > 0 ? this.NPwatts.ToString() : "";
+                            break;
+
+                        case PowerDisplayType.WattsPerKg:
+                            this.NP = this.NPwattsPerKg > 0 ? this.NPwattsPerKg.ToString("#.00") : "";
+                            break;
+
+                        default:
+                            this.NP = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateAS(SpeedDisplayType updatedType)
+            {
+                if (this.AS_SpeedDisplayType == updatedType)
+                {
+                    switch (this.AS_SpeedDisplayType)
+                    {
+                        case SpeedDisplayType.KilometersPerHour:
+                            this.AS = this.SpeedKph > 0 ? this.SpeedKph.ToString("#.0") : "";
+                            break;
+
+                        case SpeedDisplayType.MilesPerHour:
+                            this.AS = this.SpeedMph > 0 ? this.SpeedMph.ToString("#.0") : "";
+                            break;
+
+                        default:
+                            this.AS = "";
+                            break;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int APwatts
+            {
+                get { return this.mAPwatts; }
+                set
+                {
+                    this.mAPwatts = value;
+                    this.UpdateAP(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double APwattsPerKg
+            {
+                get { return this.mAPwattsPerKg; }
+                set
+                {
+                    this.mAPwattsPerKg = value;
+                    this.UpdateAP(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public int NPwatts
+            {
+                get { return this.mNPwatts; }
+                set
+                {
+                    this.mNPwatts = value;
+                    this.UpdateNP(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double NPwattsPerKg
+            {
+                get { return this.mNPwattsPerKg; }
+                set
+                {
+                    this.mNPwattsPerKg = value;
+                    this.UpdateNP(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SpeedKph
+            {
+                get { return this.mSpeedKph; }
+                set
+                {
+                    this.mSpeedKph = value;
+                    //this.UpdateAP(PowerDisplayType.Watts);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SpeedMph
+            {
+                get { return this.mSpeedMph; }
+                set
+                {
+                    this.mSpeedMph = value;
+                    //this.UpdateAP(PowerDisplayType.WattsPerKg);
+                }
+            }
+
+
+
+
+        }
+
+        private BindingList<SummaryRow> SummaryRows = new();
+
 
         /// <summary>
         /// Since the DataGridView is getting updated on non-gui threads, we're using a syncronized binding source to marshall the updates.  See link for details.
@@ -77,30 +569,12 @@ namespace ZwiftActivityMonitorV2
                 public DurationType DurationType { get; }
                 public string Label { get; }
                 public MovingAverage MAcollector { get; }
-                public DataRow DetailDataRow { get; set; } = null;
+                public DetailRow DetailDataRow { get; set; } = null;
 
-
-                #region Static data and constructor
-                private static Dictionary<DurationType, string> sLabels = new();
-                static CollectorAttributes()
-                {
-                    sLabels.Add(DurationType.FiveSeconds, "5 sec");
-                    sLabels.Add(DurationType.ThirtySeconds, "30 sec");
-                    sLabels.Add(DurationType.OneMinute, "1 min");
-                    sLabels.Add(DurationType.FiveMinutes, "5 min");
-                    sLabels.Add(DurationType.SixMinutes, "6 min");
-                    sLabels.Add(DurationType.TenMinutes, "10 min");
-                    sLabels.Add(DurationType.TwentyMinutes, "20 min");
-                    sLabels.Add(DurationType.ThirtyMinutes, "30 min");
-                    sLabels.Add(DurationType.SixtyMinutes, "60 min");
-                    sLabels.Add(DurationType.NinetyMinutes, "90 min");
-                }
-                #endregion
-
-                public CollectorAttributes(DurationType durationType)
+                public CollectorAttributes(DurationType durationType, string label)
                 {
                     this.DurationType = durationType;
-                    this.Label = sLabels[durationType];
+                    this.Label = label;
                     this.MAcollector = new MovingAverage(durationType);
 
                     this.MAcollector.MovingAverageChangedEvent += MAcollector_MovingAverageChangedEvent;
@@ -109,13 +583,15 @@ namespace ZwiftActivityMonitorV2
 
                 private void MAcollector_MovingAverageMaxChangedEvent(object sender, MovingAverageMaxChangedEventArgs e)
                 {
-                    this.DetailDataRow.SetField<string>((int)DetailColumn.APmax, e.MaxAvgPower.ToString());
+                    this.DetailDataRow.APwattsMax = e.APwattsMax;
+                    this.DetailDataRow.APwattsPerKgMax = e.APwattsPerKgMax;
                 }
 
                 private void MAcollector_MovingAverageChangedEvent(object sender, MovingAverageChangedEventArgs e)
                 {
-                    this.DetailDataRow.SetField<string>((int)DetailColumn.AP, e.AveragePower.ToString());
-                    this.DetailDataRow.SetField<string>((int)DetailColumn.HR, e.AverageHR.ToString());
+                    this.DetailDataRow.APwatts = e.APwatts;
+                    this.DetailDataRow.APwattsPerKg = e.APwattsPerKg;
+                    this.DetailDataRow.HRbpm = e.HRbpm;
                 }
             }
 
@@ -125,35 +601,62 @@ namespace ZwiftActivityMonitorV2
 
             private CollectorAttributesCollection mCollectorAttributes = new();
             private NormalizedPower mNormalizedPower;
-            public DataRow SummaryDataRow { get; set; } = null;
-
+            public SummaryRow SummaryDataRow { get; set; } = null;
+            private readonly System.Threading.Timer Timer;
 
             public MovingAverageManager()
             {
                 // Create a CollectorAttributes class for each DurationType enum
-                foreach (var durationTypeName in Enum.GetNames<DurationType>())
+                foreach (var kvp in EnumManager.DurationTypeEnum.ToList())
                 {
-                    DurationType durationType = Enum.Parse<DurationType>(durationTypeName);
-                    mCollectorAttributes.Add(durationType, new CollectorAttributes(durationType));
+                    mCollectorAttributes.Add(kvp.Key, new CollectorAttributes(kvp.Key, kvp.Value));
                 }
+
+                //Timer = new(OnTimer, null, 5000, 1000);
 
                 mNormalizedPower = new();
 
                 mNormalizedPower.NormalizedPowerChangedEvent += NormalizedPower_NormalizedPowerChangedEvent;
                 mNormalizedPower.MetricsChangedEvent += NormalizedPower_MetricsChangedEvent;
+                ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
             }
 
-            private void NormalizedPower_MetricsChangedEvent(object sender, NormalizedPower.MetricsChangedEventArgs e)
+            private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
             {
-                this.SummaryDataRow.SetField<string>((int)SummaryColumn.AP, e.OverallPower.ToString());
-                this.SummaryDataRow.SetField<string>((int)SummaryColumn.Speed, e.AverageMph.ToString());
             }
 
-            private void NormalizedPower_NormalizedPowerChangedEvent(object sender, NormalizedPower.NormalizedPowerChangedEventArgs e)
+            private void NormalizedPower_MetricsChangedEvent(object sender, MetricsChangedEventArgs e)
             {
-                this.SummaryDataRow.SetField<string>((int)SummaryColumn.IF, e.IntensityFactor.ToString());
-                this.SummaryDataRow.SetField<string>((int)SummaryColumn.TSS, e.TotalSufferScore.ToString());
-                this.SummaryDataRow.SetField<string>((int)SummaryColumn.NP, e.NormalizedPower.ToString());
+                this.SummaryDataRow.APwatts = e.APwatts;
+                this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg;
+                this.SummaryDataRow.SpeedKph = e.SpeedKph;
+                this.SummaryDataRow.SpeedMph = e.SpeedMph;
+            }
+
+            private void NormalizedPower_NormalizedPowerChangedEvent(object sender, NormalizedPowerChangedEventArgs e)
+            {
+                this.SummaryDataRow.IF = e.IntensityFactor.ToString();
+                this.SummaryDataRow.TSS = e.TotalSufferScore.ToString();
+                this.SummaryDataRow.NP = e.NormalizedPower.ToString();
+            }
+
+            private void OnTimer(object state)
+            {
+                Debug.WriteLine("OnTimer");
+
+                //foreach (var c in mCollectorAttributes)
+                //{
+                //    c.Value.DetailDataRow.AP = (Convert.ToInt32(c.Value.DetailDataRow.AP == "" ? "0" : c.Value.DetailDataRow.AP) + 1).ToString();
+                //    c.Value.DetailDataRow.APmax = (Convert.ToInt32(c.Value.DetailDataRow.APmax == "" ? "0" : c.Value.DetailDataRow.APmax) + 2).ToString();
+                //    c.Value.DetailDataRow.FTP = (Convert.ToInt32(c.Value.DetailDataRow.FTP == "" ? "0" : c.Value.DetailDataRow.FTP) + 3).ToString();
+                //    c.Value.DetailDataRow.HR = (Convert.ToInt32(c.Value.DetailDataRow.HR == "" ? "0" : c.Value.DetailDataRow.HR) + 4).ToString();
+                //}
+
+                //this.SummaryDataRow.Speed = (Convert.ToInt32(this.SummaryDataRow.Speed == "" ? "0" : this.SummaryDataRow.Speed) + 1).ToString();
+                //this.SummaryDataRow.AP = (Convert.ToInt32(this.SummaryDataRow.AP == "" ? "0" : this.SummaryDataRow.AP) + 2).ToString();
+                //this.SummaryDataRow.NP = (Convert.ToInt32(this.SummaryDataRow.NP == "" ? "0" : this.SummaryDataRow.NP) + 3).ToString();
+                //this.SummaryDataRow.IF = (Convert.ToInt32(this.SummaryDataRow.IF == "" ? "0" : this.SummaryDataRow.IF) + 4).ToString();
+                //this.SummaryDataRow.TSS = (Convert.ToInt32(this.SummaryDataRow.TSS == "" ? "0" : this.SummaryDataRow.TSS) + 5).ToString();
             }
 
             public List<CollectorAttributes> GetCollectorAttributes()
@@ -162,22 +665,23 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        private MovingAverageManager mMovingAverageManager = new();
+        private MovingAverageManager mMovingAverageManager;
 
         public ActivityViewerControl()
         {
             //Debug.WriteLine($"ActivityViewerControl_ctor started...");
             InitializeComponent();
 
+            mMovingAverageManager = new();
+
             InitializeDetailDataGrid();
-            //LoadDetailDataGrid();
 
             InitializeSummaryDataGrid();
-            //LoadSummaryDataGrid();
 
             // Subscribe to any SystemConfig changes
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
+
             //Debug.WriteLine($"ActivityViewerControl_ctor completed.");
         }
 
@@ -200,15 +704,10 @@ namespace ZwiftActivityMonitorV2
             // Get the currently selected user
             this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
 
-            this.LoadDetailDataGrid();
-            this.LoadSummaryDataGrid();
-
             this.SetRowVisibilityStatus();
 
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
-
-            //mMovingAverageManager.StartTimer();
 
             //Debug.WriteLine($"ViewControl_Load2 - Row[0].Visible: {dgDetail.Rows[0].Visible}");
         }
@@ -216,23 +715,46 @@ namespace ZwiftActivityMonitorV2
 
         private void InitializeDetailDataGrid()
         {
-            //Debug.WriteLine($"InitializeDetailDataGrid1");
-
-            DataTable table = new DataTable();
-
-            table.Columns.Add(new DataColumn("Period", typeof(string)));
-            table.Columns.Add(new DataColumn("PeriodSecs", typeof(int)));
-            table.Columns.Add(new DataColumn("AP", typeof(string)));
-            table.Columns.Add(new DataColumn("AP (Max)", typeof(string)));
-            table.Columns.Add(new DataColumn("FTP", typeof(string)));
-            table.Columns.Add(new DataColumn("HR", typeof(string)));
-            table.Columns.Add(new DataColumn("Blank", typeof(string)));
+            Debug.WriteLine($"InitializeDetailDataGrid1");
 
             // set in designer
             //dgDetail.ReadOnly = true;
 
-            this.DetailBindingSource = new SyncBindingSource(table, null);
+            // Add all known Collectors to the view.  Later, row visibility will be set.
+            foreach (var collector in mMovingAverageManager.GetCollectorAttributes())
+            {
+                DetailRow row = new()
+                {
+                    Period = collector.Label,
+                    PeriodSecs = (int)collector.DurationType,
+                    AP = "",
+                    APmax = "",
+                    FTP = "",
+                    HR = "",
+                    Blank = "",
+                    AP_PowerDisplayType = PowerDisplayType.Watts,
+                    APmax_PowerDisplayType = PowerDisplayType.Watts,
+                    FTP_PowerDisplayType = collector.DurationType == DurationType.TwentyMinutes ? PowerDisplayType.WattsPerKg : PowerDisplayType.None,
+                };
+                this.DetailRows.Add(row);
+
+                collector.DetailDataRow = row;
+            }
+
+            // Note: anytime rows are added to the List, the BindingSource must be recreated (or maybe just a reset on the BindingSource)
+            this.DetailBindingSource = new SyncBindingSource();
+            this.DetailBindingSource.DataSource = this.DetailRows;
+
             this.dgDetail.DataSource = this.DetailBindingSource;
+
+
+            for (int i = 0; i < dgDetail.Rows.Count; i++)
+            {
+                DataGridViewRow r = dgDetail.Rows[i];
+
+                // A height of 19 is minimum when using Segoe UI 9pt font
+                r.MinimumHeight = DataGridRowMinimumHeight;
+            }
 
             this.dgDetail.Columns[(int)DetailColumn.Period].Width = 76; // minimum 75
 
@@ -243,6 +765,7 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Columns[(int)DetailColumn.AP].Width = 51; // minimum 50
 
             this.dgDetail.Columns[(int)DetailColumn.APmax].Width = 86; // minimum 85
+            this.dgDetail.Columns[(int)DetailColumn.APmax].HeaderText = "AP (Max)";
 
             this.dgDetail.Columns[(int)DetailColumn.FTP].Width = 52; // minimum 50
 
@@ -252,18 +775,22 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Columns[(int)DetailColumn.Blank].HeaderText = "";
             this.dgDetail.Columns[(int)DetailColumn.Blank].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
+            this.dgDetail.Columns[(int)DetailColumn.AP_PowerDisplayType].Width = 5;
+            this.dgDetail.Columns[(int)DetailColumn.AP_PowerDisplayType].HeaderText = "";
+            this.dgDetail.Columns[(int)DetailColumn.AP_PowerDisplayType].Visible = false;
+
+            this.dgDetail.Columns[(int)DetailColumn.APmax_PowerDisplayType].Width = 5;
+            this.dgDetail.Columns[(int)DetailColumn.APmax_PowerDisplayType].HeaderText = "";
+            this.dgDetail.Columns[(int)DetailColumn.APmax_PowerDisplayType].Visible = false;
+
+            this.dgDetail.Columns[(int)DetailColumn.FTP_PowerDisplayType].Width = 5;
+            this.dgDetail.Columns[(int)DetailColumn.FTP_PowerDisplayType].HeaderText = "";
+            this.dgDetail.Columns[(int)DetailColumn.FTP_PowerDisplayType].Visible = false;
+
             foreach (DataGridViewColumn c in this.dgDetail.Columns)
             {
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
-            }
-
-            for (int i = 0; i < dgDetail.Rows.Count; i++)
-            {
-                DataGridViewRow r = dgDetail.Rows[i];
-
-                // A height of 19 is minimum when using Segoe UI 9pt font
-                r.MinimumHeight = DataGridRowMinimumHeight;
             }
 
 
@@ -284,52 +811,54 @@ namespace ZwiftActivityMonitorV2
             //Debug.WriteLine($"ColumnHeadersHeight: {this.dgDetail.ColumnHeadersHeight}");
 
             this.dgDetail.ShowFocus = false;
-            //Debug.WriteLine($"InitializeDetailDataGrid2");
-        }
-
-        private void LoadDetailDataGrid()
-        {
-            //Debug.WriteLine($"LoadDetailDataGrid1");
-
-            DataTable table = (DataTable)((BindingSource)dgDetail.DataSource).DataSource;
-            table.Rows.Clear(); // not really necessary
-
-            // Add all known Collectors to the view.  Later, row visibility will be set.
-            foreach(var collector in mMovingAverageManager.GetCollectorAttributes())
-            {
-                collector.DetailDataRow = table.Rows.Add(collector.Label, (int)collector.DurationType, "", "", "", "");
-            }
-
-            //Debug.WriteLine($"LoadDetailDataGrid2");
+            Debug.WriteLine($"InitializeDetailDataGrid2");
         }
 
         private void InitializeSummaryDataGrid()
         {
-            DataTable table = new DataTable();
-
-            table.Columns.Add(new DataColumn("mi/h", typeof(string)));
-            table.Columns.Add(new DataColumn("AP", typeof(string)));
-            table.Columns.Add(new DataColumn("NP", typeof(string)));
-            table.Columns.Add(new DataColumn("IF", typeof(string)));
-            table.Columns.Add(new DataColumn("TSS", typeof(string)));
-            table.Columns.Add(new DataColumn("Blank", typeof(string)));
-
             // set in designer
             //dgSummary.ReadOnly = true;
 
-            this.SummaryBindingSource = new SyncBindingSource(table, null);
+            SummaryRow row = new()
+            {
+                AP_PowerDisplayType = PowerDisplayType.Watts,
+                NP_PowerDisplayType = PowerDisplayType.Watts,
+                AS_SpeedDisplayType = SpeedDisplayType.KilometersPerHour,
+            };
+
+            this.SummaryRows.Add(row);
+
+            this.mMovingAverageManager.SummaryDataRow = row;
+
+            this.SummaryBindingSource = new SyncBindingSource();
+            this.SummaryBindingSource.DataSource = this.SummaryRows;
             this.dgSummary.DataSource = this.SummaryBindingSource;
 
-            this.dgSummary.Columns[(int)SummaryColumn.Speed].Width = 76;  // minimum 75
+            // A height of 19 is minimum when using Segoe UI 9pt font
+            this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
+
+            this.dgSummary.Columns[(int)SummaryColumn.AS].Width = 76;  // minimum 75
             this.dgSummary.Columns[(int)SummaryColumn.AP].Width = 51; // minimum 50
             this.dgSummary.Columns[(int)SummaryColumn.NP].Width = 86; // minimum 85
             this.dgSummary.Columns[(int)SummaryColumn.IF].Width = 52; // minimum 50
             this.dgSummary.Columns[(int)SummaryColumn.TSS].Width = 55; // minimum 54
-            this.dgSummary.Columns[(int)SummaryColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
 
             // Use the last blank column to fill the gap if user resizes
+            this.dgSummary.Columns[(int)SummaryColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
             this.dgSummary.Columns[(int)SummaryColumn.Blank].HeaderText = "";
             this.dgSummary.Columns[(int)SummaryColumn.Blank].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            this.dgSummary.Columns[(int)SummaryColumn.AP_PowerDisplayType].Width = 5;
+            this.dgSummary.Columns[(int)SummaryColumn.AP_PowerDisplayType].HeaderText = "";
+            this.dgSummary.Columns[(int)SummaryColumn.AP_PowerDisplayType].Visible = false;
+
+            this.dgSummary.Columns[(int)SummaryColumn.NP_PowerDisplayType].Width = 5;
+            this.dgSummary.Columns[(int)SummaryColumn.NP_PowerDisplayType].HeaderText = "";
+            this.dgSummary.Columns[(int)SummaryColumn.NP_PowerDisplayType].Visible = false;
+
+            this.dgSummary.Columns[(int)SummaryColumn.AS_SpeedDisplayType].Width = 5;
+            this.dgSummary.Columns[(int)SummaryColumn.AS_SpeedDisplayType].HeaderText = "";
+            this.dgSummary.Columns[(int)SummaryColumn.AS_SpeedDisplayType].Visible = false;
 
             foreach (DataGridViewColumn c in this.dgSummary.Columns)
             {
@@ -351,19 +880,7 @@ namespace ZwiftActivityMonitorV2
             // set in designer
             //this.dgSummary.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
-            //Debug.WriteLine($"ColumnHeadersHeight: {this.dgSummary.ColumnHeadersHeight}");
-
             this.dgSummary.ShowFocus = false;
-        }
-        private void LoadSummaryDataGrid()
-        {
-            DataTable table = (DataTable)((BindingSource)dgSummary.DataSource).DataSource;
-            table.Rows.Clear();
-
-            this.mMovingAverageManager.SummaryDataRow = table.Rows.Add("", "", "", "", "");
-
-            // A height of 19 is minimum when using Segoe UI 9pt font
-            this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
         }
 
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -373,7 +890,7 @@ namespace ZwiftActivityMonitorV2
 
         private void SetRowVisibilityStatus()
         {
-            //Debug.WriteLine($"SetRowVisibilityStatus1 - Row[0].Visible: {dgDetail.Rows[0].Visible}, CurrentCell: {dgDetail.CurrentCell} BindingSource.Position: {this.DetailBindingSource.Position}");
+            Debug.WriteLine($"SetRowVisibilityStatus1");
 
             //int[] list = { 60, 300, 1200 };
 
@@ -399,7 +916,7 @@ namespace ZwiftActivityMonitorV2
             DetailBindingSource.ResumeBinding();
             dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
 
-            //Debug.WriteLine($"SetRowVisibilityStatus2 - Row[0].Visible: {dgDetail.Rows[0].Visible}, CurrentCell: {dgDetail.CurrentCell} BindingSource.Position: {this.DetailBindingSource.Position}");
+            Debug.WriteLine($"SetRowVisibilityStatus2");
         }
 
 
@@ -478,7 +995,12 @@ namespace ZwiftActivityMonitorV2
 
             if (dataGridView == this.dgDetail)
             {
-                switch(e.ColumnIndex)
+                Dictionary<int, int> powerDisplayColumnMap = new();
+                powerDisplayColumnMap.Add((int)DetailColumn.AP, (int)DetailColumn.AP_PowerDisplayType);
+                powerDisplayColumnMap.Add((int)DetailColumn.APmax, (int)DetailColumn.APmax_PowerDisplayType);
+                powerDisplayColumnMap.Add((int)DetailColumn.FTP, (int)DetailColumn.FTP_PowerDisplayType);
+
+                switch (e.ColumnIndex)
                 {
                     case (int)DetailColumn.Period:
                         for (int i = 0; i < dataGridView.Rows.Count; i++)
@@ -501,21 +1023,79 @@ namespace ZwiftActivityMonitorV2
                     case (int)DetailColumn.AP:
                     case (int)DetailColumn.APmax:
                     case (int)DetailColumn.FTP:
-                        item = (ToolStripMenuItem)menuStrip.Items.Add("Watts");
-                        item = (ToolStripMenuItem)menuStrip.Items.Add("W/Kg");
-                        item = (ToolStripMenuItem)menuStrip.Items.Add("Both Watts && W/Kg");
-                        item = (ToolStripMenuItem)menuStrip.Items.Add("Hide Field");
+                        // map the right-clicked column to the column that stores the type of power display
+                        int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
 
-                        foreach(ToolStripMenuItem mi in menuStrip.Items)
+                        foreach (var kvp in EnumManager.PowerDisplayTypeEnum.ToList())
                         {
-                            mi.CheckOnClick = true;
-                            mi.Tag = new KeyValuePair<string, int>("RowIndex", e.RowIndex); // not sure what to use
+                            var mi = new ToolStripMenuItem(kvp.Value)
+                            {
+                                CheckOnClick = true,
+                                Tag = new object[] { e.RowIndex, powerDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
+                                Checked = (PowerDisplayType)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                            };
                             mi.CheckedChanged += powerContextMenu_CheckStateChanged;
+                            menuStrip.Items.Add(mi);
                         }
+
                         menuStrip.Show(Cursor.Position);
                         break;
                 }
             }
+            else if (dataGridView == this.dgSummary)
+            {
+                Dictionary<int, int> powerDisplayColumnMap = new();
+                powerDisplayColumnMap.Add((int)SummaryColumn.AP, (int)SummaryColumn.AP_PowerDisplayType);
+                powerDisplayColumnMap.Add((int)SummaryColumn.NP, (int)SummaryColumn.NP_PowerDisplayType);
+
+                Dictionary<int, int> speedDisplayColumnMap = new();
+                speedDisplayColumnMap.Add((int)SummaryColumn.AS, (int)SummaryColumn.AS_SpeedDisplayType);
+
+                switch (e.ColumnIndex)
+                {
+                    case (int)SummaryColumn.AS:
+                        // map the right-clicked column to the column that stores the type of speed display
+                        int speedDisplayColumnIndex = speedDisplayColumnMap[e.ColumnIndex];
+
+                        foreach (var kvp in EnumManager.SpeedDisplayTypeEnum.ToList())
+                        {
+                            var mi = new ToolStripMenuItem(kvp.Value)
+                            {
+                                CheckOnClick = true,
+                                Tag = new object[] { e.RowIndex, speedDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
+                                Checked = (SpeedDisplayType)dataGridView[speedDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                            };
+                            mi.CheckedChanged += speedContextMenu_CheckStateChanged;
+                            menuStrip.Items.Add(mi);
+                        }
+
+                        menuStrip.Show(Cursor.Position);
+                        break;
+
+                    case (int)SummaryColumn.AP:
+                    case (int)SummaryColumn.NP:
+                        // map the right-clicked column to the column that stores the type of power display
+                        int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
+
+                        foreach (var kvp in EnumManager.PowerDisplayTypeEnum.ToList())
+                        {
+                            var mi = new ToolStripMenuItem(kvp.Value)
+                            {
+                                CheckOnClick = true,
+                                Tag = new object[] { e.RowIndex, powerDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
+                                Checked = (PowerDisplayType)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                            };
+                            mi.CheckedChanged += powerContextMenu_CheckStateChanged;
+                            menuStrip.Items.Add(mi);
+                        }
+
+                        menuStrip.Show(Cursor.Position);
+                        break;
+
+                }
+
+            }
+
         }
 
         private void periodContextMenu_CheckStateChanged(object sender, EventArgs e)
@@ -538,8 +1118,27 @@ namespace ZwiftActivityMonitorV2
         {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
 
-            KeyValuePair<string, int> itemTag = (KeyValuePair<string, int>)item.Tag;
+            if (item.Checked)
+            {
+                object[] tag = item.Tag as object[];
+                int rowIndex = (int)tag[0], powerDisplayColumnIndex = (int)tag[1], powerDisplayType = (int)tag[2];
+                DataGridView dataGridView = (DataGridView)tag[3];
 
+                dataGridView[powerDisplayColumnIndex, rowIndex].Value = (PowerDisplayType)powerDisplayType;
+            }
+        }
+        private void speedContextMenu_CheckStateChanged(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+            if (item.Checked)
+            {
+                object[] tag = item.Tag as object[];
+                int rowIndex = (int)tag[0], speedDisplayColumnIndex = (int)tag[1], speedDisplayType = (int)tag[2];
+                DataGridView dataGridView = (DataGridView)tag[3];
+
+                dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayType)speedDisplayType;
+            }
         }
 
         /// <summary>
