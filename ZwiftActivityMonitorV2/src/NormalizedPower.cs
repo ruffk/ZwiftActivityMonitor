@@ -145,6 +145,7 @@ namespace ZwiftActivityMonitorV2
 
             double? intensityFactor = null;
             int? totalSufferScore = null;
+            double? npWattsPerKg = null;
 
             ulong movingAvgPow4 = (ulong)Math.Pow(e.APwatts, 4);
 
@@ -153,27 +154,31 @@ namespace ZwiftActivityMonitorV2
 
             double avgMovingAvgPow4 = mSumMovingAvgPow4 / (double)mCountMovingAvgPow4;
 
-            int normalizedPower = (int)Math.Round(Math.Pow(avgMovingAvgPow4, 0.25), 0);
+            int npWatts = (int)Math.Round(Math.Pow(avgMovingAvgPow4, 0.25), 0);
+
+            // calculate average w/kg
+            if (CurrentUser.WeightAsKgs > 0)
+                npWattsPerKg = Math.Round(npWatts / CurrentUser.WeightAsKgs, 2);
+
 
             if (CurrentUser.PowerThreshold > 0)
             {
                 // Calculate Intensity Factor
-                intensityFactor = Math.Round(normalizedPower / (double)CurrentUser.PowerThreshold, 2);
+                intensityFactor = Math.Round(npWatts / (double)CurrentUser.PowerThreshold, 2);
 
                 // Calculate TSS
                 //TimeSpan runningTime = DateTime.Now - m_collectionStartTime;
-                totalSufferScore = (int)Math.Round((e.ElapsedTime.TotalSeconds * normalizedPower * (double)intensityFactor) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
+                totalSufferScore = (int)Math.Round((e.ElapsedTime.TotalSeconds * npWatts * (double)intensityFactor) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
             }
 
-
             // when NP changes, send it and the current overall average power through
-            if (normalizedPower != mCurNormalizedPower || intensityFactor != mCurIntensityFactor || totalSufferScore != mCurTotalSufferScore)
+            if (npWatts != mCurNormalizedPower || intensityFactor != mCurIntensityFactor || totalSufferScore != mCurTotalSufferScore)
             {
-                mCurNormalizedPower = normalizedPower;
+                mCurNormalizedPower = npWatts;
                 mCurTotalSufferScore = totalSufferScore;
                 mCurIntensityFactor = intensityFactor;
 
-                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs(normalizedPower, intensityFactor, totalSufferScore));
+                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs(npWatts, npWattsPerKg, intensityFactor, totalSufferScore));
             }
         }
         private void MetricsCalculatedEventHandler(object sender, MetricsCalculatedEventArgs e)

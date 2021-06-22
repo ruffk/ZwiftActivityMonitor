@@ -34,12 +34,25 @@ namespace ZwiftActivityMonitorV2
 
         private const string HomeTitle = "Activity Monitor";
 
+        private int mSyncFormTimerTickCount;
+
+        public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
+        public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
+
+
         public MainForm(IServiceProvider serviceProvider)
         {
             this.ServiceProvider = serviceProvider;
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
 
             InitializeComponent();
+
+            // Determine window position
+            if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
+            {
+                this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+                this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
+            }
 
             ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
@@ -56,12 +69,6 @@ namespace ZwiftActivityMonitorV2
 
             this.SetControlColors();
 
-            // Determine window position
-            if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
-            {
-                this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-                this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
-            }
 
             // Determine window size
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
@@ -72,6 +79,10 @@ namespace ZwiftActivityMonitorV2
             // toggle the tabs so the first tab gets initialized
             tabControl.SelectedIndex = 1;
             tabControl.SelectedIndex = 0;
+
+            // start general syncronization timer
+            this.formSyncTimer.Interval = 1000;
+            this.formSyncTimer.Enabled = true;
 
             this.OnCollectionStatusChanged();
         }
@@ -498,5 +509,70 @@ namespace ZwiftActivityMonitorV2
         {
             ZAMsettings.ZPMonitorService.StopCollection();
         }
+
+
+        private bool postLoadCompleted;
+
+        /// <summary>
+        /// General use timer set for one second intervals
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void formSyncTimer_Tick(object sender, EventArgs e)
+        {
+            mSyncFormTimerTickCount++;
+
+            // The one second timer gets the actual tick count in it's event args
+            OnFormSyncOneSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount));
+
+            if (!postLoadCompleted)
+            {
+                ucActivityView.Control_PostLoad();
+                this.postLoadCompleted = true;
+            }
+
+            // Has five seconds elapsed?
+            if (mSyncFormTimerTickCount % 5 == 0)
+            {
+                // The five second timer gets the tick count / 5 in it's event args
+                OnFormSyncFiveSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount / 5));
+            }
+        }
+
+        private void OnFormSyncOneSecondTimerTickEvent(FormSyncTimerTickEventArgs e)
+        {
+            EventHandler<FormSyncTimerTickEventArgs> handler = FormSyncOneSecondTimerTickEvent;
+
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch (Exception ex)
+                {
+                    // Don't let downstream exceptions bubble up
+                    Logger.LogWarning(ex, ex.ToString());
+                }
+            }
+        }
+        private void OnFormSyncFiveSecondTimerTickEvent(FormSyncTimerTickEventArgs e)
+        {
+            EventHandler<FormSyncTimerTickEventArgs> handler = FormSyncFiveSecondTimerTickEvent;
+
+            if (handler != null)
+            {
+                try
+                {
+                    handler(this, e);
+                }
+                catch (Exception ex)
+                {
+                    // Don't let downstream exceptions bubble up
+                    Logger.LogWarning(ex, ex.ToString());
+                }
+            }
+        }
+
     }
 }

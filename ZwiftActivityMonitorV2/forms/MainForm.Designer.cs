@@ -31,6 +31,7 @@ namespace ZwiftActivityMonitorV2
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabControl = new Syncfusion.Windows.Forms.Tools.TabControlAdv();
             this.tpActivity = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
@@ -55,6 +56,7 @@ namespace ZwiftActivityMonitorV2
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.tsslSeparator1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.formSyncTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
             this.tabControl.SuspendLayout();
             this.tpSplit.SuspendLayout();
@@ -329,6 +331,11 @@ namespace ZwiftActivityMonitorV2
             this.statusLabel.Size = new System.Drawing.Size(86, 17);
             this.statusLabel.Text = "Current status";
             // 
+            // formSyncTimer
+            // 
+            this.formSyncTimer.Interval = 1000;
+            this.formSyncTimer.Tick += new System.EventHandler(this.formSyncTimer_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -389,5 +396,6 @@ namespace ZwiftActivityMonitorV2
         private ToolStripSplitButton tssbMenu;
         private ToolStripStatusLabel statusLabel;
         private ToolStripStatusLabel tsslSeparator1;
+        private Timer formSyncTimer;
     }
 }

@@ -7,10 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
-
     public class ZPMonitorService
     {
-
         public bool IsZPMonitorStarted { get; internal set; }
         public bool IsCollectionStartWaiting { get; internal set; }
         public bool IsCollectionStarted { get; internal set; }
@@ -23,14 +21,22 @@ namespace ZwiftActivityMonitorV2
         private readonly ILogger<ZPMonitorService> Logger;
         private readonly ZwiftPacketMonitor.Monitor ZPMonitor;
         private readonly Timer PacketSmoothingTimer;
+        private readonly Timer ActivitySimulationTimer;
 
         private int mTrackedPlayerId;
         //private DateTime mLastPlayerStateUpdate;
         private DateTime? mCollectionStartTime;
-        private PlayerStateEventArgs mLatestPlayerStateEventArgs;
+        private DateTime? mMonitorStartTime;
+        //private PlayerStateEventArgs mLatestPlayerStateEventArgs;
+        private RiderStateEventArgs mLatestRiderStateEventArgs;
         private TimeSpan mPlayerStateTime;                          // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
         private Dictionary<int, Zwifter> mZwifters;                 // Used if tracking PlayerEnteredWorld events
         private CancellationTokenSource mCancellationTokenSource;   // Used to cancel wait for event clock
+        private int mSimulationDistance;
+        private int mSimulationRoadTime;
+
+        private const bool SimulateRiderActivity = true;
+
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
         public event EventHandler<RiderStateEventArgs> HighResRiderStateEvent;
@@ -68,8 +74,10 @@ namespace ZwiftActivityMonitorV2
 
             PacketSmoothingTimer = new Timer(OnPacketSmoothingTimerCallback);
 
+            ActivitySimulationTimer = new Timer(ActivitySimulationTimerCallback);
+
             mZwifters = new Dictionary<int, Zwifter>();
-            mPlayerStateTime = new();
+            mPlayerStateTime = TimeSpan.Zero;
 
             Logger.LogInformation($"Class {this.GetType()} constructed.");
         }
@@ -96,57 +104,67 @@ namespace ZwiftActivityMonitorV2
 
             //mLastPlayerStateUpdate = DateTime.Now;
             EventsProcessed = 0;
-            mPlayerStateTime = new TimeSpan(0);
+            mPlayerStateTime = TimeSpan.Zero;
 
-            // Here we launch our own task to start monitoring.  It's not actually necessary
-            // but it does allow some extra logging of threads used for startup, shutdown, etc.
-            // You cannot wait for it to complete because it doesn't, at least not until stop is called.
-            // Plus, we want to see if an exception occurs during startup and properly re-throw it.
-            Task t = Task.Run(async() => 
+            if (!SimulateRiderActivity || IsDebugMode)
             {
-                try
-                {
-                    await StartMonitorAsync();//.ConfigureAwait(false);
-                }
-                catch
-                {
-                    throw;
-                }
-            });
 
-            // Since we're not waiting on the startup, sleep for a short time to let the startup thread run 
-            // and see if there were any exceptions.
-            Thread.Sleep(1000); 
-
-            if (t.Exception != null)
-            {
-                t.Exception.Handle((ex) =>
+                // Here we launch our own task to start monitoring.  It's not actually necessary
+                // but it does allow some extra logging of threads used for startup, shutdown, etc.
+                // You cannot wait for it to complete because it doesn't, at least not until stop is called.
+                // Plus, we want to see if an exception occurs during startup and properly re-throw it.
+                Task t = Task.Run(async () =>
+                {
+                    try
                     {
-                        throw (ex);
-                    });
-            }
+                        await StartMonitorAsync();//.ConfigureAwait(false);
+                }
+                    catch
+                    {
+                        throw;
+                    }
+                });
 
+                // Since we're not waiting on the startup, sleep for a short time to let the startup thread run 
+                // and see if there were any exceptions.
+                Thread.Sleep(1000);
 
-            //Thread.Sleep(1000); // just to make sure startup has had enough time
-
-            // Debug mode will operate a little differently than the regular game mode.
-            // When debug mode is on, we'll either pick the first INCOMING player's data to use, or try to match
-            // an INCOMING player's heartrate and power to the targetHR (+-2) and/or targetPower (+-10) parameters.
-            // We will then lock onto that PlayerId to filter out subsequent updates. This makes the testing more consistent. 
-            // This way it's possible to test event dispatch w/o having to be on the bike with power meter 
-            // and heart rate strap actually connected and outputting data.  Idea by Brad W.
-
-            if (IsDebugMode == true)
-            {
-                mTrackedPlayerId = 0; // reset
-                ZPMonitor.IncomingPlayerEvent += this.PlayerEventHandler;
+                if (t.Exception != null)
+                {
+                    t.Exception.Handle((ex) =>
+                        {
+                            throw (ex);
+                        });
+                }
+                
+                // Debug mode will operate a little differently than the regular game mode.
+                // When debug mode is on, we'll either pick the first INCOMING player's data to use, or try to match
+                // an INCOMING player's heartrate and power to the targetHR (+-2) and/or targetPower (+-10) parameters.
+                // We will then lock onto that PlayerId to filter out subsequent updates. This makes the testing more consistent. 
+                // This way it's possible to test event dispatch w/o having to be on the bike with power meter 
+                // and heart rate strap actually connected and outputting data.  Idea by Brad W.
+                if (IsDebugMode == true)
+                {
+                    mTrackedPlayerId = 0; // reset
+                    ZPMonitor.IncomingPlayerEvent += this.PlayerEventHandler;
+                }
+                else
+                {
+                    ZPMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
+                }
             }
             else
             {
-                ZPMonitor.OutgoingPlayerEvent += this.PlayerEventHandler;
+                ActivitySimulationTimer.Change(0, 333); // starts the timer, about 3 times / second
+                mSimulationDistance = 0;
+                mSimulationRoadTime = 0;
+
+                Logger.LogInformation($"ZwiftPacketMonitor starting in SIMULATION mode.");
             }
 
             PacketSmoothingTimer.Change(0, 1000); // starts the timer
+            mMonitorStartTime = DateTime.Now;
+
             this.IsZPMonitorStarted = true;
 
             this.OnZPMonitorServiceStatusChanged(this, new ZPMonitorServiceStatusChangedEventArgs(ZPMonitorServiceStatusChangedEventArgs.ActionType.Started));
@@ -157,20 +175,29 @@ namespace ZwiftActivityMonitorV2
 
         public void StopMonitor()
         {
+            this.IsZPMonitorStarted = false;
+
             PacketSmoothingTimer.Change(Timeout.Infinite, Timeout.Infinite); // stops the timer
 
-            if (IsDebugMode == true)
+            if (!SimulateRiderActivity || IsDebugMode)
             {
-                ZPMonitor.IncomingPlayerEvent -= this.PlayerEventHandler;
+                if (IsDebugMode == true)
+                {
+                    ZPMonitor.IncomingPlayerEvent -= this.PlayerEventHandler;
+                }
+                else
+                {
+                    ZPMonitor.OutgoingPlayerEvent -= this.PlayerEventHandler;
+                }
+
+                Task.Run(() => { StopMonitorAsync().Wait(); });
             }
             else
             {
-                ZPMonitor.OutgoingPlayerEvent -= this.PlayerEventHandler;
+                ActivitySimulationTimer.Change(Timeout.Infinite, Timeout.Infinite); // stops the timer
             }
 
-            Task.Run(() => { StopMonitorAsync().Wait(); });
-
-            this.IsZPMonitorStarted = false;
+            mMonitorStartTime = null;
             IsDebugMode = false;
             TargetHeartrate = 0;
             TargetPower = 0;
@@ -350,6 +377,9 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void PlayerEventHandler(object sender, PlayerStateEventArgs e)
         {
+            if (!IsZPMonitorStarted)
+                return;
+
             try
             {
                 if (IsDebugMode)
@@ -390,11 +420,13 @@ namespace ZwiftActivityMonitorV2
                 {
                     // Lock is used to avoid contention between threads (this thread and the timer callback thread)
                     mPlayerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
-                    mLatestPlayerStateEventArgs = e;
+                    mLatestRiderStateEventArgs = new RiderStateEventArgs(e, mCollectionStartTime);
+                    //mLatestPlayerStateEventArgs = e;
                 }
 
                 // For some applications we might want to see every packet, so provide a high-resolution event.
-                OnHighResRiderStateEvent(new RiderStateEventArgs(e, mCollectionStartTime));
+                OnHighResRiderStateEvent(mLatestRiderStateEventArgs);
+                //OnHighResRiderStateEvent(new RiderStateEventArgs(e, mCollectionStartTime));
             }
             catch (Exception ex)
             {
@@ -408,32 +440,78 @@ namespace ZwiftActivityMonitorV2
         /// <param name="state"></param>
         private void OnPacketSmoothingTimerCallback(object state)
         {
+            if (!IsZPMonitorStarted)
+                return;
+
             RiderStateEventArgs riderState = null;
 
             lock(this)
             {
-                if (mLatestPlayerStateEventArgs != null)
+                if (mLatestRiderStateEventArgs != null)
                 {
-                    riderState = new RiderStateEventArgs(mLatestPlayerStateEventArgs, mCollectionStartTime);
-                    mLatestPlayerStateEventArgs = null;
+                    riderState = mLatestRiderStateEventArgs;
+                    mLatestRiderStateEventArgs = null;
                 }
+                //if (mLatestPlayerStateEventArgs != null)
+                //{
+                //    riderState = new RiderStateEventArgs(mLatestPlayerStateEventArgs, mCollectionStartTime);
+                //    mLatestPlayerStateEventArgs = null;
+                //}
             }
 
             if (riderState != null)
             {
                 if (IsDebugMode)
                 {
-                    Logger.LogInformation($"TRACING-INCOMING: PlayerId: {riderState.Id}, Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
+                    Logger.LogInformation($"TRACING-INCOMING: {riderState}");
                 }
                 else
                 {
-                    Logger.LogInformation($"TRACING-OUTGOING: Power: {riderState.Power}, HeartRate: {riderState.Heartrate}, Distance: {riderState.Distance}, Time: {riderState.Time}, Course: {riderState.Course}, RoadId: {riderState.RoadId}, IsForward: {riderState.IsForward}, RoadTime: {riderState.RoadTime}");
+                    Logger.LogInformation($"TRACING-OUTGOING: {riderState}");
                 }
 
                 EventsProcessed++;
 
                 OnRiderStateEvent(riderState);
             }
+        }
+
+
+        /// <summary>
+        /// Simulate rider activity, should be called 2-3 times per second
+        /// </summary>
+        /// <param name="state"></param>
+        private void ActivitySimulationTimerCallback(object state)
+        {
+            if (!IsZPMonitorStarted)
+                return;
+
+            Random r = new();
+
+            this.mSimulationDistance += r.Next(3, 7); // Should increase about 10..20 per second
+            this.mSimulationRoadTime += r.Next(500, 850); // Should increase about 1500..2500 per second
+
+            RiderStateEventArgs e = new RiderStateEventArgs(mCollectionStartTime)
+            {
+                Id = 422258,
+                Power = r.Next(150, 251),
+                Heartrate = r.Next(130, 151),
+                Distance = mSimulationDistance,
+                RoadId = 1,
+                IsForward = true,
+                Course = 6,
+                RoadTime = mSimulationRoadTime,
+            };
+
+            lock (this)
+            {
+                // Lock is used to avoid contention between threads (this thread and the timer callback thread)
+                mPlayerStateTime = DateTime.Now - mMonitorStartTime.Value;
+                mLatestRiderStateEventArgs = e;
+            }
+
+            // For some applications we might want to see every packet, so provide a high-resolution event.
+            OnHighResRiderStateEvent(e);
         }
 
         /// <summary>
