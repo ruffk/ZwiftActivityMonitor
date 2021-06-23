@@ -55,6 +55,29 @@ namespace ZwiftActivityMonitorV2
                     PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
                 }
             }
+
+            /// <summary>
+            /// Conditionally updates a property only if the value has actually changed.  If so, NotifyPropertyChanged is also called.
+            /// This is to save on updates to the DataGridView.
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="property"></param>
+            /// <param name="valueToSet"></param>
+            /// <param name="propertyName"></param>
+            protected bool SetProperty<T>(ref T property, T valueToSet, [CallerMemberName] string propertyName = "")
+            {
+                if (property == null || !property.Equals(valueToSet))
+                {
+                    //Debug.WriteLine($"SetProperty<T> NOT EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
+
+                    property = valueToSet;
+                    this.NotifyPropertyChanged(propertyName);
+                    return true;
+                }
+                //else Debug.WriteLine($"SetProperty<T> EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
+                return false;
+            }
+
         }
 
         #region DetailRow class
@@ -62,23 +85,20 @@ namespace ZwiftActivityMonitorV2
         protected class DetailRow : NotifyPropertyChangedBase
         {
             //Add the [Browsable(false)] attribute to any public properties you don't want columns created for in the DataGridView
-
             public string Period { get; set; }
             public int PeriodSecs { get; set; }
-            public string AP { get { return this.mAP; } set { this.mAP = value; this.NotifyPropertyChanged(); } }
-            public string APmax { get { return this.mAPmax; } set { this.mAPmax = value; this.NotifyPropertyChanged(); } }
-            public string FTP { get { return this.mFTP; } set { this.mFTP = value; this.NotifyPropertyChanged(); } }
-            public string HR { get { return this.mHR; } set { this.mHR = value; this.NotifyPropertyChanged(); } }
+            public string AP { get { return this.mAP; } set { this.SetProperty<string>(ref this.mAP, value); } }
+            public string APmax { get { return this.mAPmax; } set { this.SetProperty<string>(ref this.mAPmax, value); } }
+            public string FTP { get { return this.mFTP; } set { this.SetProperty<string>(ref this.mFTP, value); } }
+            public string HR { get { return this.mHR; } set { this.SetProperty<string>(ref this.mHR, value); } }
             public string Blank { get; set; }
             public PowerDisplayType AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
                 set
                 {
-                    this.mAP_PowerDisplayType = value;
+                    this.SetProperty<PowerDisplayType>(ref this.mAP_PowerDisplayType, value);
                     UpdateAP(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
             public PowerDisplayType APmax_PowerDisplayType
@@ -86,10 +106,8 @@ namespace ZwiftActivityMonitorV2
                 get { return this.mAPmax_PowerDisplayType; }
                 set
                 {
-                    this.mAPmax_PowerDisplayType = value;
+                    this.SetProperty<PowerDisplayType>(ref this.mAPmax_PowerDisplayType, value);
                     UpdateAPmax(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
             public PowerDisplayType FTP_PowerDisplayType
@@ -97,10 +115,8 @@ namespace ZwiftActivityMonitorV2
                 get { return this.mFTP_PowerDisplayType; }
                 set
                 {
-                    this.mFTP_PowerDisplayType = value;
+                    this.SetProperty<PowerDisplayType>(ref this.mFTP_PowerDisplayType, value);
                     UpdateFTP(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
 
@@ -113,14 +129,18 @@ namespace ZwiftActivityMonitorV2
             private string mHR;
 
             private int mAPwatts;
-            private double mAPwattsPerKg;
+            private double? mAPwattsPerKg;
             private int mAPwattsMax;
-            private double mAPwattsPerKgMax;
+            private double? mAPwattsPerKgMax;
             private int mFTPwatts;
-            private double mFTPwattsPerKg;
+            private double? mFTPwattsPerKg;
             private int mHRbpm;
             private MeasurementSystemType mCurrentMeasurementSystemType = MeasurementSystemType.Imperial;
             private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
+
+            [Browsable(false)]
+            public bool IsRowVisible { get; set; }
+
 
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
@@ -141,13 +161,21 @@ namespace ZwiftActivityMonitorV2
                 this.UpdateFTP(this.mCurrentPowerDisplayType);
             }
 
+            public PowerDisplayType GetPreferredType(PowerDisplayType currentType)
+            {
+                PowerDisplayType preferredType = currentType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : currentType;
+
+                return preferredType;
+            }
+
+
             /// <summary>
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
             private void UpdateAP(PowerDisplayType updatedType)
             {
-                PowerDisplayType preferredType = this.AP_PowerDisplayType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : this.AP_PowerDisplayType;
+                PowerDisplayType preferredType = GetPreferredType(this.AP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
@@ -158,7 +186,7 @@ namespace ZwiftActivityMonitorV2
                             break;
 
                         case PowerDisplayType.WattsPerKg:
-                            this.AP = this.APwattsPerKg > 0 ? this.APwattsPerKg.ToString("#.00") : "";
+                            this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
@@ -174,7 +202,7 @@ namespace ZwiftActivityMonitorV2
             /// <param name="updatedType"></param>
             private void UpdateAPmax(PowerDisplayType updatedType)
             {
-                PowerDisplayType preferredType = this.APmax_PowerDisplayType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : this.APmax_PowerDisplayType;
+                PowerDisplayType preferredType = GetPreferredType(this.APmax_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
@@ -185,7 +213,7 @@ namespace ZwiftActivityMonitorV2
                             break;
 
                         case PowerDisplayType.WattsPerKg:
-                            this.APmax = this.APwattsPerKgMax > 0 ? this.APwattsPerKgMax.ToString("#.00") : "";
+                            this.APmax = this.APwattsPerKgMax.HasValue ? this.APwattsPerKgMax.Value.ToString("#.00") : "";
                             break;
                     }
                 }
@@ -201,7 +229,7 @@ namespace ZwiftActivityMonitorV2
             /// <param name="updatedType"></param>
             private void UpdateFTP(PowerDisplayType updatedType)
             {
-                PowerDisplayType preferredType = this.FTP_PowerDisplayType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : this.FTP_PowerDisplayType;
+                PowerDisplayType preferredType = GetPreferredType(this.FTP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
@@ -212,7 +240,7 @@ namespace ZwiftActivityMonitorV2
                             break;
 
                         case PowerDisplayType.WattsPerKg:
-                            this.FTP = this.FTPwattsPerKg > 0 ? this.FTPwattsPerKg.ToString("#.00") : "";
+                            this.FTP = this.FTPwattsPerKg.HasValue ? this.FTPwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
@@ -250,7 +278,7 @@ namespace ZwiftActivityMonitorV2
             /// Saves the value privately and updates the displayed field if the units match
             /// </summary>
             [Browsable(false)]
-            public double APwattsPerKg
+            public double? APwattsPerKg
             {
                 get { return this.mAPwattsPerKg; }
                 set
@@ -278,7 +306,7 @@ namespace ZwiftActivityMonitorV2
             /// Saves the value privately and updates the displayed field if the units match
             /// </summary>
             [Browsable(false)]
-            public double APwattsPerKgMax
+            public double? APwattsPerKgMax
             {
                 get { return this.mAPwattsPerKgMax; }
                 set
@@ -306,7 +334,7 @@ namespace ZwiftActivityMonitorV2
             /// Saves the value privately and updates the displayed field if the units match
             /// </summary>
             [Browsable(false)]
-            public double FTPwattsPerKg
+            public double? FTPwattsPerKg
             {
                 get { return this.mFTPwattsPerKg; }
                 set
@@ -329,6 +357,7 @@ namespace ZwiftActivityMonitorV2
                     this.UpdateHR();
                 }
             }
+
         }
 
         #endregion
@@ -339,21 +368,19 @@ namespace ZwiftActivityMonitorV2
 
         protected class SummaryRow : NotifyPropertyChangedBase
         {
-            public string AS { get { return this.mAS; } set { this.mAS = value; this.NotifyPropertyChanged(); } }
-            public string AP { get { return this.mAP; } set { this.mAP = value; this.NotifyPropertyChanged(); } }
-            public string NP { get { return this.mNP; } set { this.mNP = value; this.NotifyPropertyChanged(); } }
-            public string IF { get { return this.mIF; } set { this.mIF = value; this.NotifyPropertyChanged(); } }
-            public string TSS { get { return this.mTSS; } set { this.mTSS = value; this.NotifyPropertyChanged(); } }
+            public string AS { get { return this.mAS; } set { this.SetProperty<string>(ref this.mAS, value); } }
+            public string AP { get { return this.mAP; } set { this.SetProperty<string>(ref this.mAP, value); } }
+            public string NP { get { return this.mNP; } set { this.SetProperty<string>(ref this.mNP, value); } }
+            public string IF { get { return this.mIF; } set { this.SetProperty<string>(ref this.mIF, value); } }
+            public string TSS { get { return this.mTSS; } set { this.SetProperty<string>(ref this.mTSS, value); } }
             public string Blank { get; set; }
             public PowerDisplayType AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
                 set
                 {
-                    this.mAP_PowerDisplayType = value;
+                    this.SetProperty<PowerDisplayType>(ref this.mAP_PowerDisplayType, value);
                     UpdateAP(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
             public PowerDisplayType NP_PowerDisplayType
@@ -361,10 +388,8 @@ namespace ZwiftActivityMonitorV2
                 get { return this.mNP_PowerDisplayType; }
                 set
                 {
-                    this.mNP_PowerDisplayType = value;
+                    this.SetProperty<PowerDisplayType>(ref this.mNP_PowerDisplayType, value);
                     UpdateNP(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
             public SpeedDisplayType AS_SpeedDisplayType
@@ -372,10 +397,8 @@ namespace ZwiftActivityMonitorV2
                 get { return this.mAS_SpeedDisplayType; }
                 set
                 {
-                    this.mAS_SpeedDisplayType = value;
+                    this.SetProperty<SpeedDisplayType>(ref this.mAS_SpeedDisplayType, value);
                     UpdateAS(value);
-
-                    this.NotifyPropertyChanged();
                 }
             }
 
@@ -389,7 +412,7 @@ namespace ZwiftActivityMonitorV2
             private string mTSS;
 
             private int mAPwatts;
-            private double mAPwattsPerKg;
+            private double? mAPwattsPerKg;
             private int mNPwatts;
             private double? mNPwattsPerKg;
             private double mSpeedKph;
@@ -449,7 +472,7 @@ namespace ZwiftActivityMonitorV2
                             break;
 
                         case PowerDisplayType.WattsPerKg:
-                            this.AP = this.APwattsPerKg > 0 ? this.APwattsPerKg.ToString("#.00") : "";
+                            this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
@@ -532,7 +555,7 @@ namespace ZwiftActivityMonitorV2
             /// Saves the value privately and updates the displayed field if the units match
             /// </summary>
             [Browsable(false)]
-            public double APwattsPerKg
+            public double? APwattsPerKg
             {
                 get { return this.mAPwattsPerKg; }
                 set
@@ -603,6 +626,7 @@ namespace ZwiftActivityMonitorV2
 
         private BindingList<SummaryRow> SummaryRows = new();
 
+        #region SyncBindingSource class
 
         /// <summary>
         /// Since the DataGridView is getting updated on non-gui threads, we're using a syncronized binding source to marshall the updates.  See link for details.
@@ -633,6 +657,8 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        #endregion
+
 
         private SyncBindingSource DetailBindingSource { get; set; }
         private SyncBindingSource SummaryBindingSource { get; set; }
@@ -660,6 +686,8 @@ namespace ZwiftActivityMonitorV2
                 {
                     this.DetailDataRow.APwattsMax = e.APwattsMax;
                     this.DetailDataRow.APwattsPerKgMax = e.APwattsPerKgMax;
+                    this.DetailDataRow.FTPwatts = e.FTPwattsMax;
+                    this.DetailDataRow.FTPwattsPerKg = e.FTPwattsPerKgMax;
                 }
 
                 private void MAcollector_MovingAverageChangedEvent(object sender, MovingAverageChangedEventArgs e)
@@ -667,6 +695,12 @@ namespace ZwiftActivityMonitorV2
                     this.DetailDataRow.APwatts = e.APwatts;
                     this.DetailDataRow.APwattsPerKg = e.APwattsPerKg;
                     this.DetailDataRow.HRbpm = e.HRbpm;
+
+                    if (!e.ignoreFTP)
+                    {
+                        this.DetailDataRow.FTPwatts = e.FTPwatts;
+                        this.DetailDataRow.FTPwattsPerKg = e.FTPwattsPerKg;
+                    }
                 }
             }
 
@@ -674,7 +708,7 @@ namespace ZwiftActivityMonitorV2
             {
             }
 
-            private readonly ActivityViewerControl Parent;
+            private ActivityViewerControl mParent;
 
             private CollectorAttributesCollection mCollectorAttributes = new();
             private NormalizedPower mNormalizedPower;
@@ -683,10 +717,8 @@ namespace ZwiftActivityMonitorV2
             //public event EventHandler<EventArgs> SomeEvent;
 
 
-            public MovingAverageManager(ActivityViewerControl parent)
+            public MovingAverageManager()
             {
-                this.Parent = parent;
-
                 // Create a CollectorAttributes class for each DurationType enum
                 foreach (var kvp in EnumManager.DurationTypeEnum.ToList())
                 {
@@ -700,14 +732,27 @@ namespace ZwiftActivityMonitorV2
                 mNormalizedPower.NormalizedPowerChangedEvent += NormalizedPower_NormalizedPowerChangedEvent;
                 mNormalizedPower.MetricsChangedEvent += NormalizedPower_MetricsChangedEvent;
                 ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
-
-                MainForm mainForm = parent.ParentForm as MainForm;
-                if (mainForm != null)
-                {
-                    mainForm.FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
-                }
-
             }
+
+            public ActivityViewerControl Parent
+            {
+                get { return this.mParent; }
+                set 
+                {
+                    this.mParent = value;
+
+                    MainForm mainForm = this.Parent.ParentForm as MainForm;
+
+                    Debug.Assert(mainForm != null, $"MovingAverageManager - Set Parent - MainForm is null");
+                    
+                    if (mainForm != null)
+                    {
+                        mainForm.FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
+                    }
+
+                }
+            }
+
             public SummaryRow SummaryDataRow 
             { 
                 get { return this.mSummaryRow; }
@@ -725,7 +770,7 @@ namespace ZwiftActivityMonitorV2
             {
                 SummaryRow row = sender as SummaryRow;
 
-                if (row == null)
+                if (row == null || this.Parent == null)
                     return;
 
                 if (e.PropertyName == SummaryColumn.AS.ToString())
@@ -768,7 +813,7 @@ namespace ZwiftActivityMonitorV2
             private void NormalizedPower_MetricsChangedEvent(object sender, MetricsChangedEventArgs e)
             {
                 this.SummaryDataRow.APwatts = e.APwatts;
-                this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg;
+                this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg; ;
                 this.SummaryDataRow.SpeedKph = e.SpeedKph;
                 this.SummaryDataRow.SpeedMph = e.SpeedMph;
             }
@@ -813,6 +858,11 @@ namespace ZwiftActivityMonitorV2
             //Debug.WriteLine($"ActivityViewerControl_ctor started...");
             InitializeComponent();
 
+            mMovingAverageManager = new();
+
+            InitializeDetailDataGrid();
+            InitializeSummaryDataGrid();
+
             // Subscribe to any SystemConfig changes
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
@@ -836,15 +886,13 @@ namespace ZwiftActivityMonitorV2
         {
             Debug.WriteLine($"ActivityViewerControl_Load");
 
-            mMovingAverageManager = new(this);
-
-            InitializeDetailDataGrid();
-
-            InitializeSummaryDataGrid();
-
             // Get the currently selected user
             this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
 
+            // Get the MovingAverageManager access to this control
+            mMovingAverageManager.Parent = this;
+
+            this.SetRowVisibilityStatus();
 
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
@@ -1041,10 +1089,11 @@ namespace ZwiftActivityMonitorV2
 
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            //Debug.WriteLine($"dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
-
             if (e.ListChangedType == ListChangedType.Reset)
-                this.SetRowVisibilityStatus();
+                Debug.WriteLine($"dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
+
+            //if (e.ListChangedType == ListChangedType.Reset)
+            //    this.SetRowVisibilityStatus();
 
         }
 
@@ -1065,6 +1114,9 @@ namespace ZwiftActivityMonitorV2
                 int? value = list.Cast<int?>().FirstOrDefault(n => n == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
                 if (!value.HasValue)
                     r.Visible = false;
+
+                // keep track of status
+                DetailRows[i].IsRowVisible = r.Visible;
 
                 //Collector c = CurrentUserProfile.GetCollectors.FirstOrDefault(c => c.DurationSecs == (int)r.Cells[(int)DetailColumn.PeriodSecs].Value);
                 //if (c == null)
@@ -1272,8 +1324,12 @@ namespace ZwiftActivityMonitorV2
                 // Place the CurrentCell on a valid (visible) cell
                 // Failing to do this will make the row reappear when it is next updated.  (BindingSource.Position being on a hidden row is a bad thing).
                 dgDetail.CurrentCell = dgDetail.FirstDisplayedCell;
+
+                // keep track of status
+                DetailRows[itemTag.Value].IsRowVisible = item.Checked;
             }
         }
+
         private void powerContextMenu_CheckStateChanged(object sender, EventArgs e)
         {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
@@ -1287,6 +1343,8 @@ namespace ZwiftActivityMonitorV2
                 dataGridView[powerDisplayColumnIndex, rowIndex].Value = (PowerDisplayType)powerDisplayType;
             }
         }
+
+
         private void speedContextMenu_CheckStateChanged(object sender, EventArgs e)
         {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;

@@ -25,11 +25,14 @@ namespace ZwiftActivityMonitorV2
 
         public event EventHandler<ColorsAndFontChangedEventArgs> ColorsAndFontChanged;
 
+        private ToolTip mToolTip = new();
+
 
         public ColorAndFontViewerControl()
         {
             InitializeComponent();
 
+            
             //Appearance.InitializeDefaultValues();
 
             this.cbFonts.Fill();
@@ -41,17 +44,38 @@ namespace ZwiftActivityMonitorV2
 
         private void ColorAndFontViewControl_Load(object sender, EventArgs e)
         {
+            ZAMappearance settings = ZAMsettings.Settings.Appearance;
+
             this.BeginInitializingControls();
+
+            cbTheme.DataSource = new BindingSource(settings.ThemeItems, null);
+
+            cbTransparency.DataSource = new BindingSource(settings.TransparencyItems, null);
+
+            this.EndInitializingControls();
+
+            sfToolTip.SetToolTip(this.btnAccept, "Save and apply selections.");
+        }
+
+        /// <summary>
+        /// This control behaves a bit differently from the configuration tabs.  It always initializes itself to whatever the current settings are.
+        /// If the user switches tabs without saving, there is no warning and selections are lost.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public override void ControlGainingFocus(object sender, EventArgs e)
+        {
+            base.ControlGainingFocus(sender, e);
 
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
+            this.BeginInitializingControls();
+
             nudFontSize.Value = (int)settings.FontSize;
 
-            cbTheme.DataSource = new BindingSource(settings.ThemeItems, null);
             if (settings.Theme.HasValue)
                 cbTheme.SelectedValue = settings.Theme.Value.Value;
 
-            cbTransparency.DataSource = new BindingSource(settings.TransparencyItems, null);
             if (settings.Transparency.HasValue)
                 cbTransparency.SelectedValue = settings.Transparency.Value.Value;
 
@@ -64,10 +88,14 @@ namespace ZwiftActivityMonitorV2
             this.EndInitializingControls();
         }
 
+        /// <summary>
+        /// While initializing, the controls won't update.  This is used during initial setup of the control.
+        /// </summary>
         private void BeginInitializingControls()
         {
             this.InitializingControls = true;
         }
+
 
         private void EndInitializingControls()
         {
@@ -246,8 +274,7 @@ namespace ZwiftActivityMonitorV2
             // The MainForm listens for this event so it can refresh all colors
             this.OnColorsAndFontChanged(args);
 
-            MessageBoxAdv.Office2010Theme = Office2010Theme.Blue;
-            MessageBoxAdv.Show("Configuration saved successfully.", "Appearance Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.sfToolTip.Show("Configuration saved.", Cursor.Position, 2000);
         }
 
         private void OnColorsAndFontChanged(ColorsAndFontChangedEventArgs e)

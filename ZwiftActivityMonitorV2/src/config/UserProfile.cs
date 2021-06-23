@@ -8,8 +8,6 @@ using Newtonsoft.Json;
 
 namespace ZwiftActivityMonitorV2
 {
-
-
     public class UserCollector
     {
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
@@ -18,7 +16,32 @@ namespace ZwiftActivityMonitorV2
         public KeyValuePair<PowerDisplayType, string>? APmax_PowerDisplay { get; set; }
         public KeyValuePair<PowerDisplayType, string>? FTP_PowerDisplay { get; set; }
 
+        public bool IsVisible { get; set; }
 
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// During validation, just the Key is checked for validity.
+        /// </summary>
+        //[JsonIgnore]
+        //public DurationType DurationSetting
+        //{
+        //    get { return Duration.Value.Key; }
+        //    set
+        //    {
+        //        if (!EnumManager.DurationTypeEnum.ContainsKey(value))
+        //            throw new FormatException("DistanceUomType key not found.");
+
+        //        Duration = m_uomItemList[value];
+        //    }
+        //}
+
+    }
+
+    public class UserCollectorMetric
+    {
+        public KeyValuePair<CollectorMetricType, string>? Metric { get; set; }
+
+        public bool IsVisible { get; set; }
     }
 
     public class UserProfile : ConfigItemBase, ICloneable

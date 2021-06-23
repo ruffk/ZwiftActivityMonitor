@@ -67,6 +67,49 @@ namespace ZwiftActivityMonitorV2
         TransparentWhiteText
     }
 
+
+    public enum CollectorMetricType
+    {
+        AP,
+        APmax,
+        FTP,
+        HR
+    }
+
+    public class CollectorMetricTypeEnum
+    {
+        static private Dictionary<CollectorMetricType, string> _List = new();
+
+        static CollectorMetricTypeEnum()
+        {
+            _List.Add(CollectorMetricType.AP, "AP");
+            _List.Add(CollectorMetricType.APmax, "AP (Max)");
+            _List.Add(CollectorMetricType.FTP, "FTP");
+            _List.Add(CollectorMetricType.HR, "HR");
+        }
+
+        static public List<KeyValuePair<CollectorMetricType, string>> ToList()
+        {
+            List<KeyValuePair<CollectorMetricType, string>> list = new();
+
+            foreach (var key in _List.Keys)
+                list.Add(new KeyValuePair<CollectorMetricType, string>(key, _List[key]));
+
+            return list;
+        }
+
+        static public List<string> Values
+        {
+            get { return _List.Values.ToList<string>(); }
+        }
+
+        static public string GetItem(CollectorMetricType key)
+        {
+            return _List[key];
+        }
+    }
+
+
     public class EnumManager
     {
         public class DurationTypeEnum
@@ -211,31 +254,41 @@ namespace ZwiftActivityMonitorV2
     public class MovingAverageChangedEventArgs : EventArgs
     {
         public int APwatts { get; }
+        public double? APwattsPerKg { get; }
         public int HRbpm { get; }
         public DurationType DurationType { get; }
-        public double APwattsPerKg { get; }
+        public int FTPwatts { get; }
+        public double? FTPwattsPerKg { get; }
+        public bool ignoreFTP { get; }
 
-        public MovingAverageChangedEventArgs(int apWatts, int hrBpm, DurationType durationType, double apWattsPerKg)
+        public MovingAverageChangedEventArgs(int apWatts, double? apWattsPerKg, int hrBpm, DurationType durationType, int ftpWatts, double? ftpWattsPerKg, bool ignoreFTP)
         {
             this.APwatts = apWatts;
+            this.APwattsPerKg = apWattsPerKg;
             this.HRbpm = hrBpm;
             this.DurationType = durationType;
-            this.APwattsPerKg = apWattsPerKg;
+            this.FTPwatts = ftpWatts;
+            this.FTPwattsPerKg = ftpWattsPerKg;
+            this.ignoreFTP = ignoreFTP;
         }
     }
     public class MovingAverageMaxChangedEventArgs : EventArgs
     {
         public int APwattsMax { get; }
+        public double? APwattsPerKgMax { get; }
         public int HRbpmMax { get; }
         public DurationType DurationType { get; }
-        public double APwattsPerKgMax { get; }
+        public int FTPwattsMax { get; }
+        public double? FTPwattsPerKgMax { get; }
 
-        public MovingAverageMaxChangedEventArgs(int apWattsMax, int hrBpmMax, DurationType durationType, double apWattsPerKgMax)
+        public MovingAverageMaxChangedEventArgs(int apWattsMax, double? apWattsPerKgMax, int hrBpmMax, DurationType durationType, int ftpWattsMax, double? ftpWattsPerKgMax)
         {
             this.APwattsMax = apWattsMax;
+            this.APwattsPerKgMax = apWattsPerKgMax;
             this.HRbpmMax = hrBpmMax;
             this.DurationType = durationType;
-            this.APwattsPerKgMax = apWattsPerKgMax;
+            this.FTPwattsMax = ftpWattsMax;
+            this.FTPwattsPerKgMax = ftpWattsPerKgMax;
         }
 
     }
@@ -258,13 +311,13 @@ namespace ZwiftActivityMonitorV2
         public double SpeedKph { get; }
         public double SpeedMph { get; }
         public int APwatts { get; }
-        public double APwattsPerKg { get; }
+        public double? APwattsPerKg { get; }
 
         public TimeSpan ElapsedTime { get; }
         public double DistanceKm { get; }
         public double DistanceMi { get; }
 
-        public MetricsCalculatedEventArgs(int apWatts, double apWattsPerKg, double speedKph, double speedMph, TimeSpan elapsedTime, double distanceKm, double distanceMi)
+        public MetricsCalculatedEventArgs(int apWatts, double? apWattsPerKg, double speedKph, double speedMph, TimeSpan elapsedTime, double distanceKm, double distanceMi)
         {
             this.APwatts = apWatts;
             this.APwattsPerKg = apWattsPerKg;
@@ -297,9 +350,9 @@ namespace ZwiftActivityMonitorV2
         public double SpeedKph { get; }
         public double SpeedMph { get; }
         public int APwatts { get; }
-        public double APwattsPerKg { get; }
+        public double? APwattsPerKg { get; }
 
-        public MetricsChangedEventArgs(double speedKph, double speedMph, int apWatts, double apWattsPerKg)
+        public MetricsChangedEventArgs(double speedKph, double speedMph, int apWatts, double? apWattsPerKg)
         {
             this.SpeedKph = speedKph;
             this.SpeedMph = speedMph;

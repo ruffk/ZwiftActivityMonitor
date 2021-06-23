@@ -43,6 +43,7 @@ namespace ZwiftActivityMonitorV2
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnAccept = new System.Windows.Forms.Button();
             this.cbTransparency = new System.Windows.Forms.ComboBox();
+            this.sfToolTip = new Syncfusion.Windows.Forms.SfToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.nudFontSize)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -261,5 +262,6 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnAccept;
         private System.Windows.Forms.ComboBox cbTransparency;
+        private Syncfusion.Windows.Forms.SfToolTip sfToolTip;
     }
 }
