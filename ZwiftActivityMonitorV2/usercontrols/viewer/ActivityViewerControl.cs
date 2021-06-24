@@ -92,38 +92,38 @@ namespace ZwiftActivityMonitorV2
             public string FTP { get { return this.mFTP; } set { this.SetProperty<string>(ref this.mFTP, value); } }
             public string HR { get { return this.mHR; } set { this.SetProperty<string>(ref this.mHR, value); } }
             public string Blank { get; set; }
-            public PowerDisplayType AP_PowerDisplayType
+            public PowerDisplayEnum.Keys AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
                 set
                 {
-                    this.SetProperty<PowerDisplayType>(ref this.mAP_PowerDisplayType, value);
+                    this.SetProperty<PowerDisplayEnum.Keys>(ref this.mAP_PowerDisplayType, value);
                     UpdateAP(value);
                 }
             }
-            public PowerDisplayType APmax_PowerDisplayType
+            public PowerDisplayEnum.Keys APmax_PowerDisplayType
             {
                 get { return this.mAPmax_PowerDisplayType; }
                 set
                 {
-                    this.SetProperty<PowerDisplayType>(ref this.mAPmax_PowerDisplayType, value);
+                    this.SetProperty<PowerDisplayEnum.Keys>(ref this.mAPmax_PowerDisplayType, value);
                     UpdateAPmax(value);
                 }
             }
-            public PowerDisplayType FTP_PowerDisplayType
+            public PowerDisplayEnum.Keys FTP_PowerDisplayType
             {
                 get { return this.mFTP_PowerDisplayType; }
                 set
                 {
-                    this.SetProperty<PowerDisplayType>(ref this.mFTP_PowerDisplayType, value);
+                    this.SetProperty<PowerDisplayEnum.Keys>(ref this.mFTP_PowerDisplayType, value);
                     UpdateFTP(value);
                 }
             }
 
             private string mAP;
-            private PowerDisplayType mAP_PowerDisplayType;
-            private PowerDisplayType mAPmax_PowerDisplayType;
-            private PowerDisplayType mFTP_PowerDisplayType;
+            private PowerDisplayEnum.Keys mAP_PowerDisplayType;
+            private PowerDisplayEnum.Keys mAPmax_PowerDisplayType;
+            private PowerDisplayEnum.Keys mFTP_PowerDisplayType;
             private string mAPmax;
             private string mFTP;
             private string mHR;
@@ -136,7 +136,7 @@ namespace ZwiftActivityMonitorV2
             private double? mFTPwattsPerKg;
             private int mHRbpm;
             private MeasurementSystemType mCurrentMeasurementSystemType = MeasurementSystemType.Imperial;
-            private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
+            private PowerDisplayEnum.Keys mCurrentPowerDisplayType = PowerDisplayEnum.Keys.Watts;
 
             [Browsable(false)]
             public bool IsRowVisible { get; set; }
@@ -149,11 +149,11 @@ namespace ZwiftActivityMonitorV2
 
                 if (type == MeasurementSystemType.Imperial)
                 {
-                    this.mCurrentPowerDisplayType = PowerDisplayType.Watts;
+                    this.mCurrentPowerDisplayType = PowerDisplayEnum.Keys.Watts;
                 }
                 else
                 {
-                    this.mCurrentPowerDisplayType = PowerDisplayType.WattsPerKg;
+                    this.mCurrentPowerDisplayType = PowerDisplayEnum.Keys.WattsPerKg;
                 }
 
                 this.UpdateAP(this.mCurrentPowerDisplayType);
@@ -161,9 +161,9 @@ namespace ZwiftActivityMonitorV2
                 this.UpdateFTP(this.mCurrentPowerDisplayType);
             }
 
-            public PowerDisplayType GetPreferredType(PowerDisplayType currentType)
+            public PowerDisplayEnum.Keys GetPreferredType(PowerDisplayEnum.Keys currentType)
             {
-                PowerDisplayType preferredType = currentType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : currentType;
+                PowerDisplayEnum.Keys preferredType = currentType == PowerDisplayEnum.Keys.Both ? this.mCurrentPowerDisplayType : currentType;
 
                 return preferredType;
             }
@@ -173,24 +173,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateAP(PowerDisplayType updatedType)
+            private void UpdateAP(PowerDisplayEnum.Keys updatedType)
             {
-                PowerDisplayType preferredType = GetPreferredType(this.AP_PowerDisplayType);
+                PowerDisplayEnum.Keys preferredType = GetPreferredType(this.AP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case PowerDisplayType.Watts:
+                        case PowerDisplayEnum.Keys.Watts:
                             this.AP = this.APwatts > 0 ? this.APwatts.ToString() : "";
                             break;
 
-                        case PowerDisplayType.WattsPerKg:
+                        case PowerDisplayEnum.Keys.WattsPerKg:
                             this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
-                else if (preferredType == PowerDisplayType.None)
+                else if (preferredType == PowerDisplayEnum.Keys.None)
                 {
                     this.AP = "";
                 }
@@ -200,24 +200,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateAPmax(PowerDisplayType updatedType)
+            private void UpdateAPmax(PowerDisplayEnum.Keys updatedType)
             {
-                PowerDisplayType preferredType = GetPreferredType(this.APmax_PowerDisplayType);
+                PowerDisplayEnum.Keys preferredType = GetPreferredType(this.APmax_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case PowerDisplayType.Watts:
+                        case PowerDisplayEnum.Keys.Watts:
                             this.APmax = this.APwattsMax > 0 ? this.APwattsMax.ToString() : "";
                             break;
 
-                        case PowerDisplayType.WattsPerKg:
+                        case PowerDisplayEnum.Keys.WattsPerKg:
                             this.APmax = this.APwattsPerKgMax.HasValue ? this.APwattsPerKgMax.Value.ToString("#.00") : "";
                             break;
                     }
                 }
-                else if (preferredType == PowerDisplayType.None)
+                else if (preferredType == PowerDisplayEnum.Keys.None)
                 {
                     this.APmax = "";
                 }
@@ -227,24 +227,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateFTP(PowerDisplayType updatedType)
+            private void UpdateFTP(PowerDisplayEnum.Keys updatedType)
             {
-                PowerDisplayType preferredType = GetPreferredType(this.FTP_PowerDisplayType);
+                PowerDisplayEnum.Keys preferredType = GetPreferredType(this.FTP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case PowerDisplayType.Watts:
+                        case PowerDisplayEnum.Keys.Watts:
                             this.FTP = this.FTPwatts > 0 ? this.FTPwatts.ToString() : "";
                             break;
 
-                        case PowerDisplayType.WattsPerKg:
+                        case PowerDisplayEnum.Keys.WattsPerKg:
                             this.FTP = this.FTPwattsPerKg.HasValue ? this.FTPwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
-                else if (preferredType == PowerDisplayType.None)
+                else if (preferredType == PowerDisplayEnum.Keys.None)
                 {
                     this.FTP = "";
                 }
@@ -270,7 +270,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwatts = value;
-                    this.UpdateAP(PowerDisplayType.Watts);
+                    this.UpdateAP(PowerDisplayEnum.Keys.Watts);
                 }
             }
 
@@ -284,7 +284,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwattsPerKg = value;
-                    this.UpdateAP(PowerDisplayType.WattsPerKg);
+                    this.UpdateAP(PowerDisplayEnum.Keys.WattsPerKg);
                 }
             }
 
@@ -298,7 +298,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwattsMax = value;
-                    this.UpdateAPmax(PowerDisplayType.Watts);
+                    this.UpdateAPmax(PowerDisplayEnum.Keys.Watts);
                 }
             }
 
@@ -312,7 +312,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwattsPerKgMax = value;
-                    this.UpdateAPmax(PowerDisplayType.WattsPerKg);
+                    this.UpdateAPmax(PowerDisplayEnum.Keys.WattsPerKg);
                 }
             }
 
@@ -326,7 +326,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mFTPwatts = value;
-                    this.UpdateFTP(PowerDisplayType.Watts);
+                    this.UpdateFTP(PowerDisplayEnum.Keys.Watts);
                 }
             }
 
@@ -340,7 +340,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mFTPwattsPerKg = value;
-                    this.UpdateFTP(PowerDisplayType.WattsPerKg);
+                    this.UpdateFTP(PowerDisplayEnum.Keys.WattsPerKg);
                 }
             }
 
@@ -374,37 +374,37 @@ namespace ZwiftActivityMonitorV2
             public string IF { get { return this.mIF; } set { this.SetProperty<string>(ref this.mIF, value); } }
             public string TSS { get { return this.mTSS; } set { this.SetProperty<string>(ref this.mTSS, value); } }
             public string Blank { get; set; }
-            public PowerDisplayType AP_PowerDisplayType
+            public PowerDisplayEnum.Keys AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
                 set
                 {
-                    this.SetProperty<PowerDisplayType>(ref this.mAP_PowerDisplayType, value);
+                    this.SetProperty<PowerDisplayEnum.Keys>(ref this.mAP_PowerDisplayType, value);
                     UpdateAP(value);
                 }
             }
-            public PowerDisplayType NP_PowerDisplayType
+            public PowerDisplayEnum.Keys NP_PowerDisplayType
             {
                 get { return this.mNP_PowerDisplayType; }
                 set
                 {
-                    this.SetProperty<PowerDisplayType>(ref this.mNP_PowerDisplayType, value);
+                    this.SetProperty<PowerDisplayEnum.Keys>(ref this.mNP_PowerDisplayType, value);
                     UpdateNP(value);
                 }
             }
-            public SpeedDisplayType AS_SpeedDisplayType
+            public SpeedDisplayEnum.Keys AS_SpeedDisplayType
             {
                 get { return this.mAS_SpeedDisplayType; }
                 set
                 {
-                    this.SetProperty<SpeedDisplayType>(ref this.mAS_SpeedDisplayType, value);
+                    this.SetProperty<SpeedDisplayEnum.Keys>(ref this.mAS_SpeedDisplayType, value);
                     UpdateAS(value);
                 }
             }
 
-            private PowerDisplayType mAP_PowerDisplayType;
-            private PowerDisplayType mNP_PowerDisplayType;
-            private SpeedDisplayType mAS_SpeedDisplayType;
+            private PowerDisplayEnum.Keys mAP_PowerDisplayType;
+            private PowerDisplayEnum.Keys mNP_PowerDisplayType;
+            private SpeedDisplayEnum.Keys mAS_SpeedDisplayType;
             private string mAS;
             private string mAP;
             private string mNP;
@@ -418,8 +418,8 @@ namespace ZwiftActivityMonitorV2
             private double mSpeedKph;
             private double mSpeedMph;
             private MeasurementSystemType mCurrentMeasurementSystemType = MeasurementSystemType.Imperial;
-            private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
-            private SpeedDisplayType mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
+            private PowerDisplayEnum.Keys mCurrentPowerDisplayType = PowerDisplayEnum.Keys.Watts;
+            private SpeedDisplayEnum.Keys mCurrentSpeedDisplayType = SpeedDisplayEnum.Keys.MilesPerHour;
 
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
@@ -428,13 +428,13 @@ namespace ZwiftActivityMonitorV2
 
                 if (type == MeasurementSystemType.Imperial)
                 {
-                    this.mCurrentPowerDisplayType = PowerDisplayType.Watts;
-                    this.mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
+                    this.mCurrentPowerDisplayType = PowerDisplayEnum.Keys.Watts;
+                    this.mCurrentSpeedDisplayType = SpeedDisplayEnum.Keys.MilesPerHour;
                 }
                 else
                 {
-                    this.mCurrentPowerDisplayType = PowerDisplayType.WattsPerKg;
-                    this.mCurrentSpeedDisplayType = SpeedDisplayType.KilometersPerHour;
+                    this.mCurrentPowerDisplayType = PowerDisplayEnum.Keys.WattsPerKg;
+                    this.mCurrentSpeedDisplayType = SpeedDisplayEnum.Keys.KilometersPerHour;
                 }
 
                 this.UpdateAP(this.mCurrentPowerDisplayType);
@@ -442,15 +442,15 @@ namespace ZwiftActivityMonitorV2
                 this.UpdateAS(this.mCurrentSpeedDisplayType);
             }
 
-            public PowerDisplayType GetPreferredType(PowerDisplayType currentType)
+            public PowerDisplayEnum.Keys GetPreferredType(PowerDisplayEnum.Keys currentType)
             {
-                PowerDisplayType preferredType = currentType == PowerDisplayType.Both ? this.mCurrentPowerDisplayType : currentType;
+                PowerDisplayEnum.Keys preferredType = currentType == PowerDisplayEnum.Keys.Both ? this.mCurrentPowerDisplayType : currentType;
 
                 return preferredType;
             }
-            public SpeedDisplayType GetPreferredType(SpeedDisplayType currentType)
+            public SpeedDisplayEnum.Keys GetPreferredType(SpeedDisplayEnum.Keys currentType)
             {
-                SpeedDisplayType preferredType = currentType == SpeedDisplayType.Both ? this.mCurrentSpeedDisplayType : currentType;
+                SpeedDisplayEnum.Keys preferredType = currentType == SpeedDisplayEnum.Keys.Both ? this.mCurrentSpeedDisplayType : currentType;
 
                 return preferredType;
             }
@@ -459,24 +459,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateAP(PowerDisplayType updatedType)
+            private void UpdateAP(PowerDisplayEnum.Keys updatedType)
             {
-                PowerDisplayType preferredType = GetPreferredType(this.AP_PowerDisplayType);
+                PowerDisplayEnum.Keys preferredType = GetPreferredType(this.AP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case PowerDisplayType.Watts:
+                        case PowerDisplayEnum.Keys.Watts:
                             this.AP = this.APwatts > 0 ? this.APwatts.ToString() : "";
                             break;
 
-                        case PowerDisplayType.WattsPerKg:
+                        case PowerDisplayEnum.Keys.WattsPerKg:
                             this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
-                else if (preferredType == PowerDisplayType.None)
+                else if (preferredType == PowerDisplayEnum.Keys.None)
                 {
                     this.AP = "";
                 }
@@ -486,24 +486,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateNP(PowerDisplayType updatedType)
+            private void UpdateNP(PowerDisplayEnum.Keys updatedType)
             {
-                PowerDisplayType preferredType = GetPreferredType(this.NP_PowerDisplayType);
+                PowerDisplayEnum.Keys preferredType = GetPreferredType(this.NP_PowerDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case PowerDisplayType.Watts:
+                        case PowerDisplayEnum.Keys.Watts:
                             this.NP = this.NPwatts > 0 ? this.NPwatts.ToString() : "";
                             break;
 
-                        case PowerDisplayType.WattsPerKg:
+                        case PowerDisplayEnum.Keys.WattsPerKg:
                             this.NP = this.NPwattsPerKg.HasValue ? this.NPwattsPerKg.Value.ToString("#.00") : "";
                             break;
                     }
                 }
-                else if (preferredType == PowerDisplayType.None)
+                else if (preferredType == PowerDisplayEnum.Keys.None)
                 {
                     this.NP = "";
                 }
@@ -513,24 +513,24 @@ namespace ZwiftActivityMonitorV2
             /// Updates the displayed column appropriately
             /// </summary>
             /// <param name="updatedType"></param>
-            private void UpdateAS(SpeedDisplayType updatedType)
+            private void UpdateAS(SpeedDisplayEnum.Keys updatedType)
             {
-                SpeedDisplayType preferredType = GetPreferredType(this.AS_SpeedDisplayType);
+                SpeedDisplayEnum.Keys preferredType = GetPreferredType(this.AS_SpeedDisplayType);
 
                 if (preferredType == updatedType)
                 {
                     switch (updatedType)
                     {
-                        case SpeedDisplayType.KilometersPerHour:
+                        case SpeedDisplayEnum.Keys.KilometersPerHour:
                             this.AS = this.SpeedKph > 0 ? this.SpeedKph.ToString("#.0") : "";
                             break;
 
-                        case SpeedDisplayType.MilesPerHour:
+                        case SpeedDisplayEnum.Keys.MilesPerHour:
                             this.AS = this.SpeedMph > 0 ? this.SpeedMph.ToString("#.0") : "";
                             break;
                     }
                 }
-                else if (preferredType == SpeedDisplayType.None)
+                else if (preferredType == SpeedDisplayEnum.Keys.None)
                 {
                     this.AS = "";
                 }
@@ -547,7 +547,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwatts = value;
-                    this.UpdateAP(PowerDisplayType.Watts);
+                    this.UpdateAP(PowerDisplayEnum.Keys.Watts);
                 }
             }
 
@@ -561,7 +561,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mAPwattsPerKg = value;
-                    this.UpdateAP(PowerDisplayType.WattsPerKg);
+                    this.UpdateAP(PowerDisplayEnum.Keys.WattsPerKg);
                 }
             }
 
@@ -575,7 +575,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mNPwatts = value;
-                    this.UpdateNP(PowerDisplayType.Watts);
+                    this.UpdateNP(PowerDisplayEnum.Keys.Watts);
                 }
             }
 
@@ -589,7 +589,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mNPwattsPerKg = value;
-                    this.UpdateNP(PowerDisplayType.WattsPerKg);
+                    this.UpdateNP(PowerDisplayEnum.Keys.WattsPerKg);
                 }
             }
 
@@ -603,7 +603,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mSpeedKph = value;
-                    this.UpdateAS(SpeedDisplayType.KilometersPerHour);
+                    this.UpdateAS(SpeedDisplayEnum.Keys.KilometersPerHour);
                 }
             }
 
@@ -617,7 +617,7 @@ namespace ZwiftActivityMonitorV2
                 set
                 {
                     this.mSpeedMph = value;
-                    this.UpdateAS(SpeedDisplayType.MilesPerHour);
+                    this.UpdateAS(SpeedDisplayEnum.Keys.MilesPerHour);
                 }
             }
         }
@@ -667,12 +667,12 @@ namespace ZwiftActivityMonitorV2
         {
             public class CollectorAttributes
             {
-                public DurationType DurationType { get; }
+                public DurationEnum.Keys DurationType { get; }
                 public string Label { get; }
                 public MovingAverage MAcollector { get; }
                 public DetailRow DetailDataRow { get; set; } = null;
 
-                public CollectorAttributes(DurationType durationType, string label)
+                public CollectorAttributes(DurationEnum.Keys durationType, string label)
                 {
                     this.DurationType = durationType;
                     this.Label = label;
@@ -704,7 +704,7 @@ namespace ZwiftActivityMonitorV2
                 }
             }
 
-            public class CollectorAttributesCollection : Dictionary<DurationType, CollectorAttributes>
+            public class CollectorAttributesCollection : Dictionary<DurationEnum.Keys, CollectorAttributes>
             {
             }
 
@@ -720,7 +720,7 @@ namespace ZwiftActivityMonitorV2
             public MovingAverageManager()
             {
                 // Create a CollectorAttributes class for each DurationType enum
-                foreach (var kvp in EnumManager.DurationTypeEnum.ToList())
+                foreach (var kvp in DurationEnum.Instance.GetItems())
                 {
                     mCollectorAttributes.Add(kvp.Key, new CollectorAttributes(kvp.Key, kvp.Value));
                 }
@@ -775,13 +775,13 @@ namespace ZwiftActivityMonitorV2
 
                 if (e.PropertyName == SummaryColumn.AS.ToString())
                 {
-                    SpeedDisplayType preferredType = row.GetPreferredType(row.AS_SpeedDisplayType);
+                    SpeedDisplayEnum.Keys preferredType = row.GetPreferredType(row.AS_SpeedDisplayType);
 
                     switch(preferredType)
                     {
-                        case SpeedDisplayType.KilometersPerHour:
-                        case SpeedDisplayType.MilesPerHour:
-                            this.Parent.SetSummaryHeaderText(SummaryColumn.AS, EnumManager.SpeedDisplayTypeEnum.GetItem(preferredType)); ;
+                        case SpeedDisplayEnum.Keys.KilometersPerHour:
+                        case SpeedDisplayEnum.Keys.MilesPerHour:
+                            this.Parent.SetSummaryHeaderText(SummaryColumn.AS, SpeedDisplayEnum.Instance.GetValue(preferredType)); ;
                             break;
 
                         default:
@@ -929,9 +929,9 @@ namespace ZwiftActivityMonitorV2
                     FTP = "",
                     HR = "",
                     Blank = "",
-                    AP_PowerDisplayType = PowerDisplayType.Watts,
-                    APmax_PowerDisplayType = PowerDisplayType.Watts,
-                    FTP_PowerDisplayType = collector.DurationType == DurationType.TwentyMinutes ? PowerDisplayType.WattsPerKg : PowerDisplayType.None,
+                    AP_PowerDisplayType = PowerDisplayEnum.Keys.Watts,
+                    APmax_PowerDisplayType = PowerDisplayEnum.Keys.Watts,
+                    FTP_PowerDisplayType = collector.DurationType == DurationEnum.Keys.TwentyMinutes ? PowerDisplayEnum.Keys.WattsPerKg : PowerDisplayEnum.Keys.None,
                 };
                 this.DetailRows.Add(row);
 
@@ -1018,9 +1018,9 @@ namespace ZwiftActivityMonitorV2
 
             SummaryRow row = new()
             {
-                AP_PowerDisplayType = PowerDisplayType.Watts,
-                NP_PowerDisplayType = PowerDisplayType.Watts,
-                AS_SpeedDisplayType = SpeedDisplayType.KilometersPerHour,
+                AP_PowerDisplayType = PowerDisplayEnum.Keys.Watts,
+                NP_PowerDisplayType = PowerDisplayEnum.Keys.Watts,
+                AS_SpeedDisplayType = SpeedDisplayEnum.Keys.KilometersPerHour,
             };
 
             this.SummaryRows.Add(row);
@@ -1035,7 +1035,7 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
 
             this.dgSummary.Columns[(int)SummaryColumn.AS].Width = 76;  // minimum 75
-            this.dgSummary.Columns[(int)SummaryColumn.AS].HeaderText = EnumManager.SpeedDisplayTypeEnum.GetItem(SpeedDisplayType.KilometersPerHour);
+            this.dgSummary.Columns[(int)SummaryColumn.AS].HeaderText = SpeedDisplayEnum.Instance.GetValue(SpeedDisplayEnum.Keys.KilometersPerHour);
 
             this.dgSummary.Columns[(int)SummaryColumn.AP].Width = 51; // minimum 50
             this.dgSummary.Columns[(int)SummaryColumn.NP].Width = 86; // minimum 85
@@ -1238,13 +1238,13 @@ namespace ZwiftActivityMonitorV2
                         // map the right-clicked column to the column that stores the type of power display
                         int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
 
-                        foreach (var kvp in EnumManager.PowerDisplayTypeEnum.ToList())
+                        foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
                         {
                             var mi = new ToolStripMenuItem(kvp.Value)
                             {
                                 CheckOnClick = true,
                                 Tag = new object[] { e.RowIndex, powerDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
-                                Checked = (PowerDisplayType)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                                Checked = (PowerDisplayEnum.Keys)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
                             };
                             mi.CheckedChanged += powerContextMenu_CheckStateChanged;
                             menuStrip.Items.Add(mi);
@@ -1269,13 +1269,13 @@ namespace ZwiftActivityMonitorV2
                         // map the right-clicked column to the column that stores the type of speed display
                         int speedDisplayColumnIndex = speedDisplayColumnMap[e.ColumnIndex];
 
-                        foreach (var kvp in EnumManager.SpeedDisplayTypeEnum.ToList())
+                        foreach (var kvp in SpeedDisplayEnum.Instance.GetItems())
                         {
                             var mi = new ToolStripMenuItem(kvp.Value)
                             {
                                 CheckOnClick = true,
                                 Tag = new object[] { e.RowIndex, speedDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
-                                Checked = (SpeedDisplayType)dataGridView[speedDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                                Checked = (SpeedDisplayEnum.Keys)dataGridView[speedDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
                             };
                             mi.CheckedChanged += speedContextMenu_CheckStateChanged;
                             menuStrip.Items.Add(mi);
@@ -1289,13 +1289,13 @@ namespace ZwiftActivityMonitorV2
                         // map the right-clicked column to the column that stores the type of power display
                         int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
 
-                        foreach (var kvp in EnumManager.PowerDisplayTypeEnum.ToList())
+                        foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
                         {
                             var mi = new ToolStripMenuItem(kvp.Value)
                             {
                                 CheckOnClick = true,
                                 Tag = new object[] { e.RowIndex, powerDisplayColumnIndex, (int)kvp.Key, dataGridView }, // pass required values to the handler event
-                                Checked = (PowerDisplayType)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                                Checked = (PowerDisplayEnum.Keys)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
                             };
                             mi.CheckedChanged += powerContextMenu_CheckStateChanged;
                             menuStrip.Items.Add(mi);
@@ -1340,7 +1340,7 @@ namespace ZwiftActivityMonitorV2
                 int rowIndex = (int)tag[0], powerDisplayColumnIndex = (int)tag[1], powerDisplayType = (int)tag[2];
                 DataGridView dataGridView = (DataGridView)tag[3];
 
-                dataGridView[powerDisplayColumnIndex, rowIndex].Value = (PowerDisplayType)powerDisplayType;
+                dataGridView[powerDisplayColumnIndex, rowIndex].Value = (PowerDisplayEnum.Keys)powerDisplayType;
             }
         }
 
@@ -1355,7 +1355,7 @@ namespace ZwiftActivityMonitorV2
                 int rowIndex = (int)tag[0], speedDisplayColumnIndex = (int)tag[1], speedDisplayType = (int)tag[2];
                 DataGridView dataGridView = (DataGridView)tag[3];
 
-                dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayType)speedDisplayType;
+                dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayEnum.Keys)speedDisplayType;
             }
         }
 

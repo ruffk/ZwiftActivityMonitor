@@ -4,39 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    /// <summary>
-    /// Defines available collectors.  Each enum has the matching number of seconds as it's value.
-    /// </summary>
-    public enum DurationType
-    {
-        FiveSeconds = 5,
-        ThirtySeconds = 30,
-        OneMinute = 60,
-        FiveMinutes = 300,
-        SixMinutes = 360,
-        TenMinutes = 600,
-        TwentyMinutes = 1200,
-        ThirtyMinutes = 1800,
-        SixtyMinutes = 3600,
-        NinetyMinutes = 5400
-    }
-    public enum PowerDisplayType
-    {
-        Watts,
-        WattsPerKg,
-        Both,
-        None,
-    }
-    public enum SpeedDisplayType
-    {
-        KilometersPerHour,
-        MilesPerHour,
-        Both,
-        None,
-    }
 
     public enum FieldUomType
     {
@@ -68,154 +39,238 @@ namespace ZwiftActivityMonitorV2
     }
 
 
-    public enum CollectorMetricType
+
+
+    #region EnumBase<T>
+    public class EnumBase<T>
     {
-        AP,
-        APmax,
-        FTP,
-        HR
-    }
+        protected dynamic EnumList { get; set; }
 
-    public class CollectorMetricTypeEnum
-    {
-        static private Dictionary<CollectorMetricType, string> _List = new();
-
-        static CollectorMetricTypeEnum()
+        /// <summary>
+        /// Returns a List of KeyValuePairs containing the EnumValue, StringValue
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public List<KeyValuePair<T, string>> GetItems() //where T : System.Enum
         {
-            _List.Add(CollectorMetricType.AP, "AP");
-            _List.Add(CollectorMetricType.APmax, "AP (Max)");
-            _List.Add(CollectorMetricType.FTP, "FTP");
-            _List.Add(CollectorMetricType.HR, "HR");
-        }
+            List<KeyValuePair<T, string>> list = new();
 
-        static public List<KeyValuePair<CollectorMetricType, string>> ToList()
-        {
-            List<KeyValuePair<CollectorMetricType, string>> list = new();
-
-            foreach (var key in _List.Keys)
-                list.Add(new KeyValuePair<CollectorMetricType, string>(key, _List[key]));
+            foreach (var key in EnumList.Keys)
+                list.Add(new KeyValuePair<T, string>(key, EnumList[key]));
 
             return list;
         }
 
-        static public List<string> Values
+        /// <summary>
+        /// Returns a single KeyValuePair for a key containing the EnumValue, StringValue
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public KeyValuePair<T, string> GetItem(T key) 
         {
-            get { return _List.Values.ToList<string>(); }
+            return new KeyValuePair<T, string>(key, EnumList[key]);
         }
 
-        static public string GetItem(CollectorMetricType key)
+        /// <summary>
+        /// Returns a List of all string values
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public List<string> GetValues() 
         {
-            return _List[key];
+            return EnumList.Values.ToList<string>();
+        }
+
+        /// <summary>
+        /// Returns a single string value for a key
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string GetValue(T key) 
+        {
+            return EnumList[key];
         }
     }
+    #endregion
 
+    #region CollectorMetricEnum
 
-    public class EnumManager
+    public sealed class CollectorMetricEnum : EnumBase<CollectorMetricEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
     {
-        public class DurationTypeEnum
+        public enum Keys
         {
-            static private Dictionary<DurationType, string> _List = new();
-
-            static DurationTypeEnum()
-            {
-                _List.Add(DurationType.FiveSeconds, "5 sec");
-                _List.Add(DurationType.ThirtySeconds, "30 sec");
-                _List.Add(DurationType.OneMinute, "1 min");
-                _List.Add(DurationType.FiveMinutes, "5 min");
-                _List.Add(DurationType.SixMinutes, "6 min");
-                _List.Add(DurationType.TenMinutes, "10 min");
-                _List.Add(DurationType.TwentyMinutes, "20 min");
-                _List.Add(DurationType.ThirtyMinutes, "30 min");
-                _List.Add(DurationType.SixtyMinutes, "60 min");
-                _List.Add(DurationType.NinetyMinutes, "90 min");
-            }
-
-            static public List<KeyValuePair<DurationType, string>> ToList()
-            {
-                List<KeyValuePair<DurationType, string>> list = new();
-
-                foreach (var key in _List.Keys)
-                    list.Add(new KeyValuePair<DurationType, string>(key, _List[key]));
-
-                return list;
-            }
-
-            static public List<string> Values
-            {
-                get { return _List.Values.ToList<string>(); }
-            }
-
-            static public string GetItem(DurationType key)
-            {
-                return _List[key];
-            }
+            AP,
+            APmax,
+            FTP,
+            HR
         }
 
-        public class PowerDisplayTypeEnum
+        private static readonly Lazy<CollectorMetricEnum> _InstanceLock = new Lazy<CollectorMetricEnum>(() => new CollectorMetricEnum());
+
+        private CollectorMetricEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
         {
-            static private Dictionary<PowerDisplayType, string> _List = new();
+            EnumList = new Dictionary<CollectorMetricEnum.Keys, string>();
 
-            static PowerDisplayTypeEnum()
-            {
-                _List.Add(PowerDisplayType.Watts, "Watts");
-                _List.Add(PowerDisplayType.WattsPerKg, "W/Kg");
-                _List.Add(PowerDisplayType.Both, "Both Watts and W/Kg");
-                _List.Add(PowerDisplayType.None, "None");
-            }
-
-            static public List<KeyValuePair<PowerDisplayType, string>> ToList()
-            {
-                List<KeyValuePair<PowerDisplayType, string>> list = new();
-
-                foreach (var key in _List.Keys)
-                    list.Add(new KeyValuePair<PowerDisplayType, string>(key, _List[key]));
-
-                return list;
-            }
-            static public List<string> Values
-            {
-                get { return _List.Values.ToList<string>(); }
-            }
-
-            static public string GetItem(PowerDisplayType key)
-            {
-                return _List[key];
-            }
+            EnumList.Add(CollectorMetricEnum.Keys.AP, "AP");
+            EnumList.Add(CollectorMetricEnum.Keys.APmax, "AP (Max)");
+            EnumList.Add(CollectorMetricEnum.Keys.FTP, "FTP");
+            EnumList.Add(CollectorMetricEnum.Keys.HR, "HR");
         }
-        public class SpeedDisplayTypeEnum
+
+        public static CollectorMetricEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
+
+    #region DurationEnum
+
+    /// <summary>
+    /// Defines available collectors.  Each enum has the matching number of seconds as it's value.
+    /// </summary>
+    public sealed class DurationEnum : EnumBase<DurationEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+        public enum Keys
         {
-            static private Dictionary<SpeedDisplayType, string> _List = new();
+            FiveSeconds = 5,
+            ThirtySeconds = 30,
+            OneMinute = 60,
+            FiveMinutes = 300,
+            SixMinutes = 360,
+            TenMinutes = 600,
+            TwentyMinutes = 1200,
+            ThirtyMinutes = 1800,
+            SixtyMinutes = 3600,
+            NinetyMinutes = 5400
+        }
 
-            static SpeedDisplayTypeEnum()
+        private static readonly Lazy<DurationEnum> _InstanceLock = new Lazy<DurationEnum>(() => new DurationEnum());
+        
+        private DurationEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<DurationEnum.Keys, string>();
+
+            EnumList.Add(DurationEnum.Keys.FiveSeconds, "5 sec");
+            EnumList.Add(DurationEnum.Keys.ThirtySeconds, "30 sec");
+            EnumList.Add(DurationEnum.Keys.OneMinute, "1 min");
+            EnumList.Add(DurationEnum.Keys.FiveMinutes, "5 min");
+            EnumList.Add(DurationEnum.Keys.SixMinutes, "6 min");
+            EnumList.Add(DurationEnum.Keys.TenMinutes, "10 min");
+            EnumList.Add(DurationEnum.Keys.TwentyMinutes, "20 min");
+            EnumList.Add(DurationEnum.Keys.ThirtyMinutes, "30 min");
+            EnumList.Add(DurationEnum.Keys.SixtyMinutes, "60 min");
+            EnumList.Add(DurationEnum.Keys.NinetyMinutes, "90 min");
+        }
+
+        public static DurationEnum Instance { get { return _InstanceLock.Value; } }
+
+        public void GetDefaults(DurationEnum.Keys duration, out PowerDisplayEnum.Keys apPowerDisplay, out PowerDisplayEnum.Keys apMaxPowerDisplay, out PowerDisplayEnum.Keys ftpPowerDisplay, out bool isVisible)
+        {
+            apPowerDisplay = PowerDisplayEnum.Keys.Watts;
+            apMaxPowerDisplay = PowerDisplayEnum.Keys.WattsPerKg;
+            ftpPowerDisplay = PowerDisplayEnum.Keys.None;
+            isVisible = false;
+
+            switch(duration)
             {
-                _List.Add(SpeedDisplayType.KilometersPerHour, "KM/h");
-                _List.Add(SpeedDisplayType.MilesPerHour, "MI/h");
-                _List.Add(SpeedDisplayType.Both, "Both KM/h and MI/h");
-                _List.Add(SpeedDisplayType.None, "None");
-            }
+                case DurationEnum.Keys.OneMinute:
+                    isVisible = true;
+                    break;
 
-            static public List<KeyValuePair<SpeedDisplayType, string>> ToList()
-            {
-                List<KeyValuePair<SpeedDisplayType, string>> list = new();
+                case DurationEnum.Keys.FiveMinutes:
+                    isVisible = true;
+                    break;
 
-                foreach (var key in _List.Keys)
-                    list.Add(new KeyValuePair<SpeedDisplayType, string>(key, _List[key]));
-
-                return list;
-            }
-            static public List<string> Values
-            {
-                get { return _List.Values.ToList<string>(); }
-            }
-
-            static public string GetItem(SpeedDisplayType key)
-            {
-                return _List[key];
+                case DurationEnum.Keys.TwentyMinutes:
+                    ftpPowerDisplay = PowerDisplayEnum.Keys.WattsPerKg;
+                    isVisible = true;
+                    break;
             }
         }
     }
+    #endregion
 
+    #region TemplateEnum
 
+    //public sealed class TemplateEnum : EnumBase<TemplateEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    //{
+    //    public enum Keys
+    //    {
+    //        YourKeysHere
+    //    }
+
+    //    private static readonly Lazy<TemplateEnum> _InstanceLock = new Lazy<TemplateEnum>(() => new TemplateEnum());
+
+    //    private TemplateEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+    //    {
+    //        EnumList = new Dictionary<TemplateEnum.Keys, string>();
+
+    //        EnumList.Add(TemplateEnum.Keys.YourKeysHere, "SomeStringValue");
+    //    }
+
+    //    public static TemplateEnum Instance { get { return _InstanceLock.Value; } }
+    //}
+
+    #endregion
+
+    #region PowerDisplayEnum
+
+    public sealed class PowerDisplayEnum : EnumBase<PowerDisplayEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+        public enum Keys
+        {
+            Watts,
+            WattsPerKg,
+            Both,
+            None,
+        }
+
+        private static readonly Lazy<PowerDisplayEnum> _InstanceLock = new Lazy<PowerDisplayEnum>(() => new PowerDisplayEnum());
+
+        private PowerDisplayEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<PowerDisplayEnum.Keys, string>();
+
+            EnumList.Add(PowerDisplayEnum.Keys.Watts, "Watts");
+            EnumList.Add(PowerDisplayEnum.Keys.WattsPerKg, "W/Kg");
+            EnumList.Add(PowerDisplayEnum.Keys.Both, "Both Watts and W/Kg");
+            EnumList.Add(PowerDisplayEnum.Keys.None, "None");
+        }
+
+        public static PowerDisplayEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
+
+    #region SpeedDisplayEnum
+
+    public sealed class SpeedDisplayEnum : EnumBase<SpeedDisplayEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+        public enum Keys
+        {
+            KilometersPerHour,
+            MilesPerHour,
+            Both,
+            None,
+        }
+
+        private static readonly Lazy<SpeedDisplayEnum> _InstanceLock = new Lazy<SpeedDisplayEnum>(() => new SpeedDisplayEnum());
+
+        private SpeedDisplayEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<SpeedDisplayEnum.Keys, string>();
+
+            EnumList.Add(SpeedDisplayEnum.Keys.KilometersPerHour, "KM/h");
+            EnumList.Add(SpeedDisplayEnum.Keys.MilesPerHour, "MI/h");
+            EnumList.Add(SpeedDisplayEnum.Keys.Both, "Both KM/h and MI/h");
+            EnumList.Add(SpeedDisplayEnum.Keys.None, "None");
+        }
+
+        public static SpeedDisplayEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
 
     public class FormSyncTimerTickEventArgs : EventArgs
     {
@@ -256,12 +311,12 @@ namespace ZwiftActivityMonitorV2
         public int APwatts { get; }
         public double? APwattsPerKg { get; }
         public int HRbpm { get; }
-        public DurationType DurationType { get; }
+        public DurationEnum.Keys DurationType { get; }
         public int FTPwatts { get; }
         public double? FTPwattsPerKg { get; }
         public bool ignoreFTP { get; }
 
-        public MovingAverageChangedEventArgs(int apWatts, double? apWattsPerKg, int hrBpm, DurationType durationType, int ftpWatts, double? ftpWattsPerKg, bool ignoreFTP)
+        public MovingAverageChangedEventArgs(int apWatts, double? apWattsPerKg, int hrBpm, DurationEnum.Keys durationType, int ftpWatts, double? ftpWattsPerKg, bool ignoreFTP)
         {
             this.APwatts = apWatts;
             this.APwattsPerKg = apWattsPerKg;
@@ -277,11 +332,11 @@ namespace ZwiftActivityMonitorV2
         public int APwattsMax { get; }
         public double? APwattsPerKgMax { get; }
         public int HRbpmMax { get; }
-        public DurationType DurationType { get; }
+        public DurationEnum.Keys DurationType { get; }
         public int FTPwattsMax { get; }
         public double? FTPwattsPerKgMax { get; }
 
-        public MovingAverageMaxChangedEventArgs(int apWattsMax, double? apWattsPerKgMax, int hrBpmMax, DurationType durationType, int ftpWattsMax, double? ftpWattsPerKgMax)
+        public MovingAverageMaxChangedEventArgs(int apWattsMax, double? apWattsPerKgMax, int hrBpmMax, DurationEnum.Keys durationType, int ftpWattsMax, double? ftpWattsPerKgMax)
         {
             this.APwattsMax = apWattsMax;
             this.APwattsPerKgMax = apWattsPerKgMax;
@@ -295,10 +350,10 @@ namespace ZwiftActivityMonitorV2
     public class MovingAverageCalculatedEventArgs : EventArgs
     {
         public int APwatts { get; }
-        public DurationType DurationType { get; }
+        public DurationEnum.Keys DurationType { get; }
         public TimeSpan ElapsedTime { get; }
 
-        public MovingAverageCalculatedEventArgs(int apWatts, DurationType durationType, TimeSpan elapsedTime)
+        public MovingAverageCalculatedEventArgs(int apWatts, DurationEnum.Keys durationType, TimeSpan elapsedTime)
         {
             this.APwatts = apWatts;
             this.DurationType = durationType;

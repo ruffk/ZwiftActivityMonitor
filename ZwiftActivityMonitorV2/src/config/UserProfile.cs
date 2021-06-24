@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 
 namespace ZwiftActivityMonitorV2
@@ -11,37 +12,113 @@ namespace ZwiftActivityMonitorV2
     public class UserCollector
     {
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
-        public KeyValuePair<DurationType, string>? Duration { get; set; }
-        public KeyValuePair<PowerDisplayType, string>? AP_PowerDisplay { get; set; }
-        public KeyValuePair<PowerDisplayType, string>? APmax_PowerDisplay { get; set; }
-        public KeyValuePair<PowerDisplayType, string>? FTP_PowerDisplay { get; set; }
+        public KeyValuePair<DurationEnum.Keys, string>? Duration { get; set; }
+        public KeyValuePair<PowerDisplayEnum.Keys, string>? AP_PowerDisplay { get; set; }
+        public KeyValuePair<PowerDisplayEnum.Keys, string>? APmax_PowerDisplay { get; set; }
+        public KeyValuePair<PowerDisplayEnum.Keys, string>? FTP_PowerDisplay { get; set; }
+
+        public bool IsVisible { get; set; }
+
+        public UserCollector(DurationEnum.Keys duration, PowerDisplayEnum.Keys ap_PowerDisplay, PowerDisplayEnum.Keys apMax_PowerDisplay, PowerDisplayEnum.Keys ftp_PowerDisplay, bool isVisible)
+        {
+            this.DurationSetting = duration;
+            this.AP_PowerDisplaySetting = ap_PowerDisplay;
+            this.APmax_PowerDisplaySetting = apMax_PowerDisplay;
+            this.FTP_PowerDisplaySetting = ftp_PowerDisplay;
+            this.IsVisible = isVisible;
+        }
+
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// </summary>
+        [JsonIgnore]
+        public DurationEnum.Keys DurationSetting
+        {
+            get { return Duration.Value.Key; }
+            set
+            {
+                Duration = DurationEnum.Instance.GetItem(value);
+            }
+        }
+
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// </summary>
+        [JsonIgnore]
+        public PowerDisplayEnum.Keys AP_PowerDisplaySetting
+        {
+            get { return AP_PowerDisplay.Value.Key; }
+            set
+            {
+                AP_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// </summary>
+        [JsonIgnore]
+        public PowerDisplayEnum.Keys APmax_PowerDisplaySetting
+        {
+            get { return APmax_PowerDisplay.Value.Key; }
+            set
+            {
+                APmax_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// </summary>
+        [JsonIgnore]
+        public PowerDisplayEnum.Keys FTP_PowerDisplaySetting
+        {
+            get { return FTP_PowerDisplay.Value.Key; }
+            set
+            {
+                FTP_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+    }
+
+    public class UserCollectorMetric //: ConfigItemBase
+    {
+        public KeyValuePair<CollectorMetricEnum.Keys, string>? Metric { get; set; }
 
         public bool IsVisible { get; set; }
 
         /// <summary>
         /// The full KeyValuePair is stored in the item array for display.
-        /// During validation, just the Key is checked for validity.
         /// </summary>
         //[JsonIgnore]
-        //public DurationType DurationSetting
+        //public CollectorMetricEnum.Keys MetricSetting
         //{
-        //    get { return Duration.Value.Key; }
+        //    get { return Metric.Value.Key; }
         //    set
         //    {
-        //        if (!EnumManager.DurationTypeEnum.ContainsKey(value))
-        //            throw new FormatException("DistanceUomType key not found.");
-
-        //        Duration = m_uomItemList[value];
+        //        Metric = CollectorMetricEnum.Instance.GetItem(value);
         //    }
         //}
 
-    }
+        //public override int InitializeDefaultValues()
+        //{
+        //    int count = 0;
 
-    public class UserCollectorMetric
-    {
-        public KeyValuePair<CollectorMetricType, string>? Metric { get; set; }
+        //    // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+        //    // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+        //    // even if the json being parsed has values in it.
 
-        public bool IsVisible { get; set; }
+        //    if (Metric == null)
+        //    {
+        //        Debug.WriteLine($"Initializing Metric");
+        //        Metric = CollectorMetricEnum.Instance.GetItem(CollectorMetricEnum.Keys.AP); // default
+        //        count++;
+        //    }
+
+        //    return count;
+        //}
+
     }
 
     public class UserProfile : ConfigItemBase, ICloneable
@@ -49,6 +126,8 @@ namespace ZwiftActivityMonitorV2
         public string UniqueId { get; set; } = "";
         public int PowerThreshold { get; set; }
         public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
+
+        public Dictionary<DurationEnum.Keys, UserCollector> Collectors = new();
 
         private string m_name = "";
         private string m_email = "";
@@ -65,6 +144,27 @@ namespace ZwiftActivityMonitorV2
         public UserProfile()
         {
         }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            foreach (var duration in DurationEnum.Instance.GetItems())
+            {
+                if (!Collectors.ContainsKey(duration.Key))
+                {
+                    DurationEnum.Instance.GetDefaults(duration.Key, out PowerDisplayEnum.Keys apPowerDisplay, out PowerDisplayEnum.Keys apMaxPowerDisplay, out PowerDisplayEnum.Keys ftpPowerDisplay, out bool isVisible);
+                    Collectors.Add(duration.Key, new UserCollector(duration.Key, apPowerDisplay, apMaxPowerDisplay, ftpPowerDisplay, isVisible));
+                    count++;
+                }
+            }
+            return count;
+        }
+
 
         public object Clone()
         {
