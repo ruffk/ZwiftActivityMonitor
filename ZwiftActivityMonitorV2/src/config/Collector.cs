@@ -21,7 +21,7 @@ namespace ZwiftActivityMonitorV2
         }
 
         [JsonIgnore]
-        public DurationEnum.Keys DurationType { get { return Enum.Parse<DurationEnum.Keys>(this.DurationDesc); } }
+        public DurationType DurationType { get { return Enum.Parse<DurationType>(this.DurationDesc); } }
 
         [JsonIgnore]
         public FieldUomType FieldAvgType { get { return Enum.Parse<FieldUomType>(this.FieldAvgDesc); } }

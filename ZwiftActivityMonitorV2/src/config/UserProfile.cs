@@ -9,115 +9,253 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    public class UserCollector
+    public class UserCollectorSummary : ConfigItemBase, ICloneable
+    {
+        public SortedList<CollectorMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
+        public SortedList<CollectorMetricType, KeyStringPair<SpeedDisplayType>> SpeedValues = new();
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            if (!this.PowerValues.ContainsKey(CollectorMetricType.SummaryAP))
+            {
+                this.PowerValues.Add(CollectorMetricType.SummaryAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
+                count++;
+            }
+
+            if (!this.PowerValues.ContainsKey(CollectorMetricType.SummaryNP))
+            {
+                this.PowerValues.Add(CollectorMetricType.SummaryNP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Both));
+                count++;
+            }
+
+            if (!this.SpeedValues.ContainsKey(CollectorMetricType.SummaryAS))
+            {
+                this.SpeedValues.Add(CollectorMetricType.SummaryAS, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                count++;
+            }
+
+            return count;
+        }
+
+        [JsonIgnore]
+        public PowerDisplayType AP_PowerDisplaySetting
+        {
+            get { return this.PowerValues[CollectorMetricType.SummaryAP].Key; }
+            set
+            {
+                this.PowerValues[CollectorMetricType.SummaryAP] = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        [JsonIgnore]
+        public PowerDisplayType NP_PowerDisplaySetting
+        {
+            get { return this.PowerValues[CollectorMetricType.SummaryNP].Key; }
+            set
+            {
+                this.PowerValues[CollectorMetricType.SummaryNP] = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        [JsonIgnore]
+        public SpeedDisplayType AS_SpeedDisplaySetting
+        {
+            get { return this.SpeedValues[CollectorMetricType.SummaryAS].Key; }
+            set
+            {
+                this.SpeedValues[CollectorMetricType.SummaryAS] = SpeedDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+    }
+
+    public class UserCollector : ConfigItemBase, ICloneable
     {
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
-        public KeyValuePair<DurationEnum.Keys, string>? Duration { get; set; }
-        public KeyValuePair<PowerDisplayEnum.Keys, string>? AP_PowerDisplay { get; set; }
-        public KeyValuePair<PowerDisplayEnum.Keys, string>? APmax_PowerDisplay { get; set; }
-        public KeyValuePair<PowerDisplayEnum.Keys, string>? FTP_PowerDisplay { get; set; }
+        public KeyStringPair<DurationType> Duration { get; set; }
 
-        public bool IsVisible { get; set; }
+        public bool? IsVisible { get; set; }
 
-        public UserCollector(DurationEnum.Keys duration, PowerDisplayEnum.Keys ap_PowerDisplay, PowerDisplayEnum.Keys apMax_PowerDisplay, PowerDisplayEnum.Keys ftp_PowerDisplay, bool isVisible)
+        public SortedList<CollectorMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
+
+        [JsonConstructor]
+        public UserCollector()
+        {
+
+        }
+        public UserCollector(DurationType duration)
         {
             this.DurationSetting = duration;
-            this.AP_PowerDisplaySetting = ap_PowerDisplay;
-            this.APmax_PowerDisplaySetting = apMax_PowerDisplay;
-            this.FTP_PowerDisplaySetting = ftp_PowerDisplay;
-            this.IsVisible = isVisible;
         }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailAP))
+            {
+                this.PowerValues.Add(CollectorMetricType.DetailAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
+                count++;
+            }
+
+            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailAPmax))
+            {
+                this.PowerValues.Add(CollectorMetricType.DetailAPmax, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
+                count++;
+            }
+
+            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailFTP))
+            {
+                switch (this.DurationSetting)
+                {
+                    case DurationType.TwentyMinutes:
+                        this.PowerValues.Add(CollectorMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
+                        break;
+
+                    default:
+                        this.PowerValues.Add(CollectorMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.None));
+                        break;
+                }
+                count++;
+            }
+
+            if (this.IsVisible == null)
+            {
+                switch (this.DurationSetting)
+                {
+                    case DurationType.OneMinute:
+                    case DurationType.FiveMinutes:
+                    case DurationType.TwentyMinutes:
+                        this.IsVisible = true;
+                        break;
+
+                    default:
+                        this.IsVisible = false;
+                        break;
+                }
+                count++;
+            }
+
+            return count;
+        }
+
 
         /// <summary>
         /// The full KeyValuePair is stored in the item array for display.
         /// </summary>
         [JsonIgnore]
-        public DurationEnum.Keys DurationSetting
+        public DurationType DurationSetting
         {
-            get { return Duration.Value.Key; }
+            get { return Duration.Key; }
             set
             {
                 Duration = DurationEnum.Instance.GetItem(value);
             }
         }
 
-        /// <summary>
-        /// The full KeyValuePair is stored in the item array for display.
-        /// </summary>
         [JsonIgnore]
-        public PowerDisplayEnum.Keys AP_PowerDisplaySetting
+        public PowerDisplayType AP_PowerDisplaySetting
         {
-            get { return AP_PowerDisplay.Value.Key; }
+            get { return this.PowerValues[CollectorMetricType.DetailAP].Key; }
             set
             {
-                AP_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[CollectorMetricType.DetailAP] = PowerDisplayEnum.Instance.GetItem(value);
             }
         }
 
-        /// <summary>
-        /// The full KeyValuePair is stored in the item array for display.
-        /// </summary>
         [JsonIgnore]
-        public PowerDisplayEnum.Keys APmax_PowerDisplaySetting
+        public PowerDisplayType APmax_PowerDisplaySetting
         {
-            get { return APmax_PowerDisplay.Value.Key; }
+            get { return this.PowerValues[CollectorMetricType.DetailAPmax].Key; }
             set
             {
-                APmax_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[CollectorMetricType.DetailAPmax] = PowerDisplayEnum.Instance.GetItem(value);
             }
         }
 
-        /// <summary>
-        /// The full KeyValuePair is stored in the item array for display.
-        /// </summary>
         [JsonIgnore]
-        public PowerDisplayEnum.Keys FTP_PowerDisplaySetting
+        public PowerDisplayType FTP_PowerDisplaySetting
         {
-            get { return FTP_PowerDisplay.Value.Key; }
+            get { return this.PowerValues[CollectorMetricType.DetailFTP].Key; }
             set
             {
-                FTP_PowerDisplay = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[CollectorMetricType.DetailFTP] = PowerDisplayEnum.Instance.GetItem(value);
             }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
     }
 
-    public class UserCollectorMetric //: ConfigItemBase
+    public class UserCollectorMetric : ConfigItemBase, ICloneable
     {
-        public KeyValuePair<CollectorMetricEnum.Keys, string>? Metric { get; set; }
+        public KeyStringPair<CollectorMetricType> Metric { get; set; }
 
-        public bool IsVisible { get; set; }
+        public bool? IsVisible { get; set; }
+
+        [JsonConstructor]
+        public UserCollectorMetric()
+        {
+
+        }
+
+        public UserCollectorMetric(CollectorMetricType metric)
+        {
+            this.MetricSetting = metric;
+        }
 
         /// <summary>
         /// The full KeyValuePair is stored in the item array for display.
         /// </summary>
-        //[JsonIgnore]
-        //public CollectorMetricEnum.Keys MetricSetting
-        //{
-        //    get { return Metric.Value.Key; }
-        //    set
-        //    {
-        //        Metric = CollectorMetricEnum.Instance.GetItem(value);
-        //    }
-        //}
+        [JsonIgnore]
+        public CollectorMetricType MetricSetting
+        {
+            get { return Metric.Key; }
+            set
+            {
+                Metric = CollectorMetricEnum.Instance.GetItem(value);
+            }
+        }
 
-        //public override int InitializeDefaultValues()
-        //{
-        //    int count = 0;
 
-        //    // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
-        //    // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
-        //    // even if the json being parsed has values in it.
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
 
-        //    if (Metric == null)
-        //    {
-        //        Debug.WriteLine($"Initializing Metric");
-        //        Metric = CollectorMetricEnum.Instance.GetItem(CollectorMetricEnum.Keys.AP); // default
-        //        count++;
-        //    }
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
 
-        //    return count;
-        //}
+            if (this.IsVisible == null)
+            {
+                this.IsVisible = true;
+                count++;
+            }
+
+            return count;
+        }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
 
     }
 
@@ -127,7 +265,10 @@ namespace ZwiftActivityMonitorV2
         public int PowerThreshold { get; set; }
         public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
-        public Dictionary<DurationEnum.Keys, UserCollector> Collectors = new();
+        public SortedList<DurationType, UserCollector> Collectors = new();
+        public SortedList<CollectorMetricType, UserCollectorMetric> CollectorMetrics = new();
+
+        public UserCollectorSummary CollectorSummary = new();
 
         private string m_name = "";
         private string m_email = "";
@@ -153,15 +294,34 @@ namespace ZwiftActivityMonitorV2
             // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
             // even if the json being parsed has values in it.
 
+            // Initialize configuration for the collector rows if missing
             foreach (var duration in DurationEnum.Instance.GetItems())
             {
                 if (!Collectors.ContainsKey(duration.Key))
                 {
-                    DurationEnum.Instance.GetDefaults(duration.Key, out PowerDisplayEnum.Keys apPowerDisplay, out PowerDisplayEnum.Keys apMaxPowerDisplay, out PowerDisplayEnum.Keys ftpPowerDisplay, out bool isVisible);
-                    Collectors.Add(duration.Key, new UserCollector(duration.Key, apPowerDisplay, apMaxPowerDisplay, ftpPowerDisplay, isVisible));
+                    Collectors.Add(duration.Key, new UserCollector(duration.Key));
                     count++;
                 }
             }
+
+            foreach (var item in this.Collectors)
+                count += item.Value.InitializeDefaultValues();
+
+            // Initialize configuration for the metric columns if missing
+            foreach(var metric in CollectorMetricEnum.Instance.GetItems())
+            {
+                if (!CollectorMetrics.ContainsKey(metric.Key))
+                {
+                    CollectorMetrics.Add(metric.Key, new UserCollectorMetric(metric.Key));
+                    count++;
+                }
+            }
+
+            foreach (var item in this.CollectorMetrics)
+                count += item.Value.InitializeDefaultValues();
+
+            count += this.CollectorSummary.InitializeDefaultValues();
+
             return count;
         }
 

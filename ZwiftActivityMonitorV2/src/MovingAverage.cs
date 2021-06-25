@@ -11,7 +11,7 @@ namespace ZwiftActivityMonitorV2
         private UserProfile CurrentUser;
 
         private readonly Queue<Statistics> mStatsQueue;
-        private readonly DurationEnum.Keys mDurationType;
+        private readonly DurationType mDurationType;
         private readonly bool mExcludeZeroPowerValues;
 
         private long mWattsSum;
@@ -37,18 +37,18 @@ namespace ZwiftActivityMonitorV2
 
         internal class DurationDetail
         {
-            private DurationEnum.Keys m_type;
+            private DurationType m_type;
             private string m_label;
             private int m_seconds;
 
-            public DurationDetail(DurationEnum.Keys type, string label, int seconds)
+            public DurationDetail(DurationType type, string label, int seconds)
             {
                 m_type = type;
                 m_label = label;
                 m_seconds = seconds;
             }
 
-            public DurationEnum.Keys Type { get { return m_type; } }
+            public DurationType Type { get { return m_type; } }
             public string Label { get { return m_label; } }
             public int Seconds { get { return m_seconds; } }
         }
@@ -89,7 +89,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="durationType"></param>The duration of collection
         /// <param name="excludeZeroPowerValues"></param>Whether to exclude zeros when collecting
         /// <param name="allowHighRes"></param>Whether to allow use of high-res packets.  Currently only collectors under 30 seconds use these. 
-        public MovingAverage(DurationEnum.Keys durationType, bool excludeZeroPowerValues = false, bool allowHighRes = true)
+        public MovingAverage(DurationType durationType, bool excludeZeroPowerValues = false, bool allowHighRes = true)
         {
             Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverage>();
 

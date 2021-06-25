@@ -70,7 +70,7 @@ namespace ZwiftActivityMonitorV2
             Logger = ZAMsettings.LoggerFactory.CreateLogger<NormalizedPower>();
 
             // Create a new 30 seconds moving average class, zero power reading numbers are INCLUDED (I asked support at TrainingPeaks about this).  Don't use high-res packet collection.
-            mMovingAvg = new MovingAverage(DurationEnum.Keys.ThirtySeconds, false, false);
+            mMovingAvg = new MovingAverage(DurationType.ThirtySeconds, false, false);
             mMovingAvg.MovingAverageCalculatedEvent += MovingAverageCalculatedEventHandler;
             mMovingAvg.MetricsCalculatedEvent += MetricsCalculatedEventHandler;
 

@@ -51,6 +51,7 @@ namespace ZwiftActivityMonitorV2
             throw new NotImplementedException();
         }
     }
+
     #endregion
 
     public class ZAMsettings
