@@ -30,6 +30,7 @@ namespace ZwiftActivityMonitorV2
         private void InitializeComponent()
         {
             this.gbZwiftPacketMonitor = new System.Windows.Forms.GroupBox();
+            this.rbSimulation = new System.Windows.Forms.RadioButton();
             this.lblWatts = new System.Windows.Forms.Label();
             this.tbTargetPower = new System.Windows.Forms.TextBox();
             this.lblPower = new System.Windows.Forms.Label();
@@ -60,6 +61,7 @@ namespace ZwiftActivityMonitorV2
             // 
             // gbZwiftPacketMonitor
             // 
+            this.gbZwiftPacketMonitor.Controls.Add(this.rbSimulation);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblWatts);
             this.gbZwiftPacketMonitor.Controls.Add(this.tbTargetPower);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblPower);
@@ -81,10 +83,21 @@ namespace ZwiftActivityMonitorV2
             this.gbZwiftPacketMonitor.Controls.Add(this.label1);
             this.gbZwiftPacketMonitor.Location = new System.Drawing.Point(12, 12);
             this.gbZwiftPacketMonitor.Name = "gbZwiftPacketMonitor";
-            this.gbZwiftPacketMonitor.Size = new System.Drawing.Size(400, 224);
+            this.gbZwiftPacketMonitor.Size = new System.Drawing.Size(400, 238);
             this.gbZwiftPacketMonitor.TabIndex = 0;
             this.gbZwiftPacketMonitor.TabStop = false;
             this.gbZwiftPacketMonitor.Text = "Zwift Packet Monitor";
+            // 
+            // rbSimulation
+            // 
+            this.rbSimulation.AutoSize = true;
+            this.rbSimulation.Location = new System.Drawing.Point(47, 209);
+            this.rbSimulation.Name = "rbSimulation";
+            this.rbSimulation.Size = new System.Drawing.Size(118, 19);
+            this.rbSimulation.TabIndex = 20;
+            this.rbSimulation.TabStop = true;
+            this.rbSimulation.Text = "Power Simulation";
+            this.rbSimulation.UseVisualStyleBackColor = true;
             // 
             // lblWatts
             // 
@@ -227,6 +240,7 @@ namespace ZwiftActivityMonitorV2
             this.cbMonitorOthers.TabIndex = 3;
             this.cbMonitorOthers.Text = "Monitor Other Zwifters (So you don\'t have to ride to test)";
             this.cbMonitorOthers.UseVisualStyleBackColor = true;
+            this.cbMonitorOthers.CheckedChanged += new System.EventHandler(this.cbMonitorOthers_CheckedChanged);
             // 
             // btnStop
             // 
@@ -235,7 +249,6 @@ namespace ZwiftActivityMonitorV2
             this.btnStop.Size = new System.Drawing.Size(61, 25);
             this.btnStop.TabIndex = 2;
             this.btnStop.Text = "Stop";
-            this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // btnStart
@@ -245,7 +258,6 @@ namespace ZwiftActivityMonitorV2
             this.btnStart.Size = new System.Drawing.Size(61, 25);
             this.btnStart.TabIndex = 1;
             this.btnStart.Text = "Start";
-            this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // label2
@@ -269,7 +281,7 @@ namespace ZwiftActivityMonitorV2
             // btnClose
             // 
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnClose.Location = new System.Drawing.Point(170, 365);
+            this.btnClose.Location = new System.Drawing.Point(170, 379);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 1;
@@ -278,21 +290,25 @@ namespace ZwiftActivityMonitorV2
             // 
             // lvTrace
             // 
-            this.lvTrace.BackColor = System.Drawing.SystemColors.Window;
+            this.lvTrace.BackColor = System.Drawing.SystemColors.Control;
             this.lvTrace.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chPlayerId,
             this.chPower,
             this.chHeartrate,
             this.chEventTime});
+            this.lvTrace.ForeColor = System.Drawing.SystemColors.ControlText;
             this.lvTrace.HideSelection = false;
-            this.lvTrace.Location = new System.Drawing.Point(12, 242);
+            this.lvTrace.Location = new System.Drawing.Point(12, 256);
             this.lvTrace.MultiSelect = false;
             this.lvTrace.Name = "lvTrace";
+            this.lvTrace.OwnerDraw = true;
             this.lvTrace.Scrollable = false;
             this.lvTrace.Size = new System.Drawing.Size(400, 106);
             this.lvTrace.TabIndex = 2;
             this.lvTrace.UseCompatibleStateImageBehavior = false;
             this.lvTrace.View = System.Windows.Forms.View.Details;
+            this.lvTrace.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.ListView_DrawItem);
+            this.lvTrace.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.Listview_DrawSubItem);
             // 
             // chPlayerId
             // 
@@ -321,7 +337,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(424, 400);
+            this.ClientSize = new System.Drawing.Size(424, 412);
             this.Controls.Add(this.lvTrace);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.gbZwiftPacketMonitor);
@@ -334,6 +350,8 @@ namespace ZwiftActivityMonitorV2
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AdvancedOptions_FormClosed);
             this.Load += new System.EventHandler(this.AdvancedOptions_Load);
             this.Shown += new System.EventHandler(this.AdvancedOptions_Shown);
+            this.BackColorChanged += new System.EventHandler(this.AdvancedOptions_BackColorChanged);
+            this.ForeColorChanged += new System.EventHandler(this.AdvancedOptions_ForeColorChanged);
             this.VisibleChanged += new System.EventHandler(this.AdvancedOptions_VisibleChanged);
             this.gbZwiftPacketMonitor.ResumeLayout(false);
             this.gbZwiftPacketMonitor.PerformLayout();
@@ -369,5 +387,6 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Label lblPower;
         private System.Windows.Forms.Label lblWatts;
         private System.Windows.Forms.TextBox tbTargetPower;
+        private System.Windows.Forms.RadioButton rbSimulation;
     }
 }

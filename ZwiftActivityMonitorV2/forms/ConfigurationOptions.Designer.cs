@@ -37,8 +37,6 @@ namespace ZwiftActivityMonitorV2
             this.ucSystem = new ZwiftActivityMonitorV2.SystemControl();
             this.tpUserProfiles = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             this.ucUserProfiles = new ZwiftActivityMonitorV2.UserProfileControl();
-            this.tpCollectors = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
-            this.ucStatistics = new ZwiftActivityMonitorV2.StatisticsControl();
             this.tpSplits = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             this.ucSplits = new ZwiftActivityMonitorV2.SplitsConfigControlV2();
             this.tpLaps = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
@@ -50,7 +48,6 @@ namespace ZwiftActivityMonitorV2
             this.tabOptions.SuspendLayout();
             this.tpSystem.SuspendLayout();
             this.tpUserProfiles.SuspendLayout();
-            this.tpCollectors.SuspendLayout();
             this.tpSplits.SuspendLayout();
             this.tpLaps.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
@@ -62,7 +59,6 @@ namespace ZwiftActivityMonitorV2
             this.tabOptions.BeforeTouchSize = new System.Drawing.Size(598, 582);
             this.tabOptions.Controls.Add(this.tpSystem);
             this.tabOptions.Controls.Add(this.tpUserProfiles);
-            this.tabOptions.Controls.Add(this.tpCollectors);
             this.tabOptions.Controls.Add(this.tpSplits);
             this.tabOptions.Controls.Add(this.tpLaps);
             this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -122,31 +118,6 @@ namespace ZwiftActivityMonitorV2
             this.ucUserProfiles.Name = "ucUserProfiles";
             this.ucUserProfiles.Size = new System.Drawing.Size(589, 547);
             this.ucUserProfiles.TabIndex = 0;
-            // 
-            // tpCollectors
-            // 
-            this.tpCollectors.BackColor = System.Drawing.SystemColors.Control;
-            this.tpCollectors.Controls.Add(this.ucStatistics);
-            this.tpCollectors.Image = null;
-            this.tpCollectors.ImageSize = new System.Drawing.Size(16, 16);
-            this.tpCollectors.Location = new System.Drawing.Point(1, 27);
-            this.tpCollectors.Name = "tpCollectors";
-            this.tpCollectors.Padding = new System.Windows.Forms.Padding(3);
-            this.tpCollectors.ShowCloseButton = true;
-            this.tpCollectors.Size = new System.Drawing.Size(595, 553);
-            this.tpCollectors.TabIndex = 3;
-            this.tpCollectors.Text = "Collectors";
-            this.tpCollectors.ThemesEnabled = false;
-            // 
-            // ucStatistics
-            // 
-            this.ucStatistics.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ucStatistics.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucStatistics.Location = new System.Drawing.Point(3, 3);
-            this.ucStatistics.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
-            this.ucStatistics.Name = "ucStatistics";
-            this.ucStatistics.Size = new System.Drawing.Size(589, 547);
-            this.ucStatistics.TabIndex = 0;
             // 
             // tpSplits
             // 
@@ -239,7 +210,6 @@ namespace ZwiftActivityMonitorV2
             this.tabOptions.ResumeLayout(false);
             this.tpSystem.ResumeLayout(false);
             this.tpUserProfiles.ResumeLayout(false);
-            this.tpCollectors.ResumeLayout(false);
             this.tpSplits.ResumeLayout(false);
             this.tpLaps.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
@@ -256,8 +226,6 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.ErrorProvider errorProvider;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
-        private TabPageAdv tpCollectors;
-        private StatisticsControl ucStatistics;
         private TabPageAdv tpUserProfiles;
         private UserProfileControl ucUserProfiles;
         private TabPageAdv tpSystem;

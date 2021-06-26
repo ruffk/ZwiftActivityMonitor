@@ -29,9 +29,9 @@ namespace ZwiftActivityMonitorV2
 
                 m_userProfile.Weight = 165;
                 m_userProfile.PowerThreshold = 100;
-                m_userProfile.DefaultCollectors.Add("5 sec", true);
-                m_userProfile.DefaultCollectors.Add("5 min", true);
-                m_userProfile.DefaultCollectors.Add("20 min", true);
+                //m_userProfile.DefaultCollectors.Add("5 sec", true);
+                //m_userProfile.DefaultCollectors.Add("5 min", true);
+                //m_userProfile.DefaultCollectors.Add("20 min", true);
             }
             public UserProfileListViewItem(UserProfile userProfile) : base(SubItemStrings(userProfile))
             {
@@ -96,9 +96,9 @@ namespace ZwiftActivityMonitorV2
             base.UserControlBase_Load(sender, e);
 
             // Get collectors and add names only to the checked list box
-            List<Collector> collectors = ZAMsettings.Settings.GetCollectors;
+            //List<Collector> collectors = ZAMsettings.Settings.GetCollectors;
 
-            collectors.ForEach(collector => clbCollectors.Items.Add(collector.Name));
+            //collectors.ForEach(collector => clbCollectors.Items.Add(collector.Name));
 
             // Get users and add them to the listview
             List<UserProfile> users = ZAMsettings.Settings.GetUsers;
@@ -161,13 +161,13 @@ namespace ZwiftActivityMonitorV2
                 nPowerThreshold.Value = user.PowerThreshold;
                 tbEmailAddr.Text = user.EmailAddress;
 
-                for (int i = 0; i < clbCollectors.Items.Count; i++)
-                {
-                    if (!user.DefaultCollectors.TryGetValue(clbCollectors.Items[i].ToString(), out bool setting))
-                        setting = false;
+                //for (int i = 0; i < clbCollectors.Items.Count; i++)
+                //{
+                //    if (!user.DefaultCollectors.TryGetValue(clbCollectors.Items[i].ToString(), out bool setting))
+                //        setting = false;
 
-                    clbCollectors.SetItemChecked(i, setting);
-                }
+                //    clbCollectors.SetItemChecked(i, setting);
+                //}
             }
             else
             {
@@ -178,10 +178,10 @@ namespace ZwiftActivityMonitorV2
                 nPowerThreshold.Value = nPowerThreshold.Minimum;
                 tbEmailAddr.Text = "";
 
-                for (int i = 0; i < clbCollectors.Items.Count; i++)
-                {
-                    clbCollectors.SetItemChecked(i, false);
-                }
+                //for (int i = 0; i < clbCollectors.Items.Count; i++)
+                //{
+                //    clbCollectors.SetItemChecked(i, false);
+                //}
 
             }
         }
@@ -220,7 +220,7 @@ namespace ZwiftActivityMonitorV2
                 rbLbs.Enabled = value;
                 nPowerThreshold.Enabled = value;
                 tbEmailAddr.Enabled = value;
-                clbCollectors.Enabled = value;
+                //clbCollectors.Enabled = value;
 
                 m_editMode = value;
 
@@ -324,7 +324,7 @@ namespace ZwiftActivityMonitorV2
             errorOccurred = (errorOccurred || ValidateUserProfiles(rbKgs));
             errorOccurred = (errorOccurred || ValidateUserProfiles(nPowerThreshold));
             errorOccurred = (errorOccurred || ValidateUserProfiles(tbEmailAddr));
-            errorOccurred = (errorOccurred || ValidateUserProfiles(clbCollectors));
+            //errorOccurred = (errorOccurred || ValidateUserProfiles(clbCollectors));
 
             if (!errorOccurred)
             {
@@ -513,36 +513,36 @@ namespace ZwiftActivityMonitorV2
                     }
                     break;
 
-                case "clbCollectors":
-                    try
-                    {
-                        if (clbCollectors.CheckedItems.Count < 1)
-                        {
-                            throw new ApplicationException($"Please select at least one default collector.");
-                        }
+                //case "clbCollectors":
+                //    try
+                //    {
+                //        if (clbCollectors.CheckedItems.Count < 1)
+                //        {
+                //            throw new ApplicationException($"Please select at least one default collector.");
+                //        }
 
-                        if (clbCollectors.CheckedItems.Count > 3)
-                        {
-                            throw new ApplicationException($"A maximum of three default collectors may be selected.");
-                        }
+                //        if (clbCollectors.CheckedItems.Count > 3)
+                //        {
+                //            throw new ApplicationException($"A maximum of three default collectors may be selected.");
+                //        }
 
-                        user.DefaultCollectors.Clear();
+                //        user.DefaultCollectors.Clear();
 
-                        for (int i = 0; i < clbCollectors.Items.Count; i++)
-                        {
-                            if (clbCollectors.GetItemChecked(i))
-                                user.DefaultCollectors.Add(clbCollectors.Items[i].ToString(), true);
-                        }
+                //        for (int i = 0; i < clbCollectors.Items.Count; i++)
+                //        {
+                //            if (clbCollectors.GetItemChecked(i))
+                //                user.DefaultCollectors.Add(clbCollectors.Items[i].ToString(), true);
+                //        }
 
-                        // clear the highlight bar
-                        clbCollectors.SelectedItem = null;
-                    }
-                    catch (Exception ex)
-                    {
-                        errorProvider.SetError(control, ex.Message);
-                        errorOccurred = true;
-                    }
-                    break;
+                //        // clear the highlight bar
+                //        clbCollectors.SelectedItem = null;
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        errorProvider.SetError(control, ex.Message);
+                //        errorOccurred = true;
+                //    }
+                //    break;
 
                 default:
                     Debug.Assert(1 == 0, $"Unknown control {control.Name} passed to validate method.");
@@ -634,7 +634,7 @@ namespace ZwiftActivityMonitorV2
 
             this.tbDescUsers.BackColor = this.BackColor;
             //this.lvUserProfiles.BackColor = this.BackColor;
-            this.clbCollectors.BackColor = this.BackColor;
+            //this.clbCollectors.BackColor = this.BackColor;
 
             //UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, this.BackColor, this.ForeColor);
         }
@@ -645,7 +645,7 @@ namespace ZwiftActivityMonitorV2
 
             this.tbDescUsers.ForeColor = this.ForeColor;
             //this.lvUserProfiles.ForeColor = this.ForeColor;
-            this.clbCollectors.ForeColor = this.ForeColor;
+            //this.clbCollectors.ForeColor = this.ForeColor;
             this.gbUserProfiles.ForeColor = this.ForeColor;
 
             //UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, this.BackColor, this.ForeColor);

@@ -35,7 +35,7 @@ namespace ZwiftActivityMonitorV2
         private int mSimulationDistance;
         private int mSimulationRoadTime;
 
-        private const bool SimulateRiderActivity = true;
+        public bool SimulateRiderActivity { get; internal set; }
 
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
@@ -85,10 +85,10 @@ namespace ZwiftActivityMonitorV2
 
         public void StartMonitor()
         {
-            StartMonitor(false, 0, 0);
+            StartMonitor(false, 0, 0, false);
         }
 
-        public void StartMonitor(bool debugMode, int targetHR, int targetPower)
+        public void StartMonitor(bool debugMode, int targetHR, int targetPower, bool simulateRiderActivity)
         {
             if (this.IsZPMonitorStarted)
             {
@@ -101,6 +101,7 @@ namespace ZwiftActivityMonitorV2
             IsDebugMode = debugMode;
             TargetHeartrate = targetHR;
             TargetPower = targetPower;
+            SimulateRiderActivity = simulateRiderActivity;
 
             //mLastPlayerStateUpdate = DateTime.Now;
             EventsProcessed = 0;

@@ -9,6 +9,10 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
+    #region UserCollectorSummary class
+    /// <summary>
+    /// Settings for the ActivityViewControl's Summary Power and Speed columns
+    /// </summary>
     public class UserCollectorSummary : ConfigItemBase, ICloneable
     {
         public SortedList<CollectorMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
@@ -77,9 +81,13 @@ namespace ZwiftActivityMonitorV2
         {
             return this.MemberwiseClone();
         }
-
     }
+    #endregion
 
+    #region UserCollector class
+    /// <summary>
+    /// Settings for the ActivityViewControl's Detail Power columns and visibility
+    /// </summary>
     public class UserCollector : ConfigItemBase, ICloneable
     {
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
@@ -94,6 +102,7 @@ namespace ZwiftActivityMonitorV2
         {
 
         }
+
         public UserCollector(DurationType duration)
         {
             this.DurationSetting = duration;
@@ -202,9 +211,13 @@ namespace ZwiftActivityMonitorV2
         {
             return this.MemberwiseClone();
         }
-
     }
+    #endregion
 
+    #region UserCollectorMetric class
+    /// <summary>
+    /// Settings for the ActivityViewControl's Detail column visibility
+    /// </summary>
     public class UserCollectorMetric : ConfigItemBase, ICloneable
     {
         public KeyStringPair<CollectorMetricType> Metric { get; set; }
@@ -256,14 +269,14 @@ namespace ZwiftActivityMonitorV2
         {
             return this.MemberwiseClone();
         }
-
     }
+    #endregion
 
     public class UserProfile : ConfigItemBase, ICloneable
     {
         public string UniqueId { get; set; } = "";
         public int PowerThreshold { get; set; }
-        public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
+        //public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
         public SortedList<DurationType, UserCollector> Collectors = new();
         public SortedList<CollectorMetricType, UserCollectorMetric> CollectorMetrics = new();
@@ -331,59 +344,59 @@ namespace ZwiftActivityMonitorV2
             return this.MemberwiseClone();
         }
 
-        public void ClearDefaultCollectors()
-        {
-            DefaultCollectors.Clear();
-        }
+        //public void ClearDefaultCollectors()
+        //{
+        //    DefaultCollectors.Clear();
+        //}
 
-        public void AddDefaultCollector(string name)
-        {
-            DefaultCollectors.Add(name, true);
-        }
+        //public void AddDefaultCollector(string name)
+        //{
+        //    DefaultCollectors.Add(name, true);
+        //}
 
-        [JsonIgnore]
-        public SortedList<string, Collector> SelectedCollectors
-        {
-            get
-            {
-                SortedList<string, Collector> list = new SortedList<string, Collector>();
+        //[JsonIgnore]
+        //public SortedList<string, Collector> SelectedCollectors
+        //{
+        //    get
+        //    {
+        //        SortedList<string, Collector> list = new SortedList<string, Collector>();
 
-                foreach (var item in DefaultCollectors)
-                {
-                    if (item.Value == true)
-                    {
-                        if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
-                            list.Add(item.Key, ZAMsettings.Settings.Collectors[item.Key]);
-                    }
-                }
-                return list;
-            }
-        }
+        //        foreach (var item in DefaultCollectors)
+        //        {
+        //            if (item.Value == true)
+        //            {
+        //                if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
+        //                    list.Add(item.Key, ZAMsettings.Settings.Collectors[item.Key]);
+        //            }
+        //        }
+        //        return list;
+        //    }
+        //}
 
-        [JsonIgnore]
-        public List<Collector> GetCollectors
-        {
-            get
-            {
-                List<Collector> collectors = new();
-                foreach (var item in DefaultCollectors)
-                {
-                    if (item.Value == true)
-                    {
-                        if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
-                            collectors.Add(ZAMsettings.Settings.Collectors[item.Key]);
-                    }
-                }
-                collectors.Sort(
-                    delegate (Collector p1, Collector p2)
-                    {
-                        return p1.DurationSecs.CompareTo(p2.DurationSecs);
-                    }
-                );
+        //[JsonIgnore]
+        //public List<Collector> GetCollectors
+        //{
+        //    get
+        //    {
+        //        List<Collector> collectors = new();
+        //        foreach (var item in DefaultCollectors)
+        //        {
+        //            if (item.Value == true)
+        //            {
+        //                if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
+        //                    collectors.Add(ZAMsettings.Settings.Collectors[item.Key]);
+        //            }
+        //        }
+        //        collectors.Sort(
+        //            delegate (Collector p1, Collector p2)
+        //            {
+        //                return p1.DurationSecs.CompareTo(p2.DurationSecs);
+        //            }
+        //        );
 
-                return collectors.ToList<Collector>();
-            }
-        }
+        //        return collectors.ToList<Collector>();
+        //    }
+        //}
 
 
         public bool WeightInKgs

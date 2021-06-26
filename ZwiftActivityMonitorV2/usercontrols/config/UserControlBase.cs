@@ -84,7 +84,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="list"></param>
         /// <param name="backColor"></param>
         /// <param name="foreColor"></param>
-        protected static void SetListViewHeaderColor(ref ListView list, Color backColor, Color foreColor)
+        public static void SetListViewHeaderColor(ref ListView list, Color backColor, Color foreColor)
         {
             //ILogger logger = ZAMsettings.LoggerFactory.CreateLogger("SetListViewHeaderColor");
             //logger.LogInformation($"ListView {list.Name}");

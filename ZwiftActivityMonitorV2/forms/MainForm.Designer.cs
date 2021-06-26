@@ -352,7 +352,7 @@ namespace ZwiftActivityMonitorV2
             this.ShowIcon = false;
             this.Text = "Activity Monitor";
             this.TopMost = true;
-            this.UseOffice2010SchemeBackColor = true;
+            this.UseOffice2010SchemeBackColor = false;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.Resize += new System.EventHandler(this.MainForm_Resize);

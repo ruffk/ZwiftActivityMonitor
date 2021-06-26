@@ -18,7 +18,7 @@ namespace ZwiftActivityMonitorV2
 
             InitializeComponent();
 
-            ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
+            //ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
             ucUserProfiles.Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
             ucSystem.Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
             //SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
@@ -39,8 +39,8 @@ namespace ZwiftActivityMonitorV2
             this.tpSystem.BackColor = this.ColorTable.FormBackground;
             this.tpSystem.ForeColor = this.ColorTable.FormTextColor;
 
-            this.tpCollectors.BackColor = this.ColorTable.FormBackground;
-            this.tpCollectors.ForeColor = this.ColorTable.FormTextColor;
+            //this.tpCollectors.BackColor = this.ColorTable.FormBackground;
+            //this.tpCollectors.ForeColor = this.ColorTable.FormTextColor;
 
             this.tpLaps.BackColor = this.ColorTable.FormBackground;
             this.tpLaps.ForeColor = this.ColorTable.FormTextColor;
@@ -75,10 +75,10 @@ namespace ZwiftActivityMonitorV2
             if (e.Cancel)
                 return;
 
-            ucStatistics.ControlLosingFocus(sender, e);
-            args.Cancel = e.Cancel;
-            if (e.Cancel)
-                return;
+            //ucStatistics.ControlLosingFocus(sender, e);
+            //args.Cancel = e.Cancel;
+            //if (e.Cancel)
+            //    return;
 
             ucUserProfiles.ControlLosingFocus(sender, e);
             args.Cancel = e.Cancel;
@@ -209,8 +209,8 @@ namespace ZwiftActivityMonitorV2
                 case "tpUserProfiles":
                     break;
 
-                case "tpCollectors":
-                    break;
+                //case "tpCollectors":
+                //    break;
 
                 case "tpSplits":
                     break;
@@ -238,9 +238,9 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlLosingFocus(sender, args);
                     break;
 
-                case "tpCollectors":
-                    this.ucStatistics.ControlLosingFocus(sender, args);
-                    break;
+                //case "tpCollectors":
+                //    this.ucStatistics.ControlLosingFocus(sender, args);
+                //    break;
 
                 case "tpSplits":
                     this.ucSplits.ControlLosingFocus(sender, args);
@@ -269,9 +269,9 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlGainingFocus(sender, e);
                     break;
 
-                case "tpCollectors":
-                    this.ucStatistics.ControlGainingFocus(sender, e);
-                    break;
+                //case "tpCollectors":
+                //    this.ucStatistics.ControlGainingFocus(sender, e);
+                //    break;
 
                 case "tpSplits":
                     this.ucSplits.ControlGainingFocus(sender, e);
@@ -281,8 +281,6 @@ namespace ZwiftActivityMonitorV2
                     this.ucLaps.ControlGainingFocus(sender, e);
                     break;
             }
-
         }
-
     }
 }

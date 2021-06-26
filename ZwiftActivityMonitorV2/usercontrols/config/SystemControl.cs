@@ -460,9 +460,6 @@ namespace ZwiftActivityMonitorV2
             base.Parent_BackColorChanged(sender, e);
 
             this.tbDescSystem.BackColor = this.BackColor;
-            //this.lvTrace.BackColor = this.BackColor;
-
-            //UserControlBase.SetListViewHeaderColor(ref this.lvTrace, this.BackColor, this.ForeColor);
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)
@@ -472,9 +469,6 @@ namespace ZwiftActivityMonitorV2
             this.tbDescSystem.ForeColor = this.ForeColor;
             this.gbSystemSettings.ForeColor = this.ForeColor;
             this.gbSystemZpm.ForeColor = this.ForeColor;
-            //this.lvTrace.ForeColor = this.ForeColor;
-
-            //UserControlBase.SetListViewHeaderColor(ref this.lvTrace, this.BackColor, this.ForeColor);
         }
 
     }

@@ -35,8 +35,6 @@ namespace ZwiftActivityMonitorV2
             this.pUserProfiles = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.tbEmailAddr = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.clbCollectors = new System.Windows.Forms.CheckedListBox();
             this.label3 = new System.Windows.Forms.Label();
             this.pWeightUomGroup = new System.Windows.Forms.Panel();
             this.rbKgs = new System.Windows.Forms.RadioButton();
@@ -114,8 +112,6 @@ namespace ZwiftActivityMonitorV2
             // 
             this.pUserProfiles.Controls.Add(this.label2);
             this.pUserProfiles.Controls.Add(this.tbEmailAddr);
-            this.pUserProfiles.Controls.Add(this.label4);
-            this.pUserProfiles.Controls.Add(this.clbCollectors);
             this.pUserProfiles.Controls.Add(this.label3);
             this.pUserProfiles.Controls.Add(this.pWeightUomGroup);
             this.pUserProfiles.Controls.Add(this.tbWeight);
@@ -157,29 +153,6 @@ namespace ZwiftActivityMonitorV2
             this.tbEmailAddr.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
             this.tbEmailAddr.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
             this.tbEmailAddr.Validating += new System.ComponentModel.CancelEventHandler(this.UserProfiles_Validating);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(35, 292);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(63, 15);
-            this.label4.TabIndex = 122;
-            this.label4.Text = "Collectors:";
-            // 
-            // clbCollectors
-            // 
-            this.clbCollectors.BackColor = System.Drawing.SystemColors.Control;
-            this.clbCollectors.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.clbCollectors.CheckOnClick = true;
-            this.clbCollectors.FormattingEnabled = true;
-            this.clbCollectors.Location = new System.Drawing.Point(106, 262);
-            this.clbCollectors.Name = "clbCollectors";
-            this.clbCollectors.Size = new System.Drawing.Size(114, 126);
-            this.clbCollectors.TabIndex = 75;
-            this.clbCollectors.Enter += new System.EventHandler(this.UserProfiles_TooltipOnEnter);
-            this.clbCollectors.Leave += new System.EventHandler(this.UserProfiles_TooltipOnLeave);
-            this.clbCollectors.Validating += new System.ComponentModel.CancelEventHandler(this.UserProfiles_Validating);
             // 
             // label3
             // 
@@ -444,8 +417,6 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.TextBox tbDescUsers;
         private System.Windows.Forms.GroupBox gbUserProfiles;
         private System.Windows.Forms.Panel pUserProfiles;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.CheckedListBox clbCollectors;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Panel pWeightUomGroup;
         private System.Windows.Forms.RadioButton rbKgs;

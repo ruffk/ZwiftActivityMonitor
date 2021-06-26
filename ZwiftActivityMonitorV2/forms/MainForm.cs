@@ -73,9 +73,6 @@ namespace ZwiftActivityMonitorV2
             // Determine window size
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
-            // Set the environment based on the current user
-            this.SetupCurrentUser();
-
             // toggle the tabs so the first tab gets initialized
             tabControl.SelectedIndex = 1;
             tabControl.SelectedIndex = 0;
@@ -93,6 +90,7 @@ namespace ZwiftActivityMonitorV2
 
         private void SetControlColors()
         {
+            Debug.WriteLine($"MainForm - SetControlColors");
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             ZAMappearance.ApplyColorScheme(this);
@@ -322,30 +320,6 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-
-        private void SetupCurrentUser()
-        {
-            // Get the currently selected user profile. This will be the user marked as default at startup, but can be changed at runtime.
-            //this.CurrentUserProfile = ZAMsettings.Settings.CurrentUser;
-
-            //SortedList<string, Collector> selectedCollectors = m_currentUser.SelectedCollectors;
-
-            //// Check the menu items for user selected collectors, uncheck the others
-            //foreach (ToolStripItem mi in tsmiAnalyze.DropDownItems)
-            //{
-            //    ToolStripMenuItem tsmi = mi as ToolStripMenuItem;
-
-            //    if (tsmi != null)
-            //    {
-            //        tsmi.Checked = selectedCollectors.ContainsKey(tsmi.Text);
-            //    }
-            //}
-
-            //// Load collectors for whatever is defined in by the checked menu items
-            //LoadMovingAverageCollection();
-
-            Logger.LogInformation("SetupCurrentUser");
-        }
 
         /// <summary>
         /// A delegate used solely by the ZPMonitorService_CollectionStatusChanged
