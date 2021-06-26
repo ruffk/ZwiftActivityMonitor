@@ -4,19 +4,15 @@
 
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
 
-**Release 1.2.5 now available**
+**Release 1.2.6 now available**
 
-* Added support for lap and segment timing.
-  * Functionality modeled after Garmin head units
-  * Allows for manual or auto-lap settings
-  * Auto-lap triggers can be configured by distance, time, or position.
-  * Position waypoint can occur on Start and/or Lap Press or Lap Press only.
-* Split and Lap completions now will display a small dialog with related info.  Dialog will auto-close.
+* Added support customizable split goals
+  * ZAM continues to layout initial splits using split distance, goal distance, and goal time.
+  * Splits can then be edited, removed, or even added manually.
+  * Total distance and time will update according to custom entries.
+* System settings now allows for window coordinates ranging from -9999 to 99999.  Hopefully this rectifies auto-window positioning issues.
 
-The readme file will contain additional information related to Laps and their configuration.
-
-![lap_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapView.png)
-#### New lap view window
+The readme file will contain additional information related to Splits and their configuration.
 
 ### Please join the Zwift Activity Monitor Users FB group to keep in touch with us and other ZAM users!
 
