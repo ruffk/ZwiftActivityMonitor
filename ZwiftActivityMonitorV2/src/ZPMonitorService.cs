@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ZwiftPacketMonitor;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -212,6 +213,8 @@ namespace ZwiftActivityMonitorV2
 
         public async void StartCollection(bool startWithEventTimer)
         {
+            Debug.WriteLine($"StartCollection - startWithEventTimer: {startWithEventTimer}");
+
             if (!this.IsCollectionStarted && !this.IsCollectionStartWaiting)
             {
                 // update all the menu items accordingly

@@ -42,6 +42,8 @@ namespace ZwiftActivityMonitorV2
             this.ucLapView = new ZwiftActivityMonitorV2.LapViewerControl();
             this.tpColor = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             this.ucColorView = new ZwiftActivityMonitorV2.ColorAndFontViewerControl();
+            this.tpTimer = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
+            this.ucTimerSetupView = new ZwiftActivityMonitorV2.TimerSetupViewerControl();
             this.pnBottom = new System.Windows.Forms.Panel();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tssbMenu = new System.Windows.Forms.ToolStripSplitButton();
@@ -59,9 +61,11 @@ namespace ZwiftActivityMonitorV2
             this.formSyncTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
             this.tabControl.SuspendLayout();
+            this.tpActivity.SuspendLayout();
             this.tpSplit.SuspendLayout();
             this.tpLap.SuspendLayout();
             this.tpColor.SuspendLayout();
+            this.tpTimer.SuspendLayout();
             this.pnBottom.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -79,6 +83,7 @@ namespace ZwiftActivityMonitorV2
             this.tabControl.Controls.Add(this.tpSplit);
             this.tabControl.Controls.Add(this.tpLap);
             this.tabControl.Controls.Add(this.tpColor);
+            this.tabControl.Controls.Add(this.tpTimer);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.FocusOnTabClick = false;
             this.tabControl.InactiveTabColor = System.Drawing.Color.FromArgb(((int)(((byte)(227)))), ((int)(((byte)(230)))), ((int)(((byte)(232)))));
@@ -221,6 +226,35 @@ namespace ZwiftActivityMonitorV2
             this.ucColorView.Size = new System.Drawing.Size(320, 147);
             this.ucColorView.TabIndex = 0;
             // 
+            // tpTimer
+            // 
+            this.tpTimer.Controls.Add(this.ucTimerSetupView);
+            this.tpTimer.Image = global::ZwiftActivityMonitorV2.Properties.Resources.clock;
+            this.tpTimer.ImageSize = new System.Drawing.Size(16, 16);
+            this.tpTimer.Location = new System.Drawing.Point(1, 0);
+            this.tpTimer.Name = "tpTimer";
+            this.tpTimer.ShowCloseButton = true;
+            this.tpTimer.Size = new System.Drawing.Size(320, 147);
+            this.tpTimer.TabIndex = 5;
+            this.tpTimer.ThemesEnabled = false;
+            this.tpTimer.ToolTipText = "Timer Setup";
+            // 
+            // ucTimerSetupView
+            // 
+            this.ucTimerSetupView.AutoSize = true;
+            this.ucTimerSetupView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucTimerSetupView.HeaderForeColor = System.Drawing.Color.Empty;
+            this.ucTimerSetupView.HeaderGradientBeginColor = System.Drawing.SystemColors.Control;
+            this.ucTimerSetupView.HeaderGradientEndColor = System.Drawing.SystemColors.ControlDark;
+            this.ucTimerSetupView.IsTimerRunning = false;
+            this.ucTimerSetupView.Location = new System.Drawing.Point(0, 0);
+            this.ucTimerSetupView.Name = "ucTimerSetupView";
+            this.ucTimerSetupView.RowBackColor = System.Drawing.Color.Empty;
+            this.ucTimerSetupView.RowFont = null;
+            this.ucTimerSetupView.RowForeColor = System.Drawing.Color.Empty;
+            this.ucTimerSetupView.Size = new System.Drawing.Size(320, 147);
+            this.ucTimerSetupView.TabIndex = 0;
+            // 
             // pnBottom
             // 
             this.pnBottom.BackColor = System.Drawing.Color.Transparent;
@@ -343,27 +377,28 @@ namespace ZwiftActivityMonitorV2
             this.CaptionAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.CaptionFont = new System.Drawing.Font("Franklin Gothic Heavy", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.ClientSize = new System.Drawing.Size(347, 170);
-            this.ColorScheme = Syncfusion.Windows.Forms.Office2010Theme.Blue;
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.pnBottom);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.ShowIcon = false;
             this.Text = "Activity Monitor";
             this.TopMost = true;
-            this.UseOffice2010SchemeBackColor = false;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).EndInit();
             this.tabControl.ResumeLayout(false);
+            this.tpActivity.ResumeLayout(false);
+            this.tpActivity.PerformLayout();
             this.tpSplit.ResumeLayout(false);
             this.tpSplit.PerformLayout();
             this.tpLap.ResumeLayout(false);
             this.tpLap.PerformLayout();
             this.tpColor.ResumeLayout(false);
             this.tpColor.PerformLayout();
+            this.tpTimer.ResumeLayout(false);
+            this.tpTimer.PerformLayout();
             this.pnBottom.ResumeLayout(false);
             this.pnBottom.PerformLayout();
             this.statusStrip.ResumeLayout(false);
@@ -375,7 +410,6 @@ namespace ZwiftActivityMonitorV2
         #endregion
         private TabControlAdv tabControl;
         private TabPageAdv tpActivity;
-        private ActivityViewerControl ucActivityView;
         private TabPageAdv tpSplit;
         private SplitViewerControl ucSplitView;
         private TabPageAdv tpLap;
@@ -397,5 +431,8 @@ namespace ZwiftActivityMonitorV2
         private ToolStripStatusLabel statusLabel;
         private ToolStripStatusLabel tsslSeparator1;
         private Timer formSyncTimer;
+        private TimerSetupViewerControl ucTimerSetupView;
+        private TabPageAdv tpTimer;
+        private ActivityViewerControl ucActivityView;
     }
 }

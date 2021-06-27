@@ -17,24 +17,14 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class ColorAndFontViewerControl : ViewerUserControlEx
     {
-
-        // temp
-        //public ZAMColorScheme ZAMColors { get; } = new ZAMColorScheme();
-
         private bool InitializingControls { get; set; } = false;
 
         public event EventHandler<ColorsAndFontChangedEventArgs> ColorsAndFontChanged;
 
-        private ToolTip mToolTip = new();
-
-
         public ColorAndFontViewerControl()
         {
             InitializeComponent();
-
             
-            //Appearance.InitializeDefaultValues();
-
             this.cbFonts.Fill();
 
             this.btnColor.ColorGroups = ((Syncfusion.Windows.Forms.ColorUIGroups)

@@ -160,8 +160,6 @@ namespace ZwiftActivityMonitorV2
 
         public static void ApplyColorScheme(Office2010Form form)
         {
-            form.UseOffice2010SchemeBackColor = true;
-
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             if (settings.ThemeSetting != ThemeType.Custom)
@@ -178,6 +176,7 @@ namespace ZwiftActivityMonitorV2
                 form.ColorScheme = Office2010Theme.Managed;
                 Office2010Colors.ApplyManagedColors(form, settings.ManagedColor);
             }
+            form.UseOffice2010SchemeBackColor = true;
 
         }
     }

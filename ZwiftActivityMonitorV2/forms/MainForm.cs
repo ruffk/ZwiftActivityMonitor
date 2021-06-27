@@ -25,9 +25,8 @@ namespace ZwiftActivityMonitorV2
     {
 
         private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
-        private bool mStartCollectionOnEventTimerStart;
 
-        private SynchronizationContext UISyncContext;
+        //private SynchronizationContext UISyncContext;
 
         private readonly ILogger<MainForm> Logger;
         private readonly IServiceProvider ServiceProvider;
@@ -54,18 +53,20 @@ namespace ZwiftActivityMonitorV2
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
             }
 
+            this.Icon = Properties.Resources.ZAMicon;
+
             ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
+            ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent; 
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
             ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
             ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
         }
 
-
         private void MainForm_Load(object sender, EventArgs e)
         {
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
-            this.UISyncContext = WindowsFormsSynchronizationContext.Current;
+            //this.UISyncContext = WindowsFormsSynchronizationContext.Current;
 
             this.SetControlColors();
 
@@ -133,6 +134,7 @@ namespace ZwiftActivityMonitorV2
             tpSplit.BackColor = backColor;
             tpLap.BackColor = backColor;
             tpColor.BackColor = this.ColorTable.FormBackground;
+            tpTimer.BackColor = this.ColorTable.FormBackground;
 
             tabControl.TabPanelBackColor = this.ColorTable.ActiveFormBorderColor;
             tabControl.InactiveTabColor = this.ColorTable.ActiveFormBorderColor;
@@ -147,6 +149,7 @@ namespace ZwiftActivityMonitorV2
             tpSplit.ForeColor = foreColor;
             tpLap.ForeColor = foreColor;
             tpColor.ForeColor = this.ColorTable.FormTextColor;
+            tpTimer.ForeColor = this.ColorTable.FormTextColor;
 
             ucActivityView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
             ucActivityView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
@@ -171,6 +174,12 @@ namespace ZwiftActivityMonitorV2
             ucColorView.HeaderForeColor = this.ColorTable.FormTextColor;
             ucColorView.RowBackColor = backColor;
             ucColorView.RowForeColor = foreColor;
+            
+            ucTimerSetupView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
+            ucTimerSetupView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
+            ucTimerSetupView.HeaderForeColor = this.ColorTable.FormTextColor;
+            ucTimerSetupView.RowBackColor = backColor;
+            ucTimerSetupView.RowForeColor = foreColor;
 
             FontStyle style = 0;
 
@@ -182,7 +191,8 @@ namespace ZwiftActivityMonitorV2
             ucActivityView.RowFont  = font;
             ucSplitView.RowFont     = font;
             ucLapView.RowFont       = font;
-            ucColorView.RowFont     = font;
+            ucColorView.RowFont = font;
+            ucTimerSetupView.RowFont = font;
 
         }
 
@@ -190,7 +200,7 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.tabControl.SelectedTab == null)
                 return;
-
+            
             //Debug.WriteLine($"tabControl_SelectedIndexChanging - TabPageName: {this.tabControl.SelectedTab.Name}");
 
             switch (this.tabControl.SelectedTab.Name)
@@ -214,6 +224,10 @@ namespace ZwiftActivityMonitorV2
                         this.TransparencyKey = this.BackColor;
                     }
                     this.ucColorView.ControlLosingFocus(sender, e);
+                    break;
+
+                case "tpTimer":
+                    this.ucTimerSetupView.ControlLosingFocus(sender, e);
                     break;
             }
         }
@@ -251,6 +265,11 @@ namespace ZwiftActivityMonitorV2
                         this.TransparencyKey = Color.Empty;
                     }
                     this.ucColorView.ControlGainingFocus(sender, e);
+                    break;
+
+                case "tpTimer":
+                    this.Text = HomeTitle + " (Timer)";
+                    this.ucTimerSetupView.ControlGainingFocus(sender, e);
                     break;
             }
         }
@@ -408,48 +427,47 @@ namespace ZwiftActivityMonitorV2
                 tsmiAdvanced.Enabled = false;
 
                 if (ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
+                {
                     statusLabel.Text = "Waiting on Event clock...";
-                else
+                }
+                else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
+                {
                     statusLabel.Text = "Started";
+                }
             }
             else
             {
                 tsmiStop.Enabled = false;
-                tsmiStart.Enabled = true;
+                tsmiStart.Enabled = ZAMsettings.ZPMonitorService.IsZPMonitorStarted;
 
                 tsmiTimer.Enabled = true;
-                tsmiConfiguration.Enabled = true;
-                tsmiAdvanced.Enabled = true;
 
-                //tsmiSetupTimer.Enabled = true;
-                //tsmiStopTimer.Enabled = false;
-
-                // set Timer menu sub-items
-                //if (countdownTimer.Enabled)
-                //{
-                //    // Clear any values on the screen
-                //    MainView.RefreshListViews(true);
-                //    SplitsView.ClearListView();
-                //    LapView.ClearListView();
-
-                //    tsmiSetupTimer.Enabled = false;
-                //    tsmiStopTimer.Enabled = true;
-                //    tsmiStart.Enabled = false;
-                //    tsmiOptions.Enabled = false;
-                //    tsmiAdvanced.Enabled = false;
-                //}
+                if (ucTimerSetupView.IsTimerRunning)
+                {
+                    tsmiConfiguration.Enabled = false;
+                    tsmiAdvanced.Enabled = false;
+                }
+                else
+                {
+                    tsmiConfiguration.Enabled = true;
+                    tsmiAdvanced.Enabled = true;
+                }
 
                 if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
+                {
                     statusLabel.Text = "Select Menu->Start to begin";
+                }
                 else
+                {
                     statusLabel.Text = "ZPM Service Not Running";
-
+                }
             }
         }
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-
+            Debug.WriteLine($"{this.ColorScheme.ToString()}");
+            Debug.WriteLine($"{this.ColorTable.ToString()}");
         }
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
@@ -460,11 +478,6 @@ namespace ZwiftActivityMonitorV2
         private void tsmiConfiguration_Click(object sender, EventArgs e)
         {
             new ConfigurationOptions(this.Location).ShowDialog(this);
-
-            //SetupCurrentUser();
-
-            // Allow menus and status bar to update according to what user just did
-            //OnCollectionStatusChanged();
         }
 
         private void tsmiStart_Click(object sender, EventArgs e)
@@ -484,8 +497,29 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.StopCollection();
         }
 
+        private void UcTimerSetupView_CountdownTimerTickEvent(object sender, CountdownTimerTickEventArgs e)
+        {
+            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
-        private bool postLoadCompleted;
+            SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
+
+            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
+
+            Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
+
+            if (e.IsCompleted)
+            {
+                ZAMsettings.ZPMonitorService.StartCollection(e.StartWithEventTimer);
+            }
+            else if (e.IsCanceled)
+            {
+                this.OnCollectionStatusChanged();
+            }
+            else
+            {
+                statusLabel.Text = $"Time Remaining: {(e.TimeRemaining.TotalMinutes > 60 ? e.TimeRemaining.Hours.ToString() + " hr " : "")}{(e.TimeRemaining.TotalSeconds > 60 ? e.TimeRemaining.Minutes.ToString() + " min " : "")}{e.TimeRemaining.Seconds.ToString() + " sec"}";
+            }
+        }
 
         /// <summary>
         /// General use timer set for one second intervals
@@ -498,12 +532,6 @@ namespace ZwiftActivityMonitorV2
 
             // The one second timer gets the actual tick count in it's event args
             OnFormSyncOneSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount));
-
-            if (!postLoadCompleted)
-            {
-                ucActivityView.Control_PostLoad();
-                this.postLoadCompleted = true;
-            }
 
             // Has five seconds elapsed?
             if (mSyncFormTimerTickCount % 5 == 0)

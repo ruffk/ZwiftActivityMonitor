@@ -730,14 +730,11 @@ namespace ZwiftActivityMonitorV2
             //Debug.WriteLine($"ActivityViewerControl_ctor started...");
             InitializeComponent();
 
+            if (this.DesignMode)
+                return;
+
             mMovingAverageManager = new();
 
-            InitializeDetailDataGrid();
-            InitializeSummaryDataGrid();
-
-            // Subscribe to any SystemConfig changes
-            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
-            ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
 
             //Debug.WriteLine($"ActivityViewerControl_ctor completed.");
         }
@@ -756,7 +753,19 @@ namespace ZwiftActivityMonitorV2
 
         private void ViewControl_Load(object sender, EventArgs e)
         {
+            if (this.DesignMode)
+                return;
+
             Debug.WriteLine($"ActivityViewerControl_Load");
+
+            InitializeDetailDataGrid();
+            InitializeSummaryDataGrid();
+
+            // Subscribe to any SystemConfig changes
+            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+            ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
+
+
 
             //this.SetRowVisibilityStatus();
             this.SetupDisplayForCurrentUserProfile();
@@ -764,7 +773,10 @@ namespace ZwiftActivityMonitorV2
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
 
-            (this.ParentForm as MainForm).FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
+            if (this.ParentForm != null)
+            {
+                (this.ParentForm as MainForm).FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
+            }
 
             //Debug.WriteLine($"ViewControl_Load2 - Row[0].Visible: {dgDetail.Rows[0].Visible}");
         }

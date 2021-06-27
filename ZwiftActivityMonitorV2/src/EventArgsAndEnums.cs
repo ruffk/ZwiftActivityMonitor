@@ -331,6 +331,21 @@ namespace ZwiftActivityMonitorV2
         }
 
     }
+    public class CountdownTimerTickEventArgs : EventArgs
+    {
+        public TimeSpan TimeRemaining { get; }
+        public bool IsCompleted { get; set; }
+        public bool IsCanceled { get; set; }
+        public bool StartWithEventTimer { get; set; }
+
+        public CountdownTimerTickEventArgs(TimeSpan timeRemaining)
+        {
+            this.TimeRemaining = timeRemaining;
+        }
+        public CountdownTimerTickEventArgs()
+        {
+        }
+    }
 
     public class MovingAverageChangedEventArgs : EventArgs
     {
