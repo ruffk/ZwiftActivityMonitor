@@ -524,6 +524,119 @@ namespace ZwiftActivityMonitorV2
 
     }
 
+    public class SplitEventArgs : EventArgs
+    {
+        public int SplitNumber { get; }
+        public TimeSpan SplitTime { get; }
+        public double SplitSpeed { get; }
+        public double TotalDistance { get; }
+        public TimeSpan TotalTime { get; }
+        public bool SplitsInKm { get; }
+        public TimeSpan? DeltaTime { get; }
+
+
+        public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, bool splitsInKm)
+        {
+            this.SplitNumber = splitNumber;
+            this.SplitTime = splitTime;
+            this.SplitSpeed = splitSpeed;
+            this.TotalDistance = totalDistance;
+            this.TotalTime = totalTime;
+            this.SplitsInKm = splitsInKm;
+            this.DeltaTime = null;
+        }
+
+        public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, bool splitsInKm, TimeSpan deltaTime)
+        {
+            this.SplitNumber = splitNumber;
+            this.SplitTime = splitTime;
+            this.SplitSpeed = splitSpeed;
+            this.TotalDistance = totalDistance;
+            this.TotalTime = totalTime;
+            this.SplitsInKm = splitsInKm;
+            this.DeltaTime = deltaTime;
+        }
+
+        public string SplitNumberStr
+        {
+            get
+            {
+                return SplitNumber.ToString();
+            }
+        }
+        public string SplitTimeStr
+        {
+            get
+            {
+                return SplitTime.Minutes.ToString("0#") + ":" + SplitTime.Seconds.ToString("0#");
+            }
+        }
+        public string SplitSpeedStr
+        {
+            get
+            {
+                return $"{SplitSpeed:#.0}";
+            }
+        }
+        public string TotalDistanceStr
+        {
+            get
+            {
+                return $"{TotalDistance:0.0}";
+            }
+        }
+        public string TotalTimeStr
+        {
+            get
+            {
+                //return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+                return $"{(TotalTime.Hours > 0 ? TotalTime.ToString("hh':'mm':'ss") : TotalTime.ToString("mm':'ss"))}";
+            }
+        }
+
+        public bool? AheadOfGoalTime
+        {
+            get
+            {
+                if (DeltaTime.HasValue)
+                {
+                    TimeSpan std = (TimeSpan)DeltaTime;
+                    return std.TotalSeconds <= 0;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public string DeltaTimeStr
+        {
+            get
+            {
+                if (DeltaTime.HasValue)
+                {
+                    TimeSpan std = (TimeSpan)DeltaTime;
+                    bool negated = false;
+
+                    if (std.TotalSeconds < 0)
+                    {
+                        std = std.Negate();
+                        negated = true;
+                    }
+
+                    //return $"{(negated ? "-" : "+")}{std.Minutes:0#}:{std.Seconds:0#}";
+                    return $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
+    }
+
+
     public class ZPMonitorServiceStatusChangedEventArgs : EventArgs
     {
         public enum ActionType

@@ -21,11 +21,6 @@ namespace ZwiftActivityMonitorV2
         private Color m_rowForeColor;
         private Font m_rowFont;
 
-        public virtual void Control_PostLoad()
-        {
-
-        }
-
         public Color HeaderForeColor
         {
             get

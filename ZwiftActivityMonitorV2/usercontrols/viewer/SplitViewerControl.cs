@@ -6,15 +6,14 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace ZwiftActivityMonitorV2
 {
 
     public partial class SplitViewerControl : ViewerUserControlEx
     {
-        //public Color HeaderGradientBeginColor { get; set; } = SystemColors.Control;
-        //public Color HeaderGradientEndColor { get; set; } = SystemColors.ControlDark;
-
         private enum DetailColumn
         {
             SplitNumber = 0,
@@ -35,54 +34,269 @@ namespace ZwiftActivityMonitorV2
             Blank
         }
 
-        // A height of 19 is minimum when using Segoe UI 9pt font
-        //private const int DataGridRowMinimumHeight = 19;
+        #region DetailRow class
 
+        /// <summary>
+        /// The class determines the columns available in the Detail DataGridView
+        /// </summary>
+        protected class DetailRow : NotifyPropertyChangedBase
+        {
+            //Add the [Browsable(false)] attribute to any public properties you don't want columns created for in the DataGridView
 
-        //private Size BaseControlSize { get; set; }
+            public int SplitNumber { get; set; }
+            public TimeSpan SplitTime { get { return this.mSplitTime; } set { this.SetProperty<TimeSpan>(ref this.mSplitTime, value); } }
+            public string SplitSpeed { get { return this.mSplitSpeed; } set { this.SetProperty<string>(ref this.mSplitSpeed, value); } }
+            public string SplitDistance { get { return this.mSplitDistance; } set { this.SetProperty<string>(ref this.mSplitDistance, value); } }
+            public string TotalTime { get { return this.mTotalTime; } set { this.SetProperty<string>(ref this.mTotalTime, value); } }
+            public string DeltaTime { get { return this.mDeltaTime; } set { this.SetProperty<string>(ref this.mDeltaTime, value); } }
+            public string Blank { get; set; }
+
+            private TimeSpan mSplitTime;
+            private string mSplitSpeed;
+            private string mSplitDistance;
+            private string mTotalTime;
+            private string mDeltaTime;
+
+            private SpeedDisplayType mCurrentSpeedDisplayType;
+
+            public DetailRow(int splitNumber)
+            {
+                this.SplitNumber = splitNumber;
+            }
+
+            public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
+            {
+                if (type == MeasurementSystemType.Imperial)
+                {
+                    this.mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
+                }
+                else
+                {
+                    this.mCurrentSpeedDisplayType = SpeedDisplayType.KilometersPerHour;
+                }
+
+            }
+
+            public SpeedDisplayType GetPreferredType(SpeedDisplayType currentType)
+            {
+                SpeedDisplayType preferredType = currentType == SpeedDisplayType.Both ? this.mCurrentSpeedDisplayType : currentType;
+
+                return preferredType;
+            }
+        }
+
+        #endregion
+
+        #region SummaryRow class
+
+        /// <summary>
+        /// The class determines the columns available in the Summary DataGridView
+        /// </summary>
+        protected class SummaryRow : NotifyPropertyChangedBase
+        {
+            //Add the [Browsable(false)] attribute to any public properties you don't want columns created for in the DataGridView
+
+            public string Reserved { get; set; }
+            public string GoalDistance { get { return this.mGoalDistance; } set { this.SetProperty<string>(ref this.mGoalDistance, value); } }
+            public string GoalSpeed { get { return this.mGoalSpeed; } set { this.SetProperty<string>(ref this.mGoalSpeed, value); } }
+            public string GoalTime { get { return this.mGoalTime; } set { this.SetProperty<string>(ref this.mGoalTime, value); } }
+            public string Blank { get; set; }
+
+            private string mGoalDistance;
+            private string mGoalSpeed;
+            private string mGoalTime;
+
+            private SpeedDisplayType mCurrentSpeedDisplayType;
+
+            public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
+            {
+                if (type == MeasurementSystemType.Imperial)
+                {
+                    this.mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
+                }
+                else
+                {
+                    this.mCurrentSpeedDisplayType = SpeedDisplayType.KilometersPerHour;
+                }
+            }
+
+            public SpeedDisplayType GetPreferredType(SpeedDisplayType currentType)
+            {
+                SpeedDisplayType preferredType = currentType == SpeedDisplayType.Both ? this.mCurrentSpeedDisplayType : currentType;
+
+                return preferredType;
+            }
+        }
+
+        #endregion
+
+        private BindingList<DetailRow> DetailRows = new();
+        private BindingList<SummaryRow> SummaryRows = new();
+        private SyncBindingSource DetailBindingSource { get; set; }
+        private SyncBindingSource SummaryBindingSource { get; set; }
+
+        private SplitsManagerV2 mSplitsManager;
+        private Dispatcher mDispatcher;
 
         public SplitViewerControl()
         {
             InitializeComponent();
-
-            InitializeDetailDataGrid();
-            LoadDetailDataGrid();
-
-            InitializeSummaryDataGrid();
-            LoadSummaryDataGrid();
-
         }
 
         private void ViewControl_Load(object sender, EventArgs e)
         {
+            if (this.DesignMode)
+                return;
+
+            InitializeDetailDataGrid();
+            //LoadDetailDataGrid();
+
+            InitializeSummaryDataGrid();
+            LoadSummaryDataGrid();
+
+            // for handling UI events
+            mDispatcher = Dispatcher.CurrentDispatcher;
+
+            mSplitsManager = new();
+
+            mSplitsManager.SplitGoalCompletedEvent += SplitsManager_SplitGoalCompletedEvent;
+            mSplitsManager.SplitUpdatedEvent += SplitsManager_SplitUpdatedOrCompleted;
+            mSplitsManager.SplitCompletedEvent += SplitsManager_SplitUpdatedOrCompleted;
+
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
+        }
+
+        /// <summary>
+        /// A delegate used solely by the SplitsManager_SplitUpdatedOrCompleted and SplitsManager_SplitGoalCompletedEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void SplitEventHandlerDelegate(object sender, SplitEventArgs e);
+
+        /// <summary>
+        /// Occurs each time a split gets updated or completes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SplitsManager_SplitUpdatedOrCompleted(object sender, SplitEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new SplitEventHandlerDelegate(SplitsManager_SplitUpdatedOrCompleted), new object[] { sender, e });
+                return;
+            }
+
+            DetailRow detailRow = DetailRows.FirstOrDefault(r => r.SplitNumber == e.SplitNumber);
+
+            if (detailRow == null)
+            {
+                detailRow = new(e.SplitNumber)
+                {
+                    SplitTime = e.SplitTime,
+                    //SplitDistance = "",
+                    //SplitSpeed = "",
+                    //Time = e.SplitTimeStr,
+                    //Speed = e.SplitSpeedStr,
+                    //TotalDistance = e.TotalDistanceStr,
+                    //TotalTime = e.TotalTimeStr,
+                    //Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
+                    //SplitsInKm = e.SplitsInKm,
+                    //AheadOfGoalTime = e.AheadOfGoalTime // null if not a goal based split
+                };
+                DetailRows.Add(detailRow);
+            }
+            else
+            {
+                detailRow.SplitTime = e.SplitTime;
+            }
+
+            //if (lvSplits.Items.ContainsKey(splitItem.SplitNumber))
+            //{
+            //    SplitListViewItem item = (SplitListViewItem)lvSplits.Items[splitItem.SplitNumber];
+            //    item.SplitItem = splitItem; // Replace with current splitItem object and refresh
+            //    item.Refresh();
+            //}
+            //else
+            //{
+            //    if (e.SplitNumber > 1)
+            //    {
+            //        // remove any color coding from previous split
+            //        string prevSplit = (e.SplitNumber - 1).ToString();
+            //        if (lvSplits.Items.ContainsKey(prevSplit))
+            //        {
+            //            SplitListViewItem item = (SplitListViewItem)lvSplits.Items[prevSplit];
+            //            item.ClearDeltaBackground();
+            //        }
+            //    }
+
+            //    lvSplits.Items.Add(new SplitListViewItem(splitItem));
+            //    lvSplits.Sort();
+            //}
+
+        }
+
+        /// <summary>
+        /// Occurs each time a split gets updated or completes.  Allows for UI update by marshalling the call accordingly.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SplitsManager_SplitGoalCompletedEvent(object sender, SplitEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new SplitEventHandlerDelegate(SplitsManager_SplitGoalCompletedEvent), new object[] { sender, e });
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Allow owner class to tie into the SplitGoalCompletedEvent and SplitCompletedEvent.  This allows the MainForm to bring this control into focus.
+        /// </summary>
+        public event EventHandler<SplitEventArgs> SplitGoalCompletedEvent
+        {
+            add
+            {
+                mSplitsManager.SplitGoalCompletedEvent += value;
+            }
+            remove
+            {
+                mSplitsManager.SplitGoalCompletedEvent -= value;
+            }
+        }
+
+        public event EventHandler<SplitEventArgs> SplitCompletedEvent
+        {
+            add
+            {
+                mSplitsManager.SplitCompletedEvent += value;
+            }
+            remove
+            {
+                mSplitsManager.SplitCompletedEvent -= value;
+            }
         }
 
 
         private void InitializeDetailDataGrid()
         {
-            DataTable table = new DataTable();
+            // Note: anytime rows are added to the List, the BindingSource must be recreated (or maybe just a reset on the BindingSource)
+            this.DetailBindingSource = new SyncBindingSource();
+            this.DetailBindingSource.DataSource = this.DetailRows;
 
-            table.Columns.Add(new DataColumn("SplitNumber", typeof(int)));
-            table.Columns.Add(new DataColumn("SplitTime", typeof(string)));
-            table.Columns.Add(new DataColumn("SplitSpeed", typeof(string)));
-            table.Columns.Add(new DataColumn("SplitDistance", typeof(string)));
-            table.Columns.Add(new DataColumn("TotalTime", typeof(string)));
-            table.Columns.Add(new DataColumn("Delta", typeof(string)));
-            table.Columns.Add(new DataColumn("Blank", typeof(string)));
+            this.dgDetail.DataSource = this.DetailBindingSource;
 
-            // set in designer
-            //dgDetail.ReadOnly = true;
-
-
-            this.dgDetail.DataSource = table;
+            // Allow column headers to wrap to a second line
+            this.dgDetail.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
             this.dgDetail.Columns[(int)DetailColumn.SplitNumber].Width = 36;
             this.dgDetail.Columns[(int)DetailColumn.SplitNumber].HeaderText = "#";
 
             this.dgDetail.Columns[(int)DetailColumn.SplitTime].Width = 48;
-            this.dgDetail.Columns[(int)DetailColumn.SplitTime].HeaderText = "Time";
+            this.dgDetail.Columns[(int)DetailColumn.SplitTime].HeaderText = "Split\nTime";
+            this.dgDetail.Columns[(int)DetailColumn.SplitTime].DefaultCellStyle.Format = "mm\\:ss";
 
             this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].Width = 48;
             this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].HeaderText = "km/h";
@@ -91,7 +305,7 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Columns[(int)DetailColumn.SplitDistance].HeaderText = "km";
 
             this.dgDetail.Columns[(int)DetailColumn.TotalTime].Width = 72;
-            this.dgDetail.Columns[(int)DetailColumn.TotalTime].HeaderText = "Time";
+            this.dgDetail.Columns[(int)DetailColumn.TotalTime].HeaderText = "Total\nTime";
 
             this.dgDetail.Columns[(int)DetailColumn.Delta].Width = 60;
             this.dgDetail.Columns[(int)DetailColumn.Delta].HeaderText = "+/-";
@@ -106,9 +320,6 @@ namespace ZwiftActivityMonitorV2
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            // set in designer
-            //this.dgDetail.RowHeadersVisible = false;
-
             // Set the row default cell font to the grid's default cell font.  Then clear the grid default so the row default is all that has to change. 
             this.dgDetail.RowsDefaultCellStyle.Font = this.dgDetail.DefaultCellStyle.Font;
             this.dgDetail.DefaultCellStyle.Font = null;
@@ -117,47 +328,36 @@ namespace ZwiftActivityMonitorV2
             dgDetail.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             dgDetail.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-            // set in designer
-            //this.dgDetail.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
-
-            //Debug.WriteLine($"ColumnHeadersHeight: {this.dgDetail.ColumnHeadersHeight}");
-
             this.dgDetail.ShowFocus = false;
         }
 
         private void LoadDetailDataGrid()
         {
-            DataTable table = (DataTable)dgDetail.DataSource;
-            table.Rows.Clear();
-
-            table.Rows.Add(1, "88:88", "88.8", "888.8", "88:88:88", "+88:88");
-            table.Rows.Add(10, "88:88", "88.8", "888.8", "88:88:88", "-88:88");
-            table.Rows.Add(75, "88:88", "88.8", "888.8", "88:88:88", "+88:88");
+            DetailRow r = new(1)
+            {
+                SplitTime = TimeSpan.Zero,
+                SplitSpeed = "88.8",
+                SplitDistance = "888.8",
+                TotalTime = "88:88:88",
+                DeltaTime = "+88:88",
+            };
+            this.DetailRows.Add(r);
 
             // A height of 19 is minimum when using Segoe UI 9pt font
             this.dgDetail.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
-            this.dgDetail.Rows[1].MinimumHeight = DataGridRowMinimumHeight;
-            this.dgDetail.Rows[2].MinimumHeight = DataGridRowMinimumHeight;
 
-            dgDetail.Sort(dgDetail.Columns[(int)DetailColumn.SplitNumber], System.ComponentModel.ListSortDirection.Descending);
+            //dgDetail.Sort(dgDetail.Columns[(int)DetailColumn.SplitNumber], ListSortDirection.Descending);
 
         }
 
         private void InitializeSummaryDataGrid()
         {
-            DataTable table = new DataTable();
+            // Note: anytime rows are added to the List, the BindingSource must be recreated (or maybe just a reset on the BindingSource)
+            this.SummaryBindingSource = new SyncBindingSource();
+            this.SummaryBindingSource.DataSource = this.SummaryRows;
 
-            table.Columns.Add(new DataColumn("Reserved", typeof(string)));
-            table.Columns.Add(new DataColumn("km", typeof(string)));
-            table.Columns.Add(new DataColumn("km/h", typeof(string)));
-            table.Columns.Add(new DataColumn("Time", typeof(string)));
-            table.Columns.Add(new DataColumn("Blank", typeof(string)));
+            this.dgSummary.DataSource = this.SummaryBindingSource;
 
-            // set in designer
-            //dgSummary.ReadOnly = true;
-
-
-            this.dgSummary.DataSource = table;
 
             this.dgSummary.Columns[(int)SummaryColumn.Reserved].Width = 48;
             this.dgSummary.Columns[(int)SummaryColumn.Reserved].HeaderText = "";
@@ -182,9 +382,6 @@ namespace ZwiftActivityMonitorV2
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            // set in designer
-            //this.dgSummary.RowHeadersVisible = false;
-
             // Set the row default cell font to the grid's default cell font.  Then clear the grid default so the row default is all that has to change. 
             this.dgSummary.RowsDefaultCellStyle.Font = this.dgSummary.DefaultCellStyle.Font;
             this.dgSummary.DefaultCellStyle.Font = null;
@@ -193,19 +390,18 @@ namespace ZwiftActivityMonitorV2
             dgSummary.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             dgSummary.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-            // set in designer
-            //this.dgSummary.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
-
-            //Debug.WriteLine($"ColumnHeadersHeight: {this.dgSummary.ColumnHeadersHeight}");
-
             this.dgSummary.ShowFocus = false;
         }
         private void LoadSummaryDataGrid()
         {
-            DataTable table = (DataTable)dgSummary.DataSource;
-            table.Rows.Clear();
-
-            table.Rows.Add("Goal", "888.8", "88.8", "88:88:88");
+            SummaryRow r = new()
+            {
+                Reserved = "Goal",
+                GoalDistance = "888.8",
+                GoalSpeed = "88.8",
+                GoalTime = "88:88:88",
+            };
+            this.SummaryRows.Add(r);
 
             // A height of 19 is minimum when using Segoe UI 9pt font
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;

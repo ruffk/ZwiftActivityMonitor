@@ -11,9 +11,6 @@ namespace ZwiftActivityMonitorV2
 
     public partial class LapViewerControl : ViewerUserControlEx
     {
-        //public Color HeaderGradientBeginColor { get; set; } = SystemColors.Control;
-        //public Color HeaderGradientEndColor { get; set; } = SystemColors.ControlDark;
-
         private enum DetailColumn
         {
             LapNumber = 0,
@@ -29,9 +26,6 @@ namespace ZwiftActivityMonitorV2
         {
             Blank
         }
-
-        // A height of 19 is minimum when using Segoe UI 9pt font
-        //private const int DataGridRowMinimumHeight = 19;
 
 
         public LapViewerControl()

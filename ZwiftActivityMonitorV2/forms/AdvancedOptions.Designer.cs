@@ -286,7 +286,6 @@ namespace ZwiftActivityMonitorV2
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 1;
             this.btnClose.Text = "Close";
-            this.btnClose.UseVisualStyleBackColor = true;
             // 
             // lvTrace
             // 

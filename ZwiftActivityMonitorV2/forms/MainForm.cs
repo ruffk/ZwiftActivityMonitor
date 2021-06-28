@@ -68,8 +68,11 @@ namespace ZwiftActivityMonitorV2
             mDispatcher = Dispatcher.CurrentDispatcher;
             //this.UISyncContext = WindowsFormsSynchronizationContext.Current;
 
-            this.SetControlColors();
+            if (!this.IsHandleCreated)
+                Debug.WriteLine("MainForm_Load -  handle not yet created.");
 
+            //Office2010Form hidden = new();
+            //ZAMappearance.ApplyColorScheme(hidden);
 
             // Determine window size
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
@@ -83,7 +86,16 @@ namespace ZwiftActivityMonitorV2
             this.formSyncTimer.Enabled = true;
 
             this.OnCollectionStatusChanged();
+
+            this.SetControlColors();
         }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            // periodically, the colors don't get initialize properly in the load event so doing 
+            //this.SetControlColors();
+        }
+
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
             SetControlColors();
@@ -95,6 +107,8 @@ namespace ZwiftActivityMonitorV2
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             ZAMappearance.ApplyColorScheme(this);
+
+            //Office2010Colors.GetColorTable();
 
             //this.UseOffice2010SchemeBackColor = true;
 

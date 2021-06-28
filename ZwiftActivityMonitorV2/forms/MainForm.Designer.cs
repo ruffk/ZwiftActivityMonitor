@@ -385,6 +385,7 @@ namespace ZwiftActivityMonitorV2
             this.Text = "Activity Monitor";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).EndInit();

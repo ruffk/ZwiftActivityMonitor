@@ -162,21 +162,27 @@ namespace ZwiftActivityMonitorV2
         {
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
-            if (settings.ThemeSetting != ThemeType.Custom)
-            {
-                form.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+            //if (settings.ThemeSetting != ThemeType.Custom)
+            //{
+                Office2010Colors.DefaultTheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+            form.ColorScheme = Office2010Colors.DefaultTheme;
+            form.UseOffice2010SchemeBackColor = true;
 
-                if (form.ColorScheme == Office2010Theme.Managed)
+            if (Office2010Colors.DefaultTheme == Office2010Theme.Managed)
                 {
                     Office2010Colors.ApplyManagedColors(form, managedColor.Value);
                 }
-            }
-            else
-            {
-                form.ColorScheme = Office2010Theme.Managed;
-                Office2010Colors.ApplyManagedColors(form, settings.ManagedColor);
-            }
-            form.UseOffice2010SchemeBackColor = true;
+                else
+                {
+                //Office2010Colors.ApplyManagedScheme(form, Office2010Colors.DefaultTheme);
+                }
+                //form.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+            //}
+            //else
+            //{
+            //    form.ColorScheme = Office2010Theme.Managed;
+            //    Office2010Colors.ApplyManagedColors(form, settings.ManagedColor);
+            //}
 
         }
     }

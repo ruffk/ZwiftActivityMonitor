@@ -8,6 +8,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
+using System.Drawing.Drawing2D;
+using Syncfusion.Windows.Forms;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -88,10 +90,113 @@ namespace ZwiftActivityMonitorV2
 
         public class DataGridViewExtended : DataGridView
         {
-            public ILogger Logger { get; set; }
+            public Color HeaderGradientBeginColor { get; set; } = SystemColors.Control;
+            public Color HeaderGradientEndColor { get; set; } = SystemColors.ControlDark;
+            public bool UseGradientHeaders { get; set; } = false;
+            public bool MapEnterKeyToTabWhileEditing { get; set; } = false;
+            public bool MapEnterKeyToTabWhileNotEditing { get; set; } = false;
+            /// <summary>
+            /// DataGridView extension property
+            /// Set ShowFocus=false to hide cell focus rectangle
+            /// </summary>
+            public bool? ShowFocus { get; set; }
+
             public DataGridViewExtended()
             {
+                this.CellPainting += this.dataGridViewGradientHeader_CellPainting;
+            }
 
+            public Color HeaderForeColor
+            {
+                get
+                {
+                    return this.ColumnHeadersDefaultCellStyle.ForeColor;
+                }
+                set
+                {
+                    // change the text color on the data grid headers
+                    if (value != Color.Empty)
+                        this.ColumnHeadersDefaultCellStyle.ForeColor = value;
+                }
+            }
+
+            public Font RowFont
+            {
+                get
+                {
+                    return this.RowsDefaultCellStyle.Font;
+                }
+                set
+                {
+                    // change the font on the data grid rows
+                    if (value != null)
+                        this.RowsDefaultCellStyle.Font = value;
+                }
+            }
+
+            public Color RowBackColor
+            {
+                get
+                {
+                    return this.RowsDefaultCellStyle.BackColor;
+                }
+                set
+                {
+                    // change the back color on the data grid rows
+                    if (value != Color.Empty)
+                        this.RowsDefaultCellStyle.BackColor = value;
+                }
+            }
+
+            public Color RowForeColor
+            {
+                get
+                {
+                    return this.RowsDefaultCellStyle.ForeColor;
+                }
+                set
+                {
+                    // change the fore color on the data grid rows
+                    if (value != Color.Empty)
+                        this.RowsDefaultCellStyle.ForeColor = value;
+                }
+            }
+
+            protected void dataGridViewGradientHeader_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+            {
+                if (e.RowIndex == -1 && this.UseGradientHeaders)
+                {
+                    LinearGradientBrush br = new LinearGradientBrush(e.CellBounds, this.HeaderGradientBeginColor, this.HeaderGradientEndColor, 90, true);
+
+                    e.Graphics.FillRectangle(br, e.CellBounds);
+
+                    // draw the 3d header
+                    // 
+                    Rectangle r = e.CellBounds;
+
+                    r.Width -= 1;
+                    r.Height -= 1;
+
+                    // draw the dark border around the whole thing 
+                    // 
+                    e.Graphics.DrawRectangle(SystemPens.ControlDarkDark, r);
+
+                    r.Width -= 1;
+                    r.Height -= 1;
+
+                    // draw the light 3D border 
+                    //
+                    e.Graphics.DrawLine(SystemPens.ControlLightLight, r.X, r.Y, r.Right, r.Y);
+                    e.Graphics.DrawLine(SystemPens.ControlLightLight, r.X, r.Y, r.X, r.Bottom);
+
+                    // draw the dark 3D Border 
+                    //
+                    e.Graphics.DrawLine(SystemPens.ControlDark, r.X + 1, r.Bottom, r.Right, r.Bottom);
+                    e.Graphics.DrawLine(SystemPens.ControlDark, r.Right, r.Y + 1, r.Right, r.Bottom);
+
+                    e.PaintContent(e.ClipBounds);
+                    e.Handled = true;
+                }
             }
 
             /// <summary>
@@ -102,9 +207,8 @@ namespace ZwiftActivityMonitorV2
             protected override bool ProcessDialogKey(Keys keyData)
             {
                 Keys key = keyData & Keys.KeyCode;
-                //Logger.LogInformation($"ProcessDialogKey {key}");
 
-                if (key == Keys.Enter)
+                if (this.MapEnterKeyToTabWhileEditing && key == Keys.Enter)
                 {
                     return this.ProcessTabKey(keyData);
                 }
@@ -119,15 +223,25 @@ namespace ZwiftActivityMonitorV2
             /// <returns></returns>
             protected override bool ProcessDataGridViewKey(KeyEventArgs e)
             {
-                //Logger.LogInformation($"ProcessDataGridViewKey {e.KeyCode}");
-
-                if (e.KeyCode == Keys.Enter)
+                if (this.MapEnterKeyToTabWhileNotEditing && e.KeyCode == Keys.Enter)
                 {
                     return this.ProcessTabKey(e.KeyData);
                 }
 
                 return base.ProcessDataGridViewKey(e);
             }
+
+            /// <summary>
+            /// Allows override of cell focus rectangle
+            /// </summary>
+            protected override bool ShowFocusCues
+            {
+                get
+                {
+                    return this.ShowFocus.HasValue ? this.ShowFocus.Value : base.ShowFocusCues;
+                }
+            }
+
         }
 
         private bool m_editMode;
@@ -142,9 +256,13 @@ namespace ZwiftActivityMonitorV2
         private const int TotalTimeCol = 4;
         private const int AverageSpeedCol = 5;
 
-        public SplitsConfigControlV2() : base()
+        public SplitsConfigControlV2()
         {
             InitializeComponent();
+
+            this.dgvSplits.MapEnterKeyToTabWhileNotEditing = true;
+            this.dgvSplits.MapEnterKeyToTabWhileEditing = true;
+            this.dgvSplits.UseGradientHeaders = true;
         }
 
         private void InitializeDataGridView()
@@ -158,10 +276,10 @@ namespace ZwiftActivityMonitorV2
             table.Columns.Add(new DataColumn("Total Time", typeof(TimeSpan)));
             table.Columns.Add(new DataColumn("Average Speed", typeof(double)));
 
-            table.Columns[SplitSpeedCol].ReadOnly = true;
-            table.Columns[TotalDistanceCol].ReadOnly = true;
-            table.Columns[TotalTimeCol].ReadOnly = true;
-            table.Columns[AverageSpeedCol].ReadOnly = true;
+            //table.Columns[SplitSpeedCol].ReadOnly = true;
+            //table.Columns[TotalDistanceCol].ReadOnly = true;
+            //table.Columns[TotalTimeCol].ReadOnly = true;
+            //table.Columns[AverageSpeedCol].ReadOnly = true;
 
             this.dgvSplits.DataSource = table;
 
@@ -172,14 +290,16 @@ namespace ZwiftActivityMonitorV2
             }
 
             dgvSplits.Columns[SplitDistanceCol].DefaultCellStyle.Format = "0.0";
-            dgvSplits.Columns[SplitTimeCol].DefaultCellStyle.Format = "mm\\:ss";
+            //dgvSplits.Columns[SplitTimeCol].DefaultCellStyle.Format = "mm\\:ss";
             dgvSplits.Columns[SplitSpeedCol].DefaultCellStyle.Format = "0.0";
             dgvSplits.Columns[TotalDistanceCol].DefaultCellStyle.Format = "0.0";
             dgvSplits.Columns[AverageSpeedCol].DefaultCellStyle.Format = "0.0";
 
             dgvSplits.Columns[SplitSpeedCol].ReadOnly = true;
-            dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
-            dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
+            dgvSplits.Columns[SplitDistanceCol].ReadOnly = true;
+            dgvSplits.Columns[SplitTimeCol].ReadOnly = true;
+            //dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
+            //dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
             dgvSplits.Columns[AverageSpeedCol].ReadOnly = true;
         }
 
@@ -203,7 +323,6 @@ namespace ZwiftActivityMonitorV2
                 return;
 
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsConfigControlV2>();
-            this.dgvSplits.Logger = this.Logger;
 
             cbSplitUom.BeginUpdate();
             cbSplitUom.Items.Clear();
@@ -328,10 +447,15 @@ namespace ZwiftActivityMonitorV2
                 // the grid will remain responsive even when not in EditMode by leaving enabled but just setting to readonly
                 dgvSplits.ReadOnly = !value;
 
+                dgvSplits.ShowFocus = value;
+
+
                 // these columns must be reset to readonly each time the grid readonly status is set
                 dgvSplits.Columns[SplitSpeedCol].ReadOnly = true;
-                dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
-                dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
+                dgvSplits.Columns[SplitDistanceCol].ReadOnly = true;
+                dgvSplits.Columns[SplitTimeCol].ReadOnly = true;
+                //dgvSplits.Columns[TotalDistanceCol].ReadOnly = true;
+                //dgvSplits.Columns[TotalTimeCol].ReadOnly = true;
                 dgvSplits.Columns[AverageSpeedCol].ReadOnly = true;
 
                 dgvSplits.AllowUserToAddRows = value;
@@ -346,16 +470,18 @@ namespace ZwiftActivityMonitorV2
                 //dgvSplits.Enabled = value;
 
                 // change selected cell colors based on EditMode
-                dgvSplits.RowsDefaultCellStyle.SelectionBackColor = value ? System.Drawing.SystemColors.Highlight : System.Drawing.SystemColors.Control;
-                dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlText;
-                //dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlDark;
+                //dgvSplits.RowsDefaultCellStyle.SelectionBackColor = value ? System.Drawing.SystemColors.Highlight : System.Drawing.SystemColors.Control;
+                //dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : System.Drawing.SystemColors.ControlText;
+
+                dgvSplits.RowsDefaultCellStyle.SelectionBackColor = value ? System.Drawing.SystemColors.Highlight : dgvSplits.BackgroundColor;
+                dgvSplits.RowsDefaultCellStyle.SelectionForeColor = value ? System.Drawing.SystemColors.HighlightText : dgvSplits.ForeColor;
 
                 // change column header and cell colors based on EditMode
                 //dgvSplits.ColumnHeadersDefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
                 //dgvSplits.DefaultCellStyle.ForeColor = value ? SystemColors.ControlText : SystemColors.ControlDark;
 
                 if (dgvSplits.Rows.Count > 0)
-                    dgvSplits.CurrentCell = dgvSplits[0, 0];
+                    dgvSplits.CurrentCell = dgvSplits[TotalDistanceCol, 0];
 
                 if (value)
                 {
@@ -369,6 +495,7 @@ namespace ZwiftActivityMonitorV2
             get { return m_editSplitMode; }
         }
 
+        #region Edit, Save, and Cancel Methods
         private void btnEditSettings_Click(object sender, EventArgs e)
         {
             if (ckbCustomized.Checked)
@@ -387,7 +514,6 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.BeginCachedConfiguration();
             EditingSplitSettings = true;
         }
-
 
         private void btnSaveSettings_Click(object sender, EventArgs e)
         {
@@ -427,27 +553,6 @@ namespace ZwiftActivityMonitorV2
                 }
             }
         }
-
-        /// <summary>
-        /// Recalculate splits based upon user selections.  This wipes out any customizations.
-        /// </summary>
-        //private void RecalculateSplits()
-        //{
-        //    ZAMsettings.Settings.SplitsV2.Splits.Clear();
-        //    ZAMsettings.Settings.SplitsV2.GoalSpeed = 0;
-
-        //    SplitsManagerV2.SplitGoals splitGoals = SplitsManagerV2.GetSplitGoals();
-
-        //    if (splitGoals == null)
-        //        return;
-
-        //    foreach (SplitsManagerV2.SplitGoal goal in splitGoals.Goals)
-        //    {
-        //        ZAMsettings.Settings.SplitsV2.Splits.Add(new SplitV2(goal.SplitDistance, goal.SplitTime, 0.0, goal.TotalDistance, goal.TotalTime, 0.0));
-        //    }
-
-        //    ZAMsettings.Settings.SplitsV2.GoalSpeed = splitGoals.GoalSpeed;
-        //}
 
         private void SaveSplits()
         {
@@ -515,6 +620,9 @@ namespace ZwiftActivityMonitorV2
                 this.EditingSplitSettings = false;
             }
         }
+        #endregion
+
+        #region Control Validation and ToolTips
 
         private void SystemSettings_Validating(object sender, CancelEventArgs e)
         {
@@ -668,17 +776,14 @@ namespace ZwiftActivityMonitorV2
             }
 
         }
-
-
-
-
+        #endregion
 
         #region Base class overrides for event selection
         public override void ControlLosingFocus(object sender, Syncfusion.Windows.Forms.Tools.SelectedIndexChangingEventArgs e)
         {
             base.ControlLosingFocus(sender, e);
 
-            if (EditingSystemSettings)
+            if (EditingSystemSettings || EditingSplitSettings)
             {
                 MessageBox.Show("Please either Save or Cancel current work before proceeding.", "Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 e.Cancel = true;
@@ -726,23 +831,45 @@ namespace ZwiftActivityMonitorV2
             //Logger.LogInformation($"dgvSplits_CellValidating ({e.RowIndex}, {e.ColumnIndex}), value: {e.FormattedValue}, EditMode: {cell.IsInEditMode}");
 
             bool success;
+            double distanceVal;
+            TimeSpan timeVal;
 
             try
             {
                 switch (e.ColumnIndex)
                 {
-                    case SplitDistanceCol:
-                        success = double.TryParse(e.FormattedValue.ToString(), out double distanceVal);
+                    //case SplitDistanceCol:
+                    //    success = double.TryParse(e.FormattedValue.ToString(), out distanceVal);
+
+                    //    if (!success || distanceVal < .1 || distanceVal > 999.9)
+                    //        throw new FormatException("Split distance must be between 0.1 and 999.9 and entered without the mileage units.");
+                    //    break;
+
+                    //case SplitTimeCol:
+                    //    success = TimeSpan.TryParseExact(e.FormattedValue.ToString(), "mm\\:ss", System.Globalization.CultureInfo.InvariantCulture, out timeVal);
+
+                    //    if (!success || timeVal.TotalSeconds < 1 || timeVal.TotalSeconds > 3600)
+                    //        throw new FormatException("Split time must be one hour or less and in the format of MM:SS.");
+
+                    //    dgvSplits.EditingControl.Text = timeVal.ToString();  // put the full hh:mm:ss string back into the control so it will convert okay
+                    //    break;
+
+                    case TotalDistanceCol:
+                        success = double.TryParse(e.FormattedValue.ToString(), out distanceVal);
 
                         if (!success || distanceVal < .1 || distanceVal > 999.9)
-                            throw new FormatException("Split distance must be between 0.1 and 999.9 and entered without the mileage units.");
+                            throw new FormatException("Total distance must be between 0.1 and 999.9 and entered without the mileage units.");
                         break;
 
-                    case SplitTimeCol:
-                        success = TimeSpan.TryParseExact(e.FormattedValue.ToString(), "mm\\:ss", System.Globalization.CultureInfo.InvariantCulture, out TimeSpan timeVal);
+                    case TotalTimeCol:
+                        success = TimeSpan.TryParseExact(e.FormattedValue.ToString(), "mm\\:ss", System.Globalization.CultureInfo.InvariantCulture, out timeVal);
+                        
+                        if (!success)
+                            success = TimeSpan.TryParse(e.FormattedValue.ToString(), System.Globalization.CultureInfo.InvariantCulture, out timeVal);
+                        //success = TimeSpan.TryParseExact(e.FormattedValue.ToString(), "mm\\:ss", System.Globalization.CultureInfo.InvariantCulture, out timeVal);
 
-                        if (!success || timeVal.TotalSeconds < 1 || timeVal.TotalSeconds > 3600)
-                            throw new FormatException("Split time must be one hour or less and in the format of MM:SS.");
+                        //if (!success || timeVal.TotalSeconds < 1 || timeVal.TotalSeconds > 3600)
+                        //    throw new FormatException("Total time must be one hour or less and in the format of MM:SS.");
 
                         dgvSplits.EditingControl.Text = timeVal.ToString();  // put the full hh:mm:ss string back into the control so it will convert okay
                         break;
@@ -761,7 +888,13 @@ namespace ZwiftActivityMonitorV2
             //Logger.LogInformation($"dgvSplits_CellValidated ({e.RowIndex}, {e.ColumnIndex}), value: {dgvSplits[e.ColumnIndex, e.RowIndex].Value}");
 
             // if split distance and time have values, recalculate
-            if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) == 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) == 0)
+            //if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) == 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) == 0)
+            //{
+            //    this.RecalculateTotals();
+            //}
+            
+            // if total distance and time have values, recalculate
+            if (this.IsNullorDBNull(dgvSplits[TotalDistanceCol, e.RowIndex].Value) == 0 && this.IsNullorDBNull(dgvSplits[TotalTimeCol, e.RowIndex].Value) == 0)
             {
                 this.RecalculateTotals();
             }
@@ -780,9 +913,13 @@ namespace ZwiftActivityMonitorV2
             }
 
             // if both are null then don't validate
-            if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            //if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            //{
+            //    return;
+            //}
+            // if both are null then don't validate
+            if (this.IsNullorDBNull(dgvSplits[TotalDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[TotalTimeCol, e.RowIndex].Value) > 0)
             {
-                //Logger.LogInformation($"dgvSplits_RowValidating Row: {e.RowIndex}, Distance/Time=NULL: true");
                 return;
             }
 
@@ -790,16 +927,28 @@ namespace ZwiftActivityMonitorV2
             {
                 //Logger.LogInformation($"dgvSplits_RowValidating ({e.RowIndex}, {e.ColumnIndex})");
 
-                if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0)
+                //if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0)
+                //{
+                //    dgvSplits.CurrentCell = dgvSplits[SplitDistanceCol, e.RowIndex];
+                //    throw new FormatException("Split distance is a required field.");
+                //}
+
+                //if (this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+                //{
+                //    dgvSplits.CurrentCell = dgvSplits[SplitTimeCol, e.RowIndex];
+                //    throw new FormatException("Split time is a required field.");
+                //}
+
+                if (this.IsNullorDBNull(dgvSplits[TotalDistanceCol, e.RowIndex].Value) > 0)
                 {
-                    dgvSplits.CurrentCell = dgvSplits[SplitDistanceCol, e.RowIndex];
-                    throw new FormatException("Split distance is a required field.");
+                    dgvSplits.CurrentCell = dgvSplits[TotalDistanceCol, e.RowIndex];
+                    throw new FormatException("Total distance is a required field.");
                 }
 
-                if (this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+                if (this.IsNullorDBNull(dgvSplits[TotalTimeCol, e.RowIndex].Value) > 0)
                 {
-                    dgvSplits.CurrentCell = dgvSplits[SplitTimeCol, e.RowIndex];
-                    throw new FormatException("Split time is a required field.");
+                    dgvSplits.CurrentCell = dgvSplits[TotalTimeCol, e.RowIndex];
+                    throw new FormatException("Total time is a required field.");
                 }
             }
             catch (Exception ex)
@@ -823,9 +972,12 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            //if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[SplitTimeCol, e.RowIndex].Value) > 0)
+            //{
+            //    return;
+            //}
+            if (this.IsNullorDBNull(dgvSplits[TotalDistanceCol, e.RowIndex].Value) > 0 && this.IsNullorDBNull(dgvSplits[TotalTimeCol, e.RowIndex].Value) > 0)
             {
-                //Logger.LogInformation($"dgvSplits_RowValidated Row: {e.RowIndex}, Distance/Time=NULL: true");
                 return;
             }
 
@@ -844,10 +996,12 @@ namespace ZwiftActivityMonitorV2
             TimeSpan totalTime = TimeSpan.Zero;
             double totalDistance = 0;
 
-            table.Columns[SplitSpeedCol].ReadOnly = false;
-            table.Columns[TotalDistanceCol].ReadOnly = false;
-            table.Columns[TotalTimeCol].ReadOnly = false;
-            table.Columns[AverageSpeedCol].ReadOnly = false;
+
+
+            //table.Columns[SplitSpeedCol].ReadOnly = false;
+            //table.Columns[TotalDistanceCol].ReadOnly = false;
+            //table.Columns[TotalTimeCol].ReadOnly = false;
+            //table.Columns[AverageSpeedCol].ReadOnly = false;
 
             for (int row = 0; row < dgvSplits.Rows.Count; row++)
             {
@@ -856,25 +1010,44 @@ namespace ZwiftActivityMonitorV2
                 if (dgvSplits.Rows[row].IsNewRow)
                     continue;
 
-                if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, row].Value) > 0 || this.IsNullorDBNull(dgvSplits[SplitTimeCol, row].Value) > 0)
+                //if (this.IsNullorDBNull(dgvSplits[SplitDistanceCol, row].Value) > 0 || this.IsNullorDBNull(dgvSplits[SplitTimeCol, row].Value) > 0)
+                //    continue;
+
+                //dgvSplits[SplitSpeedCol, row].Value = Math.Round(((double)dgvSplits[SplitDistanceCol, row].Value / ((TimeSpan)dgvSplits[SplitTimeCol, row].Value).TotalSeconds) * 3600, 1);
+
+                //totalDistance += (double)dgvSplits[SplitDistanceCol, row].Value;
+                //totalTime += (TimeSpan)dgvSplits[SplitTimeCol, row].Value;
+
+                //// recalculate row totals 
+                //dgvSplits[TotalDistanceCol, row].Value = totalDistance;
+                //dgvSplits[TotalTimeCol, row].Value = totalTime;
+
+                //dgvSplits[AverageSpeedCol, row].Value = Math.Round((totalDistance / totalTime.TotalSeconds) * 3600, 1);
+
+                if (this.IsNullorDBNull(dgvSplits[TotalDistanceCol, row].Value) > 0 || this.IsNullorDBNull(dgvSplits[TotalTimeCol, row].Value) > 0)
                     continue;
 
+                if ((double)dgvSplits[TotalDistanceCol, row].Value - totalDistance <= 0)
+                    dgvSplits[TotalDistanceCol, row].Value = totalDistance + 1.0;
+
+                if ((TimeSpan)dgvSplits[TotalTimeCol, row].Value - totalTime <= TimeSpan.Zero)
+                    dgvSplits[TotalTimeCol, row].Value = totalTime + TimeSpan.FromMinutes(2.0);
+
+                dgvSplits[SplitDistanceCol, row].Value = (double)dgvSplits[TotalDistanceCol, row].Value - totalDistance;
+                dgvSplits[SplitTimeCol, row].Value = (TimeSpan)dgvSplits[TotalTimeCol, row].Value - totalTime;
+
+                totalDistance = (double)dgvSplits[TotalDistanceCol, row].Value;
+                totalTime = (TimeSpan)dgvSplits[TotalTimeCol, row].Value;
+
                 dgvSplits[SplitSpeedCol, row].Value = Math.Round(((double)dgvSplits[SplitDistanceCol, row].Value / ((TimeSpan)dgvSplits[SplitTimeCol, row].Value).TotalSeconds) * 3600, 1);
-
-                totalDistance += (double)dgvSplits[SplitDistanceCol, row].Value;
-                totalTime += (TimeSpan)dgvSplits[SplitTimeCol, row].Value;
-
-                // recalculate row totals 
-                dgvSplits[TotalDistanceCol, row].Value = totalDistance;
-                dgvSplits[TotalTimeCol, row].Value = totalTime;
 
                 dgvSplits[AverageSpeedCol, row].Value = Math.Round((totalDistance / totalTime.TotalSeconds) * 3600, 1);
             }
 
-            table.Columns[SplitSpeedCol].ReadOnly = true;
-            table.Columns[TotalDistanceCol].ReadOnly = true;
-            table.Columns[TotalTimeCol].ReadOnly = true;
-            table.Columns[AverageSpeedCol].ReadOnly = true;
+            //table.Columns[SplitSpeedCol].ReadOnly = true;
+            //table.Columns[TotalDistanceCol].ReadOnly = true;
+            //table.Columns[TotalTimeCol].ReadOnly = true;
+            //table.Columns[AverageSpeedCol].ReadOnly = true;
         }
 
         private int IsNullorDBNull(object value)
@@ -929,6 +1102,10 @@ namespace ZwiftActivityMonitorV2
             base.Parent_BackColorChanged(sender, e);
 
             this.tbDescSystem.BackColor = this.BackColor;
+
+            this.dgvSplits.RowBackColor = this.BackColor;
+            this.dgvSplits.BackgroundColor = this.BackColor;
+            this.dgvSplits.RowHeadersDefaultCellStyle.BackColor = this.BackColor;
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)
@@ -936,7 +1113,17 @@ namespace ZwiftActivityMonitorV2
             base.Parent_ForeColorChanged(sender, e);
 
             this.tbDescSystem.ForeColor = this.ForeColor;
-        }
 
+            this.dgvSplits.RowForeColor = this.ForeColor;
+            this.dgvSplits.ForeColor = this.ForeColor;
+            this.dgvSplits.HeaderForeColor = this.ForeColor;
+
+            this.gbSplitGoals.ForeColor = this.ForeColor;
+            this.gbSplits.ForeColor = this.ForeColor;
+
+            Office2010Colors t = Office2010Colors.GetColorTable(Office2010Colors.DefaultTheme);
+            dgvSplits.HeaderGradientBeginColor = t.ActiveTitleGradientBegin;
+            dgvSplits.HeaderGradientEndColor = t.ActiveTitleGradientEnd;
+        }
     }
 }

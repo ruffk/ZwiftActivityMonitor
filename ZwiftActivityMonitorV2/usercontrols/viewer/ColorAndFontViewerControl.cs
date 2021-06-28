@@ -143,7 +143,8 @@ namespace ZwiftActivityMonitorV2
                 Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
             }
 
-            Office2010Colors colors = hidden.GetColorTable();
+            Office2010Colors colors = Office2010Colors.GetColorTable(hidden.ColorScheme);
+            //Office2010Colors colors = hidden.GetColorTable();
             this.panel1.BackColor = colors.FormBackground;
             this.panel1.ForeColor = colors.FormTextColor;
         }

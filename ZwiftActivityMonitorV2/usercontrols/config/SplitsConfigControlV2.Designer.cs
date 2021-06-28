@@ -30,6 +30,7 @@ namespace ZwiftActivityMonitorV2
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SplitsConfigControlV2));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -84,9 +85,7 @@ namespace ZwiftActivityMonitorV2
             this.tbDescSystem.Size = new System.Drawing.Size(545, 47);
             this.tbDescSystem.TabIndex = 4;
             this.tbDescSystem.TabStop = false;
-            this.tbDescSystem.Text = "Configure splits display options.  Splits will appear whenever the split distance" +
-    " is traveled.  Set an optional goal to see if your pace is on-track.  Customize " +
-    "goals if required.";
+            this.tbDescSystem.Text = resources.GetString("tbDescSystem.Text");
             this.tbDescSystem.Enter += new System.EventHandler(this.SkipControl_Enter);
             // 
             // gbSplits
@@ -178,7 +177,7 @@ namespace ZwiftActivityMonitorV2
             this.dgvSplits.BorderStyle = System.Windows.Forms.BorderStyle.None;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
@@ -187,10 +186,17 @@ namespace ZwiftActivityMonitorV2
             this.dgvSplits.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvSplits.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnKeystroke;
             this.dgvSplits.EnableHeadersVisualStyles = false;
+            this.dgvSplits.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+            this.dgvSplits.HeaderGradientBeginColor = System.Drawing.SystemColors.Control;
+            this.dgvSplits.HeaderGradientEndColor = System.Drawing.SystemColors.ControlDark;
             this.dgvSplits.Location = new System.Drawing.Point(14, 22);
-            this.dgvSplits.Logger = null;
+            this.dgvSplits.MapEnterKeyToTabWhileEditing = false;
+            this.dgvSplits.MapEnterKeyToTabWhileNotEditing = false;
             this.dgvSplits.MultiSelect = false;
             this.dgvSplits.Name = "dgvSplits";
+            this.dgvSplits.RowBackColor = System.Drawing.SystemColors.Control;
+            this.dgvSplits.RowFont = null;
+            this.dgvSplits.RowForeColor = System.Drawing.Color.Empty;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -207,8 +213,10 @@ namespace ZwiftActivityMonitorV2
             this.dgvSplits.RowTemplate.Height = 25;
             this.dgvSplits.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dgvSplits.ShowCellToolTips = false;
+            this.dgvSplits.ShowFocus = null;
             this.dgvSplits.Size = new System.Drawing.Size(463, 195);
             this.dgvSplits.TabIndex = 90;
+            this.dgvSplits.UseGradientHeaders = false;
             this.dgvSplits.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvSplits_CellMouseClick);
             this.dgvSplits.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSplits_CellValidated);
             this.dgvSplits.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvSplits_CellValidating);

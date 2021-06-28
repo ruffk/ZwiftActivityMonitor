@@ -586,40 +586,6 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
 
-        #region SyncBindingSource class
-
-        /// <summary>
-        /// Since the DataGridView is getting updated on non-gui threads, we're using a syncronized binding source to marshall the updates.  See link for details.
-        /// https://stackoverflow.com/questions/32885552/update-elements-in-bindingsource-via-separate-task
-        /// </summary>
-        public class SyncBindingSource : BindingSource
-        {
-            private SynchronizationContext syncContext;
-            public SyncBindingSource()
-            {
-                syncContext = SynchronizationContext.Current;
-            }
-            public SyncBindingSource(object dataSource, string dataMember) : base(dataSource, dataMember)
-            {
-                syncContext = SynchronizationContext.Current;
-            }
-            public SyncBindingSource(IContainer container) : base (container)
-            {
-                syncContext = SynchronizationContext.Current;
-            }
-
-            protected override void OnListChanged(ListChangedEventArgs e)
-            {
-                if (syncContext != null)
-                    syncContext.Send(_ => base.OnListChanged(e), null);
-                else
-                    base.OnListChanged(e);
-            }
-        }
-
-        #endregion
-
-
         private BindingList<DetailRow> DetailRows = new();
         private BindingList<SummaryRow> SummaryRows = new();
         private SyncBindingSource DetailBindingSource { get; set; }
@@ -793,11 +759,6 @@ namespace ZwiftActivityMonitorV2
             MeasurementSystemType type = e.TickCount % 2 == 0 ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
 
             mMovingAverageManager.SetCurrentMeasurementSystemType(type);
-        }
-
-        public override void Control_PostLoad()
-        {
-            Debug.WriteLine($"Control_PostLoad");
         }
 
         private UserProfile CurrentUserProfile 
