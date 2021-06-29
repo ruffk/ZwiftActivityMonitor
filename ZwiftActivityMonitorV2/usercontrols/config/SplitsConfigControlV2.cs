@@ -574,7 +574,7 @@ namespace ZwiftActivityMonitorV2
                     row.Field<double>(TotalDistanceCol), 
                     row.Field<TimeSpan>(TotalTimeCol),
                     row.Field<double>(AverageSpeedCol),
-                    splits
+                    splits.SplitDistanceUom.Key
                     ));
             }
 
@@ -659,7 +659,7 @@ namespace ZwiftActivityMonitorV2
                     {
                         if (cbSplitUom.SelectedItem != null)
                         {
-                            ZAMsettings.Settings.SplitsV2.SplitDistanceUomSetting = (cbSplitUom.SelectedItem as KeyStringPair<SplitsV2.DistanceUomType>).Key;
+                            ZAMsettings.Settings.SplitsV2.SplitDistanceUomSetting = (cbSplitUom.SelectedItem as KeyStringPair<DistanceUomType>).Key;
                         }
                         else
                         {

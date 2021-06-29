@@ -591,6 +591,8 @@ namespace ZwiftActivityMonitorV2
         private SyncBindingSource DetailBindingSource { get; set; }
         private SyncBindingSource SummaryBindingSource { get; set; }
 
+        #region MovingAverageManager class
+
         private class MovingAverageManager
         {
             #region CollectorAttribute class
@@ -688,6 +690,7 @@ namespace ZwiftActivityMonitorV2
                 this.SummaryDataRow.NPwattsPerKg = e.NPwattsPerKg;
             }
         }
+        #endregion
 
         private MovingAverageManager mMovingAverageManager;
 
@@ -731,9 +734,6 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
 
-
-
-            //this.SetRowVisibilityStatus();
             this.SetupDisplayForCurrentUserProfile();
 
             // Trigger a resize so that dgSummary can size itself appropriately
@@ -759,11 +759,6 @@ namespace ZwiftActivityMonitorV2
             MeasurementSystemType type = e.TickCount % 2 == 0 ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
 
             mMovingAverageManager.SetCurrentMeasurementSystemType(type);
-        }
-
-        private UserProfile CurrentUserProfile 
-        { 
-            get { return ZAMsettings.Settings.CurrentUser; }
         }
 
         #region Initialize DataGridViews
@@ -809,20 +804,20 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Columns[(int)DetailColumn.PeriodSecs].Visible = false;
 
             this.dgDetail.Columns[(int)DetailColumn.AP].Width = 51; // minimum 50
-            this.dgDetail.Columns[(int)DetailColumn.AP].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.DetailAP);
-            this.dgDetail.Columns[(int)DetailColumn.AP].Tag = CollectorMetricType.DetailAP;
+            this.dgDetail.Columns[(int)DetailColumn.AP].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.DetailAP);
+            this.dgDetail.Columns[(int)DetailColumn.AP].Tag = ActivityViewMetricType.DetailAP;
 
             this.dgDetail.Columns[(int)DetailColumn.APmax].Width = 86; // minimum 85
-            this.dgDetail.Columns[(int)DetailColumn.APmax].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.DetailAPmax);
-            this.dgDetail.Columns[(int)DetailColumn.APmax].Tag = CollectorMetricType.DetailAPmax;
+            this.dgDetail.Columns[(int)DetailColumn.APmax].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.DetailAPmax);
+            this.dgDetail.Columns[(int)DetailColumn.APmax].Tag = ActivityViewMetricType.DetailAPmax;
 
             this.dgDetail.Columns[(int)DetailColumn.FTP].Width = 52; // minimum 50
-            this.dgDetail.Columns[(int)DetailColumn.FTP].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.DetailFTP);
-            this.dgDetail.Columns[(int)DetailColumn.FTP].Tag = CollectorMetricType.DetailFTP;
+            this.dgDetail.Columns[(int)DetailColumn.FTP].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.DetailFTP);
+            this.dgDetail.Columns[(int)DetailColumn.FTP].Tag = ActivityViewMetricType.DetailFTP;
 
             this.dgDetail.Columns[(int)DetailColumn.HR].Width = 55; // minimum 54
-            this.dgDetail.Columns[(int)DetailColumn.HR].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.DetailHR);
-            this.dgDetail.Columns[(int)DetailColumn.HR].Tag = CollectorMetricType.DetailHR;
+            this.dgDetail.Columns[(int)DetailColumn.HR].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.DetailHR);
+            this.dgDetail.Columns[(int)DetailColumn.HR].Tag = ActivityViewMetricType.DetailHR;
 
             this.dgDetail.Columns[(int)DetailColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
             this.dgDetail.Columns[(int)DetailColumn.Blank].HeaderText = "";
@@ -890,24 +885,24 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
 
             this.dgSummary.Columns[(int)SummaryColumn.AS].Width = 76;  // minimum 75
-            this.dgSummary.Columns[(int)SummaryColumn.AS].HeaderText = SpeedDisplayEnum.Instance.GetValue(SpeedDisplayType.KilometersPerHour);
-            this.dgSummary.Columns[(int)SummaryColumn.AS].Tag = CollectorMetricType.SummaryAS;
+            this.dgSummary.Columns[(int)SummaryColumn.AS].HeaderText = SpeedDisplayEnum.Instance.GetColumnHeaderText(SpeedDisplayType.KilometersPerHour);
+            this.dgSummary.Columns[(int)SummaryColumn.AS].Tag = ActivityViewMetricType.SummaryAS;
 
             this.dgSummary.Columns[(int)SummaryColumn.AP].Width = 51; // minimum 50
-            this.dgSummary.Columns[(int)SummaryColumn.AP].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.SummaryAP);
-            this.dgSummary.Columns[(int)SummaryColumn.AP].Tag = CollectorMetricType.SummaryAP;
+            this.dgSummary.Columns[(int)SummaryColumn.AP].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryAP);
+            this.dgSummary.Columns[(int)SummaryColumn.AP].Tag = ActivityViewMetricType.SummaryAP;
 
             this.dgSummary.Columns[(int)SummaryColumn.NP].Width = 86; // minimum 85
-            this.dgSummary.Columns[(int)SummaryColumn.NP].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.SummaryNP);
-            this.dgSummary.Columns[(int)SummaryColumn.NP].Tag = CollectorMetricType.SummaryNP;
+            this.dgSummary.Columns[(int)SummaryColumn.NP].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryNP);
+            this.dgSummary.Columns[(int)SummaryColumn.NP].Tag = ActivityViewMetricType.SummaryNP;
 
             this.dgSummary.Columns[(int)SummaryColumn.IF].Width = 52; // minimum 50
-            this.dgSummary.Columns[(int)SummaryColumn.IF].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.SummaryIF);
-            this.dgSummary.Columns[(int)SummaryColumn.IF].Tag = CollectorMetricType.SummaryIF;
+            this.dgSummary.Columns[(int)SummaryColumn.IF].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryIF);
+            this.dgSummary.Columns[(int)SummaryColumn.IF].Tag = ActivityViewMetricType.SummaryIF;
 
             this.dgSummary.Columns[(int)SummaryColumn.TSS].Width = 55; // minimum 54
-            this.dgSummary.Columns[(int)SummaryColumn.TSS].HeaderText = CollectorMetricEnum.Instance.GetValue(CollectorMetricType.SummaryTSS);
-            this.dgSummary.Columns[(int)SummaryColumn.TSS].Tag = CollectorMetricType.SummaryTSS;
+            this.dgSummary.Columns[(int)SummaryColumn.TSS].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryTSS);
+            this.dgSummary.Columns[(int)SummaryColumn.TSS].Tag = ActivityViewMetricType.SummaryTSS;
 
             // Use the last blank column to fill the gap if user resizes
             this.dgSummary.Columns[(int)SummaryColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
@@ -971,7 +966,7 @@ namespace ZwiftActivityMonitorV2
                 {
                     case SpeedDisplayType.KilometersPerHour:
                     case SpeedDisplayType.MilesPerHour:
-                        this.SetSummaryHeaderText(SummaryColumn.AS, SpeedDisplayEnum.Instance.GetValue(preferredType)); ;
+                        this.SetSummaryHeaderText(SummaryColumn.AS, SpeedDisplayEnum.Instance.GetColumnHeaderText(preferredType)); ;
                         break;
 
                     default:
@@ -995,25 +990,25 @@ namespace ZwiftActivityMonitorV2
 
         private void SetupDisplayForCurrentUserProfile()
         {
-            this.dgDetail.Columns[(int)DetailColumn.AP].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.DetailAP].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.APmax].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.DetailAPmax].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.FTP].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.DetailFTP].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.HR].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.DetailHR].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAP].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.APmax].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAPmax].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.FTP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailFTP].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.HR].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailHR].IsVisible.Value;
 
-            this.dgSummary.Columns[(int)SummaryColumn.AP].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.SummaryAP].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.AS].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.SummaryAS].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.IF].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.SummaryIF].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.NP].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.SummaryNP].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.TSS].Visible = CurrentUserProfile.CollectorMetrics[CollectorMetricType.SummaryTSS].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAP].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.AS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAS].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.IF].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryIF].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.NP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryNP].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.TSS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryTSS].IsVisible.Value;
 
             SummaryRows[0].AP = "";
             SummaryRows[0].AS = "";
             SummaryRows[0].NP = "";
             SummaryRows[0].IF = "";
             SummaryRows[0].TSS = "";
-            SummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.CollectorSummary.PowerValues[CollectorMetricType.SummaryAP].Key;
-            SummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.CollectorSummary.PowerValues[CollectorMetricType.SummaryNP].Key;
-            SummaryRows[0].AS_SpeedDisplayType = CurrentUserProfile.CollectorSummary.SpeedValues[CollectorMetricType.SummaryAS].Key;
+            SummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryAP].Key;
+            SummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryNP].Key;
+            SummaryRows[0].AS_SpeedDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[ActivityViewMetricType.SummaryAS].Key;
 
             DetailBindingSource.SuspendBinding();
             dgDetail.CurrentCell = null;
@@ -1022,9 +1017,9 @@ namespace ZwiftActivityMonitorV2
                 DataGridViewRow r = dgDetail.Rows[rowIndex];
                 DurationType durationType = (DurationType)dgDetail[(int)DetailColumn.PeriodSecs, rowIndex].Value;
 
-                if (CurrentUserProfile.Collectors.ContainsKey(durationType))
+                if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType))
                 {
-                    r.Visible = CurrentUserProfile.Collectors[durationType].IsVisible.Value;
+                    r.Visible = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].IsVisible.Value;
                 }
 
                 DetailRows[rowIndex].AP = "";
@@ -1032,9 +1027,9 @@ namespace ZwiftActivityMonitorV2
                 DetailRows[rowIndex].FTP = "";
                 DetailRows[rowIndex].HR = "";
 
-                DetailRows[rowIndex].AP_PowerDisplayType = CurrentUserProfile.Collectors[durationType].PowerValues[CollectorMetricType.DetailAP].Key;
-                DetailRows[rowIndex].APmax_PowerDisplayType = CurrentUserProfile.Collectors[durationType].PowerValues[CollectorMetricType.DetailAPmax].Key;
-                DetailRows[rowIndex].FTP_PowerDisplayType = CurrentUserProfile.Collectors[durationType].PowerValues[CollectorMetricType.DetailFTP].Key;
+                DetailRows[rowIndex].AP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAP].Key;
+                DetailRows[rowIndex].APmax_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAPmax].Key;
+                DetailRows[rowIndex].FTP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailFTP].Key;
             }
             DetailBindingSource.ResumeBinding();
             dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
@@ -1136,7 +1131,7 @@ namespace ZwiftActivityMonitorV2
                         // the durationType is stored in the row
                         int durationType = (int)dataGridView[(int)DetailColumn.PeriodSecs, e.RowIndex].Value;
 
-                        // the CollectorMetricType is stored in the column header tag
+                        // the ActivityViewMetricType is stored in the column header tag
                         metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
 
                         foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
@@ -1170,7 +1165,7 @@ namespace ZwiftActivityMonitorV2
                         // map the right-clicked column to the column that stores the type of speed display
                         int speedDisplayColumnIndex = speedDisplayColumnMap[e.ColumnIndex];
 
-                        // the CollectorMetricType is stored in the column header tag
+                        // the ActivityViewMetricType is stored in the column header tag
                         metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
 
                         foreach (var kvp in SpeedDisplayEnum.Instance.GetItems())
@@ -1193,7 +1188,7 @@ namespace ZwiftActivityMonitorV2
                         // map the right-clicked column to the column that stores the type of power display
                         int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
 
-                        // the CollectorMetricType is stored in the column header tag
+                        // the ActivityViewMetricType is stored in the column header tag
                         metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
 
                         foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
@@ -1237,10 +1232,10 @@ namespace ZwiftActivityMonitorV2
                 // Failing to do this will make the row reappear when it is next updated.  (BindingSource.Position being on a hidden row is a bad thing).
                 dgDetail.CurrentCell = dgDetail.FirstDisplayedCell;
 
-                if (CurrentUserProfile.Collectors.ContainsKey(durationType))
+                if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType))
                 {
                     ZAMsettings.BeginCachedConfiguration();
-                    CurrentUserProfile.Collectors[durationType].IsVisible = item.Checked;
+                    CurrentUserProfile.ActivityViewDetailRowSettings[durationType].IsVisible = item.Checked;
                     ZAMsettings.CommitCachedConfiguration();
                 }
             }
@@ -1259,7 +1254,7 @@ namespace ZwiftActivityMonitorV2
 
             int rowIndex = (int)tag[0], powerDisplayColumnIndex = (int)tag[1];
             PowerDisplayType powerDisplayType = (PowerDisplayType)tag[2];
-            CollectorMetricType metricType = (CollectorMetricType)tag[3];
+            ActivityViewMetricType metricType = (ActivityViewMetricType)tag[3];
             DurationType? durationType = (DurationType?)tag[4]; // included in dgDetail columns only
             DataGridView dataGridView = (DataGridView)tag[5];
 
@@ -1271,12 +1266,12 @@ namespace ZwiftActivityMonitorV2
                 if (durationType.HasValue)
                 {
                     // Update configuration
-                    if (CurrentUserProfile.Collectors.ContainsKey(durationType.Value))
+                    if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType.Value))
                     {
-                        if (CurrentUserProfile.Collectors[durationType.Value].PowerValues.ContainsKey(metricType))
+                        if (CurrentUserProfile.ActivityViewDetailRowSettings[durationType.Value].PowerValues.ContainsKey(metricType))
                         {
                             ZAMsettings.BeginCachedConfiguration();
-                            CurrentUserProfile.Collectors[durationType.Value].PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
+                            CurrentUserProfile.ActivityViewDetailRowSettings[durationType.Value].PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
                             ZAMsettings.CommitCachedConfiguration();
                         }
                     }
@@ -1284,10 +1279,10 @@ namespace ZwiftActivityMonitorV2
                 else
                 {
                     // Update configuration
-                    if (CurrentUserProfile.CollectorSummary.PowerValues.ContainsKey(metricType))
+                    if (CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues.ContainsKey(metricType))
                     {
                         ZAMsettings.BeginCachedConfiguration();
-                        CurrentUserProfile.CollectorSummary.PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
+                        CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
                         ZAMsettings.CommitCachedConfiguration();
                     }
                 }
@@ -1309,16 +1304,16 @@ namespace ZwiftActivityMonitorV2
                 object[] tag = item.Tag as object[];
                 int rowIndex = (int)tag[0], speedDisplayColumnIndex = (int)tag[1];
                 SpeedDisplayType speedDisplayType = (SpeedDisplayType)tag[2];
-                CollectorMetricType metricType = (CollectorMetricType)tag[3];
+                ActivityViewMetricType metricType = (ActivityViewMetricType)tag[3];
                 DataGridView dataGridView = (DataGridView)tag[4];
 
                 dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayType)speedDisplayType;
 
                 // Update configuration
-                if (CurrentUserProfile.CollectorSummary.PowerValues.ContainsKey(metricType))
+                if (CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues.ContainsKey(metricType))
                 {
                     ZAMsettings.BeginCachedConfiguration();
-                    CurrentUserProfile.CollectorSummary.SpeedValues[metricType] = SpeedDisplayEnum.Instance.GetItem(speedDisplayType);
+                    CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[metricType] = SpeedDisplayEnum.Instance.GetItem(speedDisplayType);
                     ZAMsettings.CommitCachedConfiguration();
                 }
             }
@@ -1370,7 +1365,7 @@ namespace ZwiftActivityMonitorV2
 
             object[] tag = item.Tag as object[];
             int colIndex = (int)tag[0];
-            CollectorMetricType metricType = (CollectorMetricType)tag[1];
+            ActivityViewMetricType metricType = (ActivityViewMetricType)tag[1];
             DataGridView dataGridView = (DataGridView)tag[2];
 
             foreach (DataGridViewColumn c in dataGridView.Columns)
@@ -1381,10 +1376,10 @@ namespace ZwiftActivityMonitorV2
             {
                 dataGridView.Columns[colIndex].Visible = item.Checked;
 
-                if (CurrentUserProfile.CollectorMetrics.ContainsKey(metricType))
+                if (CurrentUserProfile.ActivityViewColumnSettings.ContainsKey(metricType))
                 {
                     ZAMsettings.BeginCachedConfiguration();
-                    CurrentUserProfile.CollectorMetrics[metricType].IsVisible = item.Checked;
+                    CurrentUserProfile.ActivityViewColumnSettings[metricType].IsVisible = item.Checked;
                     ZAMsettings.CommitCachedConfiguration();
                 }
                 

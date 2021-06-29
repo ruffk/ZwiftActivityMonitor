@@ -114,10 +114,10 @@ namespace ZwiftActivityMonitorV2
             // Calculate total distance travelled
             int totalMeters = e.Distance - m_distanceSeedValue;
 
-            double kmsTravelled = totalMeters / 1000.0;
-            double milesTravelled = kmsTravelled / 1.609;
+            double totalKmTravelled = totalMeters / 1000.0;
+            double totalMiTravelled = totalKmTravelled / 1.609;
 
-            double totalDistance = Math.Round(m_splits.SplitsInKm ? kmsTravelled : milesTravelled, 1);
+            //double totalDistance = Math.Round(m_splits.SplitsInKm ? kmsTravelled : milesTravelled, 1);
 
             // Calculate how deep into the current split the rider is.
             int splitMetersTravelled = totalMeters - m_lastSplitMeters;
@@ -132,11 +132,17 @@ namespace ZwiftActivityMonitorV2
             double splitKmTravelled = splitMetersTravelled / 1000.0;
             double splitMiTravelled = splitKmTravelled / 1.609;
 
-            double splitDistance = m_splits.SplitsInKm ? splitKmTravelled : splitMiTravelled;
-            double splitSpeed = Math.Round((splitDistance / splitTime.TotalSeconds) * 3600, 1);
+            //double splitDistance = m_splits.SplitsInKm ? splitKmTravelled : splitMiTravelled;
+            //double splitSpeed = Math.Round((splitDistance / splitTime.TotalSeconds) * 3600, 1);
+            
+            double splitSpeedMph = Math.Round((splitMiTravelled / splitTime.TotalSeconds) * 3600, 1);
+            double splitSpeedKph = Math.Round((splitKmTravelled / splitTime.TotalSeconds) * 3600, 1);
 
             // Now round the distance
-            splitDistance = Math.Round(splitDistance, 1);
+            splitMiTravelled = Math.Round(splitMiTravelled, 1);
+            splitKmTravelled = Math.Round(splitKmTravelled, 1);
+
+            //splitDistance = Math.Round(splitDistance, 1);
 
             if (split != null)
             {
@@ -146,7 +152,7 @@ namespace ZwiftActivityMonitorV2
                     TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(split.TotalTime).TotalSeconds, 0));
 
                     // This completes the split.  TotalDistance travelled and Delta is included.
-                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm, deltaTime);
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeedMph, splitSpeedKph, totalMiTravelled, totalKmTravelled, runningTime, m_splits.SplitsInKm, deltaTime);
                     OnSplitGoalCompletedEvent(args);
 
                     // Reset time and begin next split
@@ -167,7 +173,7 @@ namespace ZwiftActivityMonitorV2
                     TimeSpan deltaTime = new TimeSpan(0, 0, (int)Math.Round(runningTime.Subtract(splitWaypointTime).TotalSeconds, 0));
 
                     // This is an update to the split in-progress.  SplitDistance travelled is included.
-                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm, deltaTime);
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeedMph, splitSpeedKph, splitMiTravelled, splitKmTravelled, runningTime, m_splits.SplitsInKm, deltaTime);
                     OnSplitUpdatedEvent(args);
 
                     Debug.WriteLine($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
@@ -178,7 +184,7 @@ namespace ZwiftActivityMonitorV2
                 if (splitMetersTravelled >= splitLengthMeters)
                 {
                     // This completes the split.  TotalDistance traveled is included.
-                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, totalDistance, runningTime, m_splits.SplitsInKm);
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeedMph, splitSpeedKph, totalMiTravelled, totalKmTravelled, runningTime, m_splits.SplitsInKm);
                     OnSplitCompletedEvent(args);
 
                     // Reset time and begin next split
@@ -190,7 +196,7 @@ namespace ZwiftActivityMonitorV2
                 else
                 {
                     // This is an update to the split in-progress.  SplitDistance traveled is included.
-                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeed, splitDistance, runningTime, m_splits.SplitsInKm);
+                    SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeedMph, splitSpeedKph, splitMiTravelled, splitKmTravelled, runningTime, m_splits.SplitsInKm);
                     OnSplitUpdatedEvent(args);
                 }
             }

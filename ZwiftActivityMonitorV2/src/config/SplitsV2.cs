@@ -14,8 +14,6 @@ namespace ZwiftActivityMonitorV2
     /// </summary>
     public class SplitsV2 : ConfigItemBase, ICloneable
     {
-        public enum DistanceUomType { Kilometers, Miles }
-
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
         public KeyStringPair<DistanceUomType> SplitDistanceUom { get; set; }
 
@@ -56,6 +54,11 @@ namespace ZwiftActivityMonitorV2
                 Logger.LogInformation($"Initializing SplitDistanceUom");
                 SplitDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
                 count++;
+            }
+
+            foreach(SplitV2 split in Splits)
+            {
+                count += split.InitializeDefaultValues();
             }
 
             return count;
@@ -208,7 +211,7 @@ namespace ZwiftActivityMonitorV2
                 double splitSpeed = Math.Round((this.SplitDistance / splitTime.TotalSeconds) * 3600, 1);
                 double averageSpeed = Math.Round((totalDistance / totalTime.TotalSeconds) * 3600, 1);
 
-                SplitV2 item = new SplitV2(this.SplitDistance, splitTime, splitSpeed, totalDistance, totalTime, averageSpeed, this);
+                SplitV2 item = new SplitV2(this.SplitDistance, splitTime, splitSpeed, totalDistance, totalTime, averageSpeed, SplitDistanceUom.Key);
                 this.Splits.Add(item);
 
                 curDistance = totalDistance;
@@ -222,7 +225,7 @@ namespace ZwiftActivityMonitorV2
 
                 double lastSplitSpeed = Math.Round((lastSplitDistance / lastSplitTime.TotalSeconds) * 3600, 1);
 
-                SplitV2 item = new SplitV2(lastSplitDistance, lastSplitTime, lastSplitSpeed, this.GoalDistance, this.GoalTime, this.GoalSpeed, this);
+                SplitV2 item = new SplitV2(lastSplitDistance, lastSplitTime, lastSplitSpeed, this.GoalDistance, this.GoalTime, this.GoalSpeed, SplitDistanceUom.Key);
                 this.Splits.Add(item);
             }
         }
@@ -235,18 +238,23 @@ namespace ZwiftActivityMonitorV2
 
     }
 
-    public class SplitV2
+    public class SplitV2 : ConfigItemBase
     {
-        public double SplitDistance { get; }
-        public TimeSpan SplitTime { get; }
-        public double SplitSpeed { get; }
-        public double TotalDistance { get; }
-        public TimeSpan TotalTime { get; }
-        public double AverageSpeed { get; }
+        // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
+        public double SplitDistance { get; set; }
+        public TimeSpan SplitTime { get; set; }
+        public double SplitSpeed { get; set; }
+        public double TotalDistance { get; set; }
+        public TimeSpan TotalTime { get; set; }
+        public double AverageSpeed { get; set; }
+        public DistanceUomType SplitDistanceUom { get; set; } = DistanceUomType.Kilometers;
 
-        private SplitsV2 ParentSplitContainer { get; }
+        [JsonConstructor]
+        public SplitV2()
+        {
+        }
 
-        public SplitV2(double splitDistance, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, double averageSpeed, SplitsV2 parentSplitContainer)
+        public SplitV2(double splitDistance, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, double averageSpeed, DistanceUomType distanceUomType)
         {
             this.SplitDistance = splitDistance;
             this.SplitTime = splitTime;
@@ -254,13 +262,25 @@ namespace ZwiftActivityMonitorV2
             this.TotalDistance = totalDistance;
             this.TotalTime = totalTime;
             this.AverageSpeed = averageSpeed;
-            this.ParentSplitContainer = parentSplitContainer;
+            this.SplitDistanceUom = distanceUomType;
         }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            return count;
+        }
+
 
         [JsonIgnore]
         public double SplitDistanceAsKm
         {
-            get { return this.ParentSplitContainer.SplitsInKm ? this.SplitDistance : this.SplitDistance * 1.609; }
+            get { return this.SplitDistanceUom == DistanceUomType.Kilometers ? this.SplitDistance : this.SplitDistance * 1.609; }
         }
 
         [JsonIgnore]
@@ -272,7 +292,7 @@ namespace ZwiftActivityMonitorV2
         [JsonIgnore]
         public double TotalDistanceAsKm
         {
-            get { return this.ParentSplitContainer.SplitsInKm ? this.TotalDistance : this.TotalDistance * 1.609; }
+            get { return this.SplitDistanceUom == DistanceUomType.Kilometers ? this.TotalDistance : this.TotalDistance * 1.609; }
         }
 
         [JsonIgnore]

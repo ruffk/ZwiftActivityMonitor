@@ -9,14 +9,39 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    #region UserCollectorSummary class
+    #region UserActivityViewColumnSettings class
     /// <summary>
-    /// Settings for the ActivityViewControl's Summary Power and Speed columns
+    /// Settings for the ActivityViewerControl's Detail and Summary column visibility
     /// </summary>
-    public class UserCollectorSummary : ConfigItemBase, ICloneable
+    public class UserActivityViewColumnSettings : ConfigItemBase, ICloneable
     {
-        public SortedList<CollectorMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
-        public SortedList<CollectorMetricType, KeyStringPair<SpeedDisplayType>> SpeedValues = new();
+        public KeyStringPair<ActivityViewMetricType> Metric { get; set; }
+
+        public bool? IsVisible { get; set; }
+
+        [JsonConstructor]
+        public UserActivityViewColumnSettings()
+        {
+        }
+
+        public UserActivityViewColumnSettings(ActivityViewMetricType metric)
+        {
+            this.MetricSetting = metric;
+        }
+
+        /// <summary>
+        /// The full KeyValuePair is stored in the item array for display.
+        /// </summary>
+        [JsonIgnore]
+        public ActivityViewMetricType MetricSetting
+        {
+            get { return Metric.Key; }
+            set
+            {
+                Metric = ActivityViewMetricEnum.Instance.GetItem(value);
+            }
+        }
+
 
         public override int InitializeDefaultValues()
         {
@@ -26,57 +51,14 @@ namespace ZwiftActivityMonitorV2
             // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
             // even if the json being parsed has values in it.
 
-            if (!this.PowerValues.ContainsKey(CollectorMetricType.SummaryAP))
+            if (this.IsVisible == null)
             {
-                this.PowerValues.Add(CollectorMetricType.SummaryAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
-                count++;
-            }
-
-            if (!this.PowerValues.ContainsKey(CollectorMetricType.SummaryNP))
-            {
-                this.PowerValues.Add(CollectorMetricType.SummaryNP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Both));
-                count++;
-            }
-
-            if (!this.SpeedValues.ContainsKey(CollectorMetricType.SummaryAS))
-            {
-                this.SpeedValues.Add(CollectorMetricType.SummaryAS, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                this.IsVisible = true;
                 count++;
             }
 
             return count;
         }
-
-        [JsonIgnore]
-        public PowerDisplayType AP_PowerDisplaySetting
-        {
-            get { return this.PowerValues[CollectorMetricType.SummaryAP].Key; }
-            set
-            {
-                this.PowerValues[CollectorMetricType.SummaryAP] = PowerDisplayEnum.Instance.GetItem(value);
-            }
-        }
-
-        [JsonIgnore]
-        public PowerDisplayType NP_PowerDisplaySetting
-        {
-            get { return this.PowerValues[CollectorMetricType.SummaryNP].Key; }
-            set
-            {
-                this.PowerValues[CollectorMetricType.SummaryNP] = PowerDisplayEnum.Instance.GetItem(value);
-            }
-        }
-
-        [JsonIgnore]
-        public SpeedDisplayType AS_SpeedDisplaySetting
-        {
-            get { return this.SpeedValues[CollectorMetricType.SummaryAS].Key; }
-            set
-            {
-                this.SpeedValues[CollectorMetricType.SummaryAS] = SpeedDisplayEnum.Instance.GetItem(value);
-            }
-        }
-
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -84,26 +66,26 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
-    #region UserCollector class
+    #region UserActivityViewDetailRowSettings class
     /// <summary>
-    /// Settings for the ActivityViewControl's Detail Power columns and visibility
+    /// Settings for the ActivityViewControl's Detail row Power columns and row visibility
     /// </summary>
-    public class UserCollector : ConfigItemBase, ICloneable
+    public class UserActivityViewDetailRowSettings : ConfigItemBase, ICloneable
     {
         // FYI - The setters here should just be "internal set" but then the json deserializer doesn't work properly.
         public KeyStringPair<DurationType> Duration { get; set; }
 
         public bool? IsVisible { get; set; }
 
-        public SortedList<CollectorMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
+        public SortedList<ActivityViewMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
 
         [JsonConstructor]
-        public UserCollector()
+        public UserActivityViewDetailRowSettings()
         {
 
         }
 
-        public UserCollector(DurationType duration)
+        public UserActivityViewDetailRowSettings(DurationType duration)
         {
             this.DurationSetting = duration;
         }
@@ -116,28 +98,28 @@ namespace ZwiftActivityMonitorV2
             // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
             // even if the json being parsed has values in it.
 
-            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailAP))
+            if (!this.PowerValues.ContainsKey(ActivityViewMetricType.DetailAP))
             {
-                this.PowerValues.Add(CollectorMetricType.DetailAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
+                this.PowerValues.Add(ActivityViewMetricType.DetailAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
                 count++;
             }
 
-            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailAPmax))
+            if (!this.PowerValues.ContainsKey(ActivityViewMetricType.DetailAPmax))
             {
-                this.PowerValues.Add(CollectorMetricType.DetailAPmax, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
+                this.PowerValues.Add(ActivityViewMetricType.DetailAPmax, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
                 count++;
             }
 
-            if (!this.PowerValues.ContainsKey(CollectorMetricType.DetailFTP))
+            if (!this.PowerValues.ContainsKey(ActivityViewMetricType.DetailFTP))
             {
                 switch (this.DurationSetting)
                 {
                     case DurationType.TwentyMinutes:
-                        this.PowerValues.Add(CollectorMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
+                        this.PowerValues.Add(ActivityViewMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.WattsPerKg));
                         break;
 
                     default:
-                        this.PowerValues.Add(CollectorMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.None));
+                        this.PowerValues.Add(ActivityViewMetricType.DetailFTP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.None));
                         break;
                 }
                 count++;
@@ -180,30 +162,30 @@ namespace ZwiftActivityMonitorV2
         [JsonIgnore]
         public PowerDisplayType AP_PowerDisplaySetting
         {
-            get { return this.PowerValues[CollectorMetricType.DetailAP].Key; }
+            get { return this.PowerValues[ActivityViewMetricType.DetailAP].Key; }
             set
             {
-                this.PowerValues[CollectorMetricType.DetailAP] = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[ActivityViewMetricType.DetailAP] = PowerDisplayEnum.Instance.GetItem(value);
             }
         }
 
         [JsonIgnore]
         public PowerDisplayType APmax_PowerDisplaySetting
         {
-            get { return this.PowerValues[CollectorMetricType.DetailAPmax].Key; }
+            get { return this.PowerValues[ActivityViewMetricType.DetailAPmax].Key; }
             set
             {
-                this.PowerValues[CollectorMetricType.DetailAPmax] = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[ActivityViewMetricType.DetailAPmax] = PowerDisplayEnum.Instance.GetItem(value);
             }
         }
 
         [JsonIgnore]
         public PowerDisplayType FTP_PowerDisplaySetting
         {
-            get { return this.PowerValues[CollectorMetricType.DetailFTP].Key; }
+            get { return this.PowerValues[ActivityViewMetricType.DetailFTP].Key; }
             set
             {
-                this.PowerValues[CollectorMetricType.DetailFTP] = PowerDisplayEnum.Instance.GetItem(value);
+                this.PowerValues[ActivityViewMetricType.DetailFTP] = PowerDisplayEnum.Instance.GetItem(value);
             }
         }
 
@@ -214,40 +196,14 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
-    #region UserCollectorMetric class
+    #region UserActivityViewSummaryRowSettings class
     /// <summary>
-    /// Settings for the ActivityViewControl's Detail column visibility
+    /// Settings for the ActivityViewerControl's Summary Power and Speed columns
     /// </summary>
-    public class UserCollectorMetric : ConfigItemBase, ICloneable
+    public class UserActivityViewSummaryRowSettings : ConfigItemBase, ICloneable
     {
-        public KeyStringPair<CollectorMetricType> Metric { get; set; }
-
-        public bool? IsVisible { get; set; }
-
-        [JsonConstructor]
-        public UserCollectorMetric()
-        {
-
-        }
-
-        public UserCollectorMetric(CollectorMetricType metric)
-        {
-            this.MetricSetting = metric;
-        }
-
-        /// <summary>
-        /// The full KeyValuePair is stored in the item array for display.
-        /// </summary>
-        [JsonIgnore]
-        public CollectorMetricType MetricSetting
-        {
-            get { return Metric.Key; }
-            set
-            {
-                Metric = CollectorMetricEnum.Instance.GetItem(value);
-            }
-        }
-
+        public SortedList<ActivityViewMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
+        public SortedList<ActivityViewMetricType, KeyStringPair<SpeedDisplayType>> SpeedValues = new();
 
         public override int InitializeDefaultValues()
         {
@@ -257,9 +213,106 @@ namespace ZwiftActivityMonitorV2
             // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
             // even if the json being parsed has values in it.
 
-            if (this.IsVisible == null)
+            if (!this.PowerValues.ContainsKey(ActivityViewMetricType.SummaryAP))
             {
-                this.IsVisible = true;
+                this.PowerValues.Add(ActivityViewMetricType.SummaryAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Watts));
+                count++;
+            }
+
+            if (!this.PowerValues.ContainsKey(ActivityViewMetricType.SummaryNP))
+            {
+                this.PowerValues.Add(ActivityViewMetricType.SummaryNP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Both));
+                count++;
+            }
+
+            if (!this.SpeedValues.ContainsKey(ActivityViewMetricType.SummaryAS))
+            {
+                this.SpeedValues.Add(ActivityViewMetricType.SummaryAS, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                count++;
+            }
+
+            return count;
+        }
+
+        [JsonIgnore]
+        public PowerDisplayType AP_PowerDisplaySetting
+        {
+            get { return this.PowerValues[ActivityViewMetricType.SummaryAP].Key; }
+            set
+            {
+                this.PowerValues[ActivityViewMetricType.SummaryAP] = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        [JsonIgnore]
+        public PowerDisplayType NP_PowerDisplaySetting
+        {
+            get { return this.PowerValues[ActivityViewMetricType.SummaryNP].Key; }
+            set
+            {
+                this.PowerValues[ActivityViewMetricType.SummaryNP] = PowerDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        [JsonIgnore]
+        public SpeedDisplayType AS_SpeedDisplaySetting
+        {
+            get { return this.SpeedValues[ActivityViewMetricType.SummaryAS].Key; }
+            set
+            {
+                this.SpeedValues[ActivityViewMetricType.SummaryAS] = SpeedDisplayEnum.Instance.GetItem(value);
+            }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+    }
+    #endregion
+
+    #region UserSplitViewColumnSettings class
+    /// <summary>
+    /// Settings for the SplitViewerControl's Detail and Summary column visibility
+    /// </summary>
+    public class UserSplitViewColumnSettings : ConfigItemBase, ICloneable
+    {
+        public SortedList<SplitViewMetricType, bool> Visibility = new();
+        public SortedList<SplitViewMetricType, KeyStringPair<SpeedDisplayType>> SpeedValues = new();
+        public SortedList<SplitViewMetricType, KeyStringPair<DistanceDisplayType>> DistanceValues = new();
+
+        [JsonConstructor]
+        public UserSplitViewColumnSettings()
+        {
+        }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            // default all columns to visible
+            foreach (var item in SplitViewMetricEnum.Instance.GetItems())
+            {
+                if (!this.Visibility.ContainsKey(item.Key))
+                {
+                    this.Visibility.Add(item.Key, true);
+                    count++;
+                }
+            }
+
+            if (!this.SpeedValues.ContainsKey(SplitViewMetricType.DetailSplitSpeed))
+            {
+                this.SpeedValues.Add(SplitViewMetricType.DetailSplitSpeed, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                count++;
+            }
+
+            if (!this.DistanceValues.ContainsKey(SplitViewMetricType.DetailSplitDistance))
+            {
+                this.DistanceValues.Add(SplitViewMetricType.DetailSplitDistance, DistanceDisplayEnum.Instance.GetItem(DistanceDisplayType.Both));
                 count++;
             }
 
@@ -272,16 +325,19 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
+
+
     public class UserProfile : ConfigItemBase, ICloneable
     {
         public string UniqueId { get; set; } = "";
         public int PowerThreshold { get; set; }
-        //public SortedList<string, bool> DefaultCollectors { get; } = new SortedList<string, bool>();
 
-        public SortedList<DurationType, UserCollector> Collectors = new();
-        public SortedList<CollectorMetricType, UserCollectorMetric> CollectorMetrics = new();
+        public SortedList<DurationType, UserActivityViewDetailRowSettings> ActivityViewDetailRowSettings = new();
+        public SortedList<ActivityViewMetricType, UserActivityViewColumnSettings> ActivityViewColumnSettings = new();
 
-        public UserCollectorSummary CollectorSummary = new();
+        public UserActivityViewSummaryRowSettings ActivityViewSummaryRowSettings = new();
+
+        public UserSplitViewColumnSettings SplitViewColumnSettings = new();
 
         private string m_name = "";
         private string m_email = "";
@@ -310,94 +366,40 @@ namespace ZwiftActivityMonitorV2
             // Initialize configuration for the collector rows if missing
             foreach (var duration in DurationEnum.Instance.GetItems())
             {
-                if (!Collectors.ContainsKey(duration.Key))
+                if (!ActivityViewDetailRowSettings.ContainsKey(duration.Key))
                 {
-                    Collectors.Add(duration.Key, new UserCollector(duration.Key));
+                    ActivityViewDetailRowSettings.Add(duration.Key, new UserActivityViewDetailRowSettings(duration.Key));
                     count++;
                 }
             }
 
-            foreach (var item in this.Collectors)
+            foreach (var item in this.ActivityViewDetailRowSettings)
                 count += item.Value.InitializeDefaultValues();
 
             // Initialize configuration for the metric columns if missing
-            foreach(var metric in CollectorMetricEnum.Instance.GetItems())
+            foreach(var metric in ActivityViewMetricEnum.Instance.GetItems())
             {
-                if (!CollectorMetrics.ContainsKey(metric.Key))
+                if (!ActivityViewColumnSettings.ContainsKey(metric.Key))
                 {
-                    CollectorMetrics.Add(metric.Key, new UserCollectorMetric(metric.Key));
+                    ActivityViewColumnSettings.Add(metric.Key, new UserActivityViewColumnSettings(metric.Key));
                     count++;
                 }
             }
 
-            foreach (var item in this.CollectorMetrics)
+            foreach (var item in this.ActivityViewColumnSettings)
                 count += item.Value.InitializeDefaultValues();
 
-            count += this.CollectorSummary.InitializeDefaultValues();
+            count += this.ActivityViewSummaryRowSettings.InitializeDefaultValues();
+
+            count += this.SplitViewColumnSettings.InitializeDefaultValues();
 
             return count;
         }
-
 
         public object Clone()
         {
             return this.MemberwiseClone();
         }
-
-        //public void ClearDefaultCollectors()
-        //{
-        //    DefaultCollectors.Clear();
-        //}
-
-        //public void AddDefaultCollector(string name)
-        //{
-        //    DefaultCollectors.Add(name, true);
-        //}
-
-        //[JsonIgnore]
-        //public SortedList<string, Collector> SelectedCollectors
-        //{
-        //    get
-        //    {
-        //        SortedList<string, Collector> list = new SortedList<string, Collector>();
-
-        //        foreach (var item in DefaultCollectors)
-        //        {
-        //            if (item.Value == true)
-        //            {
-        //                if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
-        //                    list.Add(item.Key, ZAMsettings.Settings.Collectors[item.Key]);
-        //            }
-        //        }
-        //        return list;
-        //    }
-        //}
-
-        //[JsonIgnore]
-        //public List<Collector> GetCollectors
-        //{
-        //    get
-        //    {
-        //        List<Collector> collectors = new();
-        //        foreach (var item in DefaultCollectors)
-        //        {
-        //            if (item.Value == true)
-        //            {
-        //                if (ZAMsettings.Settings.Collectors.ContainsKey(item.Key))
-        //                    collectors.Add(ZAMsettings.Settings.Collectors[item.Key]);
-        //            }
-        //        }
-        //        collectors.Sort(
-        //            delegate (Collector p1, Collector p2)
-        //            {
-        //                return p1.DurationSecs.CompareTo(p2.DurationSecs);
-        //            }
-        //        );
-
-        //        return collectors.ToList<Collector>();
-        //    }
-        //}
-
 
         public bool WeightInKgs
         {

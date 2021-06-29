@@ -22,7 +22,9 @@ namespace ZwiftActivityMonitorV2
             SplitDistance,
             TotalTime,
             Delta,
-            Blank
+            Blank,
+            Split_SpeedDisplayType,
+            Split_DistanceDisplayType,
         }
 
         private enum SummaryColumn
@@ -47,17 +49,45 @@ namespace ZwiftActivityMonitorV2
             public TimeSpan SplitTime { get { return this.mSplitTime; } set { this.SetProperty<TimeSpan>(ref this.mSplitTime, value); } }
             public string SplitSpeed { get { return this.mSplitSpeed; } set { this.SetProperty<string>(ref this.mSplitSpeed, value); } }
             public string SplitDistance { get { return this.mSplitDistance; } set { this.SetProperty<string>(ref this.mSplitDistance, value); } }
-            public string TotalTime { get { return this.mTotalTime; } set { this.SetProperty<string>(ref this.mTotalTime, value); } }
-            public string DeltaTime { get { return this.mDeltaTime; } set { this.SetProperty<string>(ref this.mDeltaTime, value); } }
+            public TimeSpan TotalTime { get { return this.mTotalTime; } set { this.SetProperty<TimeSpan>(ref this.mTotalTime, value); } }
+            public string Delta { get { return this.mDelta; } set { this.SetProperty<string>(ref this.mDelta, value); } }
             public string Blank { get; set; }
 
+            public SpeedDisplayType Split_SpeedDisplayType
+            {
+                get { return this.mSplit_SpeedDisplayType; }
+                set
+                {
+                    this.SetProperty<SpeedDisplayType>(ref this.mSplit_SpeedDisplayType, value);
+                    UpdateSplitSpeed(value);
+                }
+            }
+
+            public DistanceDisplayType Split_DistanceDisplayType
+            {
+                get { return this.mSplit_DistanceDisplayType; }
+                set
+                {
+                    this.SetProperty<DistanceDisplayType>(ref this.mSplit_DistanceDisplayType, value);
+                    UpdateSplitDistance(value);
+                }
+            }
+
+            private string mDelta;
             private TimeSpan mSplitTime;
             private string mSplitSpeed;
+            private double mSplitSpeedKph;
+            private double mSplitSpeedMph;
             private string mSplitDistance;
-            private string mTotalTime;
-            private string mDeltaTime;
+            private double mSplitDistanceMi;
+            private double mSplitDistanceKm;
+            private TimeSpan mTotalTime;
+            private TimeSpan? mDeltaTime;
+            private SpeedDisplayType mSplit_SpeedDisplayType;
+            private DistanceDisplayType mSplit_DistanceDisplayType;
 
             private SpeedDisplayType mCurrentSpeedDisplayType;
+            private DistanceDisplayType mCurrentDistanceDisplayType;
 
             public DetailRow(int splitNumber)
             {
@@ -69,12 +99,13 @@ namespace ZwiftActivityMonitorV2
                 if (type == MeasurementSystemType.Imperial)
                 {
                     this.mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
+                    this.mCurrentDistanceDisplayType = DistanceDisplayType.Miles;
                 }
                 else
                 {
                     this.mCurrentSpeedDisplayType = SpeedDisplayType.KilometersPerHour;
+                    this.mCurrentDistanceDisplayType = DistanceDisplayType.Kilometers;
                 }
-
             }
 
             public SpeedDisplayType GetPreferredType(SpeedDisplayType currentType)
@@ -82,6 +113,149 @@ namespace ZwiftActivityMonitorV2
                 SpeedDisplayType preferredType = currentType == SpeedDisplayType.Both ? this.mCurrentSpeedDisplayType : currentType;
 
                 return preferredType;
+            }
+
+            public DistanceDisplayType GetPreferredType(DistanceDisplayType currentType)
+            {
+                DistanceDisplayType preferredType = currentType == DistanceDisplayType.Both ? this.mCurrentDistanceDisplayType : currentType;
+
+                return preferredType;
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateSplitSpeed(SpeedDisplayType updatedType)
+            {
+                SpeedDisplayType preferredType = GetPreferredType(this.Split_SpeedDisplayType);
+
+                if (preferredType == updatedType)
+                {
+                    switch (updatedType)
+                    {
+                        case SpeedDisplayType.KilometersPerHour:
+                            this.SplitSpeed = this.SplitSpeedKph > 0 ? this.SplitSpeedKph.ToString("0.0") : "";
+                            break;
+
+                        case SpeedDisplayType.MilesPerHour:
+                            this.SplitSpeed = this.SplitSpeedMph > 0 ? this.SplitSpeedMph.ToString("0.0") : "";
+                            break;
+                    }
+                }
+                else if (preferredType == SpeedDisplayType.None)
+                {
+                    this.SplitSpeed = "";
+                }
+            }
+
+            /// <summary>
+            /// Updates the displayed column appropriately
+            /// </summary>
+            /// <param name="updatedType"></param>
+            private void UpdateSplitDistance(DistanceDisplayType updatedType)
+            {
+                DistanceDisplayType preferredType = GetPreferredType(this.Split_DistanceDisplayType);
+
+                if (preferredType == updatedType)
+                {
+                    switch (updatedType)
+                    {
+                        case DistanceDisplayType.Kilometers:
+                            this.SplitDistance = this.SplitDistanceKm > 0 ? this.SplitDistanceKm.ToString("0.0") : "";
+                            break;
+
+                        case DistanceDisplayType.Miles:
+                            this.SplitDistance = this.SplitDistanceMi > 0 ? this.SplitDistanceMi.ToString("0.0") : "";
+                            break;
+                    }
+                }
+                else if (preferredType == DistanceDisplayType.None)
+                {
+                    this.SplitDistance = "";
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SplitSpeedKph
+            {
+                get { return this.mSplitSpeedKph; }
+                set
+                {
+                    this.mSplitSpeedKph = value;
+                    this.UpdateSplitSpeed(SpeedDisplayType.KilometersPerHour);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SplitSpeedMph
+            {
+                get { return this.mSplitSpeedMph; }
+                set
+                {
+                    this.mSplitSpeedMph = value;
+                    this.UpdateSplitSpeed(SpeedDisplayType.MilesPerHour);
+                }
+            }
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SplitDistanceKm
+            {
+                get { return this.mSplitDistanceKm; }
+                set
+                {
+                    this.mSplitDistanceKm = value;
+                    this.UpdateSplitDistance(DistanceDisplayType.Kilometers);
+                }
+            }
+
+            /// <summary>
+            /// Saves the value privately and updates the displayed field if the units match
+            /// </summary>
+            [Browsable(false)]
+            public double SplitDistanceMi
+            {
+                get { return this.mSplitDistanceMi; }
+                set
+                {
+                    this.mSplitDistanceMi = value;
+                    this.UpdateSplitDistance(DistanceDisplayType.Miles);
+                }
+            }
+
+            [Browsable(false)]
+            public TimeSpan? DeltaTime
+            {
+                get { return mDeltaTime; }
+                set
+                {
+                    mDeltaTime = value;
+                    if (mDeltaTime.HasValue)
+                    {
+                        TimeSpan std = (TimeSpan)mDeltaTime;
+                        bool negated = false;
+
+                        if (std.TotalSeconds < 0)
+                        {
+                            std = std.Negate();
+                            negated = true;
+                        }
+
+                        this.Delta = $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
+                    }
+                    else
+                    {
+                        this.Delta = "";
+                    }
+                }
             }
         }
 
@@ -154,6 +328,13 @@ namespace ZwiftActivityMonitorV2
             InitializeSummaryDataGrid();
             LoadSummaryDataGrid();
 
+            // Subscribe to any SystemConfig changes
+            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+            ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
+
+            this.SetupDisplayForCurrentUserProfile();
+
+
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
 
@@ -195,24 +376,28 @@ namespace ZwiftActivityMonitorV2
                 detailRow = new(e.SplitNumber)
                 {
                     SplitTime = e.SplitTime,
-                    //SplitDistance = "",
-                    //SplitSpeed = "",
-                    //Time = e.SplitTimeStr,
-                    //Speed = e.SplitSpeedStr,
-                    //TotalDistance = e.TotalDistanceStr,
-                    //TotalTime = e.TotalTimeStr,
-                    //Delta = e.DeltaTimeStr,  // will return empty string if not a goal based split
-                    //SplitsInKm = e.SplitsInKm,
-                    //AheadOfGoalTime = e.AheadOfGoalTime // null if not a goal based split
+                    SplitDistanceKm = e.TotalKmTravelled,
+                    SplitDistanceMi = e.TotalMiTravelled,
+                    SplitSpeedMph = e.SplitSpeedMph,
+                    SplitSpeedKph = e.SplitSpeedKph,
+                    TotalTime = e.TotalTime,
+                    DeltaTime = e.DeltaTime,
                 };
                 DetailRows.Add(detailRow);
+                detailRow.PropertyChanged += DetailOrSummaryRow_PropertyChanged;
             }
             else
             {
                 detailRow.SplitTime = e.SplitTime;
+                detailRow.SplitDistanceKm = e.TotalKmTravelled;
+                detailRow.SplitDistanceMi = e.TotalMiTravelled;
+                detailRow.SplitSpeedMph = e.SplitSpeedMph;
+                detailRow.SplitSpeedKph = e.SplitSpeedKph;
+                detailRow.TotalTime = e.TotalTime;
+                detailRow.DeltaTime = e.DeltaTime;
             }
 
-            //if (lvSplits.Items.ContainsKey(splitItem.SplitNumber))
+            //if (lvSplits.Items.ContainsKey(splitItem.SplitNumber)) 
             //{
             //    SplitListViewItem item = (SplitListViewItem)lvSplits.Items[splitItem.SplitNumber];
             //    item.SplitItem = splitItem; // Replace with current splitItem object and refresh
@@ -292,28 +477,44 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
             this.dgDetail.Columns[(int)DetailColumn.SplitNumber].Width = 36;
-            this.dgDetail.Columns[(int)DetailColumn.SplitNumber].HeaderText = "#";
+            this.dgDetail.Columns[(int)DetailColumn.SplitNumber].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailSplitNumber);
+            this.dgDetail.Columns[(int)DetailColumn.SplitNumber].Tag = SplitViewMetricType.DetailSplitNumber;
 
             this.dgDetail.Columns[(int)DetailColumn.SplitTime].Width = 48;
-            this.dgDetail.Columns[(int)DetailColumn.SplitTime].HeaderText = "Split\nTime";
+            this.dgDetail.Columns[(int)DetailColumn.SplitTime].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailSplitTime);
             this.dgDetail.Columns[(int)DetailColumn.SplitTime].DefaultCellStyle.Format = "mm\\:ss";
+            this.dgDetail.Columns[(int)DetailColumn.SplitTime].Tag = SplitViewMetricType.DetailSplitTime;
 
             this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].Width = 48;
-            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].HeaderText = "km/h";
+            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailSplitSpeed);
+            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].Tag = SplitViewMetricType.DetailSplitSpeed;
 
             this.dgDetail.Columns[(int)DetailColumn.SplitDistance].Width = 50;
-            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].HeaderText = "km";
+            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailSplitDistance);
+            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].DefaultCellStyle.Format = "F1";
+            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].Tag = SplitViewMetricType.DetailSplitDistance;
 
             this.dgDetail.Columns[(int)DetailColumn.TotalTime].Width = 72;
-            this.dgDetail.Columns[(int)DetailColumn.TotalTime].HeaderText = "Total\nTime";
+            this.dgDetail.Columns[(int)DetailColumn.TotalTime].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailTotalTime);
+            this.dgDetail.Columns[(int)DetailColumn.TotalTime].DefaultCellStyle.Format = "hh\\:mm\\:ss";
+            this.dgDetail.Columns[(int)DetailColumn.TotalTime].Tag = SplitViewMetricType.DetailTotalTime;
 
             this.dgDetail.Columns[(int)DetailColumn.Delta].Width = 60;
-            this.dgDetail.Columns[(int)DetailColumn.Delta].HeaderText = "+/-";
+            this.dgDetail.Columns[(int)DetailColumn.Delta].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailDeltaTime);
+            this.dgDetail.Columns[(int)DetailColumn.Delta].Tag = SplitViewMetricType.DetailDeltaTime;
 
             this.dgDetail.Columns[(int)DetailColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
             this.dgDetail.Columns[(int)DetailColumn.Blank].HeaderText = "";
             this.dgDetail.Columns[(int)DetailColumn.Blank].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            
+
+            this.dgDetail.Columns[(int)DetailColumn.Split_SpeedDisplayType].Width = 5; // Five seems to be minimum size, even if set to zero
+            this.dgDetail.Columns[(int)DetailColumn.Split_SpeedDisplayType].HeaderText = "";
+            this.dgDetail.Columns[(int)DetailColumn.Split_SpeedDisplayType].Visible = false;
+
+            this.dgDetail.Columns[(int)DetailColumn.Split_DistanceDisplayType].Width = 5; // Five seems to be minimum size, even if set to zero
+            this.dgDetail.Columns[(int)DetailColumn.Split_DistanceDisplayType].HeaderText = "";
+            this.dgDetail.Columns[(int)DetailColumn.Split_DistanceDisplayType].Visible = false;
+
             foreach (DataGridViewColumn c in this.dgDetail.Columns)
             {
                 c.MinimumWidth = c.Width;
@@ -331,24 +532,24 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.ShowFocus = false;
         }
 
-        private void LoadDetailDataGrid()
-        {
-            DetailRow r = new(1)
-            {
-                SplitTime = TimeSpan.Zero,
-                SplitSpeed = "88.8",
-                SplitDistance = "888.8",
-                TotalTime = "88:88:88",
-                DeltaTime = "+88:88",
-            };
-            this.DetailRows.Add(r);
+        //private void LoadDetailDataGrid()
+        //{
+        //    DetailRow r = new(1)
+        //    {
+        //        SplitTime = TimeSpan.Zero,
+        //        SplitSpeed = "88.8",
+        //        SplitDistance = "888.8",
+        //        TotalTime = "88:88:88",
+        //        DeltaTime = "+88:88",
+        //    };
+        //    this.DetailRows.Add(r);
 
-            // A height of 19 is minimum when using Segoe UI 9pt font
-            this.dgDetail.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
+        //    // A height of 19 is minimum when using Segoe UI 9pt font
+        //    this.dgDetail.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
 
-            //dgDetail.Sort(dgDetail.Columns[(int)DetailColumn.SplitNumber], ListSortDirection.Descending);
+        //    //dgDetail.Sort(dgDetail.Columns[(int)DetailColumn.SplitNumber], ListSortDirection.Descending);
 
-        }
+        //}
 
         private void InitializeSummaryDataGrid()
         {
@@ -407,7 +608,80 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
         }
 
+        /// <summary>
+        /// Occurs whenever a property value changes.
+        /// This allows changing the title to the Speed column, depending on the underlying data UOM
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DetailOrSummaryRow_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is DetailRow detailRow)
+            {
+                if (e.PropertyName == DetailColumn.SplitSpeed.ToString())
+                {
+                    SpeedDisplayType preferredType = detailRow.GetPreferredType(detailRow.Split_SpeedDisplayType);
 
+                    switch (preferredType)
+                    {
+                        case SpeedDisplayType.KilometersPerHour:
+                        case SpeedDisplayType.MilesPerHour:
+                            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].HeaderText = SpeedDisplayEnum.Instance.GetColumnHeaderText(preferredType);
+                            break;
+
+                        default:
+                            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].HeaderText = "";
+                            break;
+                    }
+                }
+                else if (e.PropertyName == DetailColumn.SplitDistance.ToString())
+                {
+                    DistanceDisplayType preferredType = detailRow.GetPreferredType(detailRow.Split_DistanceDisplayType);
+
+                    switch (preferredType)
+                    {
+                        case DistanceDisplayType.Kilometers:
+                        case DistanceDisplayType.Miles:
+                            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].HeaderText = DistanceDisplayEnum.Instance.GetColumnHeaderText(preferredType);
+                            break;
+
+                        default:
+                            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].HeaderText = "";
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
+        {
+            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+        }
+
+
+        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
+        {
+            this.SetupDisplayForCurrentUserProfile();
+
+            Debug.WriteLine($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
+        }
+
+
+        private void SetupDisplayForCurrentUserProfile()
+        {
+            this.dgDetail.Columns[(int)DetailColumn.SplitDistance].Visible = CurrentUserProfile.SplitViewColumnSettings.Visibility[SplitViewMetricType.DetailSplitDistance]; ;
+            this.dgDetail.Columns[(int)DetailColumn.SplitNumber].Visible = CurrentUserProfile.SplitViewColumnSettings.Visibility[SplitViewMetricType.DetailSplitNumber];
+            this.dgDetail.Columns[(int)DetailColumn.SplitSpeed].Visible = CurrentUserProfile.SplitViewColumnSettings.Visibility[SplitViewMetricType.DetailSplitSpeed];
+            this.dgDetail.Columns[(int)DetailColumn.SplitTime].Visible = CurrentUserProfile.SplitViewColumnSettings.Visibility[SplitViewMetricType.DetailSplitTime];
+            this.dgDetail.Columns[(int)DetailColumn.TotalTime].Visible = CurrentUserProfile.SplitViewColumnSettings.Visibility[SplitViewMetricType.DetailTotalTime];
+
+            //SummaryRows[0].GoalDistance = "";
+            //SummaryRows[0].GoalSpeed= "";
+            //SummaryRows[0].GoalTime = "";
+            //SummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryAP].Key;
+            //SummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryNP].Key;
+            //SummaryRows[0].AS_SpeedDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[ActivityViewMetricType.SummaryAS].Key;
+        }
 
         private void ViewControl_Resize(object sender, EventArgs e)
         {
@@ -439,20 +713,6 @@ namespace ZwiftActivityMonitorV2
             Debug.WriteLine($"ViewControl_SizeChanged - Size: {this.Size}");
         }
 
-        private int TotalVisibleColumnWidth(DataGridView dgv)
-        {
-            int totalWidth = 0;
-            foreach (DataGridViewColumn column in dgv.Columns)
-            {
-                if (column.Visible && column.HeaderText != "")
-                    totalWidth += column.Width;
-            }
-
-            Debug.WriteLine($"TotalVisibleColumnWidth - Control: {this.Name}, DataGrid: {dgv.Name}, Size: {totalWidth}");
-
-            return totalWidth;
-        }
-
         /// <summary>
         /// Determine action on cell mouse click
         /// </summary>
@@ -480,134 +740,278 @@ namespace ZwiftActivityMonitorV2
 
         private void dataGridView_RowMouseClick(DataGridView dataGridView, DataGridViewCellMouseEventArgs e)
         {
-            //ContextMenuStrip menuStrip = new ContextMenuStrip();
+            int metricType;
+            ContextMenuStrip menuStrip = new ContextMenuStrip();
 
-            //if (dataGridView == this.dgDetail)
+            if (dataGridView == this.dgDetail)
+            {
+                Dictionary<int, int> distanceDisplayColumnMap = new();
+                distanceDisplayColumnMap.Add((int)DetailColumn.SplitDistance, (int)DetailColumn.Split_DistanceDisplayType);
+
+                //switch (e.ColumnIndex)
+                //{
+                //    case (int)DetailColumn.SplitDistance:
+                //        // map the right-clicked column to the column that stores the type of power display
+                //        int distanceDisplayColumnIndex = distanceDisplayColumnMap[e.ColumnIndex];
+
+                //        // the durationType is stored in the row
+                //        //int durationType = (int)dataGridView[(int)DetailColumn.PeriodSecs, e.RowIndex].Value;
+
+                //        // the SplitViewMetricType is stored in the column header tag
+                //        metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
+
+                //        foreach (var kvp in DistanceDisplayEnum.Instance.GetItems())
+                //        {
+                //            var mi = new ToolStripMenuItem(DistanceDisplayEnum.Instance.GetMenuItemText(kvp.Key))
+                //            {
+                //                CheckOnClick = true,
+                //                Tag = new object[] { distanceDisplayColumnIndex, (int)kvp.Key, metricType, dataGridView }, // pass required values to the handler event
+                //                Checked = (DistanceDisplayType)dataGridView[distanceDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+                //            };
+                //            mi.CheckedChanged += distanceContextMenu_CheckChanged;
+                //            menuStrip.Items.Add(mi);
+                //        }
+
+                //        menuStrip.Show(Cursor.Position);
+                //        break;
+                //}
+            }
+            //else if (dataGridView == this.dgSummary)
             //{
-            //    if (e.ColumnIndex == (int)DetailColumn.Period)
+            //    Dictionary<int, int> powerDisplayColumnMap = new();
+            //    powerDisplayColumnMap.Add((int)SummaryColumn.AP, (int)SummaryColumn.AP_PowerDisplayType);
+            //    powerDisplayColumnMap.Add((int)SummaryColumn.NP, (int)SummaryColumn.NP_PowerDisplayType);
+
+            //    Dictionary<int, int> speedDisplayColumnMap = new();
+            //    speedDisplayColumnMap.Add((int)SummaryColumn.AS, (int)SummaryColumn.AS_SpeedDisplayType);
+
+            //    switch (e.ColumnIndex)
             //    {
-            //        List<string> collectors = new();
-            //        collectors.Add("5 sec");
-            //        collectors.Add("30 sec");
-            //        collectors.Add("1 min");
-            //        collectors.Add("5 min");
-            //        collectors.Add("6 min");
-            //        collectors.Add("10 min");
-            //        collectors.Add("20 min");
-            //        collectors.Add("30 min");
-            //        collectors.Add("60 min");
-            //        collectors.Add("90 min");
+            //        case (int)SummaryColumn.AS:
+            //            // map the right-clicked column to the column that stores the type of speed display
+            //            int speedDisplayColumnIndex = speedDisplayColumnMap[e.ColumnIndex];
 
-            //        for (int i = 0; i < dataGridView.Rows.Count; i++)
-            //        {
-            //            string period = (string)dataGridView[(int)DetailColumn.Period, i].Value;
+            //            // the ActivityViewMetricType is stored in the column header tag
+            //            metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
 
-            //            var item = (ToolStripMenuItem)menuStrip.Items.Add(period);
-            //            item.Tag = i; // row index
-            //            item.Checked = true;
-            //            item.CheckOnClick = true;
-            //            item.CheckStateChanged += this.periodContextMenu_CheckStateChanged;
+            //            foreach (var kvp in SpeedDisplayEnum.Instance.GetItems())
+            //            {
+            //                var mi = new ToolStripMenuItem(kvp.Value)
+            //                {
+            //                    CheckOnClick = true,
+            //                    Tag = new object[] { e.RowIndex, speedDisplayColumnIndex, (int)kvp.Key, metricType, dataGridView }, // pass required values to the handler event
+            //                    Checked = (SpeedDisplayType)dataGridView[speedDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+            //                };
+            //                mi.CheckedChanged += speedContextMenu_CheckChanged;
+            //                menuStrip.Items.Add(mi);
+            //            }
 
-            //            // Remove this period from the list
-            //            collectors.Remove(period);
-            //        }
+            //            menuStrip.Show(Cursor.Position);
+            //            break;
 
-            //        menuStrip.Items.Add(new ToolStripSeparator());
+            //        case (int)SummaryColumn.AP:
+            //        case (int)SummaryColumn.NP:
+            //            // map the right-clicked column to the column that stores the type of power display
+            //            int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
 
-            //        // Add remaining items from the list to the menu
-            //        foreach (string period in collectors)
-            //        {
-            //            var item = (ToolStripMenuItem)menuStrip.Items.Add(period);
-            //            item.CheckOnClick = true;
-            //            item.CheckStateChanged += this.periodContextMenu_CheckStateChanged;
-            //        }
+            //            // the ActivityViewMetricType is stored in the column header tag
+            //            metricType = (int)dataGridView.Columns[e.ColumnIndex].Tag;
 
-            //        menuStrip.Show(Cursor.Position);
-            //        menuStrip.Items[e.RowIndex].Select(); // position the highlighted cursor on the item matching the row selected
+            //            foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
+            //            {
+            //                var mi = new ToolStripMenuItem(kvp.Value)
+            //                {
+            //                    CheckOnClick = true,
+            //                    Tag = new object[] { e.RowIndex, powerDisplayColumnIndex, (int)kvp.Key, metricType, null, dataGridView }, // pass required values to the handler event
+            //                    Checked = (PowerDisplayType)dataGridView[powerDisplayColumnIndex, e.RowIndex].Value == kvp.Key,
+            //                };
+            //                mi.CheckedChanged += powerContextMenu_CheckChanged;
+            //                menuStrip.Items.Add(mi);
+            //            }
+
+            //            menuStrip.Show(Cursor.Position);
+            //            break;
             //    }
             //}
         }
 
-        private void periodContextMenu_CheckStateChanged(object sender, EventArgs e)
-        {
-            //ToolStripMenuItem item = (ToolStripMenuItem)sender;
+        ///// <summary>
+        ///// Handle CheckedChanged event for period collector row visibility
+        ///// Collectors are in dgDetail only
+        ///// </summary>
+        ///// <param name="dataGridView"></param>
+        ///// <param name="e"></param>
+        //private void periodContextMenu_CheckChanged(object sender, EventArgs e)
+        //{
+        //    ToolStripMenuItem item = (ToolStripMenuItem)sender;
 
-            //if (item.Checked)
-            //{
-            //    DataTable table = (DataTable)dgDetail.DataSource;
-                
-            //    table.Rows.Add(item.Text, "250", "247", "", "166");
+        //    object[] tag = item.Tag as object[];
+        //    int rowIndex = (int)tag[0];
+        //    DurationType durationType = (DurationType)tag[1];
 
-            //    dgDetail.Rows[dgDetail.Rows.Count - 1].MinimumHeight = 19;
-            //}
-            //else
-            //{
-            //    // The Row Index is stored in Tag
-            //    // Don't allow removal of the last row
-            //    if (dgDetail.Rows.Count > 1)
-            //        dgDetail.Rows.RemoveAt((int)item.Tag);
-            //}
-        }
+        //    if (item.Checked || dgDetail.Rows.GetRowCount(DataGridViewElementStates.Visible) > 1)
+        //    {
+        //        dgDetail.CurrentCell = null;
+        //        dgDetail.Rows[rowIndex].Visible = item.Checked;
+
+        //        // Place the CurrentCell on a valid (visible) cell
+        //        // Failing to do this will make the row reappear when it is next updated.  (BindingSource.Position being on a hidden row is a bad thing).
+        //        dgDetail.CurrentCell = dgDetail.FirstDisplayedCell;
+
+        //        if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType))
+        //        {
+        //            ZAMsettings.BeginCachedConfiguration();
+        //            CurrentUserProfile.ActivityViewDetailRowSettings[durationType].IsVisible = item.Checked;
+        //            ZAMsettings.CommitCachedConfiguration();
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Handle CheckedChanged event for power UOM selection
+        ///// Handles both dgDetail and dgSummary
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void powerContextMenu_CheckChanged(object sender, EventArgs e)
+        //{
+        //    ToolStripMenuItem item = (ToolStripMenuItem)sender;
+        //    object[] tag = item.Tag as object[];
+
+        //    int rowIndex = (int)tag[0], powerDisplayColumnIndex = (int)tag[1];
+        //    PowerDisplayType powerDisplayType = (PowerDisplayType)tag[2];
+        //    ActivityViewMetricType metricType = (ActivityViewMetricType)tag[3];
+        //    DurationType? durationType = (DurationType?)tag[4]; // included in dgDetail columns only
+        //    DataGridView dataGridView = (DataGridView)tag[5];
+
+        //    if (item.Checked)
+        //    {
+        //        // set the PowerDisplayType in the dataGridView.
+        //        dataGridView[powerDisplayColumnIndex, rowIndex].Value = powerDisplayType;
+
+        //        if (durationType.HasValue)
+        //        {
+        //            // Update configuration
+        //            if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType.Value))
+        //            {
+        //                if (CurrentUserProfile.ActivityViewDetailRowSettings[durationType.Value].PowerValues.ContainsKey(metricType))
+        //                {
+        //                    ZAMsettings.BeginCachedConfiguration();
+        //                    CurrentUserProfile.ActivityViewDetailRowSettings[durationType.Value].PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
+        //                    ZAMsettings.CommitCachedConfiguration();
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // Update configuration
+        //            if (CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues.ContainsKey(metricType))
+        //            {
+        //                ZAMsettings.BeginCachedConfiguration();
+        //                CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem(powerDisplayType);
+        //                ZAMsettings.CommitCachedConfiguration();
+        //            }
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Handle CheckedChanged event for speed UOM selection
+        ///// Currently speed is in dgSummary only
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void speedContextMenu_CheckChanged(object sender, EventArgs e)
+        //{
+        //    ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+        //    if (item.Checked)
+        //    {
+        //        object[] tag = item.Tag as object[];
+        //        int rowIndex = (int)tag[0], speedDisplayColumnIndex = (int)tag[1];
+        //        SpeedDisplayType speedDisplayType = (SpeedDisplayType)tag[2];
+        //        ActivityViewMetricType metricType = (ActivityViewMetricType)tag[3];
+        //        DataGridView dataGridView = (DataGridView)tag[4];
+
+        //        dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayType)speedDisplayType;
+
+        //        // Update configuration
+        //        if (CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues.ContainsKey(metricType))
+        //        {
+        //            ZAMsettings.BeginCachedConfiguration();
+        //            CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[metricType] = SpeedDisplayEnum.Instance.GetItem(speedDisplayType);
+        //            ZAMsettings.CommitCachedConfiguration();
+        //        }
+        //    }
+        //}
 
         /// <summary>
-        /// Handle mouse click on column headers and allow visibility change
+        /// Handle mouse click on column headers and allow visibility change.
+        /// Handles both dgDetail and dgSummary
         /// </summary>
         /// <param name="dataGridView"></param>
         /// <param name="e"></param>
         private void dataGridView_ColumnHeaderMouseClick(DataGridView dataGridView, DataGridViewCellMouseEventArgs e)
         {
-            //ContextMenuStrip menuStrip = new ContextMenuStrip();
+            ContextMenuStrip menuStrip = new ContextMenuStrip();
 
-            ////Add the columns to context menu strip
-            //foreach (DataGridViewColumn c in dataGridView.Columns)
-            //{
-            //    if (c.HeaderText != "") // exclude filler column
-            //    {
-            //        var item = (ToolStripMenuItem)menuStrip.Items.Add(c.HeaderText);
-            //        item.Tag = c.Name;
-            //        item.Checked = c.Visible;
-            //        item.CheckOnClick = true;
+            //Add the columns to context menu strip
+            foreach (DataGridViewColumn c in dataGridView.Columns)
+            {
+                if (c.HeaderText != "" && c.Tag is SplitViewMetricType metricType) // exclude filler column
+                {
+                    var mi = new ToolStripMenuItem(SplitViewMetricEnum.Instance.GetMenuItemText(metricType))
+                    {
+                        Tag = new object[] { c.Index, metricType, dataGridView },
+                        Checked = c.Visible,
+                        CheckOnClick = true,
+                        Enabled = (dataGridView != dgDetail || c.Index != (int)DetailColumn.SplitNumber),
+                    };
+                    mi.CheckedChanged += headerContextMenu_CheckedChanged;
+                    menuStrip.Items.Add(mi);
+                }
+            }
 
-            //        item.Enabled = (dataGridView != dgDetail || c.Index != (int)DetailColumn.Period);
+            if (menuStrip.Items.Count > 0)
+            {
+                menuStrip.Show(Cursor.Position);
+            }
+        }
 
-            //        //Handle CheckStateChanged event of context menu strip items
-            //        item.CheckStateChanged += (obj, args) =>
-            //        {
+        /// <summary>
+        /// Handle CheckedChanged event for column header visibility
+        /// Generic to both dgDetail and dgSummary
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void headerContextMenu_CheckedChanged(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            int visibleCount = 0;
 
-            //            // Determine how many columns are currently visible
-            //            int visibleCount = 0;
-            //            for (int j = 0; j < dataGridView.Columns.Count; j++)
-            //                if (dataGridView.Columns[j].Visible && dataGridView.Columns[j].HeaderText != "")
-            //                    visibleCount++;
+            object[] tag = item.Tag as object[];
+            int colIndex = (int)tag[0];
+            SplitViewMetricType metricType = (SplitViewMetricType)tag[1];
+            DataGridView dataGridView = (DataGridView)tag[2];
 
-            //            ToolStripMenuItem item = (ToolStripMenuItem)obj;
-            //            string columnName = (string)item.Tag;
-            //            int columnIndex = dataGridView.Columns[columnName].Index;
+            foreach (DataGridViewColumn c in dataGridView.Columns)
+                if (c.Tag != null && c.Visible)
+                    visibleCount++;
 
-            //            //Debug.WriteLine($"{item.GetCurrentParent().GetType()}");
+            if (item.Checked || visibleCount > 1)
+            {
+                dataGridView.Columns[colIndex].Visible = item.Checked;
 
-            //            if (item.Checked)
-            //            {
-            //                dataGridView.Columns[columnName].Visible = item.Checked;
-            //            }
-            //            else
-            //            {
-            //                // Don't allow removing of every column (empty grid)
-            //                if (visibleCount > 1)
-            //                    dataGridView.Columns[columnName].Visible = item.Checked;
-            //            }
+                if (CurrentUserProfile.SplitViewColumnSettings.Visibility.ContainsKey(metricType))
+                {
+                    ZAMsettings.BeginCachedConfiguration();
+                    CurrentUserProfile.SplitViewColumnSettings.Visibility[metricType] = item.Checked;
+                    ZAMsettings.CommitCachedConfiguration();
+                }
 
-            //            // Trigger a resize so the the last column (Blank) can be shown/hidden if necessary
-            //            this.OnResize(new EventArgs());
-            //        };
-            //    }
-            //}
-
-            //if (menuStrip.Items.Count > 0)
-            //{
-            //    menuStrip.Show(Cursor.Position);
-            //    menuStrip.Items[e.ColumnIndex].Select(); // position the highlighted cursor on the item matching the column selected
-            //}
+                // Trigger a resize so that dgSummary can size itself appropriately
+                //this.OnResize(new EventArgs());
+            }
         }
         #region Base Class Overrides
         protected override void HeaderForeColorChanged()

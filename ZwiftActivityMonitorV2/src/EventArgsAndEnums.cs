@@ -9,6 +9,11 @@ using Newtonsoft.Json;
 
 namespace ZwiftActivityMonitorV2
 {
+    public enum DistanceUomType
+    {
+        Kilometers,
+        Miles
+    }
 
     public enum FieldUomType
     {
@@ -43,6 +48,21 @@ namespace ZwiftActivityMonitorV2
 
 
     #region EnumBase<T>
+    public class EnumListItem
+    {
+        public string Text { get; }
+        public string MenuItemText { get; }
+        public string ColumnHeaderText { get; }
+
+        public EnumListItem(string text, string menuItemText = "", string columnHeaderText = "")
+        {
+            this.Text = text;
+
+            this.MenuItemText = String.IsNullOrEmpty(menuItemText) ? text : menuItemText;
+            this.ColumnHeaderText = String.IsNullOrEmpty(columnHeaderText) ? text : columnHeaderText;
+        }
+    }
+
     public class EnumBase<T> where T : System.Enum
     {
         protected dynamic EnumList { get; set; }
@@ -56,8 +76,8 @@ namespace ZwiftActivityMonitorV2
         {
             List<KeyStringPair<T>> list = new();
 
-            foreach (var key in EnumList.Keys)
-                list.Add(new KeyStringPair<T>(key, EnumList[key]));
+            foreach (T key in EnumList.Keys)
+                list.Add(new KeyStringPair<T>(key, (EnumList[key] as EnumListItem).Text));
 
             return list;
         }
@@ -70,7 +90,7 @@ namespace ZwiftActivityMonitorV2
         /// <returns></returns>
         public KeyStringPair<T> GetItem(T key) 
         {
-            return new KeyStringPair<T>(key, EnumList[key]);
+            return new KeyStringPair<T>(key, (EnumList[key] as EnumListItem).Text);
         }
 
         /// <summary>
@@ -80,24 +100,52 @@ namespace ZwiftActivityMonitorV2
         /// <returns></returns>
         public List<string> GetValues() 
         {
-            return EnumList.Values.ToList<string>();
+            List<KeyStringPair<T>> itemList = this.GetItems();
+            List<string> list = new();
+
+            foreach (var item in itemList)
+                list.Add(item.Value);
+            
+            return list;
         }
 
         /// <summary>
-        /// Returns a single string value for a key
+        /// Returns Text value for a key
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <returns></returns>
-        public string GetValue(T key) 
+        public string GetText(T key)
         {
-            return EnumList[key];
+            return (EnumList[key] as EnumListItem).Text;
+        }
+
+        /// <summary>
+        /// Returns the MenuItemText value for a key
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string GetMenuItemText(T key)
+        {
+            return (EnumList[key] as EnumListItem).MenuItemText;
+        }
+
+        /// <summary>
+        /// Returns the ColumnHeaderText value for a key
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string GetColumnHeaderText(T key)
+        {
+            return (EnumList[key] as EnumListItem).ColumnHeaderText;
         }
     }
     #endregion
 
-    #region CollectorMetricEnum
-    public enum CollectorMetricType
+    #region ActivityViewMetricEnum
+    public enum ActivityViewMetricType
     {
         DetailAP,
         DetailAPmax,
@@ -110,40 +158,27 @@ namespace ZwiftActivityMonitorV2
         SummaryTSS,
     }
 
-    public sealed class CollectorMetricEnum : EnumBase<CollectorMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    public sealed class ActivityViewMetricEnum : EnumBase<ActivityViewMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
     {
 
-        private static readonly Lazy<CollectorMetricEnum> _InstanceLock = new Lazy<CollectorMetricEnum>(() => new CollectorMetricEnum());
+        private static readonly Lazy<ActivityViewMetricEnum> _InstanceLock = new Lazy<ActivityViewMetricEnum>(() => new ActivityViewMetricEnum());
 
-        private CollectorMetricEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        private ActivityViewMetricEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
         {
-            EnumList = new Dictionary<CollectorMetricType, string>();
+            EnumList = new Dictionary<ActivityViewMetricType, EnumListItem>();
 
-            EnumList.Add(CollectorMetricType.DetailAP, "AP");
-            EnumList.Add(CollectorMetricType.DetailAPmax, "AP (Max)");
-            EnumList.Add(CollectorMetricType.DetailFTP, "FTP");
-            EnumList.Add(CollectorMetricType.DetailHR, "HR");
-            EnumList.Add(CollectorMetricType.SummaryAP, "AP");
-            EnumList.Add(CollectorMetricType.SummaryAS, "AS");
-            EnumList.Add(CollectorMetricType.SummaryNP, "NP");
-            EnumList.Add(CollectorMetricType.SummaryIF, "IF");
-            EnumList.Add(CollectorMetricType.SummaryTSS, "TSS");
+            EnumList.Add(ActivityViewMetricType.DetailAP, new EnumListItem("AP"));
+            EnumList.Add(ActivityViewMetricType.DetailAPmax, new EnumListItem("AP (Max)"));
+            EnumList.Add(ActivityViewMetricType.DetailFTP, new EnumListItem("FTP"));
+            EnumList.Add(ActivityViewMetricType.DetailHR, new EnumListItem("HR"));
+            EnumList.Add(ActivityViewMetricType.SummaryAP, new EnumListItem("AP"));
+            EnumList.Add(ActivityViewMetricType.SummaryAS, new EnumListItem("AS"));
+            EnumList.Add(ActivityViewMetricType.SummaryNP, new EnumListItem("NP"));
+            EnumList.Add(ActivityViewMetricType.SummaryIF, new EnumListItem("IF"));
+            EnumList.Add(ActivityViewMetricType.SummaryTSS, new EnumListItem("TSS"));
         }
 
-        public static CollectorMetricEnum Instance { get { return _InstanceLock.Value; } }
-
-        public void GetDefaults(CollectorMetricType metric, out bool isVisible)
-        {
-            isVisible = true;
-
-            // Add any metric specific logic here
-            switch (metric)
-            {
-                case CollectorMetricType.DetailAP:
-                    break;
-            }
-        }
-
+        public static ActivityViewMetricEnum Instance { get { return _InstanceLock.Value; } }
     }
 
     #endregion
@@ -174,46 +209,21 @@ namespace ZwiftActivityMonitorV2
         
         private DurationEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
         {
-            EnumList = new Dictionary<DurationType, string>();
+            EnumList = new Dictionary<DurationType, EnumListItem>();
 
-            EnumList.Add(DurationType.FiveSeconds, "5 sec");
-            EnumList.Add(DurationType.ThirtySeconds, "30 sec");
-            EnumList.Add(DurationType.OneMinute, "1 min");
-            EnumList.Add(DurationType.FiveMinutes, "5 min");
-            EnumList.Add(DurationType.SixMinutes, "6 min");
-            EnumList.Add(DurationType.TenMinutes, "10 min");
-            EnumList.Add(DurationType.TwentyMinutes, "20 min");
-            EnumList.Add(DurationType.ThirtyMinutes, "30 min");
-            EnumList.Add(DurationType.SixtyMinutes, "60 min");
-            EnumList.Add(DurationType.NinetyMinutes, "90 min");
+            EnumList.Add(DurationType.FiveSeconds, new EnumListItem("5 sec"));
+            EnumList.Add(DurationType.ThirtySeconds, new EnumListItem("30 sec"));
+            EnumList.Add(DurationType.OneMinute, new EnumListItem("1 min"));
+            EnumList.Add(DurationType.FiveMinutes, new EnumListItem("5 min"));
+            EnumList.Add(DurationType.SixMinutes, new EnumListItem("6 min"));
+            EnumList.Add(DurationType.TenMinutes, new EnumListItem("10 min"));
+            EnumList.Add(DurationType.TwentyMinutes, new EnumListItem("20 min"));
+            EnumList.Add(DurationType.ThirtyMinutes, new EnumListItem("30 min"));
+            EnumList.Add(DurationType.SixtyMinutes, new EnumListItem("60 min"));
+            EnumList.Add(DurationType.NinetyMinutes, new EnumListItem("90 min"));
         }
 
         public static DurationEnum Instance { get { return _InstanceLock.Value; } }
-
-        public void GetDefaults(DurationType duration, out PowerDisplayType apPowerDisplay, out PowerDisplayType apMaxPowerDisplay, out PowerDisplayType ftpPowerDisplay, out bool isVisible)
-        {
-            apPowerDisplay = PowerDisplayType.Watts;
-            apMaxPowerDisplay = PowerDisplayType.WattsPerKg;
-            ftpPowerDisplay = PowerDisplayType.None;
-            isVisible = false;
-
-            // Add any duration specific logic here
-            switch(duration)
-            {
-                case DurationType.OneMinute:
-                    isVisible = true;
-                    break;
-
-                case DurationType.FiveMinutes:
-                    isVisible = true;
-                    break;
-
-                case DurationType.TwentyMinutes:
-                    ftpPowerDisplay = PowerDisplayType.WattsPerKg;
-                    isVisible = true;
-                    break;
-            }
-        }
     }
     #endregion
 
@@ -256,12 +266,12 @@ namespace ZwiftActivityMonitorV2
 
         private PowerDisplayEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
         {
-            EnumList = new Dictionary<PowerDisplayType, string>();
+            EnumList = new Dictionary<PowerDisplayType, EnumListItem>();
 
-            EnumList.Add(PowerDisplayType.Watts, "Watts");
-            EnumList.Add(PowerDisplayType.WattsPerKg, "W/Kg");
-            EnumList.Add(PowerDisplayType.Both, "Both Watts and W/Kg");
-            EnumList.Add(PowerDisplayType.None, "None");
+            EnumList.Add(PowerDisplayType.Watts, new EnumListItem("Watts"));
+            EnumList.Add(PowerDisplayType.WattsPerKg, new EnumListItem("W/Kg"));
+            EnumList.Add(PowerDisplayType.Both, new EnumListItem("Both Watts and W/Kg"));
+            EnumList.Add(PowerDisplayType.None, new EnumListItem("None"));
         }
 
         public static PowerDisplayEnum Instance { get { return _InstanceLock.Value; } }
@@ -285,18 +295,81 @@ namespace ZwiftActivityMonitorV2
 
         private SpeedDisplayEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
         {
-            EnumList = new Dictionary<SpeedDisplayType, string>();
+            EnumList = new Dictionary<SpeedDisplayType, EnumListItem>();
 
-            EnumList.Add(SpeedDisplayType.KilometersPerHour, "KM/h");
-            EnumList.Add(SpeedDisplayType.MilesPerHour, "MI/h");
-            EnumList.Add(SpeedDisplayType.Both, "Both KM/h and MI/h");
-            EnumList.Add(SpeedDisplayType.None, "None");
+            EnumList.Add(SpeedDisplayType.KilometersPerHour, new EnumListItem("Kilometers per Hour", columnHeaderText: "Km/h"));
+            EnumList.Add(SpeedDisplayType.MilesPerHour, new EnumListItem("Miles per Hour", columnHeaderText: "Mi/h"));
+            EnumList.Add(SpeedDisplayType.Both, new EnumListItem("Both Km/h and Mi/h"));
+            EnumList.Add(SpeedDisplayType.None, new EnumListItem("None"));
         }
 
         public static SpeedDisplayEnum Instance { get { return _InstanceLock.Value; } }
     }
 
     #endregion
+
+    #region DistanceDisplayEnum
+    public enum DistanceDisplayType
+    {
+        Kilometers,
+        Miles,
+        Both,
+        None,
+    }
+
+    public sealed class DistanceDisplayEnum : EnumBase<DistanceDisplayType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+
+        private static readonly Lazy<DistanceDisplayEnum> _InstanceLock = new Lazy<DistanceDisplayEnum>(() => new DistanceDisplayEnum());
+
+        private DistanceDisplayEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<DistanceDisplayType, EnumListItem>();
+
+            EnumList.Add(DistanceDisplayType.Kilometers, new EnumListItem("Kilometers", columnHeaderText: "Km"));
+            EnumList.Add(DistanceDisplayType.Miles, new EnumListItem("Miles", columnHeaderText: "Mi"));
+            EnumList.Add(DistanceDisplayType.Both, new EnumListItem("Both Kilometers and Miles"));
+            EnumList.Add(DistanceDisplayType.None, new EnumListItem("None"));
+        }
+
+        public static DistanceDisplayEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
+
+    #region SplitViewMetricEnum
+    public enum SplitViewMetricType
+    {
+        DetailSplitNumber,
+        DetailSplitTime,
+        DetailSplitSpeed,
+        DetailSplitDistance,
+        DetailTotalTime,
+        DetailDeltaTime,
+    }
+
+    public sealed class SplitViewMetricEnum : EnumBase<SplitViewMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+
+        private static readonly Lazy<SplitViewMetricEnum> _InstanceLock = new Lazy<SplitViewMetricEnum>(() => new SplitViewMetricEnum());
+
+        private SplitViewMetricEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<SplitViewMetricType, EnumListItem>();
+
+            EnumList.Add(SplitViewMetricType.DetailSplitNumber, new EnumListItem("Split Number", columnHeaderText: "#"));
+            EnumList.Add(SplitViewMetricType.DetailSplitTime, new EnumListItem("Split Time", columnHeaderText: "Split\nTime"));
+            EnumList.Add(SplitViewMetricType.DetailSplitSpeed, new EnumListItem("Split Speed", columnHeaderText: "Speed"));
+            EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: "Distance"));
+            EnumList.Add(SplitViewMetricType.DetailTotalTime, new EnumListItem("Total Time", columnHeaderText: "Total\nTime"));
+            EnumList.Add(SplitViewMetricType.DetailDeltaTime, new EnumListItem("Delta Time", columnHeaderText: "+/-"));
+        }
+
+        public static SplitViewMetricEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
+
 
     public class FormSyncTimerTickEventArgs : EventArgs
     {
@@ -528,71 +601,77 @@ namespace ZwiftActivityMonitorV2
     {
         public int SplitNumber { get; }
         public TimeSpan SplitTime { get; }
-        public double SplitSpeed { get; }
-        public double TotalDistance { get; }
+        public double SplitSpeedMph { get; }
+        public double SplitSpeedKph { get; }
+        public double TotalMiTravelled { get; }
+        public double TotalKmTravelled { get; }
         public TimeSpan TotalTime { get; }
         public bool SplitsInKm { get; }
         public TimeSpan? DeltaTime { get; }
 
 
-        public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, bool splitsInKm)
-        {
-            this.SplitNumber = splitNumber;
-            this.SplitTime = splitTime;
-            this.SplitSpeed = splitSpeed;
-            this.TotalDistance = totalDistance;
-            this.TotalTime = totalTime;
-            this.SplitsInKm = splitsInKm;
-            this.DeltaTime = null;
-        }
+        //public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeedMph, double splitSpeedKph, double totalMiTravelled, double totalKmTravelled, TimeSpan totalTime, bool splitsInKm)
+        //{
+        //    this.SplitNumber = splitNumber;
+        //    this.SplitTime = splitTime;
+        //    this.SplitSpeedKph = splitSpeedKph;
+        //    this.SplitSpeedMph = splitSpeedMph;
+        //    this.TotalKmTravelled = totalKmTravelled;
+        //    this.TotalMiTravelled = totalMiTravelled;
+        //    this.TotalTime = totalTime;
+        //    this.SplitsInKm = splitsInKm;
+        //    this.DeltaTime = null;
+        //}
 
-        public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeed, double totalDistance, TimeSpan totalTime, bool splitsInKm, TimeSpan deltaTime)
+        public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeedMph, double splitSpeedKph, double totalMiTravelled, double totalKmTravelled, TimeSpan totalTime, bool splitsInKm, TimeSpan? deltaTime = null)
         {
             this.SplitNumber = splitNumber;
             this.SplitTime = splitTime;
-            this.SplitSpeed = splitSpeed;
-            this.TotalDistance = totalDistance;
+            this.SplitSpeedKph = splitSpeedKph;
+            this.SplitSpeedMph = splitSpeedMph;
+            this.TotalKmTravelled = totalKmTravelled;
+            this.TotalMiTravelled = totalMiTravelled;
             this.TotalTime = totalTime;
             this.SplitsInKm = splitsInKm;
             this.DeltaTime = deltaTime;
         }
 
-        public string SplitNumberStr
-        {
-            get
-            {
-                return SplitNumber.ToString();
-            }
-        }
-        public string SplitTimeStr
-        {
-            get
-            {
-                return SplitTime.Minutes.ToString("0#") + ":" + SplitTime.Seconds.ToString("0#");
-            }
-        }
-        public string SplitSpeedStr
-        {
-            get
-            {
-                return $"{SplitSpeed:#.0}";
-            }
-        }
-        public string TotalDistanceStr
-        {
-            get
-            {
-                return $"{TotalDistance:0.0}";
-            }
-        }
-        public string TotalTimeStr
-        {
-            get
-            {
-                //return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
-                return $"{(TotalTime.Hours > 0 ? TotalTime.ToString("hh':'mm':'ss") : TotalTime.ToString("mm':'ss"))}";
-            }
-        }
+        //public string SplitNumberStr
+        //{
+        //    get
+        //    {
+        //        return SplitNumber.ToString();
+        //    }
+        //}
+        //public string SplitTimeStr
+        //{
+        //    get
+        //    {
+        //        return SplitTime.Minutes.ToString("0#") + ":" + SplitTime.Seconds.ToString("0#");
+        //    }
+        //}
+        //public string SplitSpeedStr
+        //{
+        //    get
+        //    {
+        //        return $"{SplitSpeed:#.0}";
+        //    }
+        //}
+        //public string TotalDistanceStr
+        //{
+        //    get
+        //    {
+        //        return $"{TotalDistance:0.0}";
+        //    }
+        //}
+        //public string TotalTimeStr
+        //{
+        //    get
+        //    {
+        //        //return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
+        //        return $"{(TotalTime.Hours > 0 ? TotalTime.ToString("hh':'mm':'ss") : TotalTime.ToString("mm':'ss"))}";
+        //    }
+        //}
 
         public bool? AheadOfGoalTime
         {
@@ -610,30 +689,29 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        public string DeltaTimeStr
-        {
-            get
-            {
-                if (DeltaTime.HasValue)
-                {
-                    TimeSpan std = (TimeSpan)DeltaTime;
-                    bool negated = false;
+        //public string DeltaTimeStr
+        //{
+        //    get
+        //    {
+        //        if (DeltaTime.HasValue)
+        //        {
+        //            TimeSpan std = (TimeSpan)DeltaTime;
+        //            bool negated = false;
 
-                    if (std.TotalSeconds < 0)
-                    {
-                        std = std.Negate();
-                        negated = true;
-                    }
+        //            if (std.TotalSeconds < 0)
+        //            {
+        //                std = std.Negate();
+        //                negated = true;
+        //            }
 
-                    //return $"{(negated ? "-" : "+")}{std.Minutes:0#}:{std.Seconds:0#}";
-                    return $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
-                }
-                else
-                {
-                    return "";
-                }
-            }
-        }
+        //            return $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
+        //        }
+        //        else
+        //        {
+        //            return "";
+        //        }
+        //    }
+        //}
     }
 
 

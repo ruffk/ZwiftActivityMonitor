@@ -151,6 +151,10 @@ namespace ZwiftActivityMonitorV2
             //Debug.WriteLine($"ControlGainingFocus - {this.Name}");
         }
 
+        protected UserProfile CurrentUserProfile
+        {
+            get { return ZAMsettings.Settings.CurrentUser; }
+        }
 
     }
 }
