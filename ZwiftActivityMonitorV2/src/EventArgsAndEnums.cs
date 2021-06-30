@@ -359,10 +359,10 @@ namespace ZwiftActivityMonitorV2
 
             EnumList.Add(SplitViewMetricType.DetailSplitNumber, new EnumListItem("Split Number", columnHeaderText: "#"));
             EnumList.Add(SplitViewMetricType.DetailSplitTime, new EnumListItem("Split Time", columnHeaderText: "Split\nTime"));
-            EnumList.Add(SplitViewMetricType.DetailSplitSpeed, new EnumListItem("Split Speed", columnHeaderText: "Speed"));
-            EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: "Distance"));
+            EnumList.Add(SplitViewMetricType.DetailSplitSpeed, new EnumListItem("Split Speed", columnHeaderText: " "));
+            EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: " "));
             EnumList.Add(SplitViewMetricType.DetailTotalTime, new EnumListItem("Total Time", columnHeaderText: "Total\nTime"));
-            EnumList.Add(SplitViewMetricType.DetailDeltaTime, new EnumListItem("Delta Time", columnHeaderText: "+/-"));
+            EnumList.Add(SplitViewMetricType.DetailDeltaTime, new EnumListItem("Delta Time", columnHeaderText: "Time\n+/-"));
         }
 
         public static SplitViewMetricEnum Instance { get { return _InstanceLock.Value; } }
