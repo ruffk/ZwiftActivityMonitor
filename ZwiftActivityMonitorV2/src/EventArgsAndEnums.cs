@@ -169,7 +169,7 @@ namespace ZwiftActivityMonitorV2
 
             EnumList.Add(ActivityViewMetricType.DetailAP, new EnumListItem("AP"));
             EnumList.Add(ActivityViewMetricType.DetailAPmax, new EnumListItem("AP (Max)"));
-            EnumList.Add(ActivityViewMetricType.DetailFTP, new EnumListItem("FTP"));
+            EnumList.Add(ActivityViewMetricType.DetailFTP, new EnumListItem("95%"));
             EnumList.Add(ActivityViewMetricType.DetailHR, new EnumListItem("HR"));
             EnumList.Add(ActivityViewMetricType.SummaryAP, new EnumListItem("AP"));
             EnumList.Add(ActivityViewMetricType.SummaryAS, new EnumListItem("AS"));
@@ -346,6 +346,9 @@ namespace ZwiftActivityMonitorV2
         DetailSplitDistance,
         DetailTotalTime,
         DetailDeltaTime,
+        SummaryGoalSpeed,
+        SummaryGoalDistance,
+        SummaryGoalTime,
     }
 
     public sealed class SplitViewMetricEnum : EnumBase<SplitViewMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
@@ -363,6 +366,9 @@ namespace ZwiftActivityMonitorV2
             EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: " "));
             EnumList.Add(SplitViewMetricType.DetailTotalTime, new EnumListItem("Total Time", columnHeaderText: "Total\nTime"));
             EnumList.Add(SplitViewMetricType.DetailDeltaTime, new EnumListItem("Delta Time", columnHeaderText: "Time\n+/-"));
+            EnumList.Add(SplitViewMetricType.SummaryGoalSpeed, new EnumListItem("Goal Speed", columnHeaderText: " "));
+            EnumList.Add(SplitViewMetricType.SummaryGoalDistance, new EnumListItem("Goal Distance", columnHeaderText: " "));
+            EnumList.Add(SplitViewMetricType.SummaryGoalTime, new EnumListItem("Goal Time", columnHeaderText: "Time"));
         }
 
         public static SplitViewMetricEnum Instance { get { return _InstanceLock.Value; } }
@@ -597,6 +603,34 @@ namespace ZwiftActivityMonitorV2
 
     }
 
+    public class SpeedDisplayTypeChangedEventArgs : EventArgs
+    {
+        public string ColumnName { get; }
+        public SpeedDisplayType DisplayType { get; }
+        public object Tag { get; }
+
+        public SpeedDisplayTypeChangedEventArgs(string columnName, SpeedDisplayType speedDisplayType, object tag)
+        {
+            this.ColumnName = columnName;
+            this.DisplayType = speedDisplayType;
+            this.Tag = tag;
+        }
+    }
+
+    public class DistanceDisplayTypeChangedEventArgs : EventArgs
+    {
+        public string ColumnName { get; }
+        public DistanceDisplayType DisplayType { get; }
+        public object Tag { get; }
+
+        public DistanceDisplayTypeChangedEventArgs(string columnName, DistanceDisplayType distanceDisplayType, object tag)
+        {
+            this.ColumnName = columnName;
+            this.DisplayType = distanceDisplayType;
+            this.Tag = tag;
+        }
+    }
+
     public class SplitEventArgs : EventArgs
     {
         public int SplitNumber { get; }
@@ -608,20 +642,6 @@ namespace ZwiftActivityMonitorV2
         public TimeSpan TotalTime { get; }
         public bool SplitsInKm { get; }
         public TimeSpan? DeltaTime { get; }
-
-
-        //public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeedMph, double splitSpeedKph, double totalMiTravelled, double totalKmTravelled, TimeSpan totalTime, bool splitsInKm)
-        //{
-        //    this.SplitNumber = splitNumber;
-        //    this.SplitTime = splitTime;
-        //    this.SplitSpeedKph = splitSpeedKph;
-        //    this.SplitSpeedMph = splitSpeedMph;
-        //    this.TotalKmTravelled = totalKmTravelled;
-        //    this.TotalMiTravelled = totalMiTravelled;
-        //    this.TotalTime = totalTime;
-        //    this.SplitsInKm = splitsInKm;
-        //    this.DeltaTime = null;
-        //}
 
         public SplitEventArgs(int splitNumber, TimeSpan splitTime, double splitSpeedMph, double splitSpeedKph, double totalMiTravelled, double totalKmTravelled, TimeSpan totalTime, bool splitsInKm, TimeSpan? deltaTime = null)
         {
@@ -635,43 +655,6 @@ namespace ZwiftActivityMonitorV2
             this.SplitsInKm = splitsInKm;
             this.DeltaTime = deltaTime;
         }
-
-        //public string SplitNumberStr
-        //{
-        //    get
-        //    {
-        //        return SplitNumber.ToString();
-        //    }
-        //}
-        //public string SplitTimeStr
-        //{
-        //    get
-        //    {
-        //        return SplitTime.Minutes.ToString("0#") + ":" + SplitTime.Seconds.ToString("0#");
-        //    }
-        //}
-        //public string SplitSpeedStr
-        //{
-        //    get
-        //    {
-        //        return $"{SplitSpeed:#.0}";
-        //    }
-        //}
-        //public string TotalDistanceStr
-        //{
-        //    get
-        //    {
-        //        return $"{TotalDistance:0.0}";
-        //    }
-        //}
-        //public string TotalTimeStr
-        //{
-        //    get
-        //    {
-        //        //return TotalTime.Hours.ToString("0#") + ":" + TotalTime.Minutes.ToString("0#") + ":" + TotalTime.Seconds.ToString("0#");
-        //        return $"{(TotalTime.Hours > 0 ? TotalTime.ToString("hh':'mm':'ss") : TotalTime.ToString("mm':'ss"))}";
-        //    }
-        //}
 
         public bool? AheadOfGoalTime
         {
@@ -688,32 +671,7 @@ namespace ZwiftActivityMonitorV2
                 }
             }
         }
-
-        //public string DeltaTimeStr
-        //{
-        //    get
-        //    {
-        //        if (DeltaTime.HasValue)
-        //        {
-        //            TimeSpan std = (TimeSpan)DeltaTime;
-        //            bool negated = false;
-
-        //            if (std.TotalSeconds < 0)
-        //            {
-        //                std = std.Negate();
-        //                negated = true;
-        //            }
-
-        //            return $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
-        //        }
-        //        else
-        //        {
-        //            return "";
-        //        }
-        //    }
-        //}
     }
-
 
     public class ZPMonitorServiceStatusChangedEventArgs : EventArgs
     {

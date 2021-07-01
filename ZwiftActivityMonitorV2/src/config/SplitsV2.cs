@@ -294,6 +294,18 @@ namespace ZwiftActivityMonitorV2
         {
             get { return this.SplitDistanceUom == DistanceUomType.Kilometers ? this.TotalDistance : this.TotalDistance * 1.609; }
         }
+        public double TotalDistanceAsMi
+        {
+            get { return this.SplitDistanceUom == DistanceUomType.Miles ? this.TotalDistance : this.TotalDistance / 1.609; }
+        }
+        public double TotalSpeedKph
+        {
+            get { return Math.Round((TotalDistanceAsKm / this.TotalTime.TotalSeconds) * 3600, 1); }
+        }
+        public double TotalSpeedMph
+        {
+            get { return Math.Round((TotalDistanceAsMi / this.TotalTime.TotalSeconds) * 3600, 1); }
+        }
 
         [JsonIgnore]
         public int TotalDistanceAsMeters

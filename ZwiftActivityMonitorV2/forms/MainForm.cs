@@ -436,7 +436,6 @@ namespace ZwiftActivityMonitorV2
                 tsmiStop.Enabled = true;
                 tsmiStart.Enabled = false;
 
-                tsmiTimer.Enabled = false;
                 tsmiConfiguration.Enabled = false;
                 tsmiAdvanced.Enabled = false;
 
@@ -453,8 +452,6 @@ namespace ZwiftActivityMonitorV2
             {
                 tsmiStop.Enabled = false;
                 tsmiStart.Enabled = ZAMsettings.ZPMonitorService.IsZPMonitorStarted;
-
-                tsmiTimer.Enabled = true;
 
                 if (ucTimerSetupView.IsTimerRunning)
                 {

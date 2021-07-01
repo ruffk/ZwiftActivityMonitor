@@ -536,6 +536,8 @@ namespace ZwiftActivityMonitorV2
                     ZAMsettings.CommitCachedConfiguration();
                     EditingSystemSettings = false;
 
+                    ZAMsettings.OnSplitsConfigChanged(this, new EventArgs());
+
                     // show recalculated splits
                     this.SystemSettings_LoadFields();
                 }
@@ -548,6 +550,8 @@ namespace ZwiftActivityMonitorV2
                 {
                     ZAMsettings.CommitCachedConfiguration();
                     EditingSplitSettings = false;
+
+                    ZAMsettings.OnSplitsConfigChanged(this, new EventArgs());
 
                     this.SystemSettings_LoadFields();
                 }

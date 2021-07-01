@@ -90,6 +90,7 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.TabIndex = 19;
             this.dgDetail.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_CellMouseClick);
             this.dgDetail.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGridViewGradientHeader_CellPainting);
+            this.dgDetail.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.dgDetail_DataBindingComplete);
             // 
             // dgSummary
             // 

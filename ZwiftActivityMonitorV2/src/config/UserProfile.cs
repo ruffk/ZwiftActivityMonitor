@@ -316,6 +316,18 @@ namespace ZwiftActivityMonitorV2
                 count++;
             }
 
+            if (!this.SpeedValues.ContainsKey(SplitViewMetricType.SummaryGoalSpeed))
+            {
+                this.SpeedValues.Add(SplitViewMetricType.SummaryGoalSpeed, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                count++;
+            }
+
+            if (!this.DistanceValues.ContainsKey(SplitViewMetricType.SummaryGoalDistance))
+            {
+                this.DistanceValues.Add(SplitViewMetricType.SummaryGoalDistance, DistanceDisplayEnum.Instance.GetItem(DistanceDisplayType.Both));
+                count++;
+            }
+
             return count;
         }
         public object Clone()

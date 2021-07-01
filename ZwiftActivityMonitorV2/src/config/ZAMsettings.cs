@@ -94,6 +94,7 @@ namespace ZwiftActivityMonitorV2
         private const string FileName = "ZAMsettings.json";
 
         public static event EventHandler<EventArgs> SystemConfigChanged;
+        public static event EventHandler<EventArgs> SplitsConfigChanged;
 
 
 
@@ -443,6 +444,21 @@ namespace ZwiftActivityMonitorV2
         public static void OnSystemConfigChanged(object sender, EventArgs e)
         {
             EventHandler<EventArgs> handler = SystemConfigChanged;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(sender, e);
+                }
+                catch
+                {
+                    // Don't let downstream exceptions bubble up
+                }
+            }
+        }
+        public static void OnSplitsConfigChanged(object sender, EventArgs e)
+        {
+            EventHandler<EventArgs> handler = SplitsConfigChanged;
             if (handler != null)
             {
                 try

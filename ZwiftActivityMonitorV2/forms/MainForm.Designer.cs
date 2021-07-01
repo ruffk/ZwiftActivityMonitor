@@ -50,7 +50,6 @@ namespace ZwiftActivityMonitorV2
             this.tsmiStart = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiStop = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiTimer = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiConfiguration = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAdvanced = new System.Windows.Forms.ToolStripMenuItem();
@@ -284,7 +283,6 @@ namespace ZwiftActivityMonitorV2
             this.tsmiStart,
             this.tsmiStop,
             this.toolStripSeparator1,
-            this.tsmiTimer,
             this.tsmiConfiguration,
             this.toolStripSeparator2,
             this.tsmiAdvanced,
@@ -314,12 +312,6 @@ namespace ZwiftActivityMonitorV2
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(223, 6);
-            // 
-            // tsmiTimer
-            // 
-            this.tsmiTimer.Name = "tsmiTimer";
-            this.tsmiTimer.Size = new System.Drawing.Size(226, 22);
-            this.tsmiTimer.Text = "Timer";
             // 
             // tsmiConfiguration
             // 
@@ -421,7 +413,6 @@ namespace ZwiftActivityMonitorV2
         private ToolStripMenuItem tsmiStart;
         private ToolStripMenuItem tsmiStop;
         private ToolStripSeparator toolStripSeparator1;
-        private ToolStripMenuItem tsmiTimer;
         private ToolStripMenuItem tsmiConfiguration;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem tsmiAdvanced;

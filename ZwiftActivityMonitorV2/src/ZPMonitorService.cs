@@ -35,6 +35,8 @@ namespace ZwiftActivityMonitorV2
         private CancellationTokenSource mCancellationTokenSource;   // Used to cancel wait for event clock
         private int mSimulationDistance;
         private int mSimulationRoadTime;
+        private int mSimulationPowerLowRange;
+        private int mSimulationPowerHighRange;
 
         public bool SimulateRiderActivity { get; internal set; }
 
@@ -160,6 +162,9 @@ namespace ZwiftActivityMonitorV2
                 ActivitySimulationTimer.Change(0, 333); // starts the timer, about 3 times / second
                 mSimulationDistance = 0;
                 mSimulationRoadTime = 0;
+
+                mSimulationPowerLowRange = (int)(ZAMsettings.Settings.CurrentUser.PowerThreshold * 0.6);
+                mSimulationPowerHighRange = (int)(ZAMsettings.Settings.CurrentUser.PowerThreshold * 1.2);
 
                 Logger.LogInformation($"ZwiftPacketMonitor starting in SIMULATION mode.");
             }
@@ -492,14 +497,14 @@ namespace ZwiftActivityMonitorV2
 
             Random r = new();
 
-            this.mSimulationDistance += r.Next(3, 7); // Should increase about 10..20 per second
+            this.mSimulationDistance += r.Next(3, 6); // Should increase about 10..20 per second
             this.mSimulationRoadTime += r.Next(500, 850); // Should increase about 1500..2500 per second
 
             RiderStateEventArgs e = new RiderStateEventArgs(mCollectionStartTime)
             {
                 Id = 422258,
-                Power = r.Next(150, 251),
-                Heartrate = r.Next(130, 151),
+                Power = r.Next(mSimulationPowerLowRange, mSimulationPowerHighRange),
+                Heartrate = r.Next(130, 175),
                 Distance = mSimulationDistance,
                 RoadId = 1,
                 IsForward = true,
