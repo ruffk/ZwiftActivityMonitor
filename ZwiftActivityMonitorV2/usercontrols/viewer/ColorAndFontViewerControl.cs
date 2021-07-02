@@ -34,6 +34,11 @@ namespace ZwiftActivityMonitorV2
 
         private void ColorAndFontViewControl_Load(object sender, EventArgs e)
         {
+            if (this.DesignMode)
+                return;
+
+            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
+
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             this.BeginInitializingControls();

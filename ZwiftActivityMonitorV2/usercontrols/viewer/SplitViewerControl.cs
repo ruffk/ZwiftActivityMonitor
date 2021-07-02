@@ -14,133 +14,6 @@ namespace ZwiftActivityMonitorV2
 
     public partial class SplitViewerControl : ViewerUserControlEx
     {
-        #region SortableBindingList class
-        /// <summary>
-        /// Provides a generic collection that supports data binding and additionally supports sorting.
-        /// See http://msdn.microsoft.com/en-us/library/ms993236.aspx
-        /// If the elements are IComparable it uses that; otherwise compares the ToString()
-        /// </summary>
-        /// <typeparam name="T">The type of elements in the list.</typeparam>
-        public class SortableBindingList<T> : BindingList<T> where T : class
-        {
-            private bool _isSorted;
-            private ListSortDirection _sortDirection = ListSortDirection.Ascending;
-            private PropertyDescriptor _sortProperty;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SortableBindingList{T}"/> class.
-            /// </summary>
-            public SortableBindingList()
-            {
-            }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SortableBindingList{T}"/> class.
-            /// </summary>
-            /// <param name="list">An <see cref="T:System.Collections.Generic.IList`1" /> of items to be contained in the <see cref="T:System.ComponentModel.BindingList`1" />.</param>
-            public SortableBindingList(IList<T> list)
-                : base(list)
-            {
-            }
-
-            /// <summary>
-            /// Gets a value indicating whether the list supports sorting.
-            /// </summary>
-            protected override bool SupportsSortingCore
-            {
-                get { return true; }
-            }
-
-            /// <summary>
-            /// Gets a value indicating whether the list is sorted.
-            /// </summary>
-            protected override bool IsSortedCore
-            {
-                get { return _isSorted; }
-            }
-
-            /// <summary>
-            /// Gets the direction the list is sorted.
-            /// </summary>
-            protected override ListSortDirection SortDirectionCore
-            {
-                get { return _sortDirection; }
-            }
-
-            /// <summary>
-            /// Gets the property descriptor that is used for sorting the list if sorting is implemented in a derived class; otherwise, returns null
-            /// </summary>
-            protected override PropertyDescriptor SortPropertyCore
-            {
-                get { return _sortProperty; }
-            }
-
-            /// <summary>
-            /// Removes any sort applied with ApplySortCore if sorting is implemented
-            /// </summary>
-            protected override void RemoveSortCore()
-            {
-                _sortDirection = ListSortDirection.Ascending;
-                _sortProperty = null;
-                _isSorted = false; //thanks Luca
-            }
-
-            /// <summary>
-            /// Sorts the items if overridden in a derived class
-            /// </summary>
-            /// <param name="prop"></param>
-            /// <param name="direction"></param>
-            protected override void ApplySortCore(PropertyDescriptor prop, ListSortDirection direction)
-            {
-                _sortProperty = prop;
-                _sortDirection = direction;
-
-                List<T> list = Items as List<T>;
-                if (list == null) return;
-
-                list.Sort(Compare);
-
-                _isSorted = true;
-                //fire an event that the list has been changed.
-                OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
-            }
-
-
-            private int Compare(T lhs, T rhs)
-            {
-                var result = OnComparison(lhs, rhs);
-                //invert if descending
-                if (_sortDirection == ListSortDirection.Descending)
-                    result = -result;
-                return result;
-            }
-
-            private int OnComparison(T lhs, T rhs)
-            {
-                object lhsValue = lhs == null ? null : _sortProperty.GetValue(lhs);
-                object rhsValue = rhs == null ? null : _sortProperty.GetValue(rhs);
-                if (lhsValue == null)
-                {
-                    return (rhsValue == null) ? 0 : -1; //nulls are equal
-                }
-                if (rhsValue == null)
-                {
-                    return 1; //first has value, second doesn't
-                }
-                if (lhsValue is IComparable)
-                {
-                    return ((IComparable)lhsValue).CompareTo(rhsValue);
-                }
-                if (lhsValue.Equals(rhsValue))
-                {
-                    return 0; //both are the same
-                }
-                //not comparable, compare ToString
-                return lhsValue.ToString().CompareTo(rhsValue.ToString());
-            }
-        }
-        #endregion
-
         private enum DetailColumn
         {
             SplitNumber = 0,
@@ -203,8 +76,11 @@ namespace ZwiftActivityMonitorV2
 
                 this.InitializeSummaryDataGrid();
 
-                this.SetAutoToggleMeasurementSystem(MeasurementSystemType.Imperial);
+                // Initialize auto-toggle and force an initial column header update that will observe user selections.
+                this.SetAutoToggleMeasurementSystem(MeasurementSystemType.Imperial, true);
             }
+
+            #region Detail and Summary Grid initialization
 
             private void InitializeDetailDataGrid()
             {
@@ -230,12 +106,12 @@ namespace ZwiftActivityMonitorV2
                 this.DetailGrid.Columns[(int)DetailColumn.SplitDistance].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailSplitDistance);
                 this.DetailGrid.Columns[(int)DetailColumn.SplitDistance].Tag = SplitViewMetricType.DetailSplitDistance;
 
-                this.DetailGrid.Columns[(int)DetailColumn.TotalTime].Width = 72;
+                this.DetailGrid.Columns[(int)DetailColumn.TotalTime].Width = 74;
                 this.DetailGrid.Columns[(int)DetailColumn.TotalTime].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailTotalTime);
                 this.DetailGrid.Columns[(int)DetailColumn.TotalTime].DefaultCellStyle.Format = "hh\\:mm\\:ss";
                 this.DetailGrid.Columns[(int)DetailColumn.TotalTime].Tag = SplitViewMetricType.DetailTotalTime;
 
-                this.DetailGrid.Columns[(int)DetailColumn.Delta].Width = 60;
+                this.DetailGrid.Columns[(int)DetailColumn.Delta].Width = 61;
                 this.DetailGrid.Columns[(int)DetailColumn.Delta].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.DetailDeltaTime);
                 this.DetailGrid.Columns[(int)DetailColumn.Delta].Tag = SplitViewMetricType.DetailDeltaTime;
 
@@ -244,8 +120,11 @@ namespace ZwiftActivityMonitorV2
                 this.DetailGrid.Columns[(int)DetailColumn.Blank].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
 
+                int sumWidth = 0;
                 foreach (DataGridViewColumn c in this.DetailGrid.Columns)
                 {
+                    sumWidth += c.Width;
+                    Debug.WriteLine($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -276,18 +155,21 @@ namespace ZwiftActivityMonitorV2
                 this.SummaryGrid.Columns[(int)SummaryColumn.GoalDistance].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.SummaryGoalDistance);
                 this.SummaryGrid.Columns[(int)SummaryColumn.GoalDistance].Tag = SplitViewMetricType.SummaryGoalDistance;
 
-                this.SummaryGrid.Columns[(int)SummaryColumn.GoalTime].Width = 72;
+                this.SummaryGrid.Columns[(int)SummaryColumn.GoalTime].Width = 74;
                 this.SummaryGrid.Columns[(int)SummaryColumn.GoalTime].HeaderText = SplitViewMetricEnum.Instance.GetColumnHeaderText(SplitViewMetricType.SummaryGoalTime);
                 this.SummaryGrid.Columns[(int)SummaryColumn.GoalTime].DefaultCellStyle.Format = "hh\\:mm\\:ss";
                 this.SummaryGrid.Columns[(int)SummaryColumn.GoalTime].Tag = SplitViewMetricType.SummaryGoalTime;
 
                 // Use the last blank column to fill the gap if user resizes
-                this.SummaryGrid.Columns[(int)SummaryColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
+                this.SummaryGrid.Columns[(int)SummaryColumn.Blank].Width = 61; // Five seems to be minimum size, even if set to zero
                 this.SummaryGrid.Columns[(int)SummaryColumn.Blank].HeaderText = "";
                 this.SummaryGrid.Columns[(int)SummaryColumn.Blank].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
+                int sumWidth = 0;
                 foreach (DataGridViewColumn c in this.SummaryGrid.Columns)
                 {
+                    sumWidth += c.Width;
+                    Debug.WriteLine($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -305,6 +187,8 @@ namespace ZwiftActivityMonitorV2
                 SummaryRow r = new(this);
                 this.SummaryRows.Add(r);
             }
+
+            #endregion
 
             #region Speed and Distance column handling
             public SpeedDisplayType SplitSpeed_SelectedDisplayType
@@ -324,6 +208,7 @@ namespace ZwiftActivityMonitorV2
                     }
                 }
             }
+
             public SpeedDisplayType GoalSpeed_SelectedDisplayType
             {
                 get { return ZAMsettings.Settings.CurrentUser.SplitViewColumnSettings.SpeedValues[SplitViewMetricType.SummaryGoalSpeed].Key; }
@@ -381,7 +266,7 @@ namespace ZwiftActivityMonitorV2
             /// Called when it's time to auto-switch between Metric and Imperial UOMs
             /// </summary>
             /// <param name="type"></param>
-            public void SetAutoToggleMeasurementSystem(MeasurementSystemType type)
+            public void SetAutoToggleMeasurementSystem(MeasurementSystemType type, bool forceUpdate = false)
             {
                 SpeedDisplayType speedDisplayType;
                 DistanceDisplayType distanceDisplayType;
@@ -401,16 +286,22 @@ namespace ZwiftActivityMonitorV2
                 this.mAutoToggleSpeedDisplayType = speedDisplayType;
 
                 this.SplitSpeed_PreferredDisplayType = this.SplitSpeed_SelectedDisplayType == SpeedDisplayType.Both ? mAutoToggleSpeedDisplayType : this.SplitSpeed_SelectedDisplayType;
-                OnSpeedDisplayTypeChangedEvent(new SpeedDisplayTypeChangedEventArgs(DetailColumn.SplitSpeed.ToString(), this.SplitSpeed_PreferredDisplayType, this.DetailGrid));
+                this.SplitDistance_PreferredDisplayType = this.SplitDistance_SelectedDisplayType == DistanceDisplayType.Both ? mAutoToggleDistanceDisplayType : this.SplitDistance_SelectedDisplayType;
+
+                if (this.DetailRows.Count > 0 || forceUpdate)
+                {
+                    OnSpeedDisplayTypeChangedEvent(new SpeedDisplayTypeChangedEventArgs(DetailColumn.SplitSpeed.ToString(), this.SplitSpeed_PreferredDisplayType, this.DetailGrid));
+                    OnDistanceDisplayTypeChangedEvent(new DistanceDisplayTypeChangedEventArgs(DetailColumn.SplitDistance.ToString(), this.SplitDistance_PreferredDisplayType, this.DetailGrid));
+                }
 
                 this.GoalSpeed_PreferredDisplayType = this.GoalSpeed_SelectedDisplayType == SpeedDisplayType.Both ? mAutoToggleSpeedDisplayType : this.GoalSpeed_SelectedDisplayType;
-                OnSpeedDisplayTypeChangedEvent(new SpeedDisplayTypeChangedEventArgs(SummaryColumn.GoalSpeed.ToString(), this.GoalSpeed_PreferredDisplayType, this.SummaryGrid));
-
-                this.SplitDistance_PreferredDisplayType = this.SplitDistance_SelectedDisplayType == DistanceDisplayType.Both ? mAutoToggleDistanceDisplayType : this.SplitDistance_SelectedDisplayType;
-                OnDistanceDisplayTypeChangedEvent(new DistanceDisplayTypeChangedEventArgs(DetailColumn.SplitDistance.ToString(), this.SplitDistance_PreferredDisplayType, this.DetailGrid));
-
                 this.GoalDistance_PreferredDisplayType = this.GoalDistance_SelectedDisplayType == DistanceDisplayType.Both ? mAutoToggleDistanceDisplayType : this.GoalDistance_SelectedDisplayType;
-                OnDistanceDisplayTypeChangedEvent(new DistanceDisplayTypeChangedEventArgs(SummaryColumn.GoalDistance.ToString(), this.GoalDistance_PreferredDisplayType, this.SummaryGrid));
+
+                if (this.SummaryRows[0].GoalDistance != "" || forceUpdate)
+                {
+                    OnSpeedDisplayTypeChangedEvent(new SpeedDisplayTypeChangedEventArgs(SummaryColumn.GoalSpeed.ToString(), this.GoalSpeed_PreferredDisplayType, this.SummaryGrid));
+                    OnDistanceDisplayTypeChangedEvent(new DistanceDisplayTypeChangedEventArgs(SummaryColumn.GoalDistance.ToString(), this.GoalDistance_PreferredDisplayType, this.SummaryGrid));
+                }
 
                 foreach (var item in this.DetailRows)
                 {
@@ -799,6 +690,7 @@ namespace ZwiftActivityMonitorV2
         private SplitsManagerV2 SplitsManager = new();
         private Dispatcher mDispatcher;
         private DataGridViewManager ViewManager;
+        private bool mInitialControlGainedFocus;
 
         private static Color RED = Color.FromArgb(255, 192, 0, 0); // red 
         private static Color GREEN = Color.FromArgb(255, 0, 192, 0); // green
@@ -815,6 +707,8 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.DesignMode)
                 return;
+
+            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
 
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
@@ -844,6 +738,26 @@ namespace ZwiftActivityMonitorV2
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());
         }
+
+        public override void ControlGainingFocus(object sender, EventArgs e)
+        {
+            Debug.WriteLine($"{this.GetType()}.ControlGainingFocus");
+
+            if (!mInitialControlGainedFocus)
+            {
+                Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+
+                int sumWidth = 0;
+                foreach (DataGridViewColumn c in this.dgDetail.Columns)
+                {
+                    sumWidth += c.Width;
+                    Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                }
+
+                mInitialControlGainedFocus = true;
+            }
+        }
+
 
         private void ViewControl_Resize(object sender, EventArgs e)
         {
@@ -1096,9 +1010,7 @@ namespace ZwiftActivityMonitorV2
         {
             ViewManager.DetailRows.Clear();
 
-            ViewManager.SummaryRows[0].GoalDistance = "";
-            ViewManager.SummaryRows[0].GoalSpeed = "";
-            ViewManager.SummaryRows[0].GoalTime = null;
+            this.UpdateSummaryRow();
         }
 
         #region ViewManager event handling
@@ -1124,6 +1036,7 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         #region DataGridView events, Includes mouse click handlers for visibility and metric configuration
+
         /// <summary>
         /// Determine action on cell mouse click
         /// </summary>
@@ -1373,7 +1286,9 @@ namespace ZwiftActivityMonitorV2
 
             // change the font on the data grid rows
             this.dgDetail.RowsDefaultCellStyle.Font = this.RowFont;
+            this.dgDetail.DefaultCellStyle.Font = this.RowFont;
             this.dgSummary.RowsDefaultCellStyle.Font = this.RowFont;
+            this.dgSummary.DefaultCellStyle.Font = this.RowFont;
 
             // Trigger a resize so that dgSummary can size itself appropriately
             this.OnResize(new EventArgs());

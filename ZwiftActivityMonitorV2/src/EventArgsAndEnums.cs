@@ -227,6 +227,39 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
+    #region LapViewMetricEnum
+    public enum LapViewMetricType
+    {
+        DetailLapNumber,
+        DetailLapTime,
+        DetailLapSpeed,
+        DetailLapDistance,
+        DetailLapAP,
+        DetailTotalTime,
+    }
+
+    public sealed class LapViewMetricEnum : EnumBase<LapViewMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
+    {
+
+        private static readonly Lazy<LapViewMetricEnum> _InstanceLock = new Lazy<LapViewMetricEnum>(() => new LapViewMetricEnum());
+
+        private LapViewMetricEnum() // private constructor will ensure that the class is not going to be instantiated from outside the class
+        {
+            EnumList = new Dictionary<LapViewMetricType, EnumListItem>();
+
+            EnumList.Add(LapViewMetricType.DetailLapNumber, new EnumListItem("Lap Number", columnHeaderText: "#"));
+            EnumList.Add(LapViewMetricType.DetailLapTime, new EnumListItem("Lap Time", columnHeaderText: "Lap\nTime"));
+            EnumList.Add(LapViewMetricType.DetailLapSpeed, new EnumListItem("Lap Speed", columnHeaderText: "Mi/h"));
+            EnumList.Add(LapViewMetricType.DetailLapDistance, new EnumListItem("Lap Distance", columnHeaderText: "Mi"));
+            EnumList.Add(LapViewMetricType.DetailLapAP, new EnumListItem("Lap Power", columnHeaderText: "AP"));
+            EnumList.Add(LapViewMetricType.DetailTotalTime, new EnumListItem("Total Time", columnHeaderText: "Total\nTime"));
+        }
+
+        public static LapViewMetricEnum Instance { get { return _InstanceLock.Value; } }
+    }
+
+    #endregion
+
     #region TemplateEnum
 
     //public sealed class TemplateEnum : EnumBase<TemplateEnum.Keys> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
@@ -362,12 +395,12 @@ namespace ZwiftActivityMonitorV2
 
             EnumList.Add(SplitViewMetricType.DetailSplitNumber, new EnumListItem("Split Number", columnHeaderText: "#"));
             EnumList.Add(SplitViewMetricType.DetailSplitTime, new EnumListItem("Split Time", columnHeaderText: "Split\nTime"));
-            EnumList.Add(SplitViewMetricType.DetailSplitSpeed, new EnumListItem("Split Speed", columnHeaderText: " "));
-            EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: " "));
+            EnumList.Add(SplitViewMetricType.DetailSplitSpeed, new EnumListItem("Split Speed", columnHeaderText: "Mi/h"));
+            EnumList.Add(SplitViewMetricType.DetailSplitDistance, new EnumListItem("Split Distance", columnHeaderText: "Mi"));
             EnumList.Add(SplitViewMetricType.DetailTotalTime, new EnumListItem("Total Time", columnHeaderText: "Total\nTime"));
             EnumList.Add(SplitViewMetricType.DetailDeltaTime, new EnumListItem("Delta Time", columnHeaderText: "Time\n+/-"));
-            EnumList.Add(SplitViewMetricType.SummaryGoalSpeed, new EnumListItem("Goal Speed", columnHeaderText: " "));
-            EnumList.Add(SplitViewMetricType.SummaryGoalDistance, new EnumListItem("Goal Distance", columnHeaderText: " "));
+            EnumList.Add(SplitViewMetricType.SummaryGoalSpeed, new EnumListItem("Goal Speed", columnHeaderText: "Mi/h"));
+            EnumList.Add(SplitViewMetricType.SummaryGoalDistance, new EnumListItem("Goal Distance", columnHeaderText: "Mi"));
             EnumList.Add(SplitViewMetricType.SummaryGoalTime, new EnumListItem("Goal Time", columnHeaderText: "Time"));
         }
 
@@ -423,6 +456,38 @@ namespace ZwiftActivityMonitorV2
         }
         public CountdownTimerTickEventArgs()
         {
+        }
+    }
+    public class LapEventArgs : EventArgs
+    {
+        public int LapNumber { get; }
+        public TimeSpan LapTime { get; }
+        public double LapDistanceKm { get; }
+        public double LapDistanceMi { get; }
+        public int LapAPwatts { get; }
+        public double? LapAPwattsPerKg { get; }
+        public TimeSpan TotalTime { get; }
+
+        public LapEventArgs(int lapNumber, TimeSpan lapTime, double lapDistanceKm, double lapDistanceMi, int lapAPwatts, double? lapAPwattsPerKg, TimeSpan totalTime)
+        {
+            this.LapNumber = lapNumber;
+            this.LapTime = lapTime;
+            this.LapDistanceKm = lapDistanceKm;
+            this.LapDistanceMi = lapDistanceMi;
+            this.LapAPwatts = lapAPwatts;
+            this.LapAPwattsPerKg = lapAPwattsPerKg;
+            this.TotalTime = totalTime;
+        }
+    }
+    public class LapStartedEventArgs : EventArgs
+    {
+        public int LapNumber { get; }
+        public string StatusMsg { get; }
+
+        public LapStartedEventArgs(int lapNumber, string statusMsg)
+        {
+            this.LapNumber = lapNumber;
+            this.StatusMsg = statusMsg;
         }
     }
 
@@ -627,6 +692,19 @@ namespace ZwiftActivityMonitorV2
         {
             this.ColumnName = columnName;
             this.DisplayType = distanceDisplayType;
+            this.Tag = tag;
+        }
+    }
+    public class PowerDisplayTypeChangedEventArgs : EventArgs
+    {
+        public string ColumnName { get; }
+        public PowerDisplayType DisplayType { get; }
+        public object Tag { get; }
+
+        public PowerDisplayTypeChangedEventArgs(string columnName, PowerDisplayType powerDisplayType, object tag)
+        {
+            this.ColumnName = columnName;
+            this.DisplayType = powerDisplayType;
             this.Tag = tag;
         }
     }

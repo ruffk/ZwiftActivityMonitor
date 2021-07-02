@@ -78,8 +78,10 @@ namespace ZwiftActivityMonitorV2
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
             // toggle the tabs so the first tab gets initialized
-            tabControl.SelectedIndex = 1;
-            tabControl.SelectedIndex = 0;
+            for (int i = this.tabControl.TabPages.Count - 1; i >= 0; i--)
+                tabControl.SelectedIndex = i;
+            //tabControl.SelectedIndex = 1;
+            //tabControl.SelectedIndex = 0;
 
             // start general syncronization timer
             this.formSyncTimer.Interval = 1000;

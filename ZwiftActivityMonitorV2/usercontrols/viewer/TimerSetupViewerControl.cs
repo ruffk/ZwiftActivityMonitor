@@ -41,6 +41,11 @@ namespace ZwiftActivityMonitorV2
 
         private void TimerSetupViewerControl_Load(object sender, EventArgs e)
         {
+            if (this.DesignMode)
+                return;
+
+            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
+
             //this.UISyncContext = WindowsFormsSynchronizationContext.Current;
             mDispatcher = Dispatcher.CurrentDispatcher;
 

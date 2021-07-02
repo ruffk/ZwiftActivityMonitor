@@ -385,7 +385,7 @@ namespace ZwiftActivityMonitorV2
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
             {
-                //this.mCurrentMeasurementSystemType = type;
+                Debug.WriteLine($"{this.GetType()}.SetCurrentMeasurementSystemType - {type}");
 
                 if (type == MeasurementSystemType.Imperial)
                 {
@@ -733,7 +733,7 @@ namespace ZwiftActivityMonitorV2
             if (this.DesignMode)
                 return;
 
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load1");
+            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
 
             InitializeDetailDataGrid();
             InitializeSummaryDataGrid();
@@ -751,7 +751,7 @@ namespace ZwiftActivityMonitorV2
                 (this.ParentForm as MainForm).FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
             }
 
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load2");
+            //Debug.WriteLine($"{this.GetType()}.ViewControl_Load2");
         }
 
         public override void ControlGainingFocus(object sender, EventArgs e)
@@ -761,6 +761,15 @@ namespace ZwiftActivityMonitorV2
             if (!mInitialControlGainedFocus)
             {
                 Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+
+                int sumWidth = 0;
+                foreach (DataGridViewColumn c in this.dgDetail.Columns)
+                {
+                    if (c.HeaderText == "") continue;
+
+                    sumWidth += c.Width;
+                    Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                }
 
                 this.SetupDisplayForCurrentUserProfile();
                 mInitialControlGainedFocus = true;
@@ -856,8 +865,14 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Columns[(int)DetailColumn.FTP_PowerDisplayType].HeaderText = "";
             this.dgDetail.Columns[(int)DetailColumn.FTP_PowerDisplayType].Visible = false;
 
+            int sumWidth = 0;
             foreach (DataGridViewColumn c in this.dgDetail.Columns)
             {
+                if (c.HeaderText != "")
+                {
+                    sumWidth += c.Width;
+                    Debug.WriteLine($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                }
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -942,8 +957,11 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Columns[(int)SummaryColumn.AS_SpeedDisplayType].HeaderText = "";
             this.dgSummary.Columns[(int)SummaryColumn.AS_SpeedDisplayType].Visible = false;
 
+            int sumWidth = 0;
             foreach (DataGridViewColumn c in this.dgSummary.Columns)
             {
+                sumWidth += c.Width;
+                Debug.WriteLine($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -974,6 +992,8 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void SummaryRow_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            //Debug.WriteLine($"{this.GetType()}.SummaryRow_PropertyChanged - {e.PropertyName}");
+
             SummaryRow row = sender as SummaryRow;
 
             if (row == null)

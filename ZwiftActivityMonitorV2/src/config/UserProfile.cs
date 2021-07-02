@@ -337,6 +337,67 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
+    #region UserLapViewColumnSettings class
+    /// <summary>
+    /// Settings for the LapViewerControl's Detail and Summary column visibility
+    /// </summary>
+    public class UserLapViewColumnSettings : ConfigItemBase, ICloneable
+    {
+        public SortedList<LapViewMetricType, bool> Visibility = new();
+        public SortedList<LapViewMetricType, KeyStringPair<SpeedDisplayType>> SpeedValues = new();
+        public SortedList<LapViewMetricType, KeyStringPair<DistanceDisplayType>> DistanceValues = new();
+        public SortedList<LapViewMetricType, KeyStringPair<PowerDisplayType>> PowerValues = new();
+
+        [JsonConstructor]
+        public UserLapViewColumnSettings()
+        {
+        }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            // The KeyStringPair classes need to be initialized with defaults here as they depend on values in the lists.
+            // FYI: They can't be initialized in the constructor as they will always show null during json deserialization,
+            // even if the json being parsed has values in it.
+
+            // default all columns to visible
+            foreach (var item in LapViewMetricEnum.Instance.GetItems())
+            {
+                if (!this.Visibility.ContainsKey(item.Key))
+                {
+                    this.Visibility.Add(item.Key, true);
+                    count++;
+                }
+            }
+
+            if (!this.SpeedValues.ContainsKey(LapViewMetricType.DetailLapSpeed))
+            {
+                this.SpeedValues.Add(LapViewMetricType.DetailLapSpeed, SpeedDisplayEnum.Instance.GetItem(SpeedDisplayType.Both));
+                count++;
+            }
+
+            if (!this.DistanceValues.ContainsKey(LapViewMetricType.DetailLapDistance))
+            {
+                this.DistanceValues.Add(LapViewMetricType.DetailLapDistance, DistanceDisplayEnum.Instance.GetItem(DistanceDisplayType.Both));
+                count++;
+            }
+
+            if (!this.PowerValues.ContainsKey(LapViewMetricType.DetailLapAP))
+            {
+                this.PowerValues.Add(LapViewMetricType.DetailLapAP, PowerDisplayEnum.Instance.GetItem(PowerDisplayType.Both));
+                count++;
+            }
+
+            return count;
+        }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+    }
+    #endregion
+
 
 
     public class UserProfile : ConfigItemBase, ICloneable
@@ -344,12 +405,14 @@ namespace ZwiftActivityMonitorV2
         public string UniqueId { get; set; } = "";
         public int PowerThreshold { get; set; }
 
-        public SortedList<DurationType, UserActivityViewDetailRowSettings> ActivityViewDetailRowSettings = new();
-        public SortedList<ActivityViewMetricType, UserActivityViewColumnSettings> ActivityViewColumnSettings = new();
+        public SortedList<DurationType, UserActivityViewDetailRowSettings> ActivityViewDetailRowSettings { get; set; } = new();
+        public SortedList<ActivityViewMetricType, UserActivityViewColumnSettings> ActivityViewColumnSettings { get; set; } = new();
 
-        public UserActivityViewSummaryRowSettings ActivityViewSummaryRowSettings = new();
+        public UserActivityViewSummaryRowSettings ActivityViewSummaryRowSettings { get; set; } = new();
 
-        public UserSplitViewColumnSettings SplitViewColumnSettings = new();
+        public UserSplitViewColumnSettings SplitViewColumnSettings { get; set; } = new();
+        
+        public UserLapViewColumnSettings LapViewColumnSettings { get; set; } = new();
 
         private string m_name = "";
         private string m_email = "";
@@ -404,6 +467,8 @@ namespace ZwiftActivityMonitorV2
             count += this.ActivityViewSummaryRowSettings.InitializeDefaultValues();
 
             count += this.SplitViewColumnSettings.InitializeDefaultValues();
+
+            count += this.LapViewColumnSettings.InitializeDefaultValues();
 
             return count;
         }

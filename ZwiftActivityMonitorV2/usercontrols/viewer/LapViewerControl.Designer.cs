@@ -29,13 +29,17 @@ namespace ZwiftActivityMonitorV2
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dgDetail = new ZwiftActivityMonitorV2.DataGridViewEx();
             this.tlPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsbLap = new System.Windows.Forms.ToolStripButton();
+            this.tsbReset = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.dgDetail)).BeginInit();
             this.tlPanel.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // dgDetail
@@ -47,14 +51,14 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgDetail.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgDetail.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgDetail.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgDetail.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgDetail.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgDetail.EnableHeadersVisualStyles = false;
@@ -62,26 +66,26 @@ namespace ZwiftActivityMonitorV2
             this.dgDetail.Margin = new System.Windows.Forms.Padding(0);
             this.dgDetail.Name = "dgDetail";
             this.dgDetail.ReadOnly = true;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgDetail.RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgDetail.RowHeadersDefaultCellStyle = dataGridViewCellStyle5;
             this.dgDetail.RowHeadersVisible = false;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            this.dgDetail.RowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            this.dgDetail.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgDetail.RowTemplate.Height = 25;
             this.dgDetail.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dgDetail.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dgDetail.ShowCellToolTips = false;
             this.dgDetail.ShowFocus = null;
-            this.dgDetail.Size = new System.Drawing.Size(320, 147);
+            this.dgDetail.Size = new System.Drawing.Size(320, 97);
             this.dgDetail.TabIndex = 19;
             this.dgDetail.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView_CellMouseClick);
             this.dgDetail.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataGridViewGradientHeader_CellPainting);
@@ -90,17 +94,58 @@ namespace ZwiftActivityMonitorV2
             // 
             this.tlPanel.ColumnCount = 1;
             this.tlPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlPanel.Controls.Add(this.toolStrip1, 0, 1);
             this.tlPanel.Controls.Add(this.dgDetail, 0, 0);
             this.tlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlPanel.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tlPanel.Location = new System.Drawing.Point(0, 0);
             this.tlPanel.Margin = new System.Windows.Forms.Padding(0);
             this.tlPanel.Name = "tlPanel";
-            this.tlPanel.RowCount = 1;
+            this.tlPanel.RowCount = 2;
             this.tlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tlPanel.Size = new System.Drawing.Size(320, 147);
             this.tlPanel.TabIndex = 21;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.BackColor = System.Drawing.Color.Transparent;
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbLap,
+            this.tsbReset});
+            this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.toolStrip1.Location = new System.Drawing.Point(0, 97);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(136, 50);
+            this.toolStrip1.TabIndex = 20;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbLap
+            // 
+            this.tsbLap.AutoSize = false;
+            this.tsbLap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbLap.Image = global::ZwiftActivityMonitorV2.Properties.Resources.stopwatch;
+            this.tsbLap.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLap.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
+            this.tsbLap.Name = "tsbLap";
+            this.tsbLap.Size = new System.Drawing.Size(48, 48);
+            this.tsbLap.Text = "Click to start a new lap";
+            this.tsbLap.Click += new System.EventHandler(this.tsbLap_Click);
+            // 
+            // tsbReset
+            // 
+            this.tsbReset.AutoSize = false;
+            this.tsbReset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbReset.Image = global::ZwiftActivityMonitorV2.Properties.Resources.split;
+            this.tsbReset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbReset.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
+            this.tsbReset.Name = "tsbReset";
+            this.tsbReset.Size = new System.Drawing.Size(48, 48);
+            this.tsbReset.Text = "Click to clear laps and restart";
+            this.tsbReset.Click += new System.EventHandler(this.tsbReset_Click);
             // 
             // LapViewerControl
             // 
@@ -115,6 +160,9 @@ namespace ZwiftActivityMonitorV2
             this.Resize += new System.EventHandler(this.ViewControl_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dgDetail)).EndInit();
             this.tlPanel.ResumeLayout(false);
+            this.tlPanel.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -123,5 +171,8 @@ namespace ZwiftActivityMonitorV2
 
         private ZwiftActivityMonitorV2.DataGridViewEx dgDetail;
         private System.Windows.Forms.TableLayoutPanel tlPanel;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tsbLap;
+        private System.Windows.Forms.ToolStripButton tsbReset;
     }
 }

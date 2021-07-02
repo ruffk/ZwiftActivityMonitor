@@ -8,7 +8,7 @@ namespace ZwiftActivityMonitorV2
     public class MovingAverage
     {
         private readonly ILogger<MovingAverage> Logger;
-        private UserProfile CurrentUser;
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
 
         private readonly Queue<Statistics> mStatsQueue;
         private readonly DurationType mDurationType;
@@ -136,7 +136,6 @@ namespace ZwiftActivityMonitorV2
                 mSampleWattsSumAll = 0;
                 mSampleCountAll = 0;
                 mStatsQueue.Clear();
-                this.CurrentUser = ZAMsettings.Settings.CurrentUser;
 
                 mStarted = true;
             }
@@ -281,9 +280,9 @@ namespace ZwiftActivityMonitorV2
             //Logger.LogInformation($"id: {e.PlayerState.Id} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} PowerAvg: {curAvgPower} HRAvg: {curAvgHR} PowerMax: {m_maxAvgPower} HRMax: {m_maxAvgHR} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
         }
 
-        private double? CalculateUserWattsPerKg(int watts)
+        private double? CalculateUserWattsPerKg(double watts)
         {
-            return CurrentUser.WeightAsKgs > 0 ? Math.Round(watts / CurrentUser.WeightAsKgs, 2) : null;
+            return CurrentUserProfile.WeightAsKgs > 0 ? Math.Round(watts / CurrentUserProfile.WeightAsKgs, 2) : null;
         }
 
         private void OnMovingAverageChangedEvent(MovingAverageChangedEventArgs e)
