@@ -26,14 +26,13 @@ namespace ZwiftActivityMonitorV2
 
         private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
 
-        //private SynchronizationContext UISyncContext;
-
         private readonly ILogger<MainForm> Logger;
         private readonly IServiceProvider ServiceProvider;
 
-        private const string HomeTitle = "Activity Monitor";
+        private string HomeTitle = "Zwift Activity Monitor";
 
         private int mSyncFormTimerTickCount;
+        private bool mOneTimeInitializationsCompleted;
 
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
@@ -41,6 +40,10 @@ namespace ZwiftActivityMonitorV2
 
         public MainForm(IServiceProvider serviceProvider)
         {
+
+            string[] proSuperScript = { "\u1D3E", "\u1D3F", "\u1D3C" };
+            this.HomeTitle += $" {proSuperScript[0]}{proSuperScript[1]}{proSuperScript[2]}";
+            
             this.ServiceProvider = serviceProvider;
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
 
@@ -64,15 +67,11 @@ namespace ZwiftActivityMonitorV2
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            var form = new SplashScreen();
+            DialogResult result = form.ShowDialog(this);
+
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
-            //this.UISyncContext = WindowsFormsSynchronizationContext.Current;
-
-            if (!this.IsHandleCreated)
-                Debug.WriteLine("MainForm_Load -  handle not yet created.");
-
-            //Office2010Form hidden = new();
-            //ZAMappearance.ApplyColorScheme(hidden);
 
             // Determine window size
             this.Size = ZAMsettings.Settings.Appearance.WindowSize;
@@ -83,19 +82,18 @@ namespace ZwiftActivityMonitorV2
             //tabControl.SelectedIndex = 1;
             //tabControl.SelectedIndex = 0;
 
-            // start general syncronization timer
-            this.formSyncTimer.Interval = 1000;
-            this.formSyncTimer.Enabled = true;
-
-            this.OnCollectionStatusChanged();
+            this.OnCollectionStatusChanged();  // setup menu items and status labels
 
             this.SetControlColors();
+
+
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            // periodically, the colors don't get initialize properly in the load event so doing 
-            //this.SetControlColors();
+            // start general syncronization timer (needs to be done last)
+            this.formSyncTimer.Interval = 1000;
+            this.formSyncTimer.Enabled = true;
         }
 
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
@@ -535,6 +533,29 @@ namespace ZwiftActivityMonitorV2
         }
 
         /// <summary>
+        /// A delegate used solely by the MainForm_OneTimeInitializations method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void MainForm_OneTimeInitializationsDelegate();
+
+        /// <summary>
+        /// This is called once after the form has shown
+        /// </summary>
+        private void MainForm_OneTimeInitializations()
+        {
+            if (ZAMsettings.Settings.AutoStart)
+            {
+                ZAMsettings.ZPMonitorService.StartMonitor();
+            }
+            else
+            {
+                // Bring up the Configuration dialog
+                tsmiConfiguration.PerformClick();
+            }
+        }
+
+        /// <summary>
         /// General use timer set for one second intervals
         /// </summary>
         /// <param name="sender"></param>
@@ -542,6 +563,14 @@ namespace ZwiftActivityMonitorV2
         private void formSyncTimer_Tick(object sender, EventArgs e)
         {
             mSyncFormTimerTickCount++;
+
+            if (!this.mOneTimeInitializationsCompleted)
+            {
+                // We invoke a delegate so this gets posted and doesn't block
+                mDispatcher.BeginInvoke(new MainForm_OneTimeInitializationsDelegate(MainForm_OneTimeInitializations), new object[] { });
+
+                this.mOneTimeInitializationsCompleted = true;
+            }
 
             // The one second timer gets the actual tick count in it's event args
             OnFormSyncOneSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount));

@@ -17,7 +17,7 @@ namespace ZwiftActivityMonitorV2
         public string Network { get; internal set; }
         public bool IsDebugMode { get; internal set; }
         public int TargetHeartrate { get; internal set; }
-        public int TargetPower { get; internal set; }
+        public int TargetPlayerId { get; internal set; }
 
         private readonly ILogger<ZPMonitorService> Logger;
         private readonly ZwiftPacketMonitor.Monitor ZPMonitor;
@@ -99,16 +99,16 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            Network = ZAMsettings.Settings.Network;
+            this.Network = ZAMsettings.Settings.Network;
 
-            IsDebugMode = debugMode;
-            TargetHeartrate = targetHR;
-            TargetPower = targetPower;
-            SimulateRiderActivity = simulateRiderActivity;
+            this.IsDebugMode = debugMode;
+            this.TargetHeartrate = targetHR;
+            this.TargetPlayerId = targetPower;
+            this.SimulateRiderActivity = simulateRiderActivity;
 
             //mLastPlayerStateUpdate = DateTime.Now;
-            EventsProcessed = 0;
-            mPlayerStateTime = TimeSpan.Zero;
+            this.EventsProcessed = 0;
+            this.mPlayerStateTime = TimeSpan.Zero;
 
             if (!SimulateRiderActivity || IsDebugMode)
             {
@@ -204,10 +204,10 @@ namespace ZwiftActivityMonitorV2
                 ActivitySimulationTimer.Change(Timeout.Infinite, Timeout.Infinite); // stops the timer
             }
 
-            mMonitorStartTime = null;
-            IsDebugMode = false;
-            TargetHeartrate = 0;
-            TargetPower = 0;
+            this.mMonitorStartTime = null;
+            this.IsDebugMode = false;
+            this.TargetHeartrate = 0;
+            this.TargetPlayerId = 0;
 
             //m_zpMonitor.IncomingPlayerEnteredWorldEvent -= this.PlayerEnteredWorldEventHandler;
 
@@ -393,20 +393,17 @@ namespace ZwiftActivityMonitorV2
             {
                 if (IsDebugMode)
                 {
-                    if (mTrackedPlayerId == 0)
+                    if (this.mTrackedPlayerId == 0)
                     {
-                        if (TargetHeartrate > 0 || TargetPower > 0) // these will both be zero if randomly choosing a player
-                        {
-                            if ((TargetHeartrate == 0 || (e.PlayerState.Heartrate >= TargetHeartrate - 2 && e.PlayerState.Heartrate <= TargetHeartrate + 2))
-                                && (TargetPower == 0 || e.PlayerState.Power >= TargetPower - 10 && e.PlayerState.Power <= TargetPower + 10))
-                            {
-                                mTrackedPlayerId = e.PlayerState.Id;
-                                Logger.LogInformation($"Monitoring player: {mTrackedPlayerId}");
-                            }
-                        }
-                        else // randomly choose, not recommended
+                        if (this.TargetHeartrate > 0 && (e.PlayerState.Heartrate >= TargetHeartrate - 2 && e.PlayerState.Heartrate <= TargetHeartrate + 2))
                         {
                             mTrackedPlayerId = e.PlayerState.Id;
+                            Logger.LogInformation($"Monitoring player: {mTrackedPlayerId}");
+                        }
+                        else if (this.TargetPlayerId > 0 && this.TargetPlayerId == e.PlayerState.Id)
+                        {
+                            mTrackedPlayerId = e.PlayerState.Id;
+                            Logger.LogInformation($"Monitoring player: {mTrackedPlayerId}");
                         }
                     }
 

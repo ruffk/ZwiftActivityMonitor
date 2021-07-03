@@ -31,15 +31,14 @@ namespace ZwiftActivityMonitorV2
         {
             this.gbZwiftPacketMonitor = new System.Windows.Forms.GroupBox();
             this.rbSimulation = new System.Windows.Forms.RadioButton();
-            this.lblWatts = new System.Windows.Forms.Label();
-            this.tbTargetPower = new System.Windows.Forms.TextBox();
-            this.lblPower = new System.Windows.Forms.Label();
+            this.tbPlayerId = new System.Windows.Forms.TextBox();
+            this.lblPlayerId = new System.Windows.Forms.Label();
             this.lblBpm = new System.Windows.Forms.Label();
             this.lblEthernetDevice = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.lblHeartrate = new System.Windows.Forms.Label();
-            this.rbRandomlyChoose = new System.Windows.Forms.RadioButton();
-            this.rbFindByMetrics = new System.Windows.Forms.RadioButton();
+            this.rbFindByPlayerId = new System.Windows.Forms.RadioButton();
+            this.rbFindByHeartRate = new System.Windows.Forms.RadioButton();
             this.lblEventsProcessed = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
             this.tbTargetHeartrate = new System.Windows.Forms.TextBox();
@@ -62,15 +61,14 @@ namespace ZwiftActivityMonitorV2
             // gbZwiftPacketMonitor
             // 
             this.gbZwiftPacketMonitor.Controls.Add(this.rbSimulation);
-            this.gbZwiftPacketMonitor.Controls.Add(this.lblWatts);
-            this.gbZwiftPacketMonitor.Controls.Add(this.tbTargetPower);
-            this.gbZwiftPacketMonitor.Controls.Add(this.lblPower);
+            this.gbZwiftPacketMonitor.Controls.Add(this.tbPlayerId);
+            this.gbZwiftPacketMonitor.Controls.Add(this.lblPlayerId);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblBpm);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblEthernetDevice);
             this.gbZwiftPacketMonitor.Controls.Add(this.label8);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblHeartrate);
-            this.gbZwiftPacketMonitor.Controls.Add(this.rbRandomlyChoose);
-            this.gbZwiftPacketMonitor.Controls.Add(this.rbFindByMetrics);
+            this.gbZwiftPacketMonitor.Controls.Add(this.rbFindByPlayerId);
+            this.gbZwiftPacketMonitor.Controls.Add(this.rbFindByHeartRate);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblEventsProcessed);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblStatus);
             this.gbZwiftPacketMonitor.Controls.Add(this.tbTargetHeartrate);
@@ -91,7 +89,7 @@ namespace ZwiftActivityMonitorV2
             // rbSimulation
             // 
             this.rbSimulation.AutoSize = true;
-            this.rbSimulation.Location = new System.Drawing.Point(47, 209);
+            this.rbSimulation.Location = new System.Drawing.Point(47, 193);
             this.rbSimulation.Name = "rbSimulation";
             this.rbSimulation.Size = new System.Drawing.Size(118, 19);
             this.rbSimulation.TabIndex = 20;
@@ -99,31 +97,22 @@ namespace ZwiftActivityMonitorV2
             this.rbSimulation.Text = "Power Simulation";
             this.rbSimulation.UseVisualStyleBackColor = true;
             // 
-            // lblWatts
+            // tbPlayerId
             // 
-            this.lblWatts.AutoSize = true;
-            this.lblWatts.Location = new System.Drawing.Point(311, 172);
-            this.lblWatts.Name = "lblWatts";
-            this.lblWatts.Size = new System.Drawing.Size(74, 15);
-            this.lblWatts.TabIndex = 19;
-            this.lblWatts.Text = "(+- 10 watts)";
+            this.tbPlayerId.Location = new System.Drawing.Point(276, 169);
+            this.tbPlayerId.MaxLength = 7;
+            this.tbPlayerId.Name = "tbPlayerId";
+            this.tbPlayerId.Size = new System.Drawing.Size(63, 23);
+            this.tbPlayerId.TabIndex = 18;
             // 
-            // tbTargetPower
+            // lblPlayerId
             // 
-            this.tbTargetPower.Location = new System.Drawing.Point(276, 169);
-            this.tbTargetPower.Name = "tbTargetPower";
-            this.tbTargetPower.Size = new System.Drawing.Size(29, 23);
-            this.tbTargetPower.TabIndex = 18;
-            this.tbTargetPower.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // lblPower
-            // 
-            this.lblPower.AutoSize = true;
-            this.lblPower.Location = new System.Drawing.Point(227, 172);
-            this.lblPower.Name = "lblPower";
-            this.lblPower.Size = new System.Drawing.Size(43, 15);
-            this.lblPower.TabIndex = 17;
-            this.lblPower.Text = "Power:";
+            this.lblPlayerId.AutoSize = true;
+            this.lblPlayerId.Location = new System.Drawing.Point(215, 172);
+            this.lblPlayerId.Name = "lblPlayerId";
+            this.lblPlayerId.Size = new System.Drawing.Size(55, 15);
+            this.lblPlayerId.TabIndex = 17;
+            this.lblPlayerId.Text = "Player Id:";
             // 
             // lblBpm
             // 
@@ -155,33 +144,33 @@ namespace ZwiftActivityMonitorV2
             // lblHeartrate
             // 
             this.lblHeartrate.AutoSize = true;
-            this.lblHeartrate.Location = new System.Drawing.Point(208, 146);
+            this.lblHeartrate.Location = new System.Drawing.Point(205, 146);
             this.lblHeartrate.Name = "lblHeartrate";
-            this.lblHeartrate.Size = new System.Drawing.Size(62, 15);
+            this.lblHeartrate.Size = new System.Drawing.Size(65, 15);
             this.lblHeartrate.TabIndex = 13;
-            this.lblHeartrate.Text = "HeartRate:";
+            this.lblHeartrate.Text = "Heart Rate:";
             // 
-            // rbRandomlyChoose
+            // rbFindByPlayerId
             // 
-            this.rbRandomlyChoose.AutoSize = true;
-            this.rbRandomlyChoose.Location = new System.Drawing.Point(47, 184);
-            this.rbRandomlyChoose.Name = "rbRandomlyChoose";
-            this.rbRandomlyChoose.Size = new System.Drawing.Size(122, 19);
-            this.rbRandomlyChoose.TabIndex = 5;
-            this.rbRandomlyChoose.TabStop = true;
-            this.rbRandomlyChoose.Text = "Randomly Choose";
-            this.rbRandomlyChoose.UseVisualStyleBackColor = true;
+            this.rbFindByPlayerId.AutoSize = true;
+            this.rbFindByPlayerId.Location = new System.Drawing.Point(47, 168);
+            this.rbFindByPlayerId.Name = "rbFindByPlayerId";
+            this.rbFindByPlayerId.Size = new System.Drawing.Size(113, 19);
+            this.rbFindByPlayerId.TabIndex = 5;
+            this.rbFindByPlayerId.TabStop = true;
+            this.rbFindByPlayerId.Text = "Find by Player ID";
+            this.rbFindByPlayerId.UseVisualStyleBackColor = true;
             // 
-            // rbFindByMetrics
+            // rbFindByHeartRate
             // 
-            this.rbFindByMetrics.AutoSize = true;
-            this.rbFindByMetrics.Location = new System.Drawing.Point(47, 144);
-            this.rbFindByMetrics.Name = "rbFindByMetrics";
-            this.rbFindByMetrics.Size = new System.Drawing.Size(155, 19);
-            this.rbFindByMetrics.TabIndex = 4;
-            this.rbFindByMetrics.TabStop = true;
-            this.rbFindByMetrics.Text = "Find a Zwifter by Metrics";
-            this.rbFindByMetrics.UseVisualStyleBackColor = true;
+            this.rbFindByHeartRate.AutoSize = true;
+            this.rbFindByHeartRate.Location = new System.Drawing.Point(47, 144);
+            this.rbFindByHeartRate.Name = "rbFindByHeartRate";
+            this.rbFindByHeartRate.Size = new System.Drawing.Size(122, 19);
+            this.rbFindByHeartRate.TabIndex = 4;
+            this.rbFindByHeartRate.TabStop = true;
+            this.rbFindByHeartRate.Text = "Find by Heart Rate";
+            this.rbFindByHeartRate.UseVisualStyleBackColor = true;
             // 
             // lblEventsProcessed
             // 
@@ -208,7 +197,6 @@ namespace ZwiftActivityMonitorV2
             this.tbTargetHeartrate.Size = new System.Drawing.Size(29, 23);
             this.tbTargetHeartrate.TabIndex = 6;
             this.tbTargetHeartrate.Text = "125";
-            this.tbTargetHeartrate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label5
             // 
@@ -374,8 +362,8 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Label lblEthernetDevice;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblHeartrate;
-        private System.Windows.Forms.RadioButton rbRandomlyChoose;
-        private System.Windows.Forms.RadioButton rbFindByMetrics;
+        private System.Windows.Forms.RadioButton rbFindByPlayerId;
+        private System.Windows.Forms.RadioButton rbFindByHeartRate;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label lblBpm;
         private System.Windows.Forms.ListView lvTrace;
@@ -383,9 +371,8 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.ColumnHeader chPower;
         private System.Windows.Forms.ColumnHeader chHeartrate;
         private System.Windows.Forms.ColumnHeader chEventTime;
-        private System.Windows.Forms.Label lblPower;
-        private System.Windows.Forms.Label lblWatts;
-        private System.Windows.Forms.TextBox tbTargetPower;
+        private System.Windows.Forms.Label lblPlayerId;
+        private System.Windows.Forms.TextBox tbPlayerId;
         private System.Windows.Forms.RadioButton rbSimulation;
     }
 }

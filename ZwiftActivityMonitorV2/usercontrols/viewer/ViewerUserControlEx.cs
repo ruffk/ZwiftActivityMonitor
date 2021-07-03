@@ -10,16 +10,48 @@ namespace ZwiftActivityMonitorV2
 {
     public class ViewerUserControlEx : UserControl
     {
-        public Color HeaderGradientBeginColor { get; set; } = SystemColors.Control;
-        public Color HeaderGradientEndColor { get; set; } = SystemColors.ControlDark;
-
         // A height of 19 is minimum when using Segoe UI 9pt font
         protected const int DataGridRowMinimumHeight = 19;
 
+        private Color m_headerGradientBeginColor = SystemColors.Control;
+        private Color m_headerGradientEndColor = SystemColors.ControlDark;
         private Color m_headerForeColor;
         private Color m_rowBackColor;
         private Color m_rowForeColor;
         private Font m_rowFont;
+
+        public Color HeaderGradientBeginColor
+        {
+            get { return m_headerGradientBeginColor; }
+            set
+            {
+                m_headerGradientBeginColor = value;
+
+                if (value != Color.Empty)
+                    this.HeaderGradientBeginColorChanged();
+            }
+        }
+
+        protected virtual void HeaderGradientBeginColorChanged()
+        {
+
+        }
+        public Color HeaderGradientEndColor
+        {
+            get { return m_headerGradientEndColor; }
+            set
+            {
+                m_headerGradientEndColor = value;
+
+                if (value != Color.Empty)
+                    this.HeaderGradientEndColorChanged();
+            }
+        }
+
+        protected virtual void HeaderGradientEndColorChanged()
+        {
+
+        }
 
         public Color HeaderForeColor
         {

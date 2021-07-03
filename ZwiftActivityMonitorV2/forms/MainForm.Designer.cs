@@ -374,7 +374,7 @@ namespace ZwiftActivityMonitorV2
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.Text = "Activity Monitor";
+            this.Text = "Zwift Activity Monitor";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);

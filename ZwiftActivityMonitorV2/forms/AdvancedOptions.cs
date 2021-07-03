@@ -61,33 +61,36 @@ namespace ZwiftActivityMonitorV2
         private void btnStart_Click(object sender, EventArgs e)
         {
             int targetHr = 0;
-            int targetPower = 0;
+            int targetPlayerId = 0;
             bool debugMode = false;
             bool simulationMode = false;
 
             if (cbMonitorOthers.Checked)
             {
-                debugMode = rbFindByMetrics.Checked || rbRandomlyChoose.Checked;
+                debugMode = rbFindByHeartRate.Checked || rbFindByPlayerId.Checked;
                 simulationMode = rbSimulation.Checked;
 
-                if (rbFindByMetrics.Checked)
+                if (rbFindByHeartRate.Checked)
                 {
                     if (!Int32.TryParse(tbTargetHeartrate.Text, out targetHr) || targetHr == 0)
                     {
                         tbTargetHeartrate.Text = "0";
                         targetHr = 0;
                     }
-                    if (!Int32.TryParse(tbTargetPower.Text, out targetPower) || targetPower == 0)
+                }
+                else if (rbFindByPlayerId.Checked)
+                {
+                    if (!Int32.TryParse(tbPlayerId.Text, out targetPlayerId) || targetPlayerId == 0)
                     {
-                        tbTargetPower.Text = "0";
-                        targetPower = 0;
+                        tbPlayerId.Text = "0";
+                        targetPlayerId = 0;
                     }
                 }
             }
 
             try
             {
-                ZAMsettings.ZPMonitorService.StartMonitor(debugMode, targetHr, targetPower, simulationMode);
+                ZAMsettings.ZPMonitorService.StartMonitor(debugMode, targetHr, targetPlayerId, simulationMode);
 
                 OnMonitorStatusChanged();
             }
@@ -139,7 +142,7 @@ namespace ZwiftActivityMonitorV2
             lblEventsProcessed.Text = ZAMsettings.ZPMonitorService.EventsProcessed.ToString();
             lblEthernetDevice.Text = ZAMsettings.Settings.Network;
 
-            rbFindByMetrics.Checked = true;
+            rbFindByHeartRate.Checked = true;
 
             // Set controls based on started/stopped
             OnMonitorStatusChanged();
@@ -160,11 +163,16 @@ namespace ZwiftActivityMonitorV2
                 if (ZAMsettings.ZPMonitorService.IsDebugMode)
                 {
                     cbMonitorOthers.Checked = true;
-                    if (ZAMsettings.ZPMonitorService.TargetPower > 0 || ZAMsettings.ZPMonitorService.TargetHeartrate > 0)
+                    if (ZAMsettings.ZPMonitorService.TargetHeartrate > 0)
                     {
                         tbTargetHeartrate.Text = ZAMsettings.ZPMonitorService.TargetHeartrate.ToString();
-                        tbTargetPower.Text = ZAMsettings.ZPMonitorService.TargetPower.ToString();
-                        rbFindByMetrics.Checked = true;
+                        rbFindByHeartRate.Checked = true;
+                    }
+
+                    if (ZAMsettings.ZPMonitorService.TargetPlayerId > 0)
+                    {
+                        tbPlayerId.Text = ZAMsettings.ZPMonitorService.TargetPlayerId.ToString();
+                        rbFindByPlayerId.Checked = true;
                     }
                 }
                 else if (ZAMsettings.ZPMonitorService.SimulateRiderActivity)
@@ -177,15 +185,17 @@ namespace ZwiftActivityMonitorV2
                 btnStop.Enabled = true;
 
                 cbMonitorOthers.Enabled = false;
-                rbFindByMetrics.Enabled = false;
-                rbRandomlyChoose.Enabled = false;
+                rbFindByHeartRate.Enabled = false;
+                rbFindByPlayerId.Enabled = false;
                 rbSimulation.Enabled = false;
                 tbTargetHeartrate.Enabled = false;
-                tbTargetPower.Enabled = false;
+                tbPlayerId.Enabled = false;
                 lblHeartrate.Enabled = false;
                 lblBpm.Enabled = false;
-                lblPower.Enabled = false;
-                lblWatts.Enabled = false;
+                lblPlayerId.Enabled = false;
+                tbTargetHeartrate.Enabled = false;
+                tbPlayerId.Enabled = false;
+                //lblWatts.Enabled = false;
 
 
                 lblStatus.Text = "Running";
@@ -196,19 +206,21 @@ namespace ZwiftActivityMonitorV2
                 btnStop.Enabled = false;
 
                 cbMonitorOthers.Enabled = true;
-                rbFindByMetrics.Enabled = true;
-                rbRandomlyChoose.Enabled = true;
+                rbFindByHeartRate.Enabled = true;
+                rbFindByPlayerId.Enabled = true;
                 rbSimulation.Enabled = true;
                 tbTargetHeartrate.Enabled = true;
-                tbTargetPower.Enabled = true;
+                tbPlayerId.Enabled = true;
                 lblHeartrate.Enabled = true;
                 lblBpm.Enabled = true;
-                lblPower.Enabled = true;
-                lblWatts.Enabled = true;
+                lblPlayerId.Enabled = true;
+                //lblWatts.Enabled = true;
 
-                rbFindByMetrics.Enabled = cbMonitorOthers.Checked;
-                rbRandomlyChoose.Enabled = cbMonitorOthers.Checked;
+                rbFindByHeartRate.Enabled = cbMonitorOthers.Checked;
+                rbFindByPlayerId.Enabled = cbMonitorOthers.Checked;
                 rbSimulation.Enabled = cbMonitorOthers.Checked;
+                tbTargetHeartrate.Enabled = cbMonitorOthers.Checked;
+                tbPlayerId.Enabled = cbMonitorOthers.Checked;
 
                 lblStatus.Text = "Not Running";
             }
@@ -229,9 +241,11 @@ namespace ZwiftActivityMonitorV2
 
         private void cbMonitorOthers_CheckedChanged(object sender, EventArgs e)
         {
-            rbFindByMetrics.Enabled = cbMonitorOthers.Checked;
-            rbRandomlyChoose.Enabled = cbMonitorOthers.Checked;
+            rbFindByHeartRate.Enabled = cbMonitorOthers.Checked;
+            rbFindByPlayerId.Enabled = cbMonitorOthers.Checked;
             rbSimulation.Enabled = cbMonitorOthers.Checked;
+            tbTargetHeartrate.Enabled = cbMonitorOthers.Checked;
+            tbPlayerId.Enabled = cbMonitorOthers.Checked;
         }
 
         private void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
