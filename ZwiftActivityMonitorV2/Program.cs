@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Dapplo.Microsoft.Extensions.Hosting.AppServices;
 using Dapplo.Microsoft.Extensions.Hosting.WinForms;
@@ -77,6 +78,26 @@ namespace ZwiftActivityMonitorV2
             ZPMonitorService zp = host.Services.GetRequiredService<ZPMonitorService>();
             ZAMsettings.Initialize(lf, zp);
 
+            // Uncomment to test logging setup in json configuration
+            //ILogger logger = lf.CreateLogger("Testing Logger");
+
+            //logger.LogTrace("This is a trace message. Should be discarded.");
+            //logger.LogDebug("This is a debug message. Should be seen in development.");
+            //logger.LogInformation("This is an info message. Should be seen in development.");
+            //logger.LogWarning("This is a warning message. Should be seen everywhere.");
+            //logger.LogError("This is an error message. Should be seen everywhere..");
+            //logger.LogCritical("This is a critical message. Should be seen everywhere.");
+
+            //try
+            //{
+            //    throw new ApplicationException("Some Exception");
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, $"This is a test of exception logging logic.");
+            //}
+
+
             return host.RunAsync();
         }
 
@@ -87,11 +108,15 @@ namespace ZwiftActivityMonitorV2
         /// <returns>IHostBuilder</returns>
         private static IHostBuilder ConfigureLogging(this IHostBuilder hostBuilder)
         {
+            string executableLocation = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+            // The location Path.GetTempPath() could be used but then the log file might be more difficult to find 
+
             return hostBuilder.ConfigureLogging((hostContext, configLogging) =>
             {
                 configLogging
                     .AddConfiguration(hostContext.Configuration.GetSection("Logging"))
                     .AddConsole()
+                    .AddFile(o => o.RootPath = executableLocation) // Utilize Karambolo.Extensions.Logging.File from https://github.com/adams85/filelogger
                     .AddDebug();
             });
         }
