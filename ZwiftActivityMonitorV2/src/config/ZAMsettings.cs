@@ -118,7 +118,7 @@ namespace ZwiftActivityMonitorV2
                 // Clone the user and add to the configuration's UserProfile dictionary
                 UserProfiles.Add(user.UniqueId, (UserProfile)user.Clone());
 
-                _logger.LogInformation($"User {user.Name} added.");
+                _logger.LogDebug($"User {user.Name} added.");
             }
             else
             {
@@ -127,7 +127,7 @@ namespace ZwiftActivityMonitorV2
                 // Clone the user and update the configuration's UserProfile dictionary
                 UserProfiles[user.UniqueId] = (UserProfile)user.Clone();
 
-                _logger.LogInformation($"User {user.Name} updated.");
+                _logger.LogDebug($"User {user.Name} updated.");
             }
 
             // The Default property is included on the profile just as a helper (it's not saved in the json).
@@ -146,7 +146,7 @@ namespace ZwiftActivityMonitorV2
 
             UserProfiles.Remove(user.UniqueId);
 
-            _logger.LogInformation($"User {user.Name} deleted.");
+            _logger.LogDebug($"User {user.Name} deleted.");
         }
 
         public void UpsertCollector(Collector collector)
@@ -158,7 +158,7 @@ namespace ZwiftActivityMonitorV2
                 // Clone the collector and add to the configuration's Collector dictionary
                 Collectors.Add(collector.Name, (Collector)collector.Clone());
 
-                _logger.LogInformation($"Collector {collector.Name} added.");
+                _logger.LogDebug($"Collector {collector.Name} added.");
             }
             else
             {
@@ -167,7 +167,7 @@ namespace ZwiftActivityMonitorV2
                 // Clone the user and update the configuration's UserProfile dictionary
                 Collectors[collector.Name] = (Collector)collector.Clone();
 
-                _logger.LogInformation($"Collector {collector.Name} updated.");
+                _logger.LogDebug($"Collector {collector.Name} updated.");
             }
         }
 
@@ -277,7 +277,7 @@ namespace ZwiftActivityMonitorV2
 
                     //userFileExists = true;
 
-                    _logger.LogInformation($"Configuration cached from user settings file {FileName}.");
+                    _logger.LogDebug($"Configuration cached from user settings file {FileName}.");
                 }
                 catch (FileNotFoundException)
                 {
@@ -285,7 +285,7 @@ namespace ZwiftActivityMonitorV2
                     string jsonStr = File.ReadAllText(FileNameDefault);
                     parsedJson = JObject.Parse(jsonStr);
 
-                    _logger.LogInformation($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
+                    _logger.LogDebug($"Configuration cached from default settings file {FileNameDefault}.  User settings file {FileName} not found.");
                 }
 
                 // Configuration has been loaded and .json is good.  Now deserialize into the settings objects.
@@ -362,12 +362,12 @@ namespace ZwiftActivityMonitorV2
 
                 foreach (var device in SharpPcap.LibPcap.LibPcapLiveDeviceList.Instance)
                 {
-                    _logger.LogInformation($"{device.Interface.FriendlyName}");
+                    _logger.LogDebug($"{device.Interface.FriendlyName}");
                     foreach (var a in device.Interface.Addresses)
                     {
                         if (a.Addr.ipAddress != null && a.Addr.ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         {
-                            _logger.LogInformation($"{a.Addr.ipAddress}");
+                            _logger.LogDebug($"{a.Addr.ipAddress}");
                             list.Add(new NetworkListItem(device.Interface.FriendlyName, a.Addr.ipAddress.ToString()));
                             break; // only use one IP
                         }
@@ -386,7 +386,7 @@ namespace ZwiftActivityMonitorV2
 
             try
             {
-                //_logger.LogInformation($"In BeginCachedConfiguration:\n{_committedJsonStr}");
+                //_logger.LogDebug($"In BeginCachedConfiguration:\n{_committedJsonStr}");
 
 
                 _uncommittedZAMsettings = JsonConvert.DeserializeObject<ZAMsettings>(_committedJsonStr);
@@ -397,7 +397,7 @@ namespace ZwiftActivityMonitorV2
                 _uncommittedZAMsettings.CurrentUserProfile = _committedZAMsettings.CurrentUserProfile;
 
 
-                _logger.LogInformation($"Configuration cached.");
+                _logger.LogDebug($"Configuration cached.");
             }
             catch (Exception ex)
             {
@@ -416,7 +416,7 @@ namespace ZwiftActivityMonitorV2
 
                 File.WriteAllText(FileName, json);
 
-                //_logger.LogInformation($"In CommitCachedConfiguration:\n{json}");
+                //_logger.LogDebug($"In CommitCachedConfiguration:\n{json}");
 
                 _committedZAMsettings = _uncommittedZAMsettings;
                 _committedJsonStr = json;
@@ -424,7 +424,7 @@ namespace ZwiftActivityMonitorV2
 
                 _uncommittedZAMsettings = null;
 
-                _logger.LogInformation($"Cached configuration saved to file: {FileName}");
+                _logger.LogDebug($"Cached configuration saved to file: {FileName}");
             }
             catch (Exception ex)
             {
@@ -438,7 +438,7 @@ namespace ZwiftActivityMonitorV2
 
             _uncommittedZAMsettings = null;
 
-            _logger.LogInformation($"Cached configuration rolled back.");
+            _logger.LogDebug($"Cached configuration rolled back.");
         }
 
         public static void OnSystemConfigChanged(object sender, EventArgs e)
@@ -450,9 +450,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(sender, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    _logger.LogError(ex, $"Caught in ZAMsettings (OnSystemConfigChanged)");
                 }
             }
         }
@@ -465,9 +466,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(sender, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    _logger.LogError(ex, $"Caught in ZAMsettings (OnSplitsConfigChanged)");
                 }
             }
         }
@@ -538,21 +540,21 @@ namespace ZwiftActivityMonitorV2
 
 
             //string json = JsonConvert.SerializeObject(_ZAMsettings, Formatting.Indented);
-            //logger.LogInformation($"{json.ToString()}");
+            //logger.LogDebug($"{json.ToString()}");
 
             //ZAMsettings s = JsonConvert.DeserializeObject<ZAMsettings>(json);
-            //logger.LogInformation($"{s.Network}");
-            //logger.LogInformation($"{s.AutoStart}");
-            //logger.LogInformation($"{s.DefaultUserProfile}");
+            //logger.LogDebug($"{s.Network}");
+            //logger.LogDebug($"{s.AutoStart}");
+            //logger.LogDebug($"{s.DefaultUserProfile}");
 
             ////KeyValuePair<Guid, UserProfile> u = s.UserProfiles.First();
 
-            //logger.LogInformation($"{s.UserProfiles.Values[0].UniqueId.ToString()}");
-            //logger.LogInformation($"{s.UserProfiles.Values[0].Name}");
-            ////logger.LogInformation($"{s.UserProfiles.Values[0].Default}");
-            //logger.LogInformation($"{s.UserProfiles.Values[0].Weight.ToString()}");
-            //logger.LogInformation($"{s.UserProfiles.Values[0].WeightInKgs}");
-            //logger.LogInformation($"{s.UserProfiles.Values[0].PowerThreshold.ToString()}");
+            //logger.LogDebug($"{s.UserProfiles.Values[0].UniqueId.ToString()}");
+            //logger.LogDebug($"{s.UserProfiles.Values[0].Name}");
+            ////logger.LogDebug($"{s.UserProfiles.Values[0].Default}");
+            //logger.LogDebug($"{s.UserProfiles.Values[0].Weight.ToString()}");
+            //logger.LogDebug($"{s.UserProfiles.Values[0].WeightInKgs}");
+            //logger.LogDebug($"{s.UserProfiles.Values[0].PowerThreshold.ToString()}");
         }
     }
 }

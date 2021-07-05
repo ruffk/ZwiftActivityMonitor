@@ -63,14 +63,14 @@ namespace ZwiftActivityMonitorV2
 
             if (Theme == null)
             {
-                //Debug.WriteLine($"Initializing Theme");
+                //Logger.LogDebug($"Initializing Theme");
                 Theme = new KeyValuePair<ThemeType, string>(ThemeType.ZwiftyOrange, m_themeList[ThemeType.ZwiftyOrange]); // default
                 count++;
             }
 
             if (Transparency == null)
             {
-                //Debug.WriteLine($"Initializing Transparency");
+                //Logger.LogDebug($"Initializing Transparency");
                 Transparency = new KeyValuePair<TransparencyType, string>(TransparencyType.TransparentWhiteText, m_transparencyList[TransparencyType.TransparentWhiteText]); // default
                 count++;
             }

@@ -20,9 +20,15 @@ namespace ZwiftActivityMonitorV2
 
         public AdvancedOptions()
         {
-            Logger = ZAMsettings.LoggerFactory.CreateLogger<AdvancedOptions>();
-
             InitializeComponent();
+
+            if (DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<AdvancedOptions>();
 
             ZAMappearance.ApplyColorScheme(this);
 
@@ -119,25 +125,25 @@ namespace ZwiftActivityMonitorV2
 
         private void AdvancedOptions_Load(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Load event");
+            Logger.LogDebug($"Load event");
             m_dispatcher = Dispatcher.CurrentDispatcher;
         }
 
         private void AdvancedOptions_VisibleChanged(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Visible event");
+            Logger.LogDebug($"Visible event");
         }
 
         private void AdvancedOptions_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Logger.LogInformation($"FormClosed event");
+            Logger.LogDebug($"FormClosed event");
 
             ZAMsettings.ZPMonitorService.RiderStateEvent -= ProcessedRiderStateEventHandler;
         }
 
         private void AdvancedOptions_Shown(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Shown event");
+            Logger.LogDebug($"Shown event");
 
             lblEventsProcessed.Text = ZAMsettings.ZPMonitorService.EventsProcessed.ToString();
             lblEthernetDevice.Text = ZAMsettings.Settings.Network;
@@ -229,12 +235,12 @@ namespace ZwiftActivityMonitorV2
 
         private void AdvancedOptions_BackColorChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"AdvancedOptions_BackColorChanged");
+            Logger.LogDebug($"AdvancedOptions_BackColorChanged");
         }
 
         private void AdvancedOptions_ForeColorChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"AdvancedOptions_ForeColorChanged");
+            Logger.LogDebug($"AdvancedOptions_ForeColorChanged");
 
             this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
         }

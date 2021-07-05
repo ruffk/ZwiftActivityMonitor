@@ -83,7 +83,7 @@ namespace ZwiftActivityMonitorV2
 
             //logger.LogTrace("This is a trace message. Should be discarded.");
             //logger.LogDebug("This is a debug message. Should be seen in development.");
-            //logger.LogInformation("This is an info message. Should be seen in development.");
+            //logger.LogDebug("This is an info message. Should be seen in development.");
             //logger.LogWarning("This is a warning message. Should be seen everywhere.");
             //logger.LogError("This is an error message. Should be seen everywhere..");
             //logger.LogCritical("This is a critical message. Should be seen everywhere.");
@@ -144,6 +144,7 @@ namespace ZwiftActivityMonitorV2
                         .AddJsonFile(AppSettingsFilePrefix + ".json", optional: true);
                     if (!string.IsNullOrEmpty(hostContext.HostingEnvironment.EnvironmentName))
                     {
+                        // Add "--environment Development" to Project Properties->Debug->Application Arguments, otherwise EnvironmentName defaults to "Production"
                         configApp.AddJsonFile(AppSettingsFilePrefix + $".{hostContext.HostingEnvironment.EnvironmentName}.json", optional: true);
                     }
                     configApp

@@ -616,9 +616,18 @@ namespace ZwiftActivityMonitorV2
         public int RoadTime { get; set; }
         //public int WatchingRiderId { get; set; }
         public DateTime? CollectionStartTime { get; }
+        /// <summary>
+        /// Elapsed time since collection started.
+        /// </summary>
         public TimeSpan? ElapsedTime { get; }
+        /// <summary>
+        /// Elapsed time since collection started, minus time spent paused.
+        /// </summary>
+        public TimeSpan? AdjustedElapsedTime { get; }
+        public bool IsPaused { get; set; }
+        public TimeSpan PauseDuration { get; set; }
 
-        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e, DateTime? collectionStart)
+        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e, DateTime? collectionStart, bool isPaused, TimeSpan pauseDuration)
         {
             this.Id = e.PlayerState.Id;
             this.Power = e.PlayerState.Power;
@@ -633,14 +642,27 @@ namespace ZwiftActivityMonitorV2
             this.RoadId = (e.PlayerState.F20 & 0xFF00) >> 8;
             this.IsForward = (e.PlayerState.F19 & 0x04) != 0;
             this.Course = (e.PlayerState.F19 & 0xFF0000) >> 16;
+            
+            this.IsPaused = isPaused;
+            this.PauseDuration = pauseDuration;
 
             this.CollectionStartTime = collectionStart;
             if (collectionStart != null)
+            {
                 this.ElapsedTime = DateTime.Now - collectionStart;
+                this.AdjustedElapsedTime = this.ElapsedTime - this.PauseDuration;
+            }
         }
 
-        public RiderStateEventArgs(DateTime? collectionStart)
+        /// <summary>
+        /// Constructor used when simulating power.
+        /// </summary>
+        /// <param name="collectionStart"></param>
+        public RiderStateEventArgs(DateTime? collectionStart, bool isPaused, TimeSpan pauseDuration)
         {
+            this.IsPaused = isPaused;
+            this.PauseDuration = pauseDuration;
+
             this.CollectionStartTime = collectionStart;
             if (collectionStart != null)
                 this.ElapsedTime = DateTime.Now - collectionStart;

@@ -7,7 +7,7 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <Version>2.0.0</Version>
-    <ApplicationIcon>ZAMicon.ico</ApplicationIcon>
+    <ApplicationIcon>resources\ZAMicon.ico</ApplicationIcon>
     <Win32Resource></Win32Resource>
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>
     <Authors>ZwiftActivityMonitor</Authors>
@@ -24,6 +24,15 @@
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="usercontrols\config\StatisticsControl.cs" />
+    <Compile Remove="usercontrols\config\StatisticsControl.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="usercontrols\config\StatisticsControl.resx" />
+  </ItemGroup>
   
   <ItemGroup>
 
@@ -59,9 +68,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="usercontrols\config\SplitsConfigControlV2.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="usercontrols\config\StatisticsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="usercontrols\config\SystemControl.cs">
@@ -108,5 +114,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="if $(ConfigurationName) == Debug (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Development.json' '$(TargetDir)'&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if $(ConfigurationName) == Release (&#xD;&#xA;&#xD;&#xA;powershell.exe -Command $null=Copy-Item '$(ProjectDir)appsettings.Production.json' '$(TargetDir)'&#xD;&#xA;)&#xD;&#xA;" />
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://json.schemastore.org/appsettings.json" appsettings_1production_1json__JsonSchema="https://json.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

@@ -85,6 +85,11 @@ namespace ZwiftActivityMonitorV2
             if (DesignMode)
                 return;
 
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
+
             UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, SystemColors.Control, SystemColors.ControlText);
         }
 
@@ -224,7 +229,7 @@ namespace ZwiftActivityMonitorV2
 
                 m_editMode = value;
 
-                Logger.LogInformation($"EditingUserProfiles: {value}, SelectedItemsCount: {lvUserProfiles.SelectedItems.Count}");
+                Logger.LogDebug($"EditingUserProfiles: {value}, SelectedItemsCount: {lvUserProfiles.SelectedItems.Count}");
             }
 
             get { return m_editMode; }
@@ -238,12 +243,12 @@ namespace ZwiftActivityMonitorV2
 
                 UserProfiles_LoadFields(user);
 
-                Logger.LogInformation($"SelectedIndexChanged {user.Name} selected.");
+                Logger.LogDebug($"SelectedIndexChanged {user.Name} selected.");
             }
             else
             {
                 UserProfiles_LoadFields(null);
-                Logger.LogInformation($"SelectedIndexChanged nothing selected.");
+                Logger.LogDebug($"SelectedIndexChanged nothing selected.");
             }
 
             EditingUserProfiles = false;

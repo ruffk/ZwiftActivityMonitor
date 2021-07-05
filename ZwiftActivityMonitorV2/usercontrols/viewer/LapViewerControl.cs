@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.ComponentModel;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -37,8 +38,7 @@ namespace ZwiftActivityMonitorV2
             public SortableBindingList<DetailRow> DetailRows { get; } = new();         // Sortable binding list collection
             private SyncBindingSource DetailBindingSource { get; } = new();
 
-            //public BindingList<SummaryRow> SummaryRows { get; } = new();
-            //private SyncBindingSource SummaryBindingSource { get; } = new();
+            private readonly ILogger<DataGridViewManager> Logger;
 
 
             private SpeedDisplayType mAutoToggleSpeedDisplayType;
@@ -59,6 +59,12 @@ namespace ZwiftActivityMonitorV2
             {
                 this.DetailGrid = detailGrid;
                 //this.SummaryGrid = summaryGrid;
+
+                if (ZAMsettings.LoggerFactory == null)
+                    return;
+
+                Logger = ZAMsettings.LoggerFactory.CreateLogger<DataGridViewManager>();
+
 
                 // Note: anytime grid is sorted, the BindingSource will reset itself and things like cell colors and row visibility will be lost
                 this.DetailBindingSource.DataSource = this.DetailRows;
@@ -121,7 +127,7 @@ namespace ZwiftActivityMonitorV2
                 foreach (DataGridViewColumn c in this.DetailGrid.Columns)
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -282,9 +288,10 @@ namespace ZwiftActivityMonitorV2
                     {
                         handler(null, e);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Don't let downstream exceptions bubble up
+                        Logger.LogError(ex, $"Caught in {this.GetType()} (OnSpeedDisplayTypeChangedEvent)");
                     }
                 }
             }
@@ -299,9 +306,10 @@ namespace ZwiftActivityMonitorV2
                     {
                         handler(null, e);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Don't let downstream exceptions bubble up
+                        Logger.LogError(ex, $"Caught in {this.GetType()} (OnDistanceDisplayTypeChangedEvent)");
                     }
                 }
             }
@@ -315,9 +323,10 @@ namespace ZwiftActivityMonitorV2
                     {
                         handler(null, e);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Don't let downstream exceptions bubble up
+                        Logger.LogError(ex, $"Caught in {this.GetType()} (OnPowerDisplayTypeChangedEvent)");
                     }
                 }
             }
@@ -561,10 +570,19 @@ namespace ZwiftActivityMonitorV2
         private DataGridViewManager ViewManager;
         private LapsManager LapsManager;
         private int mStatusLabelSeconds;
+        private readonly ILogger<LapViewerControl> Logger;
 
         public LapViewerControl()
         {
             InitializeComponent();
+
+            if (DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<LapViewerControl>();
         }
 
         #region LapViewerControl events
@@ -574,7 +592,7 @@ namespace ZwiftActivityMonitorV2
             if (this.DesignMode)
                 return;
 
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
+            Logger.LogDebug($"{this.GetType()}.ViewControl_Load");
 
             // for handling UI events
             this.UIdispatcher = Dispatcher.CurrentDispatcher;
@@ -607,17 +625,17 @@ namespace ZwiftActivityMonitorV2
 
         public override void ControlGainingFocus(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ControlGainingFocus");
+            Logger.LogDebug($"{this.GetType()}.ControlGainingFocus");
 
             if (!mInitialControlGainedFocus)
             {
-                Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+                Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
 
                 int sumWidth = 0;
                 foreach (DataGridViewColumn c in this.dgDetail.Columns)
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 }
 
                 mInitialControlGainedFocus = true;
@@ -646,14 +664,16 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void LapEventHandler(object sender, LapEventArgs e)
         {
-            // Dispatcher.BeginInvoke not required as the DataGridView uses the SyncBindingSource class
+            // Dispatcher.BeginInvoke IS required as the DataGridView is sorted when a new row is added.
 
-            //if (!UIdispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    UIdispatcher.BeginInvoke(new LapEventHandlerDelegate(LapEventHandler), new object[] { sender, e });
-            //    return;
-            //}
+            if (!UIdispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                UIdispatcher.BeginInvoke(new LapEventHandlerDelegate(LapEventHandler), new object[] { sender, e });
+                return;
+            }
+
+            Logger.LogDebug($"{this.GetType()} (LapEventHandler)");
 
             DetailRow detailRow = ViewManager.DetailRows.FirstOrDefault(r => r.LapNumber == e.LapNumber);
 
@@ -687,7 +707,7 @@ namespace ZwiftActivityMonitorV2
                 detailRow.LapAPwattsPerKg = e.LapAPwattsPerKg;
                 detailRow.TotalTime = e.TotalTime;
             }
-            //Logger.LogInformation($"LapEventHandler {LapItem.LapNumber}, {LapItem.LapTime}, {LapItem.LapSpeedKph}km/h, {LapItem.LapDistanceKm}km, {LapItem.TotalTime}");
+            //Logger.LogDebug($"LapEventHandler {LapItem.LapNumber}, {LapItem.LapTime}, {LapItem.LapSpeedKph}km/h, {LapItem.LapDistanceKm}km, {LapItem.TotalTime}");
         }
 
 
@@ -768,7 +788,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             switch (e.Action)
             {
@@ -780,7 +800,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZAMsettings_SystemConfigChanged");
+            Logger.LogDebug($"{this.GetType()}.ZAMsettings_SystemConfigChanged");
 
             this.SetupDisplayForCurrentUserProfile();
         }
@@ -820,7 +840,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_SpeedDisplayTypeChangedEvent(object sender, SpeedDisplayTypeChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {
@@ -830,7 +850,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_DistanceDisplayTypeChangedEvent(object sender, DistanceDisplayTypeChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {
@@ -840,7 +860,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_PowerDisplayTypeChangedEvent(object sender, PowerDisplayTypeChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.DataGridViewManager_PowerDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_PowerDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {

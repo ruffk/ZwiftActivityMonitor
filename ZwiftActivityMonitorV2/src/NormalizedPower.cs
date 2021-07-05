@@ -79,7 +79,7 @@ namespace ZwiftActivityMonitorV2
         }
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
                 this.Start();
@@ -214,7 +214,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnNormalizedPowerChangedEvent)");
                 }
             }
         }
@@ -231,7 +231,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMetricsChangedEvent)");
                 }
             }
         }

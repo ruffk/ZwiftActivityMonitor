@@ -15,13 +15,17 @@ namespace ZwiftActivityMonitorV2
         private bool m_editMode;
         private bool m_isUserControlLoaded;
 
-        public LapConfigControl() : base()
+        public LapConfigControl()
         {
             InitializeComponent();
 
             if (DesignMode)
                 return;
 
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<LapConfigControl>();
         }
 
         protected override void UserControlBase_Load(object sender, EventArgs e)
@@ -42,7 +46,6 @@ namespace ZwiftActivityMonitorV2
             if (m_isUserControlLoaded)
                 return;
 
-            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<LapConfigControl>();
 
             cbDistanceUom.BeginUpdate();
             cbDistanceUom.Items.Clear();

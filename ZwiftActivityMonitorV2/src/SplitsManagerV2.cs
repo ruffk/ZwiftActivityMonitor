@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -13,7 +14,7 @@ namespace ZwiftActivityMonitorV2
         public event EventHandler<SplitEventArgs> SplitGoalCompletedEvent;
         public event EventHandler<SplitEventArgs> SplitCompletedEvent;
 
-        //private readonly ILogger<SplitsManagerV2> Logger;
+        private readonly ILogger<SplitsManagerV2> Logger;
 
         private bool m_started;
         private int m_eventCount;
@@ -29,7 +30,7 @@ namespace ZwiftActivityMonitorV2
             if (ZAMsettings.LoggerFactory == null)
                 return;
 
-            //Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsManagerV2>();
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsManagerV2>();
 
             ZAMsettings.ZPMonitorService.RiderStateEvent += RiderStateEventHandler;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
@@ -42,7 +43,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
                 this.Start();
@@ -265,7 +266,7 @@ namespace ZwiftActivityMonitorV2
                     SplitEventArgs args = new SplitEventArgs(m_splitCount + 1, splitTime, splitSpeedMph, splitSpeedKph, splitMiTravelled, splitKmTravelled, runningTime, ConfiguredSplits.SplitsInKm, deltaTime);
                     OnSplitUpdatedEvent(args);
 
-                    Debug.WriteLine($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
+                    Logger.LogDebug($"%Complete: {splitCompletedPct} Start: {splitStartTime.ToString("m'm 's's'")} Waypoint: {splitWaypointTime.ToString("m'm 's's'")} Delta: {deltaTime.ToString("m'm 's's'")}");
                 }
             }
             else
@@ -301,9 +302,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnSplitUpdatedEvent)");
                 }
             }
         }
@@ -318,9 +320,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnSplitCompletedEvent)");
                 }
             }
         }
@@ -334,9 +337,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnSplitGoalCompletedEvent)");
                 }
             }
         }

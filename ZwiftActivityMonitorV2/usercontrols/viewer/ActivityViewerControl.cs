@@ -9,6 +9,7 @@ using System.Linq;
 using System.ComponentModel;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -321,7 +322,6 @@ namespace ZwiftActivityMonitorV2
 
         #endregion
 
-
         #region SummaryRow class
         /// <summary>
         /// The class determines the columns available in the Summary DataGridView
@@ -385,7 +385,7 @@ namespace ZwiftActivityMonitorV2
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
             {
-                Debug.WriteLine($"{this.GetType()}.SetCurrentMeasurementSystemType - {type}");
+                //Logger.LogDebug($"{this.GetType()}.SetCurrentMeasurementSystemType - {type}");
 
                 if (type == MeasurementSystemType.Imperial)
                 {
@@ -644,11 +644,17 @@ namespace ZwiftActivityMonitorV2
 
             private Dictionary<DurationType, CollectorAttribute> mCollectorAttributes = new();
             private NormalizedPower mNormalizedPower;
+            private readonly ILogger<MovingAverageManager> Logger;
             public SummaryRow SummaryDataRow { get; set; }
 
 
             public MovingAverageManager()
             {
+                if (ZAMsettings.LoggerFactory == null)
+                    return;
+
+                Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverageManager>();
+
                 mNormalizedPower = new();
 
                 mNormalizedPower.NormalizedPowerChangedEvent += NormalizedPower_NormalizedPowerChangedEvent;
@@ -694,24 +700,26 @@ namespace ZwiftActivityMonitorV2
 
         private MovingAverageManager mMovingAverageManager;
         private bool mInitialControlGainedFocus;
+        private ILogger<ActivityViewerControl> Logger;
 
         public ActivityViewerControl()
         {
-            //Debug.WriteLine($"ActivityViewerControl_ctor started...");
             InitializeComponent();
 
             if (this.DesignMode)
                 return;
 
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<ActivityViewerControl>();
+
             mMovingAverageManager = new();
-
-
-            //Debug.WriteLine($"ActivityViewerControl_ctor completed.");
         }
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
             
             switch (e.Action)
             {
@@ -723,7 +731,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
+            Logger.LogDebug($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
 
             this.SetupDisplayForCurrentUserProfile();
         }
@@ -732,8 +740,6 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.DesignMode)
                 return;
-
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
 
             InitializeDetailDataGrid();
             InitializeSummaryDataGrid();
@@ -751,16 +757,16 @@ namespace ZwiftActivityMonitorV2
                 (this.ParentForm as MainForm).FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
             }
 
-            //Debug.WriteLine($"{this.GetType()}.ViewControl_Load2");
+            //Logger.LogDebug($"{this.GetType()}.ViewControl_Load2");
         }
 
         public override void ControlGainingFocus(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ControlGainingFocus");
+            Logger.LogDebug($"{this.GetType()}.ControlGainingFocus");
 
             if (!mInitialControlGainedFocus)
             {
-                Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+                Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
 
                 int sumWidth = 0;
                 foreach (DataGridViewColumn c in this.dgDetail.Columns)
@@ -768,7 +774,7 @@ namespace ZwiftActivityMonitorV2
                     if (c.HeaderText == "") continue;
 
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 }
 
                 this.SetupDisplayForCurrentUserProfile();
@@ -794,7 +800,7 @@ namespace ZwiftActivityMonitorV2
         #region Initialize DataGridViews
         private void InitializeDetailDataGrid()
         {
-            Debug.WriteLine($"InitializeDetailDataGrid1");
+            Logger.LogDebug($"InitializeDetailDataGrid1");
 
             // set in designer
             //dgDetail.ReadOnly = true;
@@ -871,7 +877,7 @@ namespace ZwiftActivityMonitorV2
                 if (c.HeaderText != "")
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 }
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -892,10 +898,10 @@ namespace ZwiftActivityMonitorV2
             // set in designer
             //this.dgDetail.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
-            //Debug.WriteLine($"ColumnHeadersHeight: {this.dgDetail.ColumnHeadersHeight}");
+            //Logger.LogDebug($"ColumnHeadersHeight: {this.dgDetail.ColumnHeadersHeight}");
 
             this.dgDetail.ShowFocus = false;
-            Debug.WriteLine($"InitializeDetailDataGrid2");
+            Logger.LogDebug($"InitializeDetailDataGrid2");
         }
 
 
@@ -961,7 +967,7 @@ namespace ZwiftActivityMonitorV2
             foreach (DataGridViewColumn c in this.dgSummary.Columns)
             {
                 sumWidth += c.Width;
-                Debug.WriteLine($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                Logger.LogDebug($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -992,7 +998,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void SummaryRow_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //Debug.WriteLine($"{this.GetType()}.SummaryRow_PropertyChanged - {e.PropertyName}");
+            //Logger.LogDebug($"{this.GetType()}.SummaryRow_PropertyChanged - {e.PropertyName}");
 
             SummaryRow row = sender as SummaryRow;
 
@@ -1026,12 +1032,12 @@ namespace ZwiftActivityMonitorV2
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             if (e.ListChangedType == ListChangedType.Reset)
-                Debug.WriteLine($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
+                Logger.LogDebug($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
         }
 
         private void SetupDisplayForCurrentUserProfile()
         {
-            Debug.WriteLine($"SetupDisplayForCurrentUserProfile1");
+            Logger.LogDebug($"SetupDisplayForCurrentUserProfile1");
 
             this.ClearDisplayValues();
 
@@ -1078,7 +1084,7 @@ namespace ZwiftActivityMonitorV2
             }
             DetailBindingSource.ResumeBinding();
             dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
-            Debug.WriteLine($"SetupDisplayForCurrentUserProfile2");
+            Logger.LogDebug($"SetupDisplayForCurrentUserProfile2");
         }
 
         /// <summary>
@@ -1103,7 +1109,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ViewControl_Resize(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Resize1");
+            Logger.LogDebug($"{this.GetType()}.ViewControl_Resize1");
 
             // TableLayoutPanel tlPanel helps keep things organized when resizing.
             //
@@ -1124,7 +1130,7 @@ namespace ZwiftActivityMonitorV2
             // The following is not needed but just shown for completeness
             //int dgDetailHeight = dgDetail.Rows.GetRowsHeight(states) + dgDetail.ColumnHeadersHeight;
             //dgDetailHeight += (dgDetail.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Resize2");
+            Logger.LogDebug($"{this.GetType()}.ViewControl_Resize2");
         }
 
         #region Right Mouse click / Context Menu Handlers 

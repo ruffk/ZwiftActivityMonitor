@@ -46,7 +46,7 @@ namespace ZwiftActivityMonitorV2
             {
                 Waypoint searchWp;
 
-                Logger.LogInformation($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
+                Logger.LogDebug($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
 
                 if (e.IsForward) // RoadTime values are increasing
                 {
@@ -91,12 +91,6 @@ namespace ZwiftActivityMonitorV2
                 this.LastRiderRoadTime = roadTime;
             }
         }
-
-        #endregion
-
-
-        #region Public EventArgs classes
-
 
         #endregion
 
@@ -190,7 +184,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
                 this.Start();
@@ -206,7 +200,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
-            if (!IsStarted)
+            if (!IsStarted || e.ElapsedTime == null)
                 return;
 
             DateTime now = DateTime.Now;
@@ -380,7 +374,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnLapUpdatedEvent)");
                 }
             }
         }
@@ -398,7 +392,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnLapCompletedEvent)");
                 }
             }
         }
@@ -415,7 +409,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnLapStartedEvent)");
                 }
             }
         }

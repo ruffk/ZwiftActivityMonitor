@@ -6,13 +6,13 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
     public partial class SystemControl : UserControlWithStatusBase
     {
 
-        //public static ZPMonitorService PacketMonitor { get; set; }
         public static Point ZAMWindowPos { get;  set; }
 
         private Dispatcher m_dispatcher;
@@ -24,6 +24,11 @@ namespace ZwiftActivityMonitorV2
 
             if (DesignMode)
                 return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
 
             UserControlBase.SetListViewHeaderColor(ref this.lvTrace, SystemColors.Control, SystemColors.ControlText);
         }

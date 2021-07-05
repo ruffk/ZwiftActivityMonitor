@@ -10,18 +10,20 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class ConfigurationOptions : Syncfusion.Windows.Forms.Office2010Form
     {
-        private readonly ILogger<ConfigurationOptions> m_logger;
+        private readonly ILogger<ConfigurationOptions> Logger;
 
         public ConfigurationOptions(Point ZAMWindowPos)
         {
-            m_logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
-
             InitializeComponent();
 
-            //ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
-            ucUserProfiles.Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
-            ucSystem.Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
-            //SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
+            if (DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
+
             SystemControl.ZAMWindowPos = ZAMWindowPos;
 
             this.Icon = Properties.Resources.ZAMicon;
@@ -118,7 +120,7 @@ namespace ZwiftActivityMonitorV2
         //    if (e.TabPageIndex == -1)
         //        return;
 
-        //    m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
+        //    m_logger.LogDebug($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
 
         //    if (e.Action == TabControlAction.Selecting)
         //    {
@@ -195,7 +197,7 @@ namespace ZwiftActivityMonitorV2
             if (e.TabPageIndex == -1)
                 return;
 
-            m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
+            Logger.LogDebug($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
 
             // we're only interested in Selected events
             if (e.Action != TabControlAction.Selected)
@@ -226,7 +228,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabOptions.SelectedTab == null)
                 return;
 
-            Debug.WriteLine($"tabOptions_SelectedIndexChanging - TabPageName: {this.tabOptions.SelectedTab.Name}");
+            Logger.LogDebug($"tabOptions_SelectedIndexChanging - TabPageName: {this.tabOptions.SelectedTab.Name}");
 
             switch (this.tabOptions.SelectedTab.Name)
             {
@@ -257,7 +259,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabOptions.SelectedTab == null)
                 return;
 
-            Debug.WriteLine($"tabOptions_SelectedIndexChanged - TabPageName: {this.tabOptions.SelectedTab.Name}");
+            Logger.LogDebug($"tabOptions_SelectedIndexChanged - TabPageName: {this.tabOptions.SelectedTab.Name}");
 
             switch (this.tabOptions.SelectedTab.Name)
             {

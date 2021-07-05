@@ -96,6 +96,25 @@ namespace ZwiftActivityMonitorV2
             this.formSyncTimer.Enabled = true;
         }
 
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Logger.LogDebug("MainForm_FormClosing");
+
+            if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
+            {
+                if (MessageBox.Show("Are you sure you wish to stop monitoring and close the application?",
+                    "Activity Monitor Running", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            ZAMsettings.ZPMonitorService.StopCollection();
+            ZAMsettings.ZPMonitorService.StopMonitor();
+        }
+
+
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
             SetControlColors();
@@ -103,7 +122,7 @@ namespace ZwiftActivityMonitorV2
 
         private void SetControlColors()
         {
-            Debug.WriteLine($"MainForm - SetControlColors");
+            Logger.LogDebug($"MainForm - SetControlColors");
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             ZAMappearance.ApplyColorScheme(this);
@@ -126,6 +145,8 @@ namespace ZwiftActivityMonitorV2
             //    this.ColorScheme = Office2010Theme.Managed;
             //    Office2010Colors.ApplyManagedColors(this, settings.ManagedColor);
             //}
+
+            //Debug.WriteLine($"Control R: {SystemColors.Control.R}, G: {SystemColors.Control.G}, B: {SystemColors.Control.B}");
 
             Color foreColor = this.ColorTable.FormTextColor;
             Color backColor = this.ColorTable.FormBackground;
@@ -154,7 +175,7 @@ namespace ZwiftActivityMonitorV2
             tabControl.InactiveTabColor = this.ColorTable.ActiveFormBorderColor;
             tabControl.ActiveTabColor = this.ColorTable.ActiveFormBorderColor;
 
-            pnBottom.BackColor = this.ColorTable.ActiveFormBorderColor;
+            pBottom.BackColor = this.ColorTable.ActiveFormBorderColor;
             statusStrip.BackColor = this.ColorTable.ActiveFormBorderColor;
             tssbMenu.ForeColor = this.ColorTable.FormTextColor;
             statusLabel.ForeColor = this.ColorTable.FormTextColor;
@@ -215,7 +236,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabControl.SelectedTab == null)
                 return;
             
-            //Debug.WriteLine($"tabControl_SelectedIndexChanging - TabPageName: {this.tabControl.SelectedTab.Name}");
+            //Logger.LogDebug($"tabControl_SelectedIndexChanging - TabPageName: {this.tabControl.SelectedTab.Name}");
 
             switch (this.tabControl.SelectedTab.Name)
             {
@@ -251,7 +272,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabControl.SelectedTab == null)
                 return;
 
-            //Debug.WriteLine($"tabControl_SelectedIndexChanged - TabPageName: {this.tabControl.SelectedTab.Name}");
+            //Logger.LogDebug($"tabControl_SelectedIndexChanged - TabPageName: {this.tabControl.SelectedTab.Name}");
 
             switch (this.tabControl.SelectedTab.Name)
             {
@@ -295,7 +316,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void tabControl_MouseClick(object sender, MouseEventArgs e)
         {
-            //Debug.WriteLine($"tabControl_MouseClick - Location: {e.Location}, Button: {e.Button}");
+            //Logger.LogDebug($"tabControl_MouseClick - Location: {e.Location}, Button: {e.Button}");
 
             if (e.Button != MouseButtons.Right)
                 return;
@@ -338,7 +359,7 @@ namespace ZwiftActivityMonitorV2
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"MainForm_Resize - Size: {this.Size}");
+            //Logger.LogDebug($"MainForm_Resize - Size: {this.Size}");
         }
 
         private void MainForm_ResizeEnd(object sender, EventArgs e)
@@ -349,7 +370,7 @@ namespace ZwiftActivityMonitorV2
                 ZAMsettings.Settings.Appearance.WindowSize = this.Size;
                 ZAMsettings.CommitCachedConfiguration();
 
-                Debug.WriteLine($"MainForm_ResizeEnd - New window size saved, Size: {this.Size}");
+                Logger.LogDebug($"MainForm_ResizeEnd - New window size saved, Size: {this.Size}");
             }
         }
 
@@ -369,7 +390,7 @@ namespace ZwiftActivityMonitorV2
                 mDispatcher.BeginInvoke(new ZPMonitorService_CollectionStatusChangedDelegate(ZPMonitorService_CollectionStatusChanged), new object[] { sender, e });
                 return;
             }
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             this.OnCollectionStatusChanged();
         }
@@ -389,7 +410,16 @@ namespace ZwiftActivityMonitorV2
                 mDispatcher.BeginInvoke(new ZPMonitorService_ServiceStatusChangedDelegate(ZPMonitorService_ZPMonitorServiceStatusChanged), new object[] { sender, e });
                 return;
             }
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_ZPMonitorServiceStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_ZPMonitorServiceStatusChanged - {e.Action}");
+
+            if (e.Action == ZPMonitorServiceStatusChangedEventArgs.ActionType.Started)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenRed;
+            }
+            else if (e.Action == ZPMonitorServiceStatusChangedEventArgs.ActionType.Stopped)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_RedRed;
+            }
 
             this.OnCollectionStatusChanged();
         }
@@ -402,34 +432,44 @@ namespace ZwiftActivityMonitorV2
         private delegate void ZPMonitorService_RiderStateEventDelegate(object sender, RiderStateEventArgs e);
         private void ZPMonitorService_RiderStateEvent(object sender, RiderStateEventArgs e)
         {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new ZPMonitorService_RiderStateEventDelegate(ZPMonitorService_RiderStateEvent), new object[] { sender, e });
+                return;
+            }
+
+            if (ZAMsettings.ZPMonitorService.EventsProcessed % 2 == 0)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenBlank;
+            }
+            else
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenGreen;
+            }
+
+
             // ElapsedTime will be null if Monitoring but not Collecting
             if (e.ElapsedTime == null)
+            {
                 return;
+            }
 
-            TimeSpan elapsedTime = e.ElapsedTime.Value;
 
-            SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
-
-            //this.UISyncContext.Post(x =>
-            //{
-            //    statusLabel.Text = $"Running time: {(e.ElapsedTime.TotalMinutes > 60 ? e.ElapsedTime.Hours.ToString() + " hr " : "")}{(e.ElapsedTime.TotalSeconds > 60 ? e.ElapsedTime.Minutes.ToString() + " min " : "")}{e.ElapsedTime.Seconds.ToString() + " sec"}";
-
-            //}, null);
-
-            //if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    mDispatcher.BeginInvoke(new ZPMonitorService_RiderStateEventDelegate(ZPMonitorService_RiderStateEvent), new object[] { sender, e });
-            //    return;
-            //}
-            //Debug.WriteLine($"{this.GetType()}.ZPMonitorService_RiderStateEvent");
-
-            statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours.ToString() + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes.ToString() + " min " : "")}{elapsedTime.Seconds.ToString() + " sec"}";
+            if (e.IsPaused)
+            {
+                statusLabel.Text = $"Paused";
+            }
+            else
+            {
+                TimeSpan elapsedTime = e.ElapsedTime.Value;
+                statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes + " min " : "")}{elapsedTime.Seconds + " sec"}";
+            }
         }
 
         private void OnCollectionStatusChanged()
         {
-            Debug.WriteLine($"OnCollectionStatusChanged - {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, {ZAMsettings.ZPMonitorService.IsCollectionStarted}");
+            Logger.LogDebug($"OnCollectionStatusChanged - {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, {ZAMsettings.ZPMonitorService.IsCollectionStarted}");
 
             if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
             {
@@ -477,8 +517,8 @@ namespace ZwiftActivityMonitorV2
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.ColorScheme.ToString()}");
-            Debug.WriteLine($"{this.ColorTable.ToString()}");
+            Logger.LogDebug($"{this.ColorScheme.ToString()}");
+            Logger.LogDebug($"{this.ColorTable.ToString()}");
         }
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
@@ -510,13 +550,13 @@ namespace ZwiftActivityMonitorV2
 
         private void UcTimerSetupView_CountdownTimerTickEvent(object sender, CountdownTimerTickEventArgs e)
         {
-            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
             SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
 
-            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
-            Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
+            Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
 
             if (e.IsCompleted)
             {
@@ -596,7 +636,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnFormSyncOneSecondTimerTickEvent)");
                 }
             }
         }
@@ -613,7 +653,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnFormSyncFiveSecondTimerTickEvent)");
                 }
             }
         }

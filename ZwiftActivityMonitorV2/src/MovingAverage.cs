@@ -91,6 +91,9 @@ namespace ZwiftActivityMonitorV2
         /// <param name="allowHighRes"></param>Whether to allow use of high-res packets.  Currently only collectors under 30 seconds use these. 
         public MovingAverage(DurationType durationType, bool excludeZeroPowerValues = false, bool allowHighRes = true)
         {
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
             Logger = ZAMsettings.LoggerFactory.CreateLogger<MovingAverage>();
 
             mDurationType = durationType;
@@ -102,7 +105,7 @@ namespace ZwiftActivityMonitorV2
             if (mDuration <= 30 && allowHighRes)
             {
                 ZAMsettings.ZPMonitorService.HighResRiderStateEvent += RiderStateEventHandler;
-                Logger.LogInformation($"{mDuration} seconds moving average collector using high-res packets.");
+                Logger.LogDebug($"{mDuration} seconds moving average collector using high-res packets.");
             }
             else
             {
@@ -114,7 +117,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
                 this.Start();
@@ -157,12 +160,10 @@ namespace ZwiftActivityMonitorV2
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
             DateTime now = DateTime.Now; // fixed current time
-            //int curAvgPower;
-            //int curAvgHR;
             bool calculateMax = false;
             bool triggerMax = false;
 
-            if (!mStarted)
+            if (!mStarted || e.ElapsedTime == null)
                 return;
 
             // the Statistics class captures the values we want to measure
@@ -276,8 +277,8 @@ namespace ZwiftActivityMonitorV2
                 OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs(mAPwattsMax, mAPwattsPerKgMax, mHRbpmMax, mDurationType, ftpWattsMax, ftpWattsPerKgMax));
             }
 
-            //Logger.LogInformation($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
-            //Logger.LogInformation($"id: {e.PlayerState.Id} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} PowerAvg: {curAvgPower} HRAvg: {curAvgHR} PowerMax: {m_maxAvgPower} HRMax: {m_maxAvgHR} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
+            //Logger.LogDebug($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
+            //Logger.LogDebug($"id: {e.PlayerState.Id} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} PowerAvg: {curAvgPower} HRAvg: {curAvgHR} PowerMax: {m_maxAvgPower} HRMax: {m_maxAvgHR} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");
         }
 
         private double? CalculateUserWattsPerKg(double watts)
@@ -298,7 +299,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMovingAverageChangedEvent)");
                 }
             }
         }
@@ -315,7 +316,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMovingAverageCalculatedEvent)");
                 }
             }
         }
@@ -332,7 +333,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMovingAverageMaxChangedEvent)");
                 }
             }
         }
@@ -349,7 +350,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMetricsCalculatedEvent)");
                 }
             }
         }

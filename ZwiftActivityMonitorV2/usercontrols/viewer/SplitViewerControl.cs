@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.ComponentModel;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -124,7 +125,7 @@ namespace ZwiftActivityMonitorV2
                 foreach (DataGridViewColumn c in this.DetailGrid.Columns)
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    //Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -169,7 +170,7 @@ namespace ZwiftActivityMonitorV2
                 foreach (DataGridViewColumn c in this.SummaryGrid.Columns)
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    //Logger.LogDebug($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -691,6 +692,7 @@ namespace ZwiftActivityMonitorV2
         private Dispatcher mDispatcher;
         private DataGridViewManager ViewManager;
         private bool mInitialControlGainedFocus;
+        private ILogger<SplitViewerControl> Logger;
 
         private static Color RED = Color.FromArgb(255, 192, 0, 0); // red 
         private static Color GREEN = Color.FromArgb(255, 0, 192, 0); // green
@@ -699,6 +701,14 @@ namespace ZwiftActivityMonitorV2
         public SplitViewerControl()
         {
             InitializeComponent();
+
+            if (this.DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitViewerControl>();
         }
 
 
@@ -707,8 +717,6 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.DesignMode)
                 return;
-
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
 
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
@@ -741,17 +749,17 @@ namespace ZwiftActivityMonitorV2
 
         public override void ControlGainingFocus(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ControlGainingFocus");
+            //Logger.LogDebug($"{this.GetType()}.ControlGainingFocus");
 
             if (!mInitialControlGainedFocus)
             {
-                Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+                //Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
 
                 int sumWidth = 0;
                 foreach (DataGridViewColumn c in this.dgDetail.Columns)
                 {
                     sumWidth += c.Width;
-                    Debug.WriteLine($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    //Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 }
 
                 mInitialControlGainedFocus = true;
@@ -761,7 +769,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ViewControl_Resize(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"ViewControl_Resize - Size: {this.Size}");
+            //Logger.LogDebug($"ViewControl_Resize - Size: {this.Size}");
 
             // TableLayoutPanel tlPanel helps keep things organized when resizing.
             //
@@ -786,14 +794,14 @@ namespace ZwiftActivityMonitorV2
 
         private void ViewControl_SizeChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ViewControl_SizeChanged - {this.Size}");
+            //Logger.LogDebug($"{this.GetType()}.ViewControl_SizeChanged - {this.Size}");
         }
         #endregion
 
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (e.ListChangedType == ListChangedType.Reset)
-                Debug.WriteLine($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
+            //if (e.ListChangedType == ListChangedType.Reset)
+            //    Logger.LogDebug($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
         }
 
         /// <summary>
@@ -825,14 +833,14 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void SplitsManager_SplitUpdatedOrCompleted(object sender, SplitEventArgs e)
         {
-            // Dispatcher.BeginInvoke not required as the DataGridView uses the SyncBindingSource class
+            // Dispatcher.BeginInvoke IS required as the DataGridView is sorted when a new row is added.
 
-            //if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    mDispatcher.BeginInvoke(new SplitEventHandlerDelegate(SplitsManager_SplitUpdatedOrCompleted), new object[] { sender, e });
-            //    return;
-            //}
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new SplitEventHandlerDelegate(SplitsManager_SplitUpdatedOrCompleted), new object[] { sender, e });
+                return;
+            }
 
             DetailRow detailRow = ViewManager.DetailRows.FirstOrDefault(r => r.SplitNumber == e.SplitNumber);
 
@@ -960,7 +968,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            //Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             switch (e.Action)
             {
@@ -973,7 +981,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
+            //Logger.LogDebug($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
 
             this.SetupDisplayForCurrentUserProfile();
         }
@@ -1016,7 +1024,7 @@ namespace ZwiftActivityMonitorV2
         #region ViewManager event handling
         private void DataGridViewManager_SpeedDisplayTypeChangedEvent(object sender, SpeedDisplayTypeChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            //Logger.LogDebug($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {
@@ -1026,7 +1034,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_DistanceDisplayTypeChangedEvent(object sender, DistanceDisplayTypeChangedEventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            //Logger.LogDebug($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {

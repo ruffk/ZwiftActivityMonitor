@@ -176,11 +176,11 @@ namespace ZwiftActivityMonitorV2
 
         public virtual void ControlLosingFocus(object sender, Syncfusion.Windows.Forms.Tools.SelectedIndexChangingEventArgs e)
         {
-            //Debug.WriteLine($"ControlLosingFocus - {this.Name}");
+            //Logger.LogDebug($"ControlLosingFocus - {this.Name}");
         }
         public virtual void ControlGainingFocus(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"ControlGainingFocus - {this.Name}");
+            //Logger.LogDebug($"ControlGainingFocus - {this.Name}");
         }
 
         protected UserProfile CurrentUserProfile

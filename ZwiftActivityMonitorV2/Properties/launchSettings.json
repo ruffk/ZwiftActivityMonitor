@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ZwiftActivityMonitorV2": {
+      "commandName": "Project",
+      "commandLineArgs": "--environment Development"
+    }
+  }
+}
