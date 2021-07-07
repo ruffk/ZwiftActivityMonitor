@@ -768,14 +768,14 @@ namespace ZwiftActivityMonitorV2
             {
                 Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
 
-                int sumWidth = 0;
-                foreach (DataGridViewColumn c in this.dgDetail.Columns)
-                {
-                    if (c.HeaderText == "") continue;
+                //int sumWidth = 0;
+                //foreach (DataGridViewColumn c in this.dgDetail.Columns)
+                //{
+                //    if (c.HeaderText == "") continue;
 
-                    sumWidth += c.Width;
-                    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
-                }
+                //    sumWidth += c.Width;
+                //    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                //}
 
                 this.SetupDisplayForCurrentUserProfile();
                 mInitialControlGainedFocus = true;
@@ -877,7 +877,7 @@ namespace ZwiftActivityMonitorV2
                 if (c.HeaderText != "")
                 {
                     sumWidth += c.Width;
-                    Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    //Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 }
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -967,7 +967,7 @@ namespace ZwiftActivityMonitorV2
             foreach (DataGridViewColumn c in this.dgSummary.Columns)
             {
                 sumWidth += c.Width;
-                Logger.LogDebug($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                //Logger.LogDebug($"{this.GetType()}.InitializeSummaryDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                 c.MinimumWidth = c.Width;
                 c.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -1031,8 +1031,8 @@ namespace ZwiftActivityMonitorV2
 
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (e.ListChangedType == ListChangedType.Reset)
-                Logger.LogDebug($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
+            //if (e.ListChangedType == ListChangedType.Reset)
+            //    Logger.LogDebug($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
         }
 
         private void SetupDisplayForCurrentUserProfile()
@@ -1109,7 +1109,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ViewControl_Resize(object sender, EventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.ViewControl_Resize1");
+            //Logger.LogDebug($"{this.GetType()}.ViewControl_Resize1");
 
             // TableLayoutPanel tlPanel helps keep things organized when resizing.
             //
@@ -1130,7 +1130,7 @@ namespace ZwiftActivityMonitorV2
             // The following is not needed but just shown for completeness
             //int dgDetailHeight = dgDetail.Rows.GetRowsHeight(states) + dgDetail.ColumnHeadersHeight;
             //dgDetailHeight += (dgDetail.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
-            Logger.LogDebug($"{this.GetType()}.ViewControl_Resize2");
+            //Logger.LogDebug($"{this.GetType()}.ViewControl_Resize2");
         }
 
         #region Right Mouse click / Context Menu Handlers 

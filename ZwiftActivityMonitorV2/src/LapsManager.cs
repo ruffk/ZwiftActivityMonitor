@@ -46,7 +46,7 @@ namespace ZwiftActivityMonitorV2
             {
                 Waypoint searchWp;
 
-                Logger.LogDebug($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
+                //Logger.LogDebug($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
 
                 if (e.IsForward) // RoadTime values are increasing
                 {
@@ -186,10 +186,16 @@ namespace ZwiftActivityMonitorV2
         {
             Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
-            if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
-                this.Start();
-            else if (e.Action == CollectionStatusChangedEventArgs.ActionType.Stopped)
-                this.Stop();
+            switch(e.Action)
+            {
+                case CollectionStatusChangedEventArgs.ActionType.Started:
+                    this.Start();
+                    break;
+
+                case CollectionStatusChangedEventArgs.ActionType.Stopped:
+                    this.Stop();
+                    break;
+            }
         }
 
         /// <summary>

@@ -66,7 +66,6 @@ namespace ZwiftActivityMonitorV2
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
-        //public Splits Splits { get; }
         public Lap Laps { get; }
         public SplitsV2 SplitsV2 { get; }
         public ZAMappearance Appearance { get; }

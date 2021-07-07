@@ -45,10 +45,16 @@ namespace ZwiftActivityMonitorV2
         {
             Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
-            if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started)
-                this.Start();
-            else if (e.Action == CollectionStatusChangedEventArgs.ActionType.Stopped)
-                this.Stop();
+            switch (e.Action)
+            {
+                case CollectionStatusChangedEventArgs.ActionType.Started:
+                    this.Start();
+                    break;
+
+                case CollectionStatusChangedEventArgs.ActionType.Stopped:
+                    this.Stop();
+                    break;
+            }
         }
 
         private void Start()
@@ -176,7 +182,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
-            if (!m_started || !ConfiguredSplits.ShowSplits || !e.ElapsedTime.HasValue)
+            if (!m_started || !ConfiguredSplits.ShowSplits || e.ElapsedTime == null)
                 return;
 
             SplitV2 split = null;

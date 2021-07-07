@@ -608,7 +608,11 @@ namespace ZwiftActivityMonitorV2
         public int Power { get; set; }
         public int Heartrate { get; set; }
         public int Distance { get; set; }
-        //public int Time { get; set; }
+        public int EventTimeSecs { get; set; }
+        public TimeSpan EventTime
+        {
+            get { return new TimeSpan(0, 0, this.EventTimeSecs); }
+        }
         //public long WorldTime { get; set; }
         public int RoadId { get; set; }
         public bool IsForward { get; set; }
@@ -633,7 +637,7 @@ namespace ZwiftActivityMonitorV2
             this.Power = e.PlayerState.Power;
             this.Heartrate = e.PlayerState.Heartrate;
             this.Distance = e.PlayerState.Distance;
-            //this.Time = e.PlayerState.Time;
+            this.EventTimeSecs = e.PlayerState.Time;
             //this.WorldTime = e.PlayerState.WorldTime;
             this.RoadTime = e.PlayerState.RoadTime;
             //this.WatchingRiderId = e.PlayerState.WatchingRiderId;
@@ -665,7 +669,10 @@ namespace ZwiftActivityMonitorV2
 
             this.CollectionStartTime = collectionStart;
             if (collectionStart != null)
+            {
                 this.ElapsedTime = DateTime.Now - collectionStart;
+                this.AdjustedElapsedTime = this.ElapsedTime - this.PauseDuration;
+            }
         }
 
         public override string ToString()
@@ -675,7 +682,7 @@ namespace ZwiftActivityMonitorV2
             str += $"Power: {this.Power}, ";
             str += $"Heartrate: {this.Heartrate}, ";
             str += $"Distance: {this.Distance}, ";
-            //str += $"Time: {this.Time}, ";
+            str += $"EventTime: {this.EventTime}, ";
             //str += $"WorldTime: {this.WorldTime}, ";
             str += $"RoadTime: {this.RoadTime}, ";
             //str += $"WatchingRiderId: {this.WatchingRiderId}, ";
@@ -683,7 +690,10 @@ namespace ZwiftActivityMonitorV2
             str += $"IsForward: {this.IsForward}, ";
             str += $"Course: {this.Course}, ";
             str += $"CollectionStartTime: {(this.CollectionStartTime ?? DateTime.MinValue)}, ";
-            str += $"ElapsedTime: {(this.ElapsedTime ?? TimeSpan.Zero)}";
+            str += $"ElapsedTime: {(this.ElapsedTime ?? TimeSpan.Zero)}, ";
+            str += $"IsPaused: {this.IsPaused}, ";
+            str += $"PauseDuration: {this.PauseDuration}, ";
+            str += $"AdjustedElapsedTime: {(this.AdjustedElapsedTime ?? TimeSpan.Zero)}, ";
 
             return str;
         }
@@ -794,14 +804,25 @@ namespace ZwiftActivityMonitorV2
             Started,
             Waiting,
             Stopped,
-            Cancelled
+            Cancelled,
+            Paused,
+            Resumed,
         }
         public ActionType Action { get; }
+        /// <summary>
+        /// For ActionType.Resumed, elapsed time between Paused and Resumed events
+        /// </summary>
+        public TimeSpan? PauseDuration { get; }
 
         public CollectionStatusChangedEventArgs(ActionType action)
         {
             this.Action = action;
 
+        }
+        public CollectionStatusChangedEventArgs(ActionType action, TimeSpan pauseDuration)
+        {
+            this.Action = action;
+            this.PauseDuration = pauseDuration;
         }
     }
 

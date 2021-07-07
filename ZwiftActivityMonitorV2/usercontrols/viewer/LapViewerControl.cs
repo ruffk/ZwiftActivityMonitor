@@ -127,7 +127,7 @@ namespace ZwiftActivityMonitorV2
                 foreach (DataGridViewColumn c in this.DetailGrid.Columns)
                 {
                     sumWidth += c.Width;
-                    Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                    //Logger.LogDebug($"{this.GetType()}.InitializeDetailDataGrid - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
                     c.MinimumWidth = c.Width;
                     c.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
@@ -629,14 +629,14 @@ namespace ZwiftActivityMonitorV2
 
             if (!mInitialControlGainedFocus)
             {
-                Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+                //Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
 
-                int sumWidth = 0;
-                foreach (DataGridViewColumn c in this.dgDetail.Columns)
-                {
-                    sumWidth += c.Width;
-                    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
-                }
+                //int sumWidth = 0;
+                //foreach (DataGridViewColumn c in this.dgDetail.Columns)
+                //{
+                //    sumWidth += c.Width;
+                //    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
+                //}
 
                 mInitialControlGainedFocus = true;
             }
@@ -673,7 +673,7 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            Logger.LogDebug($"{this.GetType()} (LapEventHandler)");
+            //Logger.LogDebug($"{this.GetType()} (LapEventHandler)");
 
             DetailRow detailRow = ViewManager.DetailRows.FirstOrDefault(r => r.LapNumber == e.LapNumber);
 
@@ -840,7 +840,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_SpeedDisplayTypeChangedEvent(object sender, SpeedDisplayTypeChangedEventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            //Logger.LogDebug($"{this.GetType()}.DataGridViewManager_SpeedDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {
@@ -850,7 +850,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_DistanceDisplayTypeChangedEvent(object sender, DistanceDisplayTypeChangedEventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            //Logger.LogDebug($"{this.GetType()}.DataGridViewManager_DistanceDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {
@@ -860,7 +860,7 @@ namespace ZwiftActivityMonitorV2
 
         private void DataGridViewManager_PowerDisplayTypeChangedEvent(object sender, PowerDisplayTypeChangedEventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.DataGridViewManager_PowerDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
+            //Logger.LogDebug($"{this.GetType()}.DataGridViewManager_PowerDisplayTypeChangedEvent - {e.ColumnName}, {e.DisplayType}");
 
             if (e.Tag is DataGridView dataGridView)
             {

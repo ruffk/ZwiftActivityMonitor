@@ -45,6 +45,7 @@ namespace ZwiftActivityMonitorV2
             this.tpTimer = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             this.ucTimerSetupView = new ZwiftActivityMonitorV2.TimerSetupViewerControl();
             this.pBottom = new System.Windows.Forms.Panel();
+            this.pbStatus = new System.Windows.Forms.PictureBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tssbMenu = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiStart = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,7 +59,7 @@ namespace ZwiftActivityMonitorV2
             this.tsslSeparator1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.formSyncTimer = new System.Windows.Forms.Timer(this.components);
-            this.pbStatus = new System.Windows.Forms.PictureBox();
+            this.tsmiAutoPause = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
             this.tabControl.SuspendLayout();
             this.tpActivity.SuspendLayout();
@@ -67,8 +68,8 @@ namespace ZwiftActivityMonitorV2
             this.tpColor.SuspendLayout();
             this.tpTimer.SuspendLayout();
             this.pBottom.SuspendLayout();
-            this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbStatus)).BeginInit();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -267,6 +268,16 @@ namespace ZwiftActivityMonitorV2
             this.pBottom.Size = new System.Drawing.Size(347, 23);
             this.pBottom.TabIndex = 33;
             // 
+            // pbStatus
+            // 
+            this.pbStatus.BackgroundImage = global::ZwiftActivityMonitorV2.Properties.Resources.Status_RedRed;
+            this.pbStatus.Dock = System.Windows.Forms.DockStyle.Right;
+            this.pbStatus.Location = new System.Drawing.Point(324, 0);
+            this.pbStatus.Name = "pbStatus";
+            this.pbStatus.Size = new System.Drawing.Size(23, 23);
+            this.pbStatus.TabIndex = 2;
+            this.pbStatus.TabStop = false;
+            // 
             // statusStrip
             // 
             this.statusStrip.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -287,8 +298,9 @@ namespace ZwiftActivityMonitorV2
             this.tsmiStart,
             this.tsmiStop,
             this.toolStripSeparator1,
-            this.tsmiConfiguration,
+            this.tsmiAutoPause,
             this.toolStripSeparator2,
+            this.tsmiConfiguration,
             this.tsmiAdvanced,
             this.toolStripSeparator3,
             this.tsmiAbout});
@@ -366,15 +378,14 @@ namespace ZwiftActivityMonitorV2
             this.formSyncTimer.Interval = 1000;
             this.formSyncTimer.Tick += new System.EventHandler(this.formSyncTimer_Tick);
             // 
-            // pbStatus
+            // tsmiAutoPause
             // 
-            this.pbStatus.BackgroundImage = global::ZwiftActivityMonitorV2.Properties.Resources.Status_RedRed;
-            this.pbStatus.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pbStatus.Location = new System.Drawing.Point(324, 0);
-            this.pbStatus.Name = "pbStatus";
-            this.pbStatus.Size = new System.Drawing.Size(23, 23);
-            this.pbStatus.TabIndex = 2;
-            this.pbStatus.TabStop = false;
+            this.tsmiAutoPause.CheckOnClick = true;
+            this.tsmiAutoPause.Name = "tsmiAutoPause";
+            this.tsmiAutoPause.Size = new System.Drawing.Size(226, 22);
+            this.tsmiAutoPause.Text = "Auto-Pause";
+            this.tsmiAutoPause.ToolTipText = "Pause metric collection when clock stops";
+            this.tsmiAutoPause.CheckedChanged += new System.EventHandler(this.tsmiAutoPause_CheckedChanged);
             // 
             // MainForm
             // 
@@ -409,9 +420,9 @@ namespace ZwiftActivityMonitorV2
             this.tpTimer.PerformLayout();
             this.pBottom.ResumeLayout(false);
             this.pBottom.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbStatus)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbStatus)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -443,5 +454,6 @@ namespace ZwiftActivityMonitorV2
         private TabPageAdv tpTimer;
         private ActivityViewerControl ucActivityView;
         private PictureBox pbStatus;
+        private ToolStripMenuItem tsmiAutoPause;
     }
 }

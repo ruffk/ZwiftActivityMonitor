@@ -33,6 +33,8 @@ namespace ZwiftActivityMonitorV2
 
         private int mSyncFormTimerTickCount;
         private bool mOneTimeInitializationsCompleted;
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
+
 
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
@@ -63,6 +65,7 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
             ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
             ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
+            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -83,10 +86,9 @@ namespace ZwiftActivityMonitorV2
             //tabControl.SelectedIndex = 0;
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
+            this.SetupDisplayForCurrentUserProfile();
 
             this.SetControlColors();
-
-
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
@@ -114,6 +116,18 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.StopMonitor();
         }
 
+        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}.ZAMsettings_SystemConfigChanged");
+
+            this.SetupDisplayForCurrentUserProfile();
+        }
+
+        private void SetupDisplayForCurrentUserProfile()
+        {
+            this.tsmiAutoPause.Checked = this.CurrentUserProfile.AutoPause;
+        }
+
 
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
@@ -126,27 +140,6 @@ namespace ZwiftActivityMonitorV2
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
             ZAMappearance.ApplyColorScheme(this);
-
-            //Office2010Colors.GetColorTable();
-
-            //this.UseOffice2010SchemeBackColor = true;
-
-            //if (settings.ThemeSetting != ThemeType.Custom)
-            //{
-            //    this.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
-
-            //    if (this.ColorScheme == Office2010Theme.Managed)
-            //    {
-            //        Office2010Colors.ApplyManagedColors(this, managedColor.Value);
-            //    }
-            //}
-            //else
-            //{
-            //    this.ColorScheme = Office2010Theme.Managed;
-            //    Office2010Colors.ApplyManagedColors(this, settings.ManagedColor);
-            //}
-
-            //Debug.WriteLine($"Control R: {SystemColors.Control.R}, G: {SystemColors.Control.G}, B: {SystemColors.Control.B}");
 
             Color foreColor = this.ColorTable.FormTextColor;
             Color backColor = this.ColorTable.FormBackground;
@@ -448,28 +441,22 @@ namespace ZwiftActivityMonitorV2
                 this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenGreen;
             }
 
-
-            // ElapsedTime will be null if Monitoring but not Collecting
-            if (e.ElapsedTime == null)
+            // AdjustedElapsedTime will be null if Monitoring but not Collecting
+            if (e.AdjustedElapsedTime == null)
             {
                 return;
             }
 
-
-            if (e.IsPaused)
+            if (!e.IsPaused)
             {
-                statusLabel.Text = $"Paused";
-            }
-            else
-            {
-                TimeSpan elapsedTime = e.ElapsedTime.Value;
+                TimeSpan elapsedTime = e.AdjustedElapsedTime.Value;
                 statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes + " min " : "")}{elapsedTime.Seconds + " sec"}";
             }
         }
 
         private void OnCollectionStatusChanged()
         {
-            Logger.LogDebug($"OnCollectionStatusChanged - {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, {ZAMsettings.ZPMonitorService.IsCollectionStarted}");
+            Logger.LogDebug($"OnCollectionStatusChanged - waiting: {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, started: {ZAMsettings.ZPMonitorService.IsCollectionStarted}, paused: {ZAMsettings.ZPMonitorService.IsCollectionPaused}");
 
             if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
             {
@@ -478,6 +465,7 @@ namespace ZwiftActivityMonitorV2
 
                 tsmiConfiguration.Enabled = false;
                 tsmiAdvanced.Enabled = false;
+                tsmiAutoPause.Enabled = !ZAMsettings.ZPMonitorService.IsCollectionPaused;
 
                 if (ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
                 {
@@ -485,7 +473,7 @@ namespace ZwiftActivityMonitorV2
                 }
                 else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
                 {
-                    statusLabel.Text = "Started";
+                    statusLabel.Text = ZAMsettings.ZPMonitorService.IsCollectionPaused ? "Paused" : "Started";
                 }
             }
             else
@@ -504,6 +492,8 @@ namespace ZwiftActivityMonitorV2
                     tsmiAdvanced.Enabled = true;
                 }
 
+                tsmiAutoPause.Enabled = true;
+
                 if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
                 {
                     statusLabel.Text = "Select Menu->Start to begin";
@@ -517,8 +507,6 @@ namespace ZwiftActivityMonitorV2
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-            Logger.LogDebug($"{this.ColorScheme.ToString()}");
-            Logger.LogDebug($"{this.ColorTable.ToString()}");
         }
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
@@ -547,6 +535,17 @@ namespace ZwiftActivityMonitorV2
         {
             ZAMsettings.ZPMonitorService.StopCollection();
         }
+
+        private void tsmiAutoPause_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ZAMsettings.Settings.CurrentUser != null)
+            {
+                ZAMsettings.BeginCachedConfiguration();
+                ZAMsettings.Settings.CurrentUser.AutoPause = tsmiAutoPause.Checked;
+                ZAMsettings.CommitCachedConfiguration();
+            }
+        }
+
 
         private void UcTimerSetupView_CountdownTimerTickEvent(object sender, CountdownTimerTickEventArgs e)
         {

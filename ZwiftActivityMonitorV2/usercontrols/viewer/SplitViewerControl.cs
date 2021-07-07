@@ -50,6 +50,8 @@ namespace ZwiftActivityMonitorV2
             private DataGridViewEx DetailGrid;
             private DataGridViewEx SummaryGrid;
 
+            private readonly ILogger<DataGridViewManager> Logger;
+
             public SpeedDisplayType SplitSpeed_PreferredDisplayType { get; internal set; }
             public DistanceDisplayType SplitDistance_PreferredDisplayType { get; internal set; }
             public SpeedDisplayType GoalSpeed_PreferredDisplayType { get; internal set; }
@@ -60,6 +62,9 @@ namespace ZwiftActivityMonitorV2
 
             public DataGridViewManager(DataGridViewEx detailGrid, DataGridViewEx summaryGrid)
             {
+                if (ZAMsettings.LoggerFactory != null)
+                    this.Logger = ZAMsettings.LoggerFactory.CreateLogger<DataGridViewManager>();
+
                 this.DetailGrid = detailGrid;
                 this.SummaryGrid = summaryGrid;
 
@@ -329,9 +334,10 @@ namespace ZwiftActivityMonitorV2
                     {
                         handler(null, e);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Don't let downstream exceptions bubble up
+                        Logger.LogError(ex, $"Caught in {this.GetType()} (OnSpeedDisplayTypeChangedEvent)");
                     }
                 }
             }
@@ -346,9 +352,10 @@ namespace ZwiftActivityMonitorV2
                     {
                         handler(null, e);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Don't let downstream exceptions bubble up
+                        Logger.LogError(ex, $"Caught in {this.GetType()} (OnDistanceDisplayTypeChangedEvent)");
                     }
                 }
             }

@@ -13,11 +13,13 @@ namespace ZwiftActivityMonitorV2
         public bool IsZPMonitorStarted { get; internal set; }
         public bool IsCollectionStartWaiting { get; internal set; }
         public bool IsCollectionStarted { get; internal set; }
+        public bool IsCollectionPaused { get; internal set; }
         public int EventsProcessed { get; internal set; }
         public string Network { get; internal set; }
         public bool IsDebugMode { get; internal set; }
         public int TargetHeartrate { get; internal set; }
         public int TargetPlayerId { get; internal set; }
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
 
         private readonly ILogger<ZPMonitorService> Logger;
         private readonly ZwiftPacketMonitor.Monitor ZPMonitor;
@@ -254,8 +256,10 @@ namespace ZwiftActivityMonitorV2
                 
                 this.mPlayerPauseStartTime = null;
                 this.mPauseDuration = TimeSpan.Zero;
+                this.mLastEventTimeUpdate = null;
 
                 this.IsCollectionStarted = true;
+                this.IsCollectionPaused = false;
                 this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Started));
 
                 Logger.LogDebug($"StartCollection");
@@ -306,6 +310,7 @@ namespace ZwiftActivityMonitorV2
                 this.mCollectionStartTime = null;
 
                 this.IsCollectionStarted = false;
+                this.IsCollectionPaused = false;
                 this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Stopped));
             }
             Logger.LogDebug($"StopCollection");
@@ -322,6 +327,8 @@ namespace ZwiftActivityMonitorV2
                 }
             }
         }
+
+        private DateTime? mLastEventTimeUpdate;
 
         /// <summary>
         /// Internal event handler to filter player events
@@ -366,40 +373,86 @@ namespace ZwiftActivityMonitorV2
                 //
                 // Packets come in randomly but usually more than once per second.  Here we always capture the latest packet,
                 // but it's only distributed once every second when the timer fires.  This is standard collection process.
-                TimeSpan latestPlayerStateTime = new TimeSpan(0, 0, e.PlayerState.Time);
+                TimeSpan currentEventTime = new TimeSpan(0, 0, e.PlayerState.Time);
                 lock (this)
                 {
                     // Lock is used to avoid contention between threads (this thread, the timer callback thread, or the wait for event clock thread)
-                    
+
                     // Is the clock still running?  It is the responsibility of the event consumer to process this flag.
-                    TimeSpan pauseDuration = TimeSpan.Zero;
+                    // A pause will occur only if the event clock stops running.  If rider is in an event and stops pedaling, that is not a pause.
+
+                    TimeSpan pauseDuration = this.mPauseDuration;  // default to how long we've paused during this ride. Used to calculate an AdjustedElapsedTime
                     bool playerIsPaused = false;
 
-                    if (this.IsCollectionStarted)
+                    if (this.IsCollectionStarted && this.CurrentUserProfile.AutoPause)
                     {
-                        playerIsPaused = this.mPlayerStateTime == latestPlayerStateTime;
-                        if (playerIsPaused)
+                        if (this.mPlayerPauseStartTime == null)
                         {
-                            if (mPlayerPauseStartTime == null)
+                            //Logger.LogDebug($"Not currently paused - currentEventTime {currentEventTime}, playerEventTime: {this.mPlayerStateTime}");
+
+                            // not currently paused, see if clock is running
+                            if (currentEventTime != this.mPlayerStateTime)
                             {
-                                // keep track of when the pause started
-                                mPlayerPauseStartTime = DateTime.Now;
+                                // clock is running, record time
+                                this.mLastEventTimeUpdate = DateTime.Now;
+
+                                //Logger.LogDebug($"Clock is running - lastEventTimeUpdate: {this.mLastEventTimeUpdate}");
                             }
                             else
                             {
-                                // determine the total duration of this pause, and any previous pauses
-                                pauseDuration = mPauseDuration + (DateTime.Now - mPlayerPauseStartTime.Value);
+                                // clock hasn't changed since last packet, wait up 2 seconds and then declare us paused
+                                TimeSpan? dwellTime = this.mLastEventTimeUpdate == null ? null : DateTime.Now - this.mLastEventTimeUpdate.Value;
+
+                                if (dwellTime != null && dwellTime.Value.TotalSeconds > 2.0)
+                                {
+                                    playerIsPaused = true;
+                                    // set the pause start time to the last time we received an update
+                                    this.mPlayerPauseStartTime = this.mLastEventTimeUpdate;
+
+                                    pauseDuration = this.mPauseDuration + dwellTime.Value; // total pause time
+
+                                    this.IsCollectionPaused = true;
+                                    this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Paused));
+
+                                    //Logger.LogDebug($"Switching to paused - dwellTime: {dwellTime.Value}");
+                                }
                             }
                         }
-                        else if (mPlayerPauseStartTime != null)
+                        else
                         {
-                            // no longer paused, save the total as it may happen again
-                            mPauseDuration += (DateTime.Now - mPlayerPauseStartTime.Value);
-                            mPlayerPauseStartTime = null;
+                            // currently paused, see if clock is running
+                            if (currentEventTime != this.mPlayerStateTime)
+                            {
+                                // clock is running again, record time
+                                this.mLastEventTimeUpdate = DateTime.Now;
+                                
+                                TimeSpan pauseTime = DateTime.Now - mPlayerPauseStartTime.Value; // this pause time
+
+                                // no longer paused, save the total as it may happen again
+                                mPauseDuration += pauseTime;
+                                this.mPlayerPauseStartTime = null;
+
+                                pauseDuration = this.mPauseDuration;
+
+                                this.IsCollectionPaused = false;
+                                this.OnCollectionStatusChanged(this, new CollectionStatusChangedEventArgs(CollectionStatusChangedEventArgs.ActionType.Resumed, pauseTime));
+
+                                //Logger.LogDebug($"No longer paused - This pauseDuration: {pauseTime}, Total pauseDuration: {this.mPauseDuration}");
+                            }
+                            else
+                            {
+                                // clock is still not running, determine the total duration of this pause, and any previous pauses
+
+                                TimeSpan pauseTime = DateTime.Now - mPlayerPauseStartTime.Value; // this pause time
+                                pauseDuration = this.mPauseDuration + pauseTime; // total pause time
+                                playerIsPaused = true;
+
+                                //Logger.LogDebug($"Still paused - This pauseDuration: {pauseTime}, Total pauseDuration: {pauseDuration}");
+                            }
                         }
                     }
 
-                    this.mPlayerStateTime = latestPlayerStateTime;
+                    this.mPlayerStateTime = currentEventTime;
                     this.mLatestRiderStateEventArgs = new RiderStateEventArgs(e, this.mCollectionStartTime, playerIsPaused, pauseDuration);
                 }
 
