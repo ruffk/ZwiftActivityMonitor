@@ -15,19 +15,19 @@ using System.Threading;
 using Syncfusion.Windows.Forms;
 using Syncfusion.WinForms.Controls;
 using Syncfusion.Windows.Forms.Tools;
-using Syncfusion.Windows.Forms.Grid;
+//using Syncfusion.Windows.Forms.Grid;
 using System.Drawing.Drawing2D;
 
 namespace ZwiftActivityMonitorV2
 {
 
-    public partial class MainForm : Syncfusion.Windows.Forms.Office2010Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
+    public partial class MainForm : Syncfusion.WinForms.Controls.SfForm//, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
 
         private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
 
         private readonly ILogger<MainForm> Logger;
-        private readonly IServiceProvider ServiceProvider;
+        //private readonly IServiceProvider ServiceProvider;
 
         private string HomeTitle = "Zwift Activity Monitor";
 
@@ -40,16 +40,40 @@ namespace ZwiftActivityMonitorV2
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
 
 
-        public MainForm(IServiceProvider serviceProvider)
+        public MainForm()
         {
+            Debug.WriteLine($"{this.GetType()}::MainForm cctor");
 
             string[] proSuperScript = { "\u1D3E", "\u1D3F", "\u1D3C" };
             this.HomeTitle += $" {proSuperScript[0]}{proSuperScript[1]}{proSuperScript[2]}";
             
-            this.ServiceProvider = serviceProvider;
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
 
             InitializeComponent();
+
+            //MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+            this.BeginUpdate();
+            
+            ZAMappearance.ApplyColorTable(this);
+            
+            this.Icon = Properties.Resources.ZAMicon;
+
+            //this.Style.TitleBar.BackColor = colorTable.ActiveTitleGradientEnd;
+            //this.Style.TitleBar.ForeColor = colorTable.FormTextColor;
+            //this.Style.TitleBar.CloseButtonForeColor = colorTable.FormTextColor;
+            //this.Style.TitleBar.CloseButtonHoverBackColor = colorTable.XPTaskBarBoxBackColor;
+            //this.Style.TitleBar.CloseButtonHoverForeColor = colorTable.XPTaskBarBoxForeColor;
+            //this.Style.TitleBar.TextHorizontalAlignment = HorizontalAlignment.Center;
+            //this.Style.TitleBar.CloseButtonSize = new Size(32, 32);
+            //this.Style.TitleBar.Font = new System.Drawing.Font("Franklin Gothic Demi Cond", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            //this.Style.TitleBar.IconBackColor = System.Drawing.Color.Transparent;
+
+            //this.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
+            //this.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
+            //this.Style.ShadowOpacity = 0;
+
+            //this.ForeColor = colorTable.FormTextColor;
+            //this.BackColor = colorTable.FormBackground;
 
             // Determine window position
             if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
@@ -58,7 +82,10 @@ namespace ZwiftActivityMonitorV2
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
             }
 
-            this.Icon = Properties.Resources.ZAMicon;
+            // Determine window size
+            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
+
+            this.EndUpdate();
 
             ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
             ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent; 
@@ -70,20 +97,17 @@ namespace ZwiftActivityMonitorV2
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            var form = new SplashScreen();
-            DialogResult result = form.ShowDialog(this);
+            Logger.LogDebug($"{this.GetType()}::MainForm_Load");
 
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
 
             // Determine window size
-            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
+            //this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
-            // toggle the tabs so the first tab gets initialized
-            for (int i = this.tabControl.TabPages.Count - 1; i >= 0; i--)
-                tabControl.SelectedIndex = i;
-            //tabControl.SelectedIndex = 1;
-            //tabControl.SelectedIndex = 0;
+            // Toggle the tabs so the first tab gets initialized.  This is important to get the ActivityView row visibility established.
+            tabControl.SelectedIndex = 1;
+            tabControl.SelectedIndex = 0;
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
             this.SetupDisplayForCurrentUserProfile();
@@ -93,9 +117,14 @@ namespace ZwiftActivityMonitorV2
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
+            Logger.LogDebug($"{this.GetType()}::MainForm_Shown");
+
             // start general syncronization timer (needs to be done last)
             this.formSyncTimer.Interval = 1000;
             this.formSyncTimer.Enabled = true;
+        }
+        private void MainForm_Paint(object sender, PaintEventArgs e)
+        {
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -137,84 +166,95 @@ namespace ZwiftActivityMonitorV2
         private void SetControlColors()
         {
             Logger.LogDebug($"MainForm - SetControlColors");
-            ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
-            ZAMappearance.ApplyColorScheme(this);
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
 
-            Color foreColor = this.ColorTable.FormTextColor;
-            Color backColor = this.ColorTable.FormBackground;
+            this.Style.TitleBar.BackColor = colorTable.ActiveTitleGradientEnd;
+            this.Style.TitleBar.ForeColor = colorTable.FormTextColor;
+            this.Style.TitleBar.CloseButtonForeColor = colorTable.FormTextColor;
+            this.Style.TitleBar.CloseButtonHoverBackColor = colorTable.XPTaskBarBoxBackColor;
+            this.Style.TitleBar.CloseButtonHoverForeColor = colorTable.XPTaskBarBoxForeColor;
 
-            if (settings.TransparencySetting != TransparencyType.NotTransparent)
+            this.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
+            this.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
+            this.Style.ShadowOpacity = 0;
+
+            this.ForeColor = colorTable.FormTextColor;
+
+            Color dynamicForeColor = colorTable.FormTextColor;
+            Color dynamicBackColor = colorTable.FormBackground;
+
+            if (ZAMsettings.Settings.Appearance.TransparencySetting != TransparencyType.NotTransparent)
             {
-                foreColor = (settings.TransparencySetting == TransparencyType.TransparentBlackText ? Color.Black : Color.White);
+                dynamicForeColor = (ZAMsettings.Settings.Appearance.TransparencySetting == TransparencyType.TransparentBlackText ? Color.Black : Color.White);
                 
-                backColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
-                this.TransparencyKey = backColor;
+                dynamicBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
+                this.TransparencyKey = dynamicBackColor;
             }
             else
             {
                 this.TransparencyKey = Color.Empty;
             }
 
-            this.BackColor = backColor;
+            this.BackColor = dynamicBackColor;
 
-            tpActivity.BackColor = backColor;
-            tpSplit.BackColor = backColor;
-            tpLap.BackColor = backColor;
-            tpColor.BackColor = this.ColorTable.FormBackground;
-            tpTimer.BackColor = this.ColorTable.FormBackground;
+            tpActivity.BackColor = dynamicBackColor;
+            tpSplit.BackColor = dynamicBackColor;
+            tpLap.BackColor = dynamicBackColor;
+            tpColor.BackColor = colorTable.FormBackground;
+            tpTimer.BackColor = colorTable.FormBackground;
 
-            tabControl.TabPanelBackColor = this.ColorTable.ActiveFormBorderColor;
-            tabControl.InactiveTabColor = this.ColorTable.ActiveFormBorderColor;
-            tabControl.ActiveTabColor = this.ColorTable.ActiveFormBorderColor;
+            tabControl.TabPanelBackColor = colorTable.ActiveFormBorderColor;
+            tabControl.InactiveTabColor = colorTable.ActiveFormBorderColor;
+            tabControl.ActiveTabColor = colorTable.ActiveFormBorderColor;
 
-            pBottom.BackColor = this.ColorTable.ActiveFormBorderColor;
-            statusStrip.BackColor = this.ColorTable.ActiveFormBorderColor;
-            tssbMenu.ForeColor = this.ColorTable.FormTextColor;
-            statusLabel.ForeColor = this.ColorTable.FormTextColor;
+            pBottom.BackColor = colorTable.ActiveFormBorderColor;
+            statusStrip.BackColor = colorTable.ActiveFormBorderColor;
+            tssbMenu.ForeColor = colorTable.FormTextColor;
+            statusLabel.ForeColor = colorTable.FormTextColor;
 
-            tpActivity.ForeColor = foreColor;
-            tpSplit.ForeColor = foreColor;
-            tpLap.ForeColor = foreColor;
-            tpColor.ForeColor = this.ColorTable.FormTextColor;
-            tpTimer.ForeColor = this.ColorTable.FormTextColor;
+            tpActivity.ForeColor = dynamicForeColor;
+            tpSplit.ForeColor = dynamicForeColor;
+            tpLap.ForeColor = dynamicForeColor;
+            tpColor.ForeColor = colorTable.FormTextColor;
+            tpTimer.ForeColor = colorTable.FormTextColor;
 
-            ucActivityView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucActivityView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucActivityView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucActivityView.RowBackColor = backColor;
-            ucActivityView.RowForeColor = foreColor;
+            ucActivityView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucActivityView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucActivityView.HeaderForeColor = colorTable.FormTextColor;
+            ucActivityView.RowBackColor = dynamicBackColor;
+            ucActivityView.RowForeColor = dynamicForeColor;
 
-            ucSplitView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucSplitView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucSplitView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucSplitView.RowBackColor = backColor;
-            ucSplitView.RowForeColor = foreColor;
+            ucSplitView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucSplitView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucSplitView.HeaderForeColor = colorTable.FormTextColor;
+            ucSplitView.RowBackColor = dynamicBackColor;
+            ucSplitView.RowForeColor = dynamicForeColor;
 
-            ucLapView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucLapView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucLapView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucLapView.RowBackColor = backColor;
-            ucLapView.RowForeColor = foreColor;
+            ucLapView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucLapView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucLapView.HeaderForeColor = colorTable.FormTextColor;
+            ucLapView.RowBackColor = dynamicBackColor;
+            ucLapView.RowForeColor = dynamicForeColor;
 
-            ucColorView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucColorView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucColorView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucColorView.RowBackColor = backColor;
-            ucColorView.RowForeColor = foreColor;
+            ucColorView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucColorView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucColorView.HeaderForeColor = colorTable.FormTextColor;
+            ucColorView.RowBackColor = dynamicBackColor;
+            ucColorView.RowForeColor = dynamicForeColor;
             
-            ucTimerSetupView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucTimerSetupView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucTimerSetupView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucTimerSetupView.RowBackColor = backColor;
-            ucTimerSetupView.RowForeColor = foreColor;
+            ucTimerSetupView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucTimerSetupView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucTimerSetupView.HeaderForeColor = colorTable.FormTextColor;
+            ucTimerSetupView.RowBackColor = dynamicBackColor;
+            ucTimerSetupView.RowForeColor = dynamicForeColor;
 
             FontStyle style = 0;
 
-            style |= settings.IsFontBold ? FontStyle.Bold : 0;
-            style |= settings.IsFontItalic ? FontStyle.Italic : 0;
+            style |= ZAMsettings.Settings.Appearance.IsFontBold ? FontStyle.Bold : 0;
+            style |= ZAMsettings.Settings.Appearance.IsFontItalic ? FontStyle.Italic : 0;
 
-            Font font = new Font(settings.FontFamily, settings.FontSize, style);
+            Font font = new Font(ZAMsettings.Settings.Appearance.FontFamily, ZAMsettings.Settings.Appearance.FontSize, style);
 
             ucActivityView.RowFont  = font;
             ucSplitView.RowFont     = font;

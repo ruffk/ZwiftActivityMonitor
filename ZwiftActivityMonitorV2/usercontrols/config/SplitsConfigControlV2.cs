@@ -1132,9 +1132,11 @@ namespace ZwiftActivityMonitorV2
             this.gbSplitGoals.ForeColor = this.ForeColor;
             this.gbSplits.ForeColor = this.ForeColor;
 
-            Office2010Colors t = Office2010Colors.GetColorTable(Office2010Colors.DefaultTheme);
-            dgvSplits.HeaderGradientBeginColor = t.ActiveTitleGradientBegin;
-            dgvSplits.HeaderGradientEndColor = t.ActiveTitleGradientEnd;
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            //Office2010Colors t = Office2010Colors.GetColorTable(Office2010Colors.DefaultTheme);
+            dgvSplits.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            dgvSplits.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
         }
     }
 }

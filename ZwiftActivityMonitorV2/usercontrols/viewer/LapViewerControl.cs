@@ -12,9 +12,20 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
-
     public partial class LapViewerControl : ViewerUserControlEx
     {
+        /// <summary>
+        /// Extension renderer class to avoid the pesky border under a ToolStrip control
+        /// </summary>
+        public class ToolStripProfessionalRendererEx : ToolStripProfessionalRenderer
+        {
+            protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
+            {
+                if (!(e.ToolStrip is ToolStrip))
+                    base.OnRenderToolStripBorder(e);
+            }
+        }
+
         private enum DetailColumn
         {
             LapNumber = 0,
@@ -578,6 +589,8 @@ namespace ZwiftActivityMonitorV2
 
             if (DesignMode)
                 return;
+
+            this.toolStrip.Renderer = new ToolStripProfessionalRendererEx();
 
             if (ZAMsettings.LoggerFactory == null)
                 return;

@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class ConfigurationOptions : Syncfusion.Windows.Forms.Office2010Form
+    public partial class ConfigurationOptions : Syncfusion.WinForms.Controls.SfForm //Syncfusion.Windows.Forms.Office2010Form
     {
         private readonly ILogger<ConfigurationOptions> Logger;
 
@@ -26,32 +26,39 @@ namespace ZwiftActivityMonitorV2
 
             SystemControl.ZAMWindowPos = ZAMWindowPos;
 
+            MSoffice2010ColorManager colorTable = ZAMappearance.ApplyColorTable(this);
             this.Icon = Properties.Resources.ZAMicon;
 
-            ZAMappearance.ApplyColorScheme(this);
+            //ZAMappearance.ApplyColorScheme(this);
 
-            tabOptions.TabPanelBackColor = this.ColorTable.ActiveFormBorderColor;
-            tabOptions.ActiveTabColor = this.ColorTable.ActiveFormBorderColor;
-            tabOptions.ActiveTabForeColor = this.ColorTable.FormTextColor;
+            tabOptions.TabPanelBackColor = colorTable.ActiveFormBorderColor;
+            tabOptions.ActiveTabColor = colorTable.ActiveFormBorderColor;
+            tabOptions.ActiveTabForeColor = colorTable.FormTextColor;
 
-            tabOptions.InactiveTabColor = this.ColorTable.InactiveFormBorderColor; ;
-            tabOptions.InActiveTabForeColor = this.ColorTable.FormTextColor;
+            tabOptions.InactiveTabColor = colorTable.InactiveFormBorderColor; ;
+            tabOptions.InActiveTabForeColor = colorTable.FormTextColor;
 
             // the user controls will receive notifications that their parent's (the tabpages) colors have changed
-            this.tpSystem.BackColor = this.ColorTable.FormBackground;
-            this.tpSystem.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSystem.BackColor = Color.AliceBlue;
+            this.tpSystem.ForeColor = Color.AliceBlue;
+            this.tpLaps.BackColor = Color.AliceBlue;
+            this.tpLaps.ForeColor = Color.AliceBlue;
+            this.tpSplits.BackColor = Color.AliceBlue;
+            this.tpSplits.ForeColor = Color.AliceBlue;
+            this.tpUserProfiles.BackColor = Color.AliceBlue;
+            this.tpUserProfiles.ForeColor = Color.AliceBlue;
 
-            //this.tpCollectors.BackColor = this.ColorTable.FormBackground;
-            //this.tpCollectors.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSystem.BackColor = colorTable.FormBackground;
+            this.tpSystem.ForeColor = colorTable.FormTextColor;
 
-            this.tpLaps.BackColor = this.ColorTable.FormBackground;
-            this.tpLaps.ForeColor = this.ColorTable.FormTextColor;
+            this.tpLaps.BackColor = colorTable.FormBackground;
+            this.tpLaps.ForeColor = colorTable.FormTextColor;
 
-            this.tpSplits.BackColor = this.ColorTable.FormBackground;
-            this.tpSplits.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSplits.BackColor = colorTable.FormBackground;
+            this.tpSplits.ForeColor = colorTable.FormTextColor;
 
-            this.tpUserProfiles.BackColor = this.ColorTable.FormBackground;
-            this.tpUserProfiles.ForeColor = this.ColorTable.FormTextColor;
+            this.tpUserProfiles.BackColor = colorTable.FormBackground;
+            this.tpUserProfiles.ForeColor = colorTable.FormTextColor;
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)

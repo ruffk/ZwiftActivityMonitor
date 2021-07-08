@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 using Syncfusion.Windows.Forms.Tools;
 
 namespace ZwiftActivityMonitorV2
@@ -51,15 +52,15 @@ namespace ZwiftActivityMonitorV2
             this.tsmiStart = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiStop = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiConfiguration = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoPause = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiConfiguration = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAdvanced = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.tsslSeparator1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.formSyncTimer = new System.Windows.Forms.Timer(this.components);
-            this.tsmiAutoPause = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
             this.tabControl.SuspendLayout();
             this.tpActivity.SuspendLayout();
@@ -91,6 +92,7 @@ namespace ZwiftActivityMonitorV2
             this.tabControl.InactiveTabColor = System.Drawing.Color.FromArgb(((int)(((byte)(227)))), ((int)(((byte)(230)))), ((int)(((byte)(232)))));
             this.tabControl.ItemSize = new System.Drawing.Size(0, 28);
             this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
             this.tabControl.Office2010ColorTheme = Syncfusion.Windows.Forms.Office2010Theme.Silver;
             this.tabControl.Padding = new System.Drawing.Point(0, 0);
@@ -216,6 +218,7 @@ namespace ZwiftActivityMonitorV2
             this.ucColorView.AutoSize = true;
             this.ucColorView.BackColor = System.Drawing.SystemColors.Control;
             this.ucColorView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucColorView.ForeColor = System.Drawing.Color.Black;
             this.ucColorView.HeaderForeColor = System.Drawing.Color.Empty;
             this.ucColorView.HeaderGradientBeginColor = System.Drawing.SystemColors.Control;
             this.ucColorView.HeaderGradientEndColor = System.Drawing.SystemColors.ControlDark;
@@ -329,17 +332,26 @@ namespace ZwiftActivityMonitorV2
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(223, 6);
             // 
+            // tsmiAutoPause
+            // 
+            this.tsmiAutoPause.CheckOnClick = true;
+            this.tsmiAutoPause.Name = "tsmiAutoPause";
+            this.tsmiAutoPause.Size = new System.Drawing.Size(226, 22);
+            this.tsmiAutoPause.Text = "Auto-Pause";
+            this.tsmiAutoPause.ToolTipText = "Pause metric collection when clock stops";
+            this.tsmiAutoPause.CheckedChanged += new System.EventHandler(this.tsmiAutoPause_CheckedChanged);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(223, 6);
+            // 
             // tsmiConfiguration
             // 
             this.tsmiConfiguration.Name = "tsmiConfiguration";
             this.tsmiConfiguration.Size = new System.Drawing.Size(226, 22);
             this.tsmiConfiguration.Text = "Configuration...";
             this.tsmiConfiguration.Click += new System.EventHandler(this.tsmiConfiguration_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(223, 6);
             // 
             // tsmiAdvanced
             // 
@@ -378,33 +390,26 @@ namespace ZwiftActivityMonitorV2
             this.formSyncTimer.Interval = 1000;
             this.formSyncTimer.Tick += new System.EventHandler(this.formSyncTimer_Tick);
             // 
-            // tsmiAutoPause
-            // 
-            this.tsmiAutoPause.CheckOnClick = true;
-            this.tsmiAutoPause.Name = "tsmiAutoPause";
-            this.tsmiAutoPause.Size = new System.Drawing.Size(226, 22);
-            this.tsmiAutoPause.Text = "Auto-Pause";
-            this.tsmiAutoPause.ToolTipText = "Pause metric collection when clock stops";
-            this.tsmiAutoPause.CheckedChanged += new System.EventHandler(this.tsmiAutoPause_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CaptionAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.CaptionFont = new System.Drawing.Font("Franklin Gothic Heavy", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.ClientSize = new System.Drawing.Size(347, 170);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.pBottom);
+            this.Icon = global::ZwiftActivityMonitorV2.Properties.Resources.ZAMicon;
+            this.IconSize = new System.Drawing.Size(32, 32);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
+            this.Padding = new System.Windows.Forms.Padding(0);
             this.Text = "Zwift Activity Monitor";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainForm_Paint);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).EndInit();
             this.tabControl.ResumeLayout(false);

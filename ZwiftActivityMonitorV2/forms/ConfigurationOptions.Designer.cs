@@ -88,6 +88,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.ucSystem.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucSystem.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucSystem.ForeColor = System.Drawing.Color.Black;
             this.ucSystem.Location = new System.Drawing.Point(3, 3);
             this.ucSystem.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucSystem.Name = "ucSystem";
@@ -113,6 +114,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.ucUserProfiles.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucUserProfiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucUserProfiles.ForeColor = System.Drawing.Color.Black;
             this.ucUserProfiles.Location = new System.Drawing.Point(3, 3);
             this.ucUserProfiles.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucUserProfiles.Name = "ucUserProfiles";
@@ -138,6 +140,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.ucSplits.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucSplits.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucSplits.ForeColor = System.Drawing.Color.Black;
             this.ucSplits.Location = new System.Drawing.Point(3, 3);
             this.ucSplits.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucSplits.Name = "ucSplits";
@@ -163,6 +166,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.ucLaps.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ucLaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucLaps.ForeColor = System.Drawing.Color.Black;
             this.ucLaps.Location = new System.Drawing.Point(3, 3);
             this.ucLaps.Margin = new System.Windows.Forms.Padding(23, 20, 20, 3);
             this.ucLaps.Name = "ucLaps";
@@ -199,11 +203,15 @@ namespace ZwiftActivityMonitorV2
             this.Controls.Add(this.tabOptions);
             this.Controls.Add(this.statusStrip);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.IconSize = new System.Drawing.Size(32, 32);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ConfigurationOptions";
+            this.Padding = new System.Windows.Forms.Padding(0);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Options";
+            this.Style.MdiChild.IconHorizontalAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+            this.Style.MdiChild.IconVerticalAlignment = System.Windows.Forms.VisualStyles.VerticalAlignment.Center;
+            this.Text = "Configuration Options";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConfigurationOptions_FormClosing);
             this.Load += new System.EventHandler(this.ConfigurationOptions_Load);
             ((System.ComponentModel.ISupportInitialize)(this.tabOptions)).EndInit();

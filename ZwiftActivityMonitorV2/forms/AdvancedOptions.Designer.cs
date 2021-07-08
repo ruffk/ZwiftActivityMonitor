@@ -60,6 +60,7 @@ namespace ZwiftActivityMonitorV2
             // 
             // gbZwiftPacketMonitor
             // 
+            this.gbZwiftPacketMonitor.BackColor = System.Drawing.Color.Transparent;
             this.gbZwiftPacketMonitor.Controls.Add(this.rbSimulation);
             this.gbZwiftPacketMonitor.Controls.Add(this.tbPlayerId);
             this.gbZwiftPacketMonitor.Controls.Add(this.lblPlayerId);
@@ -79,6 +80,7 @@ namespace ZwiftActivityMonitorV2
             this.gbZwiftPacketMonitor.Controls.Add(this.btnStart);
             this.gbZwiftPacketMonitor.Controls.Add(this.label2);
             this.gbZwiftPacketMonitor.Controls.Add(this.label1);
+            this.gbZwiftPacketMonitor.ForeColor = System.Drawing.SystemColors.ControlText;
             this.gbZwiftPacketMonitor.Location = new System.Drawing.Point(12, 12);
             this.gbZwiftPacketMonitor.Name = "gbZwiftPacketMonitor";
             this.gbZwiftPacketMonitor.Size = new System.Drawing.Size(400, 238);
@@ -232,20 +234,24 @@ namespace ZwiftActivityMonitorV2
             // 
             // btnStop
             // 
+            this.btnStop.BackColor = System.Drawing.SystemColors.Control;
             this.btnStop.Location = new System.Drawing.Point(315, 54);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(61, 25);
             this.btnStop.TabIndex = 2;
             this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = false;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // btnStart
             // 
+            this.btnStart.BackColor = System.Drawing.SystemColors.Control;
             this.btnStart.Location = new System.Drawing.Point(315, 19);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(61, 25);
             this.btnStart.TabIndex = 1;
             this.btnStart.Text = "Start";
+            this.btnStart.UseVisualStyleBackColor = false;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // label2
@@ -268,12 +274,15 @@ namespace ZwiftActivityMonitorV2
             // 
             // btnClose
             // 
+            this.btnClose.BackColor = System.Drawing.Color.Transparent;
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnClose.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnClose.Location = new System.Drawing.Point(170, 379);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 1;
             this.btnClose.Text = "Close";
+            this.btnClose.UseVisualStyleBackColor = false;
             // 
             // lvTrace
             // 
@@ -329,10 +338,13 @@ namespace ZwiftActivityMonitorV2
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.gbZwiftPacketMonitor);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.IconSize = new System.Drawing.Size(32, 32);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "AdvancedOptions";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Style.MdiChild.IconHorizontalAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+            this.Style.MdiChild.IconVerticalAlignment = System.Windows.Forms.VisualStyles.VerticalAlignment.Center;
             this.Text = "Advanced Options";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AdvancedOptions_FormClosed);
             this.Load += new System.EventHandler(this.AdvancedOptions_Load);

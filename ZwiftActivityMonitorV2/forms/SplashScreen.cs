@@ -12,13 +12,15 @@ using System.Windows.Forms;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class SplashScreen : Form
+    public partial class SplashScreen : Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
         private int m_tickCount;
         private Color ZAMguy1Color = Color.FromArgb(255, 255, 0);
         private Color ZAMguy2Color = Color.FromArgb(25, 255, 243);
         private Color ZAMguy3Color = Color.FromArgb(255, 0, 255);
         private Color ZAMguy4Color = Color.FromArgb(4, 255, 0);
+
+        private MainForm mMainForm = new();
 
         public SplashScreen()
         {
@@ -71,6 +73,11 @@ namespace ZwiftActivityMonitorV2
                 //    break;
                 case 4:
                     this.timer1.Enabled = false;
+                    
+                    // Hide this window, then show the MainForm as a modal window.  Once it closes, close this one and program ends.
+                    this.Hide();
+                    Debug.WriteLine($"{this.GetType()}::timer1_Tick - ShowDialog MainForm");
+                    mMainForm.ShowDialog(); // This will block until closed.
                     this.Close();
                     break;
             }

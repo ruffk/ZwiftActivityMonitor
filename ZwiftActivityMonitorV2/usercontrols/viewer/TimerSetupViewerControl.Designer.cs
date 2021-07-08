@@ -41,11 +41,12 @@ namespace ZwiftActivityMonitorV2
             // dtpTimeRemaining
             // 
             this.dtpTimeRemaining.CustomFormat = "HH:mm:ss";
+            this.dtpTimeRemaining.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.dtpTimeRemaining.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dtpTimeRemaining.Location = new System.Drawing.Point(37, 52);
             this.dtpTimeRemaining.Name = "dtpTimeRemaining";
             this.dtpTimeRemaining.ShowUpDown = true;
-            this.dtpTimeRemaining.Size = new System.Drawing.Size(77, 23);
+            this.dtpTimeRemaining.Size = new System.Drawing.Size(86, 27);
             this.dtpTimeRemaining.TabIndex = 51;
             this.dtpTimeRemaining.Value = new System.DateTime(2021, 5, 10, 23, 59, 59, 0);
             this.dtpTimeRemaining.Enter += new System.EventHandler(this.dtpTimeRemaining_Enter);

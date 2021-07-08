@@ -125,9 +125,9 @@ namespace ZwiftActivityMonitorV2
             this.lblStatus.BackColor = System.Drawing.Color.Transparent;
             this.lblStatus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblStatus.Location = new System.Drawing.Point(136, 0);
+            this.lblStatus.Location = new System.Drawing.Point(105, 0);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(178, 44);
+            this.lblStatus.Size = new System.Drawing.Size(209, 44);
             this.lblStatus.TabIndex = 23;
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -143,7 +143,7 @@ namespace ZwiftActivityMonitorV2
             this.toolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(136, 44);
+            this.toolStrip.Size = new System.Drawing.Size(105, 44);
             this.toolStrip.TabIndex = 22;
             this.toolStrip.Text = "toolStrip1";
             // 

@@ -143,28 +143,52 @@ namespace ZwiftActivityMonitorV2
 
             var selection = (KeyValuePair<ThemeType, string>)cbTheme.SelectedItem;
 
-            Office2010FormEx hidden = new Office2010FormEx();
-            hidden.UseOffice2010SchemeBackColor = true;
+            //Office2010FormEx hidden = new Office2010FormEx();
+            //hidden.UseOffice2010SchemeBackColor = true;
+
+            //if (selection.Key != ThemeType.Custom)
+            //{
+            //    hidden.ColorScheme = ZAMsettings.Settings.Appearance.GetOfficeColorScheme(selection.Key, out Color? managedColor);
+
+            //    if (hidden.ColorScheme == Office2010Theme.Managed)
+            //    {
+            //        Office2010Colors.ApplyManagedColors(hidden, managedColor.Value);
+            //    }
+            //}
+            //else
+            //{
+            //    hidden.ColorScheme = Office2010Theme.Managed;
+            //    Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
+            //}
+
+            //Office2010Colors colorTable = Office2010Colors.GetColorTable(hidden.ColorScheme);
+
+            MSoffice2010ColorManager colorTable;
 
             if (selection.Key != ThemeType.Custom)
             {
-                hidden.ColorScheme = ZAMsettings.Settings.Appearance.GetOfficeColorScheme(selection.Key, out Color? managedColor);
+                MSoffice2010Theme theme = ZAMsettings.Settings.Appearance.GetMSoffice2010Theme(selection.Key, out Color? managedColor);
 
-                if (hidden.ColorScheme == Office2010Theme.Managed)
+                if (theme == MSoffice2010Theme.Managed)
                 {
-                    Office2010Colors.ApplyManagedColors(hidden, managedColor.Value);
+                    // store managed colors in the static object
+                    MSoffice2010ColorManager.ApplyManagedColors(managedColor.Value);
+                    colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
+                }
+                else
+                {
+                    colorTable = MSoffice2010ColorManager.GetColorTable(theme);
                 }
             }
             else
             {
-                hidden.ColorScheme = Office2010Theme.Managed;
-                Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
+                // store managed colors in the static object
+                MSoffice2010ColorManager.ApplyManagedColors(btnColor.SelectedColor);
+                colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
             }
 
-            Office2010Colors colors = Office2010Colors.GetColorTable(hidden.ColorScheme);
-            //Office2010Colors colors = hidden.GetColorTable();
-            this.panel1.BackColor = colors.FormBackground;
-            this.panel1.ForeColor = colors.FormTextColor;
+            this.panel1.BackColor = colorTable.FormBackground;
+            this.panel1.ForeColor = colorTable.FormTextColor;
         }
 
         private void nudFontSize_ValueChanged(object sender, EventArgs e)

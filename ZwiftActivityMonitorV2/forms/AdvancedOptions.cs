@@ -13,7 +13,7 @@ using System.Drawing;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class AdvancedOptions : Syncfusion.Windows.Forms.Office2010Form
+    public partial class AdvancedOptions : Syncfusion.WinForms.Controls.SfForm //Syncfusion.Windows.Forms.Office2010Form
     {
         private readonly ILogger<AdvancedOptions> Logger;
         private Dispatcher m_dispatcher;
@@ -30,11 +30,14 @@ namespace ZwiftActivityMonitorV2
 
             Logger = ZAMsettings.LoggerFactory.CreateLogger<AdvancedOptions>();
 
-            ZAMappearance.ApplyColorScheme(this);
+            this.BackColor = Color.AliceBlue;
+            this.ForeColor = Color.AliceBlue;
 
-            // this will force a property changed event on the form
-            this.BackColor = this.ColorTable.FormBackground;
-            this.ForeColor = this.ColorTable.FormTextColor;
+            MSoffice2010ColorManager colorTable = ZAMappearance.ApplyColorTable(this);
+
+            // SfForm is not firing the property changed events so doing it manually here.
+            this.AdvancedOptions_BackColorChanged(this, null);
+            this.AdvancedOptions_ForeColorChanged(this, null);
 
             this.Icon = Properties.Resources.ZAMicon;
 
@@ -235,14 +238,20 @@ namespace ZwiftActivityMonitorV2
 
         private void AdvancedOptions_BackColorChanged(object sender, EventArgs e)
         {
-            Logger.LogDebug($"AdvancedOptions_BackColorChanged");
+            //Debug.WriteLine($"AdvancedOptions_BackColorChanged");
+            this.btnClose.BackColor = this.BackColor;
+            this.btnStart.BackColor = this.BackColor;
+            this.btnStop.BackColor = this.BackColor;
         }
 
         private void AdvancedOptions_ForeColorChanged(object sender, EventArgs e)
         {
-            Logger.LogDebug($"AdvancedOptions_ForeColorChanged");
+            //Debug.WriteLine($"AdvancedOptions_ForeColorChanged");
 
             this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
+            this.btnClose.ForeColor = this.ForeColor;
+            this.btnStart.ForeColor = this.ForeColor;
+            this.btnStop.ForeColor = this.ForeColor;
         }
 
         private void cbMonitorOthers_CheckedChanged(object sender, EventArgs e)
