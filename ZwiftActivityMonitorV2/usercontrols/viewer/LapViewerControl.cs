@@ -698,8 +698,8 @@ namespace ZwiftActivityMonitorV2
                     LapTime = e.LapTime,
                     LapDistanceKm = e.LapDistanceKm,
                     LapDistanceMi = e.LapDistanceMi,
-                    LapSpeedMph = 0,
-                    LapSpeedKph = 0,
+                    LapSpeedMph = e.LapSpeedMph,
+                    LapSpeedKph = e.LapSpeedKph,
                     LapAPwatts = e.LapAPwatts,
                     LapAPwattsPerKg = e.LapAPwattsPerKg,
                     TotalTime = e.TotalTime,
@@ -714,8 +714,8 @@ namespace ZwiftActivityMonitorV2
                 detailRow.LapTime = e.LapTime;
                 detailRow.LapDistanceKm = e.LapDistanceKm;
                 detailRow.LapDistanceMi = e.LapDistanceMi;
-                detailRow.LapSpeedMph = 0;
-                detailRow.LapSpeedKph = 0;
+                detailRow.LapSpeedMph = e.LapSpeedMph;
+                detailRow.LapSpeedKph = e.LapSpeedKph;
                 detailRow.LapAPwatts = e.LapAPwatts;
                 detailRow.LapAPwattsPerKg = e.LapAPwattsPerKg;
                 detailRow.TotalTime = e.TotalTime;
@@ -805,6 +805,10 @@ namespace ZwiftActivityMonitorV2
 
             switch (e.Action)
             {
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                    this.ClearDisplayValues();
+                    break;
+
                 case CollectionStatusChangedEventArgs.ActionType.Started:
                     this.ClearDisplayValues();
                     break;

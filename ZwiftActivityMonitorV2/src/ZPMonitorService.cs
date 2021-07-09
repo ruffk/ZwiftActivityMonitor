@@ -27,18 +27,20 @@ namespace ZwiftActivityMonitorV2
         private readonly Timer ActivitySimulationTimer;
 
         private int mTrackedPlayerId;
-        //private DateTime mLastPlayerStateUpdate;
         private DateTime? mCollectionStartTime;
         private DateTime? mMonitorStartTime;
-        //private PlayerStateEventArgs mLatestPlayerStateEventArgs;
         private RiderStateEventArgs mLatestRiderStateEventArgs;
-        private TimeSpan mPlayerStateTime = TimeSpan.Zero;          // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
+        private TimeSpan mPlayerElapsedTime = TimeSpan.Zero;        // The PlayerState Time value. This corresponds to the elapsed time the player sees on screen.
+        private int mPlayerRoadLocation;                            // The PlayerState RoadTime value. This corresponds to the position of the rider on the current road.
         //private Dictionary<int, Zwifter> mZwifters;               // Used if tracking PlayerEnteredWorld events
         private CancellationTokenSource mCancellationTokenSource;   // Used to cancel wait for event clock
         private int mSimulationDistance;
         private int mSimulationRoadTime;
         private int mSimulationPowerLowRange;
         private int mSimulationPowerHighRange;
+
+        public TimeSpan? CollectionTime { get { return this.mCollectionStartTime.HasValue ? (DateTime.Now - this.mCollectionStartTime.Value) : null; } }
+        public TimeSpan? AdjustedCollectionTime { get { return this.CollectionTime.HasValue ? this.CollectionTime.Value - this.mPauseDuration : null; } }
 
         private DateTime? mPlayerPauseStartTime;
         private TimeSpan mPauseDuration = TimeSpan.Zero;
@@ -111,7 +113,8 @@ namespace ZwiftActivityMonitorV2
             this.SimulateRiderActivity = simulateRiderActivity;
 
             this.EventsProcessed = 0;
-            this.mPlayerStateTime = TimeSpan.Zero;
+            this.mPlayerElapsedTime = TimeSpan.Zero;
+            this.mPlayerRoadLocation = 0;
 
             if (!SimulateRiderActivity || IsDebugMode)
             {
@@ -308,6 +311,7 @@ namespace ZwiftActivityMonitorV2
             else if (this.IsCollectionStarted)
             {
                 this.mCollectionStartTime = null;
+                this.mPauseDuration = TimeSpan.Zero;
 
                 this.IsCollectionStarted = false;
                 this.IsCollectionPaused = false;
@@ -323,7 +327,7 @@ namespace ZwiftActivityMonitorV2
             {
                 lock(this)
                 {
-                    return mPlayerStateTime;
+                    return this.mPlayerElapsedTime;
                 }
             }
         }
@@ -373,7 +377,9 @@ namespace ZwiftActivityMonitorV2
                 //
                 // Packets come in randomly but usually more than once per second.  Here we always capture the latest packet,
                 // but it's only distributed once every second when the timer fires.  This is standard collection process.
-                TimeSpan currentEventTime = new TimeSpan(0, 0, e.PlayerState.Time);
+
+                TimeSpan currentElapsedTime = new TimeSpan(0, 0, e.PlayerState.Time);
+                int currentRoadLocation = e.PlayerState.RoadTime;
                 lock (this)
                 {
                     // Lock is used to avoid contention between threads (this thread, the timer callback thread, or the wait for event clock thread)
@@ -390,10 +396,10 @@ namespace ZwiftActivityMonitorV2
                         {
                             //Logger.LogDebug($"Not currently paused - currentEventTime {currentEventTime}, playerEventTime: {this.mPlayerStateTime}");
 
-                            // not currently paused, see if clock is running
-                            if (currentEventTime != this.mPlayerStateTime)
+                            // not currently paused, see if clock is running or if moving
+                            if (currentElapsedTime != this.mPlayerElapsedTime || currentRoadLocation != this.mPlayerRoadLocation)
                             {
-                                // clock is running, record time
+                                // clock is running or we're moving, record time
                                 this.mLastEventTimeUpdate = DateTime.Now;
 
                                 //Logger.LogDebug($"Clock is running - lastEventTimeUpdate: {this.mLastEventTimeUpdate}");
@@ -420,10 +426,10 @@ namespace ZwiftActivityMonitorV2
                         }
                         else
                         {
-                            // currently paused, see if clock is running
-                            if (currentEventTime != this.mPlayerStateTime)
+                            // Currently paused, see if clock is running. We don't want to check for movement here as it can have a false reading
+                            if (currentElapsedTime != this.mPlayerElapsedTime)
                             {
-                                // clock is running again, record time
+                                // clock is running again or we're moving, record time
                                 this.mLastEventTimeUpdate = DateTime.Now;
                                 
                                 TimeSpan pauseTime = DateTime.Now - mPlayerPauseStartTime.Value; // this pause time
@@ -452,7 +458,8 @@ namespace ZwiftActivityMonitorV2
                         }
                     }
 
-                    this.mPlayerStateTime = currentEventTime;
+                    this.mPlayerRoadLocation = currentRoadLocation;
+                    this.mPlayerElapsedTime = currentElapsedTime;
                     this.mLatestRiderStateEventArgs = new RiderStateEventArgs(e, this.mCollectionStartTime, playerIsPaused, pauseDuration);
                 }
 
@@ -521,30 +528,30 @@ namespace ZwiftActivityMonitorV2
             bool playerIsPaused = false; 
             TimeSpan pauseDuration = TimeSpan.Zero;
 
-            if (this.IsCollectionStarted)
-            {
-                playerIsPaused = (this.EventsProcessed >= 30 && this.EventsProcessed < 40);
-                if (playerIsPaused)
-                {
-                    // 
-                    if (mPlayerPauseStartTime == null)
-                    {
-                        // keep track of when the pause started
-                        mPlayerPauseStartTime = DateTime.Now;
-                    }
-                    else
-                    {
-                        // determine the total duration of this pause, and any previous pauses
-                        pauseDuration = mPauseDuration + (DateTime.Now - mPlayerPauseStartTime.Value);
-                    }
-                }
-                else if (mPlayerPauseStartTime != null)
-                {
-                    // no longer paused, save the total as it may happen again
-                    mPauseDuration += (DateTime.Now - mPlayerPauseStartTime.Value);
-                    mPlayerPauseStartTime = null;
-                }
-            }
+            //if (this.IsCollectionStarted)
+            //{
+            //    playerIsPaused = (this.EventsProcessed >= 30 && this.EventsProcessed < 40);
+            //    if (playerIsPaused)
+            //    {
+            //        // 
+            //        if (mPlayerPauseStartTime == null)
+            //        {
+            //            // keep track of when the pause started
+            //            mPlayerPauseStartTime = DateTime.Now;
+            //        }
+            //        else
+            //        {
+            //            // determine the total duration of this pause, and any previous pauses
+            //            pauseDuration = mPauseDuration + (DateTime.Now - mPlayerPauseStartTime.Value);
+            //        }
+            //    }
+            //    else if (mPlayerPauseStartTime != null)
+            //    {
+            //        // no longer paused, save the total as it may happen again
+            //        mPauseDuration += (DateTime.Now - mPlayerPauseStartTime.Value);
+            //        mPlayerPauseStartTime = null;
+            //    }
+            //}
 
             RiderStateEventArgs e = new RiderStateEventArgs(mCollectionStartTime, playerIsPaused, pauseDuration)
             {
@@ -555,13 +562,14 @@ namespace ZwiftActivityMonitorV2
                 RoadId = 1,
                 IsForward = true,
                 Course = 6,
-                RoadTime = mSimulationRoadTime,
+                RoadLocation = mSimulationRoadTime,
             };
 
             lock (this)
             {
                 // Lock is used to avoid contention between threads (this thread and the timer callback thread)
-                mPlayerStateTime = DateTime.Now - mMonitorStartTime.Value;
+                this.mPlayerElapsedTime = DateTime.Now - mMonitorStartTime.Value;
+                this.mPlayerRoadLocation = mSimulationRoadTime;
                 mLatestRiderStateEventArgs = e;
             }
 

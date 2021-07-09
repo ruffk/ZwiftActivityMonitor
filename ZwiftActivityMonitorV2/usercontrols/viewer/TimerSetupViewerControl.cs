@@ -136,12 +136,19 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started && this.IsTimerRunning)
+            switch(e.Action)
             {
-                // make sure timer is stopped
-                this.StopTimer();
-                OnCountdownTimerTickEvent(new CountdownTimerTickEventArgs() { IsCanceled = true });
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                case CollectionStatusChangedEventArgs.ActionType.Started:
+                    if (this.IsTimerRunning)
+                    {
+                        // make sure timer is stopped
+                        this.StopTimer();
+                        OnCountdownTimerTickEvent(new CountdownTimerTickEventArgs() { IsCanceled = true });
+                    }
+                    break;
             }
+
             this.SetViewDisplayStatus();
         }
 
@@ -167,7 +174,7 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            if (!ZAMsettings.ZPMonitorService.IsZPMonitorStarted || ZAMsettings.ZPMonitorService.IsCollectionStarted)
+            if (!ZAMsettings.ZPMonitorService.IsZPMonitorStarted || ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
             {
                 this.dtpTimeRemaining.Enabled = false;
                 this.btnStart.Enabled = false;
@@ -178,7 +185,7 @@ namespace ZwiftActivityMonitorV2
                 {
                     lblSettingsDisabled.Text = "Timer disabled until ZPM is started";
                 }
-                else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
+                else if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
                 {
                     lblSettingsDisabled.Text = "Timer disabled while monitoring is in progress";
                 }

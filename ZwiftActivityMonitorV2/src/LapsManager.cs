@@ -39,7 +39,7 @@ namespace ZwiftActivityMonitorV2
 
             public void Add(RiderStateEventArgs e)
             {
-                this.Add(new Waypoint(e.RoadId, e.IsForward, e.Course, e.RoadTime));
+                this.Add(new Waypoint(e.RoadId, e.IsForward, e.Course, e.RoadLocation));
             }
 
             public Waypoint CheckWaypointCrossings(RiderStateEventArgs e)
@@ -52,14 +52,14 @@ namespace ZwiftActivityMonitorV2
                 {
                     searchWp = WaypointList.Find(item => item.Course == e.Course && item.IsForward == e.IsForward && item.RoadId == e.RoadId
                         && item.LastRiderRoadTime < item.RoadTime   // Last check was behind Waypoint line (values going up)
-                        && e.RoadTime >= item.RoadTime              // Current check is at or past Waypoint line
+                        && e.RoadLocation >= item.RoadTime              // Current check is at or past Waypoint line
                     );
                 }
                 else // RoadTime values are decreasing
                 {
                     searchWp = WaypointList.Find(item => item.Course == e.Course && item.IsForward == e.IsForward && item.RoadId == e.RoadId 
                         && item.LastRiderRoadTime > item.RoadTime   // Last check was past Waypoint line (values going down)
-                        && e.RoadTime <= item.RoadTime              // Current check is at or behind Waypoint line
+                        && e.RoadLocation <= item.RoadTime              // Current check is at or behind Waypoint line
                     );
                 }
 
@@ -206,7 +206,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
-            if (!IsStarted || e.ElapsedTime == null)
+            if (!IsStarted || e.CollectionTime == null)
                 return;
 
             DateTime now = DateTime.Now;
@@ -252,14 +252,17 @@ namespace ZwiftActivityMonitorV2
             // Calculate lap meters
             int lapMeters = e.Distance - m_lapSeedValue;
 
-            // Calculate lap kilometers
+            // Calculate lap kilometers and kph
             double lapDistanceKm = lapMeters / 1000.0;
+            double lapSpeedKph = Math.Round(lapDistanceKm / lapTime.TotalHours, 1);
 
-            // Convert to miles
-            double lapDistanceMi = Math.Round(lapDistanceKm / 1.609, 1);
+            // Convert to miles, and mph
+            double lapDistanceMi = lapDistanceKm / 1.609;
+            double lapSpeedMph = Math.Round(lapDistanceMi / lapTime.TotalHours, 1);
 
-            // Round lap kilometers
+            // Round lap kilometers and miles
             lapDistanceKm = Math.Round(lapDistanceKm, 1);
+            lapDistanceMi = Math.Round(lapDistanceMi, 1);
 
             // Calculate Avg Watts
             double lapAPwatts = m_lapPowerTotal / (double)m_lapEventCount;
@@ -313,7 +316,7 @@ namespace ZwiftActivityMonitorV2
                     break;
             }
 
-            LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapDistanceKm, lapDistanceMi, (int)lapAPwatts, lapAPwattsPerKg, totalTime);
+            LapEventArgs args = new LapEventArgs(m_lapCount + 1, lapTime, lapDistanceKm, lapDistanceMi, (int)lapAPwatts, lapAPwattsPerKg, totalTime, lapSpeedKph, lapSpeedMph);
 
             if (m_beginNewLap)
             {
@@ -359,7 +362,7 @@ namespace ZwiftActivityMonitorV2
                 OnLapUpdatedEvent(args);
             }
 
-            LapWaypoints.UpdateWaypointLastRoadTimes(e.RoadTime);
+            LapWaypoints.UpdateWaypointLastRoadTimes(e.RoadLocation);
         }
         
         private double? CalculateUserWattsPerKg(double watts)

@@ -54,7 +54,7 @@ namespace ZwiftActivityMonitorV2
 
     #endregion
 
-    public class ZAMsettings
+    public class ZAMsettings : ConfigItemBase
     {
         #region Public members included in .json configuration
 
@@ -63,6 +63,7 @@ namespace ZwiftActivityMonitorV2
         public string DefaultUserProfile { get; set; } = "";
         public int WindowPositionX { get; set; }
         public int WindowPositionY { get; set; }
+        public int? SplashScreenDurationSecs { get; set; }
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
@@ -104,6 +105,19 @@ namespace ZwiftActivityMonitorV2
             Laps            = new Lap();
             SplitsV2        = new SplitsV2();
             Appearance      = new ZAMappearance();
+        }
+
+        public override int InitializeDefaultValues()
+        {
+            int count = 0;
+
+            if (!this.SplashScreenDurationSecs.HasValue)
+            {
+                this.SplashScreenDurationSecs = 4;
+                count++;
+            }
+
+            return count;
         }
 
         public void UpsertUserProfile(UserProfile user)
@@ -303,6 +317,7 @@ namespace ZwiftActivityMonitorV2
                 BeginCachedConfiguration();
 
                 int initCount = 0;
+                initCount += Settings.InitializeDefaultValues();
                 initCount += Settings.Laps.InitializeDefaultValues();
                 initCount += Settings.SplitsV2.InitializeDefaultValues();
                 initCount += Settings.Appearance.InitializeDefaultValues();

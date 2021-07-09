@@ -106,6 +106,17 @@ namespace ZwiftActivityMonitorV2
             private int mHRbpm;
             private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
 
+            public void ResetValues()
+            {
+                this.APwatts = 0;
+                this.APwattsPerKg = null;
+                this.APwattsMax = 0;
+                this.APwattsPerKgMax = null;
+                this.FTPwatts = 0;
+                this.FTPwattsPerKg = null;
+                this.HRbpm = 0;
+            }
+
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
             {
                 if (type == MeasurementSystemType.Imperial)
@@ -335,6 +346,7 @@ namespace ZwiftActivityMonitorV2
             public string TSS { get { return this.mTSS; } set { this.SetProperty<string>(ref this.mTSS, value); } }
             public string Blank { get; set; }
 
+
             public PowerDisplayType AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
@@ -378,10 +390,22 @@ namespace ZwiftActivityMonitorV2
             private double? mNPwattsPerKg;
             private double mSpeedKph;
             private double mSpeedMph;
+            private double? mIFvalue;
+            private int? mTSSvalue;
             //private MeasurementSystemType mCurrentMeasurementSystemType = MeasurementSystemType.Imperial;
             private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
             private SpeedDisplayType mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
 
+            public void ResetValues()
+            {
+                this.APwatts = 0;
+                this.APwattsPerKg = null;
+                this.NPwatts = 0;
+                this.NPwattsPerKg = null;
+                this.SpeedKph = 0;
+                this.SpeedMph = 0;
+                this.IFvalue = null;
+            }
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
             {
@@ -496,6 +520,29 @@ namespace ZwiftActivityMonitorV2
                     this.AS = "";
                 }
 
+            }
+
+            [Browsable(false)]
+            public double? IFvalue
+            {
+                get { return this.mIFvalue; }
+                set
+                {
+                    this.mIFvalue = value;
+
+                    this.IF = this.mIFvalue.HasValue ? mIFvalue.Value.ToString("#.00") : "";
+                }
+            }
+            [Browsable(false)]
+            public int? TSSvalue
+            {
+                get { return this.mTSSvalue; }
+                set
+                {
+                    this.mTSSvalue = value;
+
+                    this.TSS = this.mTSSvalue.HasValue ? mTSSvalue.Value.ToString() : "";
+                }
             }
 
             /// <summary>
@@ -618,6 +665,7 @@ namespace ZwiftActivityMonitorV2
                 {
                     this.DetailDataRow.APwattsMax = e.APwattsMax;
                     this.DetailDataRow.APwattsPerKgMax = e.APwattsPerKgMax;
+
                     this.DetailDataRow.FTPwatts = e.FTPwattsMax;
                     this.DetailDataRow.FTPwattsPerKg = e.FTPwattsPerKgMax;
                 }
@@ -683,15 +731,15 @@ namespace ZwiftActivityMonitorV2
             private void NormalizedPower_MetricsChangedEvent(object sender, MetricsChangedEventArgs e)
             {
                 this.SummaryDataRow.APwatts = e.APwatts;
-                this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg; ;
+                this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg;
                 this.SummaryDataRow.SpeedKph = e.SpeedKph;
                 this.SummaryDataRow.SpeedMph = e.SpeedMph;
             }
 
             private void NormalizedPower_NormalizedPowerChangedEvent(object sender, NormalizedPowerChangedEventArgs e)
             {
-                this.SummaryDataRow.IF = e.IFvalue.HasValue ? e.IFvalue.ToString() : null;
-                this.SummaryDataRow.TSS = e.TSSvalue.HasValue ? e.TSSvalue.ToString() : null;
+                this.SummaryDataRow.IFvalue = e.IFvalue;
+                this.SummaryDataRow.TSSvalue = e.TSSvalue;
                 this.SummaryDataRow.NPwatts = e.NPwatts;
                 this.SummaryDataRow.NPwattsPerKg = e.NPwattsPerKg;
             }
@@ -723,6 +771,10 @@ namespace ZwiftActivityMonitorV2
             
             switch (e.Action)
             {
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                    this.ClearDisplayValues();
+                    break;
+
                 case CollectionStatusChangedEventArgs.ActionType.Started:
                     this.ClearDisplayValues();
                     break;
@@ -1094,17 +1146,10 @@ namespace ZwiftActivityMonitorV2
         {
             foreach(DetailRow row in DetailRows)
             {
-                row.AP = "";
-                row.APmax = "";
-                row.FTP = "";
-                row.HR = "";
+                row.ResetValues();
             }
 
-            SummaryRows[0].AP = "";
-            SummaryRows[0].AS = "";
-            SummaryRows[0].NP = "";
-            SummaryRows[0].IF = "";
-            SummaryRows[0].TSS = "";
+            SummaryRows[0].ResetValues();
         }
 
         private void ViewControl_Resize(object sender, EventArgs e)

@@ -21,7 +21,7 @@ namespace ZwiftActivityMonitorV2
         private int m_splitCount;
         private int m_distanceSeedValue; // the PlayerState.Distance value when first started
         private DateTime m_splitStartTime;
-        //private DateTime m_startTime;
+        private DateTime m_startTime;
         private int m_lastSplitMeters;
 
 
@@ -61,10 +61,12 @@ namespace ZwiftActivityMonitorV2
         {
             if (!m_started)
             {
+                DateTime now = DateTime.Now;
+
                 m_eventCount = 0;
                 m_splitCount = 0;
-                //m_startTime = DateTime.Now;
-                m_splitStartTime = DateTime.Now;
+                m_startTime = now;
+                m_splitStartTime = now;
                 m_lastSplitMeters = 0;
 
                 m_started = true;
@@ -182,7 +184,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void RiderStateEventHandler(object sender, RiderStateEventArgs e)
         {
-            if (!m_started || !ConfiguredSplits.ShowSplits || e.ElapsedTime == null)
+            if (!m_started || !ConfiguredSplits.ShowSplits || e.CollectionTime == null)
                 return;
 
             SplitV2 split = null;
@@ -198,7 +200,7 @@ namespace ZwiftActivityMonitorV2
 
             DateTime now = DateTime.Now;
 
-            TimeSpan runningTime = e.ElapsedTime.Value;
+            TimeSpan runningTime = (now - m_startTime);
             TimeSpan splitTime = (now - m_splitStartTime);
 
             if (m_eventCount++ == 0)

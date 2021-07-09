@@ -16,9 +16,9 @@ namespace ZwiftActivityMonitorV2
 
         private long mWattsSum;
         private long mHRbpmSum;
-        private int  mAPwatts;
+        private double  mAPwatts;
         private int  mHRbpm;
-        private int mAPwattsMax;
+        private double mAPwattsMax;
         private double? mAPwattsPerKgMax;
         private int  mHRbpmMax;
         private int  mDuration; // how long to store recorded readings
@@ -125,6 +125,10 @@ namespace ZwiftActivityMonitorV2
 
             switch (e.Action)
             {
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                    this.ResetValues();
+                    break;
+
                 case CollectionStatusChangedEventArgs.ActionType.Started:
                     this.Start();
                     break;
@@ -149,20 +153,25 @@ namespace ZwiftActivityMonitorV2
         {
             if (!this.mStarted)
             {
-                this.mWattsSum = 0;
-                this.mHRbpmSum = 0;
-                this.mAPwatts = 0;
-                this.mHRbpm = 0;
-                this.mAPwattsMax = 0;
-                this.mAPwattsPerKgMax = 0;
-                this.mHRbpmMax = 0;
-                this.mSampleWattsSumAll = 0;
-                this.mSampleCountAll = 0;
-                this.mWaitingOnPauseResume = false;
-                this.mStatsQueue.Clear();
+                this.ResetValues();
 
                 this.mStarted = true;
             }
+        }
+
+        private void ResetValues()
+        {
+            this.mWattsSum = 0;
+            this.mHRbpmSum = 0;
+            this.mAPwatts = 0;
+            this.mHRbpm = 0;
+            this.mAPwattsMax = 0;
+            this.mAPwattsPerKgMax = 0;
+            this.mHRbpmMax = 0;
+            this.mSampleWattsSumAll = 0;
+            this.mSampleCountAll = 0;
+            this.mWaitingOnPauseResume = false;
+            this.mStatsQueue.Clear();
         }
 
         private void Stop()
@@ -185,9 +194,19 @@ namespace ZwiftActivityMonitorV2
             bool calculateMax = false;
             bool triggerMax = false;
 
-            // AdjustedElapsedTime will be null if Monitoring but not Collecting
-            if (!this.mStarted || e.AdjustedElapsedTime == null || e.IsPaused || this.mWaitingOnPauseResume)
+            // AdjustedCollectionTime will be null if Monitoring but not Collecting
+            if (!this.mStarted || e.AdjustedCollectionTime == null || e.IsPaused || this.mWaitingOnPauseResume)
+            {
+                //if (this.mDuration == 60)
+                //{
+                //    Debug.WriteLine($"MovingAverage not collecting - Duration: {this.mDuration}");
+                //}
                 return;
+            }
+            else
+            {
+                //Debug.WriteLine($"MovingAverage collecting - Duration: {this.mDuration}");
+            }
 
             // the Statistics class captures the values we want to measure
             var stats = new Statistics(e.Power, e.Heartrate);
@@ -204,16 +223,18 @@ namespace ZwiftActivityMonitorV2
 
             if (MetricsCalculatedEvent != null)
             {
-                int apSampleWatts = (int)Math.Round(mSampleWattsSumAll / (double)mSampleCountAll, 0);
+                double apSampleWatts = mSampleWattsSumAll / (double)mSampleCountAll;
                 double? apSampleWattsPerKg = this.CalculateUserWattsPerKg(apSampleWatts);
 
                 // Calculate average speed, distance is given in meters.
                 double distanceKm = (e.Distance - mDistanceSeedValue) / 1000.0;
                 double distanceMi = distanceKm / 1.609;
-                double speedKph = Math.Round((distanceKm / e.AdjustedElapsedTime.Value.TotalSeconds) * 3600, 1);
-                double speedMph = Math.Round((distanceMi / e.AdjustedElapsedTime.Value.TotalSeconds) * 3600, 1);
+                double speedKph = Math.Round((distanceKm / e.AdjustedCollectionTime.Value.TotalSeconds) * 3600, 1);
+                double speedMph = Math.Round((distanceMi / e.AdjustedCollectionTime.Value.TotalSeconds) * 3600, 1);
+                distanceKm = Math.Round(distanceKm, 1);
+                distanceMi = Math.Round(distanceMi, 1);
 
-                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs(apSampleWatts, apSampleWattsPerKg, speedKph, speedMph, e.AdjustedElapsedTime.Value, distanceKm, distanceMi));
+                OnMetricsCalculatedEvent(new MetricsCalculatedEventArgs((int)Math.Round(apSampleWatts, 0), apSampleWattsPerKg, speedKph, speedMph, e.AdjustedCollectionTime.Value, distanceKm, distanceMi));
             }
 
             // If power is zero and excluding values, exit
@@ -250,8 +271,9 @@ namespace ZwiftActivityMonitorV2
             }
 
             // calculate averages
-            int curAvgPower = (int)Math.Round(mWattsSum / (double)mStatsQueue.Count, 0);
+            double curAvgPower = mWattsSum / (double)mStatsQueue.Count;
             double? curAvgWkg = this.CalculateUserWattsPerKg(curAvgPower);
+
             int curAvgHR = (int)Math.Round(mHRbpmSum / (double)mStatsQueue.Count, 0);
 
             // if queue was full, check to see if we have any new max values
@@ -270,7 +292,7 @@ namespace ZwiftActivityMonitorV2
                 }
 
                 // Since buffer was full trigger an event so consumer can use this new average (without waiting for a change).  Used by NormalizedPower
-                OnMovingAverageCalculatedEvent(new MovingAverageCalculatedEventArgs(curAvgPower, mDurationType, e.AdjustedElapsedTime.Value));
+                OnMovingAverageCalculatedEvent(new MovingAverageCalculatedEventArgs((int)Math.Round(curAvgPower, 0), mDurationType, e.AdjustedCollectionTime.Value));
             }
 
             // if either average power or average HR changed, trigger event
@@ -283,12 +305,13 @@ namespace ZwiftActivityMonitorV2
                 // This enables the rider to see what his FTP would be real-time.
 
                 // calculate FTP watts and w/kg based on current average power
-                int ftpWatts = (int)Math.Round(curAvgPower * 0.95, 0);
+                double ftpWatts = curAvgPower * 0.95;
                 double? ftpWattsPerKg = this.CalculateUserWattsPerKg(ftpWatts);
+                ftpWatts = Math.Round(ftpWatts, 0);
 
-                bool ignoreFTP = mAPwatts > 0;
+                bool ignoreFTP = mAPwattsMax > 0;
 
-                OnMovingAverageChangedEvent(new MovingAverageChangedEventArgs(curAvgPower, curAvgWkg, curAvgHR, mDurationType, ftpWatts, ftpWattsPerKg, ignoreFTP));
+                OnMovingAverageChangedEvent(new MovingAverageChangedEventArgs((int)Math.Round(curAvgPower, 0), curAvgWkg, curAvgHR, mDurationType, (int)ftpWatts, ftpWattsPerKg, ignoreFTP));
             }
 
             // if either max average power or max HR changed, trigger event
@@ -297,10 +320,11 @@ namespace ZwiftActivityMonitorV2
                 // Once the time duration is satisfied, FTP will no longer use current average power, it will use the maximum average power.
 
                 // calculate FTP watts and w/kg based on max average power
-                int ftpWattsMax = (int)Math.Round(mAPwattsMax * 0.95, 0);
+                double ftpWattsMax = mAPwattsMax * 0.95;
                 double? ftpWattsPerKgMax = this.CalculateUserWattsPerKg(ftpWattsMax);
+                ftpWattsMax = Math.Round(ftpWattsMax, 0);
 
-                OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs(mAPwattsMax, mAPwattsPerKgMax, mHRbpmMax, mDurationType, ftpWattsMax, ftpWattsPerKgMax));
+                OnMovingAverageMaxChangedEvent(new MovingAverageMaxChangedEventArgs((int)Math.Round(mAPwattsMax, 0), mAPwattsPerKgMax, mHRbpmMax, mDurationType, (int)ftpWattsMax, ftpWattsPerKgMax));
             }
 
             //Logger.LogDebug($"id: {e.PlayerState.Id} watch: {e.PlayerState.WatchingRiderId} power: {stats.Power} HR: {stats.HeartRate} Count: {m_statsQueue.Count} Sum: {m_sumTotal} Avg: {PowerAvg} Oldest: {oldest.TotalSeconds} TTP: {(DateTime.Now - start).TotalMilliseconds} WorldTime: {e.PlayerState.WorldTime} ");

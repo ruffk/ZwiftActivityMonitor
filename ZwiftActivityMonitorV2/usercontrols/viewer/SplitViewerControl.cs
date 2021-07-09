@@ -979,6 +979,10 @@ namespace ZwiftActivityMonitorV2
 
             switch (e.Action)
             {
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                    this.ClearDisplayValues();
+                    break;
+
                 case CollectionStatusChangedEventArgs.ActionType.Started:
                     this.ClearDisplayValues();
                     break;

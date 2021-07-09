@@ -93,7 +93,9 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
             ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+            this.FormSyncOneSecondTimerTickEvent += MainForm_FormSyncOneSecondTimerTickEvent;
         }
+
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -105,9 +107,11 @@ namespace ZwiftActivityMonitorV2
             // Determine window size
             //this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
-            // Toggle the tabs so the first tab gets initialized.  This is important to get the ActivityView row visibility established.
-            tabControl.SelectedIndex = 1;
-            tabControl.SelectedIndex = 0;
+            // Toggle the tabs so that all UCs have their load event called.  This is important so they can receive and process events.
+            this.BeginUpdate();
+            for (int i = this.tabControl.TabPages.Count - 1; i >= 0; i--)
+                tabControl.SelectedIndex = i;
+            this.EndUpdate();
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
             this.SetupDisplayForCurrentUserProfile();
@@ -481,15 +485,15 @@ namespace ZwiftActivityMonitorV2
                 this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenGreen;
             }
 
-            // AdjustedElapsedTime will be null if Monitoring but not Collecting
-            if (e.AdjustedElapsedTime == null)
+            // AdjustedCollectionTime will be null if Monitoring but not Collecting
+            if (e.AdjustedCollectionTime == null)
             {
                 return;
             }
 
-            if (!e.IsPaused)
+            if (ZAMsettings.ZPMonitorService.IsCollectionStarted && !ZAMsettings.ZPMonitorService.IsCollectionPaused)
             {
-                TimeSpan elapsedTime = e.AdjustedElapsedTime.Value;
+                TimeSpan elapsedTime = e.AdjustedCollectionTime.Value;
                 statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes + " min " : "")}{elapsedTime.Seconds + " sec"}";
             }
         }
@@ -543,6 +547,9 @@ namespace ZwiftActivityMonitorV2
                     statusLabel.Text = "ZPM Service Not Running";
                 }
             }
+        }
+        private void MainForm_FormSyncOneSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
+        {
         }
 
         private void tsmiAbout_Click(object sender, EventArgs e)
