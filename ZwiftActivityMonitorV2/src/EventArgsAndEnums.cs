@@ -688,6 +688,7 @@ namespace ZwiftActivityMonitorV2
             {
                 this.CollectionTime = DateTime.Now - collectionStart;
                 this.AdjustedCollectionTime = this.CollectionTime - this.PauseDuration;
+                this.ElapsedTimeSecs = (int)this.AdjustedCollectionTime.Value.TotalSeconds;
             }
         }
 

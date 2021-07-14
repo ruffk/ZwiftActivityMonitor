@@ -233,12 +233,9 @@ namespace ZwiftActivityMonitorV2
             form.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
             form.Style.ShadowOpacity = 0;
 
-            //form.Style.BackColor = colorTable.FormBackground;
-            //form.Style.ForeColor = colorTable.FormTextColor;
-            //Debug.WriteLine($"ForeColor before: {form.ForeColor.R},{form.ForeColor.G},{form.ForeColor.B}");
             form.ForeColor = colorTable.FormTextColor;
-            //Debug.WriteLine($"ForeColor after: {form.ForeColor.R},{form.ForeColor.G},{form.ForeColor.B}");
             form.BackColor = colorTable.FormBackground;
+
 
             return colorTable;
         }

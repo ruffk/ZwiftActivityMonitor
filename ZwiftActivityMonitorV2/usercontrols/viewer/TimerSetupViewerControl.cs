@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class TimerSetupViewerControl : ViewerUserControlEx
+    public partial class TimerSetupViewerControl : ViewerControlEx
     {
         private TimeSpan TimeRemaining { get; set; }
         public bool IsTimerRunning { get; set; }

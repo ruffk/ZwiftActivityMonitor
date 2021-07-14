@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class LapViewerControl : ViewerUserControlEx
+    public partial class LapViewerControl : ViewerControlEx
     {
         /// <summary>
         /// Extension renderer class to avoid the pesky border under a ToolStrip control

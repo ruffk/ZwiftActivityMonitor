@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace ZwiftActivityMonitorV2
 {
 
-    public partial class SplitViewerControl : ViewerUserControlEx
+    public partial class SplitViewerControl : ViewerControlEx
     {
         private enum DetailColumn
         {

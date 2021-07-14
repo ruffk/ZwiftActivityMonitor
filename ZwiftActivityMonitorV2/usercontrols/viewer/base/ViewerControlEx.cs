@@ -8,7 +8,7 @@ using System.Drawing.Drawing2D;
 
 namespace ZwiftActivityMonitorV2
 {
-    public class ViewerUserControlEx : UserControl
+    public class ViewerControlEx : UserControl
     {
         // A height of 19 is minimum when using Segoe UI 9pt font
         protected const int DataGridRowMinimumHeight = 19;

@@ -260,6 +260,8 @@ namespace ZwiftActivityMonitorV2
                 this.mPlayerPauseStartTime = null;
                 this.mPauseDuration = TimeSpan.Zero;
                 this.mLastEventTimeUpdate = null;
+                this.mLapTestingPlaybackInProgress = false;
+                this.mLapTestingQueue.Clear();
 
                 this.IsCollectionStarted = true;
                 this.IsCollectionPaused = false;
@@ -510,6 +512,9 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        private Queue<RiderStateEventArgs> mLapTestingQueue = new();
+        private bool mLapTesting = true;
+        private bool mLapTestingPlaybackInProgress;
 
         /// <summary>
         /// Simulate rider activity, should be called 2-3 times per second
@@ -520,50 +525,46 @@ namespace ZwiftActivityMonitorV2
             if (!IsZPMonitorStarted)
                 return;
 
+            RiderStateEventArgs e = null;
             Random r = new();
 
-            this.mSimulationDistance += r.Next(3, 6); // Should increase about 10..20 per second
-            this.mSimulationRoadTime += r.Next(500, 850); // Should increase about 1500..2500 per second
-
-            bool playerIsPaused = false; 
-            TimeSpan pauseDuration = TimeSpan.Zero;
-
-            //if (this.IsCollectionStarted)
-            //{
-            //    playerIsPaused = (this.EventsProcessed >= 30 && this.EventsProcessed < 40);
-            //    if (playerIsPaused)
-            //    {
-            //        // 
-            //        if (mPlayerPauseStartTime == null)
-            //        {
-            //            // keep track of when the pause started
-            //            mPlayerPauseStartTime = DateTime.Now;
-            //        }
-            //        else
-            //        {
-            //            // determine the total duration of this pause, and any previous pauses
-            //            pauseDuration = mPauseDuration + (DateTime.Now - mPlayerPauseStartTime.Value);
-            //        }
-            //    }
-            //    else if (mPlayerPauseStartTime != null)
-            //    {
-            //        // no longer paused, save the total as it may happen again
-            //        mPauseDuration += (DateTime.Now - mPlayerPauseStartTime.Value);
-            //        mPlayerPauseStartTime = null;
-            //    }
-            //}
-
-            RiderStateEventArgs e = new RiderStateEventArgs(mCollectionStartTime, playerIsPaused, pauseDuration)
+            if (this.mLapTesting && this.mLapTestingPlaybackInProgress)
             {
-                Id = 422258,
-                Power = r.Next(mSimulationPowerLowRange, mSimulationPowerHighRange),
-                Heartrate = r.Next(130, 175),
-                Distance = mSimulationDistance,
-                RoadId = 1,
-                IsForward = true,
-                Course = 6,
-                RoadLocation = mSimulationRoadTime,
-            };
+                if (this.mLapTestingQueue.Count > 0)
+                {
+                    e = this.mLapTestingQueue.Dequeue();
+
+                    this.mSimulationDistance += r.Next(3, 6); // Should increase about 10..20 per second
+                    e.Distance = mSimulationDistance;
+                }
+                else
+                {
+                    this.mLapTestingPlaybackInProgress = false;
+                    this.mLapTesting = false;
+                    Logger.LogDebug($"{this.GetType()}::ActivitySimulationTimerCallback - Lap Testing playback completed");
+                }
+            }
+
+            if (e == null)
+            {
+                this.mSimulationDistance += r.Next(3, 6); // Should increase about 10..20 per second
+                this.mSimulationRoadTime += r.Next(500, 850); // Should increase about 1500..2500 per second
+
+                bool playerIsPaused = false;
+                TimeSpan pauseDuration = TimeSpan.Zero;
+
+                e = new RiderStateEventArgs(mCollectionStartTime, playerIsPaused, pauseDuration)
+                {
+                    Id = 422258,
+                    Power = r.Next(mSimulationPowerLowRange, mSimulationPowerHighRange),
+                    Heartrate = r.Next(130, 175),
+                    Distance = mSimulationDistance,
+                    RoadId = 1,
+                    IsForward = true,
+                    Course = 6,
+                    RoadLocation = mSimulationRoadTime,
+                };
+            }
 
             lock (this)
             {
@@ -571,6 +572,17 @@ namespace ZwiftActivityMonitorV2
                 this.mPlayerElapsedTime = DateTime.Now - mMonitorStartTime.Value;
                 this.mPlayerRoadLocation = mSimulationRoadTime;
                 mLatestRiderStateEventArgs = e;
+            }
+
+            if (this.mCollectionStartTime != null && this.mLapTesting && !this.mLapTestingPlaybackInProgress)
+            {
+                this.mLapTestingQueue.Enqueue(e);
+
+                if ((DateTime.Now - this.mCollectionStartTime.Value).TotalMinutes >= 1)
+                {
+                    this.mLapTestingPlaybackInProgress = true;
+                    Logger.LogDebug($"{this.GetType()}::ActivitySimulationTimerCallback - Lap Testing playback starting");
+                }
             }
 
             // For some applications we might want to see every packet, so provide a high-resolution event.

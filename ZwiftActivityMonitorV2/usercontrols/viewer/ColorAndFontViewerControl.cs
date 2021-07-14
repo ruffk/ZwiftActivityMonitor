@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class ColorAndFontViewerControl : ViewerUserControlEx
+    public partial class ColorAndFontViewerControl : ViewerControlEx
     {
         private bool InitializingControls { get; set; } = false;
         private readonly ILogger<ColorAndFontViewerControl> Logger;

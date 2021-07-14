@@ -46,7 +46,7 @@ namespace ZwiftActivityMonitorV2
             {
                 Waypoint searchWp;
 
-                //Logger.LogDebug($"CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
+                Logger.LogDebug($"{this.GetType()}::CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
 
                 if (e.IsForward) // RoadTime values are increasing
                 {
@@ -184,7 +184,7 @@ namespace ZwiftActivityMonitorV2
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}::ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             switch(e.Action)
             {
@@ -307,6 +307,7 @@ namespace ZwiftActivityMonitorV2
                         case Lap.LapTriggerType.Position:
                             if (LapWaypoints.CheckWaypointCrossings(e) != null)
                             {
+                                Logger.LogDebug($"{this.GetType()}::RiderStateEventHandler - Waypoint crossed, auto-lap triggered.");
                                 autoLapOccurred = true;
                                 autoLapStatusMsg = "Auto-Lap by position triggered.";
                                 m_beginNewLap = true;

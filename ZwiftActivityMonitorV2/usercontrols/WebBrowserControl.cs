@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ZwiftActivityMonitorV2.usercontrols.viewer
+namespace ZwiftActivityMonitorV2
 {
-    public partial class UserControl1 : UserControl
+    public partial class WebBrowserControl : UserControl
     {
-        public UserControl1()
+        public WebBrowserControl()
         {
             InitializeComponent();
         }

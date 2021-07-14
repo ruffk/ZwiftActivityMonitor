@@ -236,6 +236,27 @@ namespace ZwiftActivityMonitorV2
 
         }
 
+        protected override void OnBackColorChanged(EventArgs e)
+        {
+            //Debug.WriteLine($"{this.GetType()}::OnBackColorChanged");
+            //base.OnBackColorChanged(e);
+
+            //this.btnClose.BackColor = this.BackColor;
+            //this.btnStart.BackColor = this.BackColor;
+            //this.btnStop.BackColor = this.BackColor;
+        }
+
+        protected override void OnForeColorChanged(EventArgs e)
+        {
+            //Debug.WriteLine($"{this.GetType()}::OnForeColorChanged");
+            //base.OnForeColorChanged(e);
+
+            //this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
+            //this.btnClose.ForeColor = this.ForeColor;
+            //this.btnStart.ForeColor = this.ForeColor;
+            //this.btnStop.ForeColor = this.ForeColor;
+        }
+
         private void AdvancedOptions_BackColorChanged(object sender, EventArgs e)
         {
             //Debug.WriteLine($"AdvancedOptions_BackColorChanged");

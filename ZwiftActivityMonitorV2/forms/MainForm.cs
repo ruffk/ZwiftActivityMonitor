@@ -35,6 +35,10 @@ namespace ZwiftActivityMonitorV2
         private bool mOneTimeInitializationsCompleted;
         private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
 
+        private LapStatusViewerControl mLapStatusViewerControl;
+        private int mStatusViewerDuration;
+        private StatusViewerControlEx mStatusViewer;
+
 
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
@@ -50,6 +54,9 @@ namespace ZwiftActivityMonitorV2
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
 
             InitializeComponent();
+
+            this.mLapStatusViewerControl = new();
+            this.Controls.Add(this.mLapStatusViewerControl);
 
             //MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
             this.BeginUpdate();
@@ -87,8 +94,8 @@ namespace ZwiftActivityMonitorV2
 
             this.EndUpdate();
 
-            ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
-            ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent; 
+            this.ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
+            this.ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
             ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
             ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
@@ -112,6 +119,9 @@ namespace ZwiftActivityMonitorV2
             for (int i = this.tabControl.TabPages.Count - 1; i >= 0; i--)
                 tabControl.SelectedIndex = i;
             this.EndUpdate();
+
+            this.ucLapView.LapCompletedEvent += LapView_LapCompletedEvent;
+
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
             this.SetupDisplayForCurrentUserProfile();
@@ -149,9 +159,45 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.StopMonitor();
         }
 
+        /// <summary>
+        /// A delegate used solely by the LapView_LapCompletedEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void LapView_LapCompletedEventDelegate(object sender, LapEventArgs e);
+
+        private void LapView_LapCompletedEvent(object sender, LapEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new LapView_LapCompletedEventDelegate(LapView_LapCompletedEvent), new object[] { sender, e });
+                return;
+            }
+            Logger.LogDebug($"{this.GetType()}::LapView_LapCompletedEvent");
+
+            if (this.mStatusViewer == null)
+            {
+                this.mLapStatusViewerControl.CreateDocumentText(e);
+
+                this.mStatusViewer = this.mLapStatusViewerControl;
+
+                this.mStatusViewer.Dock = DockStyle.Fill;
+                this.mStatusViewer.BringToFront();
+                this.mStatusViewer.Show();
+
+                this.mStatusViewerDuration = 10;
+            }
+        }
+
+        private void tsmiAbout_Click(object sender, EventArgs e)
+        {
+            this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 1.0, 2.0, 300, 4.0, TimeSpan.Zero, 55.0, 66.0));
+        }
+
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.ZAMsettings_SystemConfigChanged");
+            Logger.LogDebug($"{this.GetType()}::ZAMsettings_SystemConfigChanged");
 
             this.SetupDisplayForCurrentUserProfile();
         }
@@ -187,6 +233,11 @@ namespace ZwiftActivityMonitorV2
 
             Color dynamicForeColor = colorTable.FormTextColor;
             Color dynamicBackColor = colorTable.FormBackground;
+
+            Debug.WriteLine($"ForeColor: {dynamicForeColor.R:x2}{dynamicForeColor.G:x2}{dynamicForeColor.B:x2}");
+            Debug.WriteLine($"BackColor: {dynamicBackColor.R:x2}{dynamicBackColor.G:x2}{dynamicBackColor.B:x2}");
+            Debug.WriteLine($"ActiveTitleGradientEnd: {colorTable.ActiveTitleGradientEnd.R:x2}{colorTable.ActiveTitleGradientEnd.G:x2}{colorTable.ActiveTitleGradientEnd.B:x2}");
+            Debug.WriteLine($"ActiveFormBorderColor: {colorTable.ActiveFormBorderColor.R:x2}{colorTable.ActiveFormBorderColor.G:x2}{colorTable.ActiveFormBorderColor.B:x2}");
 
             if (ZAMsettings.Settings.Appearance.TransparencySetting != TransparencyType.NotTransparent)
             {
@@ -548,13 +599,7 @@ namespace ZwiftActivityMonitorV2
                 }
             }
         }
-        private void MainForm_FormSyncOneSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
-        {
-        }
 
-        private void tsmiAbout_Click(object sender, EventArgs e)
-        {
-        }
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
         {
@@ -641,6 +686,28 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        private void MainForm_FormSyncOneSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
+        {
+            if (!this.mOneTimeInitializationsCompleted)
+            {
+                // We invoke a delegate so this gets posted and doesn't block
+                mDispatcher.BeginInvoke(new MainForm_OneTimeInitializationsDelegate(MainForm_OneTimeInitializations), new object[] { });
+
+                this.mOneTimeInitializationsCompleted = true;
+            }
+
+            if (this.mStatusViewerDuration > 0)
+            {
+                if (--this.mStatusViewerDuration <= 0)
+                {
+                    this.mStatusViewer.SendToBack();
+                    this.mStatusViewer.Dock = DockStyle.None;
+                    this.mStatusViewer.Hide();
+                    this.mStatusViewer = null;
+                }
+            }
+        }
+
         /// <summary>
         /// General use timer set for one second intervals
         /// </summary>
@@ -649,14 +716,6 @@ namespace ZwiftActivityMonitorV2
         private void formSyncTimer_Tick(object sender, EventArgs e)
         {
             mSyncFormTimerTickCount++;
-
-            if (!this.mOneTimeInitializationsCompleted)
-            {
-                // We invoke a delegate so this gets posted and doesn't block
-                mDispatcher.BeginInvoke(new MainForm_OneTimeInitializationsDelegate(MainForm_OneTimeInitializations), new object[] { });
-
-                this.mOneTimeInitializationsCompleted = true;
-            }
 
             // The one second timer gets the actual tick count in it's event args
             OnFormSyncOneSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount));

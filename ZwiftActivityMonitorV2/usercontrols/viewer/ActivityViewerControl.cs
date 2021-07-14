@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace ZwiftActivityMonitorV2
 {
 
-    public partial class ActivityViewerControl : ViewerUserControlEx
+    public partial class ActivityViewerControl : ViewerControlEx
     {
         protected enum DetailColumn
         {
