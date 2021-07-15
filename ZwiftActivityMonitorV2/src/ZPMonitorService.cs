@@ -47,6 +47,13 @@ namespace ZwiftActivityMonitorV2
 
         public bool SimulateRiderActivity { get; internal set; }
 
+        private const bool LAP_TESTING_WHEN_SIMULATING_POWER_DEFAULT = true;
+
+        private Queue<RiderStateEventArgs> mLapTestingQueue = new();
+        private bool mLapTesting;
+        private bool mLapTestingPlaybackInProgress;
+
+
 
         public event EventHandler<RiderStateEventArgs> RiderStateEvent;
         public event EventHandler<RiderStateEventArgs> HighResRiderStateEvent;
@@ -260,8 +267,10 @@ namespace ZwiftActivityMonitorV2
                 this.mPlayerPauseStartTime = null;
                 this.mPauseDuration = TimeSpan.Zero;
                 this.mLastEventTimeUpdate = null;
+
                 this.mLapTestingPlaybackInProgress = false;
                 this.mLapTestingQueue.Clear();
+                this.mLapTesting = LAP_TESTING_WHEN_SIMULATING_POWER_DEFAULT;
 
                 this.IsCollectionStarted = true;
                 this.IsCollectionPaused = false;
@@ -512,9 +521,6 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        private Queue<RiderStateEventArgs> mLapTestingQueue = new();
-        private bool mLapTesting = true;
-        private bool mLapTestingPlaybackInProgress;
 
         /// <summary>
         /// Simulate rider activity, should be called 2-3 times per second
@@ -532,10 +538,21 @@ namespace ZwiftActivityMonitorV2
             {
                 if (this.mLapTestingQueue.Count > 0)
                 {
-                    e = this.mLapTestingQueue.Dequeue();
+                    RiderStateEventArgs q = this.mLapTestingQueue.Dequeue();
 
                     this.mSimulationDistance += r.Next(3, 6); // Should increase about 10..20 per second
-                    e.Distance = mSimulationDistance;
+
+                    e = new RiderStateEventArgs(mCollectionStartTime, q.IsPaused, q.PauseDuration)
+                    {
+                        Id = q.Id,
+                        Power = r.Next(mSimulationPowerLowRange, mSimulationPowerHighRange),
+                        Heartrate = r.Next(130, 175),
+                        Distance = mSimulationDistance,
+                        RoadId = q.RoadId,
+                        IsForward = q.IsForward,
+                        Course = q.Course,
+                        RoadLocation = q.RoadLocation,
+                    };
                 }
                 else
                 {

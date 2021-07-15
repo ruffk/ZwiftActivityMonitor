@@ -15,10 +15,11 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class LapStatusViewerControl : StatusViewerControlEx
     {
-        private Dispatcher UIdispatcher;
+        //private Dispatcher UIdispatcher;
         private readonly ILogger<LapStatusViewerControl> Logger;
+        private LapEventArgs mLapEventArgs;
 
-        public LapStatusViewerControl()
+        public LapStatusViewerControl(LapEventArgs lapEventArgs)
         {
             InitializeComponent();
 
@@ -29,20 +30,11 @@ namespace ZwiftActivityMonitorV2
                 return;
 
             Logger = ZAMsettings.LoggerFactory.CreateLogger<LapStatusViewerControl>();
+
+            this.mLapEventArgs = lapEventArgs;
         }
 
-        private void LapStatusViewerControl_Load(object sender, EventArgs e)
-        {
-            if (this.DesignMode)
-                return;
-
-            Logger.LogDebug($"{this.GetType()}::ViewControl_Load");
-
-            // for handling UI events
-            this.UIdispatcher = Dispatcher.CurrentDispatcher;
-        }
-
-        public void CreateDocumentText(LapEventArgs e)
+        public void CreateDocumentText()
         {
             /*
                 #000001 BackColor
@@ -61,18 +53,29 @@ namespace ZwiftActivityMonitorV2
 
             string lapStatus = Properties.Resources.LapStatus;
 
-            lapStatus = lapStatus.Replace("LapAPwattsPerKg", e.LapAPwattsPerKg.HasValue ? e.LapAPwattsPerKg.Value.ToString("0.00") : "");
-            lapStatus = lapStatus.Replace("LapAPwatts", e.LapAPwatts.ToString());
-            lapStatus = lapStatus.Replace("LapDistanceKm", e.LapDistanceKm.ToString("0.0"));
-            lapStatus = lapStatus.Replace("LapDistanceMi", e.LapDistanceMi.ToString("0.0"));
-            lapStatus = lapStatus.Replace("LapNumber", e.LapNumber.ToString());
-            lapStatus = lapStatus.Replace("LapSpeedKph", e.LapSpeedKph.ToString("0.0"));
-            lapStatus = lapStatus.Replace("LapSpeedMph", e.LapSpeedMph.ToString("0.0"));
-            lapStatus = lapStatus.Replace("LapTime", e.LapTime.ToString());
-            lapStatus = lapStatus.Replace("TotalTime", e.TotalTime.ToString());
+            lapStatus = lapStatus.Replace("LapAPwattsPerKg", this.mLapEventArgs.LapAPwattsPerKg.HasValue ? this.mLapEventArgs.LapAPwattsPerKg.Value.ToString("0.00") : "");
+            lapStatus = lapStatus.Replace("LapAPwatts", this.mLapEventArgs.LapAPwatts.ToString());
+            lapStatus = lapStatus.Replace("LapDistanceKm", this.mLapEventArgs.LapDistanceKm.ToString("0.0"));
+            lapStatus = lapStatus.Replace("LapDistanceMi", this.mLapEventArgs.LapDistanceMi.ToString("0.0"));
+            lapStatus = lapStatus.Replace("LapNumber", this.mLapEventArgs.LapNumber.ToString());
+            lapStatus = lapStatus.Replace("LapSpeedKph", this.mLapEventArgs.LapSpeedKph.ToString("0.0"));
+            lapStatus = lapStatus.Replace("LapSpeedMph", this.mLapEventArgs.LapSpeedMph.ToString("0.0"));
+            lapStatus = lapStatus.Replace("LapTime", this.mLapEventArgs.LapTime.ToString());
+            lapStatus = lapStatus.Replace("TotalTime", this.mLapEventArgs.TotalTime.ToString());
 
             Logger.LogDebug($"{this.GetType()}::CreateDocumentText - \n{lapStatus}");
             this.DocumentText = styleSheet + lapStatus;
         }
+
+        public override void InitializeStatus(Form form)
+        {
+            Logger.LogDebug($"{this.GetType()}::InitializeStatus");
+
+            base.InitializeStatus(form);
+
+            // populate browser control
+            this.CreateDocumentText();
+        }
+
     }
 }

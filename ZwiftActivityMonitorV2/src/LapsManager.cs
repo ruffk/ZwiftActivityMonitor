@@ -39,6 +39,8 @@ namespace ZwiftActivityMonitorV2
 
             public void Add(RiderStateEventArgs e)
             {
+                //Logger.LogDebug($"{this.GetType()}::Add - Waypoint RoadId: {e.RoadId}, IsForward: {e.IsForward}, Course: {e.Course}, RoadLocation: {e.RoadLocation}");
+
                 this.Add(new Waypoint(e.RoadId, e.IsForward, e.Course, e.RoadLocation));
             }
 
@@ -46,7 +48,7 @@ namespace ZwiftActivityMonitorV2
             {
                 Waypoint searchWp;
 
-                Logger.LogDebug($"{this.GetType()}::CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
+                //Logger.LogDebug($"{this.GetType()}::CheckWaypointCrossings - Waypoints: {WaypointList.Count}");
 
                 if (e.IsForward) // RoadTime values are increasing
                 {

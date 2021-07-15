@@ -103,23 +103,21 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;HTML&gt;
         ///    &lt;BODY&gt;
-        ///        &lt;table class=&quot;blueTable&quot;&gt;
+        ///        &lt;table class=&quot;customTable&quot;&gt;
         ///            &lt;thead&gt;
         ///                &lt;tr&gt;
-        ///                    &lt;th colspan=&quot;6&quot;&gt;LAPS&lt;/th&gt;
+        ///                    &lt;th colspan=&quot;6&quot; class=&quot;inverse&quot;&gt;LAP COMPLETED&lt;/th&gt;
         ///                &lt;/tr&gt;
         ///                &lt;tr&gt;
         ///                    &lt;th&gt;Lap #&lt;/th&gt;
-        ///                    &lt;th&gt;Time&lt;/th&gt;
+        ///                    &lt;th&gt;Lap&lt;br/&gt;Time&lt;/th&gt;
         ///                    &lt;th&gt;KPH&lt;br/&gt;MPH&lt;/th&gt;
         ///                    &lt;th&gt;KM&lt;br/&gt;MI&lt;/th&gt;
-        ///                    &lt;th&gt;AP&lt;/th&gt;
-        ///                    &lt;th&gt;Total Time&lt;/th&gt;
+        ///                    &lt;th&gt;AP&lt;br/&gt;W/KG&lt;/th&gt;
+        ///                    &lt;th&gt;Total&lt;br/&gt;Time&lt;/th&gt;
         ///                &lt;/tr&gt;
         ///            &lt;/thead&gt;
-        ///            &lt;!--&lt;tfoot&gt;
-        ///                &lt;tr&gt;
-        ///    [rest of string was truncated]&quot;;.
+        ///   [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string LapStatus {
             get {
@@ -140,10 +138,45 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap reset {
+            get {
+                object obj = ResourceManager.GetObject("reset", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap split {
             get {
                 object obj = ResourceManager.GetObject("split", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;HTML&gt;
+        ///    &lt;BODY&gt;
+        ///        &lt;table class=&quot;customTable&quot;&gt;
+        ///            &lt;thead&gt;
+        ///                &lt;tr&gt;
+        ///                    &lt;th colspan=&quot;6&quot; class=&quot;inverse&quot;&gt;LAP COMPLETED&lt;/th&gt;
+        ///                &lt;/tr&gt;
+        ///                &lt;tr&gt;
+        ///                    &lt;th&gt;Lap #&lt;/th&gt;
+        ///                    &lt;th&gt;Lap&lt;br/&gt;Time&lt;/th&gt;
+        ///                    &lt;th&gt;KPH&lt;br/&gt;MPH&lt;/th&gt;
+        ///                    &lt;th&gt;KM&lt;br/&gt;MI&lt;/th&gt;
+        ///                    &lt;th&gt;AP&lt;br/&gt;W/KG&lt;/th&gt;
+        ///                    &lt;th&gt;Total&lt;br/&gt;Time&lt;/th&gt;
+        ///                &lt;/tr&gt;
+        ///            &lt;/thead&gt;
+        ///   [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SplitStatus {
+            get {
+                return ResourceManager.GetString("SplitStatus", resourceCulture);
             }
         }
         
@@ -200,7 +233,7 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;style type=&quot;text/css&quot; &gt;
         ///    table.blueTable {
-        ///        font-family: Arial Narrow, sans-serif;
+        ///        font-family: Arial, sans-serif;
         ///        border: 1px solid #1C6EA4;
         ///        background-color: #EEEEEE;
         ///        width: 100%;
@@ -208,20 +241,17 @@ namespace ZwiftActivityMonitorV2.Properties {
         ///        border-collapse: collapse;
         ///    }
         ///
-        ///table.blueTable td, table.blueTable th {
-        ///    border: 1px solid #AAAAAA;
-        ///    padding: 3px 2px;
-        ///}
+        ///        table.blueTable td, table.blueTable th {
+        ///            border: 1px solid #AAAAAA;
+        ///            padding: 3px 2px;
+        ///        }
         ///
-        ///table.blueTable tbody td {
-        ///    font-size: 12px;
-        ///}
+        ///        table.blueTable tbody td {
+        ///            font-size: 13px;
+        ///            font-weight: bold;
+        ///        }
         ///
-        ///table.blueTable tr:nth-child(even) {
-        ///    background: #D0E4F5;
-        ///}
-        ///
-        ///table.blueTable thead [rest of string was truncated]&quot;;.
+        ///        t [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string StyleSheet {
             get {

@@ -606,7 +606,7 @@ namespace ZwiftActivityMonitorV2
     }
 
 
-    public class RiderStateEventArgs : EventArgs
+    public class RiderStateEventArgs : EventArgs, ICloneable
     {
         public int Id { get; set; }
         public int Power { get; set; }
@@ -715,6 +715,10 @@ namespace ZwiftActivityMonitorV2
             return str;
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 
     public class SpeedDisplayTypeChangedEventArgs : EventArgs

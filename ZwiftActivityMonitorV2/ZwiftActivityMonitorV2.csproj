@@ -66,6 +66,9 @@
     <Compile Update="forms\SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="usercontrols\viewer\SplitStatusViewerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="usercontrols\config\LapConfigControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

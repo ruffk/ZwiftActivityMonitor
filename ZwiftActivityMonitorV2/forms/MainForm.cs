@@ -27,7 +27,6 @@ namespace ZwiftActivityMonitorV2
         private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
 
         private readonly ILogger<MainForm> Logger;
-        //private readonly IServiceProvider ServiceProvider;
 
         private string HomeTitle = "Zwift Activity Monitor";
 
@@ -35,10 +34,7 @@ namespace ZwiftActivityMonitorV2
         private bool mOneTimeInitializationsCompleted;
         private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
 
-        private LapStatusViewerControl mLapStatusViewerControl;
-        private int mStatusViewerDuration;
-        private StatusViewerControlEx mStatusViewer;
-
+        private Queue<StatusViewerControlEx> mStatusViewerQueue = new();
 
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
@@ -55,10 +51,6 @@ namespace ZwiftActivityMonitorV2
 
             InitializeComponent();
 
-            this.mLapStatusViewerControl = new();
-            this.Controls.Add(this.mLapStatusViewerControl);
-
-            //MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
             this.BeginUpdate();
             
             ZAMappearance.ApplyColorTable(this);
@@ -121,6 +113,8 @@ namespace ZwiftActivityMonitorV2
             this.EndUpdate();
 
             this.ucLapView.LapCompletedEvent += LapView_LapCompletedEvent;
+            this.ucSplitView.SplitCompletedEvent += SplitView_SplitCompletedEvent;
+            this.ucSplitView.SplitGoalCompletedEvent += SplitView_SplitCompletedEvent;
 
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
@@ -128,6 +122,7 @@ namespace ZwiftActivityMonitorV2
 
             this.SetControlColors();
         }
+
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -159,6 +154,7 @@ namespace ZwiftActivityMonitorV2
             ZAMsettings.ZPMonitorService.StopMonitor();
         }
 
+
         /// <summary>
         /// A delegate used solely by the LapView_LapCompletedEvent
         /// </summary>
@@ -176,23 +172,34 @@ namespace ZwiftActivityMonitorV2
             }
             Logger.LogDebug($"{this.GetType()}::LapView_LapCompletedEvent");
 
-            if (this.mStatusViewer == null)
-            {
-                this.mLapStatusViewerControl.CreateDocumentText(e);
-
-                this.mStatusViewer = this.mLapStatusViewerControl;
-
-                this.mStatusViewer.Dock = DockStyle.Fill;
-                this.mStatusViewer.BringToFront();
-                this.mStatusViewer.Show();
-
-                this.mStatusViewerDuration = 10;
-            }
+            this.mStatusViewerQueue.Enqueue(new LapStatusViewerControl(e));
         }
+
+        /// <summary>
+        /// A delegate used solely by the SplitView_SplitCompletedEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void SplitView_SplitCompletedEventDelegate(object sender, SplitEventArgs e);
+
+        private void SplitView_SplitCompletedEvent(object sender, SplitEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new SplitView_SplitCompletedEventDelegate(SplitView_SplitCompletedEvent), new object[] { sender, e });
+                return;
+            }
+            Logger.LogDebug($"{this.GetType()}::SplitView_SplitCompletedEvent");
+
+            this.mStatusViewerQueue.Enqueue(new SplitStatusViewerControl(e));
+        }
+
 
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
-            this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 1.0, 2.0, 300, 4.0, TimeSpan.Zero, 55.0, 66.0));
+            //this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 300, 4.0, TimeSpan.Zero, 88.8, 88.8));
+            this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
@@ -696,14 +703,16 @@ namespace ZwiftActivityMonitorV2
                 this.mOneTimeInitializationsCompleted = true;
             }
 
-            if (this.mStatusViewerDuration > 0)
+            if (!StatusViewerControlEx.IsVisible && this.mStatusViewerQueue.Count > 0)
             {
-                if (--this.mStatusViewerDuration <= 0)
+                StatusViewerControlEx v = this.mStatusViewerQueue.Dequeue();
+
+                // don't show lap status announcement if already sitting on lap tab
+                if (!(v is LapStatusViewerControl && this.tabControl.SelectedTab.Name == "tpLap") &&
+                    !(v is SplitStatusViewerControl && this.tabControl.SelectedTab.Name == "tpSplit"))
                 {
-                    this.mStatusViewer.SendToBack();
-                    this.mStatusViewer.Dock = DockStyle.None;
-                    this.mStatusViewer.Hide();
-                    this.mStatusViewer = null;
+                    v.InitializeStatus(this);
+                    v.ShowStatus();
                 }
             }
         }

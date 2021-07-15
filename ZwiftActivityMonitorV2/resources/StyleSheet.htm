@@ -72,6 +72,8 @@
 
     body {
         background-color: #000001;
+        margin: 0;
+        padding: 0;
     }
 
     table.customTable {
@@ -90,7 +92,7 @@
         }
 
         table.customTable tbody td {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -104,13 +106,12 @@
         }
 
             table.customTable thead th {
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: bold;
                 color: #000003;
                 text-align: center;
                 border-left: 2px solid #000002;
             }
-
                 table.customTable thead th:first-child {
                     border-left: none;
                 }
@@ -126,4 +127,10 @@
             table.customTable tfoot td {
                 font-size: 14px;
             }
+
+        table.customTable .inverse {
+            background: #000003;
+            color: #000004;
+        }
+
 </style>

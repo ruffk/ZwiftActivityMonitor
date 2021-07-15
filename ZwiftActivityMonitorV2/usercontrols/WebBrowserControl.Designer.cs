@@ -36,6 +36,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
             this.webBrowser.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser.Margin = new System.Windows.Forms.Padding(0);
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.Size = new System.Drawing.Size(150, 150);
             this.webBrowser.TabIndex = 1;
