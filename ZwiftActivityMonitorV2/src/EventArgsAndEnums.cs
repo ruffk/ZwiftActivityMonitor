@@ -188,8 +188,10 @@ namespace ZwiftActivityMonitorV2
     public enum DurationType
     {
         FiveSeconds = 5,
+        FifteenSeconds = 15,
         ThirtySeconds = 30,
         OneMinute = 60,
+        TwoMinutes = 120,
         FiveMinutes = 300,
         SixMinutes = 360,
         TenMinutes = 600,
@@ -212,8 +214,10 @@ namespace ZwiftActivityMonitorV2
             EnumList = new Dictionary<DurationType, EnumListItem>();
 
             EnumList.Add(DurationType.FiveSeconds, new EnumListItem("5 sec"));
+            EnumList.Add(DurationType.FifteenSeconds, new EnumListItem("15 sec"));
             EnumList.Add(DurationType.ThirtySeconds, new EnumListItem("30 sec"));
             EnumList.Add(DurationType.OneMinute, new EnumListItem("1 min"));
+            EnumList.Add(DurationType.TwoMinutes, new EnumListItem("2 min"));
             EnumList.Add(DurationType.FiveMinutes, new EnumListItem("5 min"));
             EnumList.Add(DurationType.SixMinutes, new EnumListItem("6 min"));
             EnumList.Add(DurationType.TenMinutes, new EnumListItem("10 min"));

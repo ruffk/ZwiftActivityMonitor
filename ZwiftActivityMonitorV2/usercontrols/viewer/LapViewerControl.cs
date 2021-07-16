@@ -14,18 +14,6 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class LapViewerControl : ViewerControlEx
     {
-        /// <summary>
-        /// Extension renderer class to avoid the pesky border under a ToolStrip control
-        /// </summary>
-        public class ToolStripProfessionalRendererEx : ToolStripProfessionalRenderer
-        {
-            protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
-            {
-                if (!(e.ToolStrip is ToolStrip))
-                    base.OnRenderToolStripBorder(e);
-            }
-        }
-
         private enum DetailColumn
         {
             LapNumber = 0,
@@ -108,9 +96,9 @@ namespace ZwiftActivityMonitorV2
                 this.DetailGrid.Columns[(int)DetailColumn.LapNumber].HeaderText = LapViewMetricEnum.Instance.GetColumnHeaderText(LapViewMetricType.DetailLapNumber);
                 this.DetailGrid.Columns[(int)DetailColumn.LapNumber].Tag = LapViewMetricType.DetailLapNumber;
 
-                this.DetailGrid.Columns[(int)DetailColumn.LapTime].Width = 51;
+                this.DetailGrid.Columns[(int)DetailColumn.LapTime].Width = 65;
                 this.DetailGrid.Columns[(int)DetailColumn.LapTime].HeaderText = LapViewMetricEnum.Instance.GetColumnHeaderText(LapViewMetricType.DetailLapTime);
-                this.DetailGrid.Columns[(int)DetailColumn.LapTime].DefaultCellStyle.Format = "mm\\:ss";
+                this.DetailGrid.Columns[(int)DetailColumn.LapTime].DefaultCellStyle.Format = "h\\:mm\\:ss";
                 this.DetailGrid.Columns[(int)DetailColumn.LapTime].Tag = LapViewMetricType.DetailLapTime;
 
                 this.DetailGrid.Columns[(int)DetailColumn.LapSpeed].Width = 48;

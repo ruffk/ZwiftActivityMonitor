@@ -51,17 +51,22 @@ namespace ZwiftActivityMonitorV2
             styleSheet = styleSheet.Replace("000003", $"{colorTable.FormTextColor.R:X2}{ colorTable.FormTextColor.G:X2}{ colorTable.FormTextColor.B:X2}");
             styleSheet = styleSheet.Replace("000004", $"{colorTable.ActiveTitleGradientEnd.R:X2}{ colorTable.ActiveTitleGradientEnd.G:X2}{ colorTable.ActiveTitleGradientEnd.B:X2}");
 
-            string lapStatus = Properties.Resources.LapStatus;
+            string lapStatus = Properties.Resources.LapStatusFreeform;
 
-            lapStatus = lapStatus.Replace("LapAPwattsPerKg", this.mLapEventArgs.LapAPwattsPerKg.HasValue ? this.mLapEventArgs.LapAPwattsPerKg.Value.ToString("0.00") : "");
+
+            lapStatus = lapStatus.Replace("LapAPwattsPerKg", this.mLapEventArgs.LapAPwattsPerKg.HasValue ? this.mLapEventArgs.LapAPwattsPerKg.Value.ToString("0.00") + "w/kg" : "");
             lapStatus = lapStatus.Replace("LapAPwatts", this.mLapEventArgs.LapAPwatts.ToString());
             lapStatus = lapStatus.Replace("LapDistanceKm", this.mLapEventArgs.LapDistanceKm.ToString("0.0"));
             lapStatus = lapStatus.Replace("LapDistanceMi", this.mLapEventArgs.LapDistanceMi.ToString("0.0"));
             lapStatus = lapStatus.Replace("LapNumber", this.mLapEventArgs.LapNumber.ToString());
             lapStatus = lapStatus.Replace("LapSpeedKph", this.mLapEventArgs.LapSpeedKph.ToString("0.0"));
             lapStatus = lapStatus.Replace("LapSpeedMph", this.mLapEventArgs.LapSpeedMph.ToString("0.0"));
-            lapStatus = lapStatus.Replace("LapTime", this.mLapEventArgs.LapTime.ToString());
-            lapStatus = lapStatus.Replace("TotalTime", this.mLapEventArgs.TotalTime.ToString());
+            lapStatus = lapStatus.Replace("LapTime", this.mLapEventArgs.LapTime.ToString("hh\\:mm\\:ss"));
+            lapStatus = lapStatus.Replace("TotalTime", this.mLapEventArgs.TotalTime.ToString("hh\\:mm\\:ss"));
+
+            lapStatus = lapStatus.Replace("LapPower", $"{this.mLapEventArgs.LapAPwatts + " w"}{(this.mLapEventArgs.LapAPwattsPerKg.HasValue ? " (" + this.mLapEventArgs.LapAPwattsPerKg.Value.ToString("0.00") + " w/kg)" : "")}");
+            lapStatus = lapStatus.Replace("LapDistance", $"{this.mLapEventArgs.LapDistanceKm.ToString("0.0") + " km"}{" (" + this.mLapEventArgs.LapDistanceMi.ToString("0.0") + " mi)"}");
+            lapStatus = lapStatus.Replace("LapSpeed", $"{this.mLapEventArgs.LapSpeedKph.ToString("0.0") + " km/h"}{" (" + this.mLapEventArgs.LapSpeedMph.ToString("0.0") + " mi/h)"}");
 
             Logger.LogDebug($"{this.GetType()}::CreateDocumentText - \n{lapStatus}");
             this.DocumentText = styleSheet + lapStatus;

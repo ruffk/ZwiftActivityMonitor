@@ -64,6 +64,7 @@ namespace ZwiftActivityMonitorV2
         public virtual void InitializeStatus(Form form)
         {
             Debug.Assert(!this.mIsStatusInitialized, $"InitializeStatus already called.");
+            Debug.Assert(ZAMsettings.Settings.StatusViewerDurationSecs.HasValue, $"StatusViewerDurationSecs is null.");
 
             this.mParentForm = form;
             this.mParentForm.Controls.Add(this);
@@ -74,7 +75,7 @@ namespace ZwiftActivityMonitorV2
             this.pStatus.BackColor = colorTable.FormBackground;
             this.pStatus.ForeColor = colorTable.FormTextColor;
 
-            this.mStatusViewerDuration = 10;
+            this.mStatusViewerDuration = ZAMsettings.Settings.StatusViewerDurationSecs.Value;
             this.btnAutoDismiss.Text = this.mDismissBtnBaseText;
             this.mIsStatusInitialized = true;
         }
@@ -84,13 +85,20 @@ namespace ZwiftActivityMonitorV2
         {
             Debug.Assert(this.mIsStatusInitialized, $"InitializeStatus not called.");
 
-            this.Dock = DockStyle.Fill;
-            this.BringToFront();
-            this.Show();
+            // if duration < 1 then status won't show
+            if (this.mStatusViewerDuration > 0)
+            {
+                this.Dock = DockStyle.Fill;
+                this.BringToFront();
+                this.Show();
 
-            this.timer1.Enabled = true;
-
-            IsVisible = true;
+                this.timer1.Enabled = true;
+                IsVisible = true;
+            }
+            else
+            {
+                this.HideStatus();
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)

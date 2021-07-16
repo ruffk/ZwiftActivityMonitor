@@ -13,7 +13,7 @@ using System.Drawing;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class AdvancedOptions : Syncfusion.WinForms.Controls.SfForm //Syncfusion.Windows.Forms.Office2010Form
+    public partial class AdvancedOptions : Syncfusion.WinForms.Controls.SfForm
     {
         private readonly ILogger<AdvancedOptions> Logger;
         private Dispatcher m_dispatcher;

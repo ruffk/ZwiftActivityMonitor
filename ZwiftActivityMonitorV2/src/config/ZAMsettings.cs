@@ -64,6 +64,7 @@ namespace ZwiftActivityMonitorV2
         public int WindowPositionX { get; set; }
         public int WindowPositionY { get; set; }
         public int? SplashScreenDurationSecs { get; set; }
+        public int? StatusViewerDurationSecs { get; set; }
 
         public SortedList<string, UserProfile> UserProfiles { get; }
         public SortedList<string, Collector> Collectors { get; }
@@ -114,6 +115,12 @@ namespace ZwiftActivityMonitorV2
             if (!this.SplashScreenDurationSecs.HasValue)
             {
                 this.SplashScreenDurationSecs = 4;
+                count++;
+            }
+
+            if (!this.StatusViewerDurationSecs.HasValue)
+            {
+                this.StatusViewerDurationSecs = 5;
                 count++;
             }
 

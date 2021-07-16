@@ -16,5 +16,7 @@ namespace ZwiftActivityMonitorV2
         {
             InitializeComponent();
         }
+
+        public WebBrowser BrowserControl { get { return this.webBrowser; } }
     }
 }

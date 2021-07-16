@@ -78,11 +78,12 @@
 
     table.customTable {
         font-family: Segoe UI, sans-serif;
+        font-size: 15px;
+        font-weight: bold;
         border: 1px solid #000002;
         background-color: #000001;
         color: #000003;
         width: 100%;
-        text-align: center;
         border-collapse: collapse;
     }
 
@@ -92,8 +93,7 @@
         }
 
         table.customTable tbody td {
-            font-size: 14px;
-            font-weight: bold;
+            text-align: center;
         }
 
         table.customTable tr:nth-child(even) {
@@ -106,8 +106,6 @@
         }
 
             table.customTable thead th {
-                font-size: 14px;
-                font-weight: bold;
                 color: #000003;
                 text-align: center;
                 border-left: 2px solid #000002;
@@ -117,8 +115,6 @@
                 }
 
         table.customTable tfoot {
-            font-size: 14px;
-            font-weight: bold;
             color: #000003;
             background: #000001;
             border-top: 2px solid #000002;
@@ -131,6 +127,33 @@
         table.customTable .inverse {
             background: #000003;
             color: #000004;
+        }
+
+        table.customTable .td-right {
+            text-align: right;
+        }
+
+        table.customTable .td-left {
+            text-align: left;
+        }
+
+    table.freeformTable {
+        font-family: Segoe UI, sans-serif;
+        font-size: 15px;
+        font-weight: bold;
+        background-color: #000001;
+        color: #000003;
+        border-collapse: collapse;
+    }
+
+        table.freeformTable .td-right {
+            text-align: right;
+        }
+
+        table.freeformTable td, table.freeformTable th {
+            border: none;
+            text-align: left;
+            padding: 1px;
         }
 
 </style>

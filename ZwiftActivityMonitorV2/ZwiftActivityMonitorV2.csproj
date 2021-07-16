@@ -4,9 +4,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
-    <Version>2.0.3</Version>
+    <AssemblyVersion>2.0.4.0</AssemblyVersion>
+    <FileVersion>2.0.4.0</FileVersion>
+    <Version>2.0.4</Version>
     <ApplicationIcon>resources\ZAMicon.ico</ApplicationIcon>
     <Win32Resource></Win32Resource>
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>
@@ -61,6 +61,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="forms\ConfigurationOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="forms\RideRecap.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="forms\SplashScreen.cs">

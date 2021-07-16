@@ -93,9 +93,29 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap email_color {
+            get {
+                object obj = ResourceManager.GetObject("email_color", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Enjoy_Fitness_Logo_Short {
             get {
                 object obj = ResourceManager.GetObject("Enjoy_Fitness_Logo_Short", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Enjoy_Fitness_Logo_Short_25pct {
+            get {
+                object obj = ResourceManager.GetObject("Enjoy_Fitness_Logo_Short_25pct", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -126,11 +146,46 @@ namespace ZwiftActivityMonitorV2.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;HTML&gt;
+        ///    &lt;BODY&gt;
+        ///        &lt;table class=&quot;freeformTable&quot;&gt;
+        ///            &lt;!--&lt;tbody&gt;--&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Lap #LapNumber Time:&lt;/td&gt;
+        ///                &lt;td width=&quot;90px&quot;&gt;LapTime&lt;/td&gt;
+        ///                &lt;td&gt;&lt;/td&gt;
+        ///            &lt;/tr&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Elapsed Time:&lt;/td&gt;
+        ///                &lt;td&gt;TotalTime&lt;/td&gt;
+        ///                &lt;td&gt;&lt;/td&gt;
+        ///            &lt;/tr&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Speed:&lt;/td&gt;
+        ///                &lt;td&gt;LapSp [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string LapStatusFreeform {
+            get {
+                return ResourceManager.GetString("LapStatusFreeform", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap palette {
             get {
                 object obj = ResourceManager.GetObject("palette", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap print_color {
+            get {
+                object obj = ResourceManager.GetObject("print_color", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -146,6 +201,34 @@ namespace ZwiftActivityMonitorV2.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;HTML&gt;
+        ///&lt;BODY&gt;
+        ///    &lt;table class=&quot;freeformTable&quot;&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;td class=&quot;td-right&quot;&gt;Ride Time:&lt;/td&gt;
+        ///            &lt;td width=&quot;90px&quot;&gt;00:00:00&lt;/td&gt;
+        ///            &lt;td&gt;&lt;/td&gt;
+        ///        &lt;/tr&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;td class=&quot;td-right&quot;&gt;Distance:&lt;/td&gt;
+        ///            &lt;td&gt;888.8 km&lt;/td&gt;
+        ///            &lt;td&gt;888.8 mi&lt;/td&gt;
+        ///        &lt;/tr&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;td class=&quot;td-right&quot;&gt;Speed:&lt;/td&gt;
+        ///            &lt;td&gt;888.8 km/h&lt;/td&gt;
+        ///            &lt;td&gt;888.8 mi/h&lt;/td&gt;
+        ///        &lt;/tr&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;td clas [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string RideRecap {
+            get {
+                return ResourceManager.GetString("RideRecap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap split {
@@ -157,26 +240,54 @@ namespace ZwiftActivityMonitorV2.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;HTML&gt;
+        ///    &lt;!--
+        ///    //DeltaTime;
+        ///    //SplitNumber;
+        ///    //SplitSpeedKph;
+        ///    //SplitSpeedMph;
+        ///    //SplitTime;
+        ///    //TotalKmTravelled;
+        ///    //TotalMiTravelled;
+        ///    //TotalTime;
+        ///    --&gt;
         ///    &lt;BODY&gt;
         ///        &lt;table class=&quot;customTable&quot;&gt;
         ///            &lt;thead&gt;
         ///                &lt;tr&gt;
-        ///                    &lt;th colspan=&quot;6&quot; class=&quot;inverse&quot;&gt;LAP COMPLETED&lt;/th&gt;
+        ///                    &lt;th colspan=&quot;6&quot; class=&quot;inverse&quot;&gt;SPLIT COMPLETED&lt;/th&gt;
         ///                &lt;/tr&gt;
         ///                &lt;tr&gt;
-        ///                    &lt;th&gt;Lap #&lt;/th&gt;
-        ///                    &lt;th&gt;Lap&lt;br/&gt;Time&lt;/th&gt;
-        ///                    &lt;th&gt;KPH&lt;br/&gt;MPH&lt;/th&gt;
-        ///                    &lt;th&gt;KM&lt;br/&gt;MI&lt;/th&gt;
-        ///                    &lt;th&gt;AP&lt;br/&gt;W/KG&lt;/th&gt;
-        ///                    &lt;th&gt;Total&lt;br/&gt;Time&lt;/th&gt;
-        ///                &lt;/tr&gt;
-        ///            &lt;/thead&gt;
-        ///   [rest of string was truncated]&quot;;.
+        ///                    &lt;th&gt;#&lt;/th&gt;
+        ///                    &lt;th&gt;Split&lt;br /&gt;Time&lt;/th&gt;
+        ///                    &lt;th&gt;KPH&lt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SplitStatus {
             get {
                 return ResourceManager.GetString("SplitStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;HTML&gt;
+        ///    &lt;BODY&gt;
+        ///        &lt;table class=&quot;freeformTable&quot;&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Split #SplitNumber Time:&lt;/td&gt;
+        ///                &lt;td width=&quot;90px&quot;&gt;SplitTime&lt;/td&gt;
+        ///                &lt;td&gt;&lt;/td&gt;
+        ///            &lt;/tr&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Speed:&lt;/td&gt;
+        ///                &lt;td&gt;SplitSpeedKph km/h&lt;/td&gt;
+        ///                &lt;td&gt;SplitSpeedMph mi/h&lt;/td&gt;
+        ///            &lt;/tr&gt;
+        ///            &lt;tr&gt;
+        ///                &lt;td class=&quot;td-right&quot;&gt;Distance:&lt;/td&gt;
+        ///                &lt;td&gt;Tota [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SplitStatusFreeform {
+            get {
+                return ResourceManager.GetString("SplitStatusFreeform", resourceCulture);
             }
         }
         

@@ -199,7 +199,8 @@ namespace ZwiftActivityMonitorV2
         private void tsmiAbout_Click(object sender, EventArgs e)
         {
             //this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 300, 4.0, TimeSpan.Zero, 88.8, 88.8));
-            this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
+            //this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
+            new RideRecap().ShowDialog();
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
