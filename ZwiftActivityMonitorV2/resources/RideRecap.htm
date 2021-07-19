@@ -1,39 +1,52 @@
 <HTML>
 <BODY>
+    <!--
+    public TimeSpan Duration { get; set; }
+    public double DistanceKm { get; set; }
+    public double DistanceMi { get; set; }
+    public double AverageKph { get; set; }
+    public double AverageMph { get; set; }
+    public int APwatts { get; set; }
+    public double? APwattsPerKg { get; set; }
+    public int NPwatts { get; set; }
+    public double? NPwattsPerKg { get; set; }
+    public double? IntensityFactor { get; set; } // null if FTP not set
+    public int? TrainingStressScore { get; set; } // null if FTP not set
+    -->
     <table class="freeformTable">
         <tr>
             <td class="td-right">Ride Time:</td>
-            <td width="90px">00:00:00</td>
+            <td width="90px">Duration</td>
             <td></td>
         </tr>
         <tr>
             <td class="td-right">Distance:</td>
-            <td>888.8 km</td>
-            <td>888.8 mi</td>
+            <td>DistanceKm km</td>
+            <td>DistanceMi mi</td>
         </tr>
         <tr>
             <td class="td-right">Speed:</td>
-            <td>888.8 km/h</td>
-            <td>888.8 mi/h</td>
+            <td>AverageKph km/h</td>
+            <td>AverageMph mi/h</td>
         </tr>
         <tr>
             <td class="td-right">Average Power:</td>
-            <td>888 w</td>
-            <td>8.88 w/kg</td>
+            <td>APwatts w</td>
+            <td>APwattsPerKg w/kg</td>
         </tr>
         <tr>
             <td class="td-right">Normalized Power:</td>
-            <td>888 w</td>
-            <td>8.88 w/kg</td>
+            <td>NPwatts w</td>
+            <td>NPwattsPerKg w/kg</td>
         </tr>
         <tr>
             <td class="td-right">Intensity Factor:</td>
-            <td>8.88</td>
+            <td>IntensityFactor</td>
             <td></td>
         </tr>
         <tr>
-            <td class="td-right">Total Stress Score:</td>
-            <td>888</td>
+            <td class="td-right">Training Stress Score:</td>
+            <td>TrainingStressScore</td>
             <td></td>
         </tr>
     </table>
@@ -61,86 +74,7 @@
             </tr>
         </tfoot>-->
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>9</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
-            <tr>
-                <td>10</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>245 (3.2 w/kg)</td>
-                <td>05:45:43</td>
-            </tr>
+            RideRecapLaps
         </tbody>
     </table>
     <br />
@@ -167,46 +101,7 @@
             </tr>
         </tfoot>-->
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>05:45:43</td>
-                <td>-01:43</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>05:45:43</td>
-                <td>-01:43</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>05:45:43</td>
-                <td>-01:43</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>05:45:43</td>
-                <td>-01:43</td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>1:45:43</td>
-                <td>34.5 km/h (25.3 mi/h)</td>
-                <td>21.0 km (18.3 mi)</td>
-                <td>05:45:43</td>
-                <td>-01:43</td>
-            </tr>
+            RideRecapSplits
         </tbody>
     </table>
 </BODY>

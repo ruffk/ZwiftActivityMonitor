@@ -4,24 +4,6 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    public class RideRecapMetrics
-    {
-        public TimeSpan Duration { get; set; }
-        public double DistanceKm { get; set; }
-        public double DistanceMi { get; set; }
-        public double AverageKph { get; set; }
-        public double AverageMph { get; set; }
-        public int OverallPower { get; set; }
-        public int NormalizedPower { get; set; }
-        public double? IntensityFactor { get; set; } // null if FTP not set
-        public int? TotalSufferScore { get; set; } // null if FTP not set
-
-        public RideRecapMetrics()
-        {
-        }
-    }
-
-
     /// <summary>
     /// rolling_average = 30 second rolling average
     /// rolling_avg_powered = rolling_average ^ 4
@@ -33,25 +15,28 @@ namespace ZwiftActivityMonitorV2
         private readonly ILogger<NormalizedPower> Logger;
 
         private readonly MovingAverage mMovingAvg;
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
 
         private ulong mSumMovingAvgPow4;
         private int mCountMovingAvgPow4;
 
-        private int mCurNormalizedPower;
+        private int mCurNPwatts;
+        private double? mCurNPwattsPerKg;
         private double? mCurIntensityFactor;
-        private int? mCurTotalSufferScore;
+        private int? mCurTrainingStressScore;
         private bool mStarted;
 
         private double mCurAvgKph;
         private double mCurAvgMph;
-        private int mCurOverallPower;
+        private int mCurAPwatts;
+        private double? mCurAPwattsPerKg;
         private TimeSpan mCurDuration;
         private double mCurDistanceKm;
         private double mCurDistanceMi;
 
         //private DateTime m_collectionStartTime; // Time when collection started
 
-        private UserProfile CurrentUser { get; set; }
+        //private UserProfile CurrentUser { get; set; }
 
         #region Public EventArgs classes
 
@@ -97,16 +82,16 @@ namespace ZwiftActivityMonitorV2
         {
             if (!mStarted)
             {
-                this.CurrentUser = ZAMsettings.Settings.CurrentUser;
-
                 mCountMovingAvgPow4 = 0;
-                mCurNormalizedPower = 0;
+                mCurNPwatts = 0;
+                mCurNPwattsPerKg = null;
                 mCurIntensityFactor = null;
-                mCurTotalSufferScore = null;
+                mCurTrainingStressScore = null;
                 mSumMovingAvgPow4 = 0;
                 mCurAvgKph = 0;
                 mCurAvgMph = 0;
-                mCurOverallPower = 0;
+                mCurAPwatts = 0;
+                mCurAPwattsPerKg = null;
                 mCurDuration = TimeSpan.Zero;
                 mCurDistanceKm = 0;
                 mCurDistanceMi = 0;
@@ -125,23 +110,22 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        public RideRecapMetrics RideRecap
+        public RideRecapMetrics GetRideRecapMetrics()
         {
-            get 
+            return new RideRecapMetrics()
             {
-                return new RideRecapMetrics()
-                {
-                    Duration = mCurDuration,
-                    DistanceKm = mCurDistanceKm,
-                    DistanceMi = mCurDistanceMi,
-                    AverageKph = mCurAvgKph,
-                    AverageMph = mCurAvgMph,
-                    OverallPower = mCurOverallPower,
-                    TotalSufferScore = mCurTotalSufferScore,
-                    IntensityFactor = mCurIntensityFactor,
-                    NormalizedPower = mCurNormalizedPower,
-                };
-            }
+                Duration = mCurDuration,
+                DistanceKm = mCurDistanceKm,
+                DistanceMi = mCurDistanceMi,
+                AverageKph = mCurAvgKph,
+                AverageMph = mCurAvgMph,
+                APwatts = mCurAPwatts,
+                APwattsPerKg = mCurAPwattsPerKg,
+                TrainingStressScore = mCurTrainingStressScore,
+                IntensityFactor = mCurIntensityFactor,
+                NPwatts = mCurNPwatts,
+                NPwattsPerKg = mCurNPwattsPerKg,
+            };
         }
 
         private void MovingAverageCalculatedEventHandler(object sender, MovingAverageCalculatedEventArgs e)
@@ -150,7 +134,7 @@ namespace ZwiftActivityMonitorV2
                 return;
 
             double? intensityFactor = null;
-            int? totalSufferScore = null;
+            int? trainingStressScore = null;
             double? npWattsPerKg = null;
 
             ulong movingAvgPow4 = (ulong)Math.Pow(e.APwatts, 4);
@@ -160,33 +144,41 @@ namespace ZwiftActivityMonitorV2
 
             double avgMovingAvgPow4 = mSumMovingAvgPow4 / (double)mCountMovingAvgPow4;
 
-            int npWatts = (int)Math.Round(Math.Pow(avgMovingAvgPow4, 0.25), 0);
+            double npWatts = Math.Pow(avgMovingAvgPow4, 0.25);
 
             // calculate average w/kg
-            if (CurrentUser.WeightAsKgs > 0)
-                npWattsPerKg = Math.Round(npWatts / CurrentUser.WeightAsKgs, 2);
+            npWattsPerKg = CalculateUserWattsPerKg(npWatts);
 
 
-            if (CurrentUser.PowerThreshold > 0)
+            if (CurrentUserProfile.PowerThreshold > 0)
             {
                 // Calculate Intensity Factor
-                intensityFactor = Math.Round(npWatts / (double)CurrentUser.PowerThreshold, 2);
+                intensityFactor = Math.Round(npWatts / (double)CurrentUserProfile.PowerThreshold, 2);
 
                 // Calculate TSS
                 //TimeSpan runningTime = DateTime.Now - m_collectionStartTime;
-                totalSufferScore = (int)Math.Round((e.ElapsedTime.TotalSeconds * npWatts * (double)intensityFactor) / (CurrentUser.PowerThreshold * 3600) * 100, 0);
+                trainingStressScore = (int)Math.Round((e.ElapsedTime.TotalSeconds * npWatts * (double)intensityFactor) / (CurrentUserProfile.PowerThreshold * 3600) * 100, 0);
             }
+
+            npWatts = Math.Round(npWatts, 0);
 
             // when NP changes, send it and the current overall average power through
-            if (npWatts != mCurNormalizedPower || intensityFactor != mCurIntensityFactor || totalSufferScore != mCurTotalSufferScore)
+            if ((int)npWatts != this.mCurNPwatts || intensityFactor != this.mCurIntensityFactor || trainingStressScore != this.mCurTrainingStressScore)
             {
-                mCurNormalizedPower = npWatts;
-                mCurTotalSufferScore = totalSufferScore;
-                mCurIntensityFactor = intensityFactor;
+                this.mCurNPwatts = (int)npWatts;
+                this.mCurNPwattsPerKg = npWattsPerKg;
+                this.mCurTrainingStressScore = trainingStressScore;
+                this.mCurIntensityFactor = intensityFactor;
 
-                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs(npWatts, npWattsPerKg, intensityFactor, totalSufferScore));
+                OnNormalizedPowerChangedEvent(new NormalizedPowerChangedEventArgs((int)npWatts, npWattsPerKg, intensityFactor, trainingStressScore));
             }
         }
+
+        private double? CalculateUserWattsPerKg(double watts)
+        {
+            return CurrentUserProfile.WeightAsKgs > 0 ? Math.Round(watts / CurrentUserProfile.WeightAsKgs, 2) : null;
+        }
+
         private void MetricsCalculatedEventHandler(object sender, MetricsCalculatedEventArgs e)
         {
             if (!mStarted)
@@ -197,11 +189,12 @@ namespace ZwiftActivityMonitorV2
             mCurDistanceKm = e.DistanceKm;
             mCurDistanceMi = e.DistanceMi;
 
-            if (e.SpeedKph != mCurAvgKph || e.SpeedMph != mCurAvgMph || e.APwatts != mCurOverallPower)
+            if (e.SpeedKph != this.mCurAvgKph || e.SpeedMph != this.mCurAvgMph || e.APwatts != this.mCurAPwatts)
             {
-                mCurAvgKph = e.SpeedKph;
-                mCurAvgMph = e.SpeedMph;
-                mCurOverallPower = e.APwatts;
+                this.mCurAvgKph = e.SpeedKph;
+                this.mCurAvgMph = e.SpeedMph;
+                this.mCurAPwatts = e.APwatts;
+                this.mCurAPwattsPerKg = e.APwattsPerKg;
 
                 OnMetricsChangedEvent(new MetricsChangedEventArgs(e.SpeedKph, e.SpeedMph, e.APwatts, e.APwattsPerKg));
             }

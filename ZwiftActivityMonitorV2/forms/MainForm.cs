@@ -200,7 +200,13 @@ namespace ZwiftActivityMonitorV2
         {
             //this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 300, 4.0, TimeSpan.Zero, 88.8, 88.8));
             //this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
-            new RideRecap().ShowDialog();
+            
+            // Gather the ride recap info
+            RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
+            rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
+            rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
+
+            new RideRecap(rideRecapMetrics).ShowDialog(this);
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
@@ -634,6 +640,16 @@ namespace ZwiftActivityMonitorV2
         private void tsmiStop_Click(object sender, EventArgs e)
         {
             ZAMsettings.ZPMonitorService.StopCollection();
+
+            // Gather the ride recap info
+            RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
+            rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
+            rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
+
+            if (rideRecapMetrics.Duration.TotalSeconds > 0)
+            {
+                new RideRecap(rideRecapMetrics).ShowDialog(this);
+            }
         }
 
         private void tsmiAutoPause_CheckedChanged(object sender, EventArgs e)

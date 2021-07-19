@@ -86,6 +86,37 @@ namespace ZwiftActivityMonitorV2
                 this.SetAutoToggleMeasurementSystem(MeasurementSystemType.Imperial, true);
             }
 
+            public RideRecapSplit[] GetRideRecapSplits()
+            {
+                List<RideRecapSplit> list = new();
+
+                foreach (var row in DetailRows)
+                {
+                    var split = new RideRecapSplit()
+                    {
+                        DeltaTime = row.DeltaTime,
+                        SplitDistanceKm = row.SplitDistanceKm,
+                        SplitDistanceMi = row.SplitDistanceMi,
+                        SplitNumber = row.SplitNumber,
+                        SplitSpeedKph = row.SplitSpeedKph,
+                        SplitSpeedMph = row.SplitSpeedMph,
+                        SplitTime = row.SplitTime,
+                        TotalTime = row.TotalTime,
+                    };
+                    list.Add(split);
+                }
+
+                list.Sort(
+                    delegate (RideRecapSplit p1, RideRecapSplit p2)
+                    {
+                        return p1.SplitNumber.CompareTo(p2.SplitNumber);
+                    }
+                );
+
+                return list.ToArray();
+            }
+
+
             #region Detail and Summary Grid initialization
 
             private void InitializeDetailDataGrid()
@@ -804,6 +835,12 @@ namespace ZwiftActivityMonitorV2
             //Logger.LogDebug($"{this.GetType()}.ViewControl_SizeChanged - {this.Size}");
         }
         #endregion
+
+        public RideRecapSplit[] GetRideRecapSplits()
+        {
+            return this.ViewManager.GetRideRecapSplits();
+        }
+
 
         private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {

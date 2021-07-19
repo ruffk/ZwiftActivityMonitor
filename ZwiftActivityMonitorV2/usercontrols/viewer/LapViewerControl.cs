@@ -83,6 +83,37 @@ namespace ZwiftActivityMonitorV2
                 this.SetAutoToggleMeasurementSystem(MeasurementSystemType.Imperial, true);
             }
 
+            public RideRecapLap[] GetRideRecapLaps()
+            {
+                List<RideRecapLap> list = new();
+
+                foreach(var row in DetailRows)
+                {
+                    var lap = new RideRecapLap()
+                    {
+                        LapAPwatts = row.LapAPwatts,
+                        LapAPwattsPerKg = row.LapAPwattsPerKg,
+                        LapDistanceKm = row.LapDistanceKm,
+                        LapDistanceMi = row.LapDistanceMi,
+                        LapNumber = row.LapNumber,
+                        LapSpeedKph = row.LapSpeedKph,
+                        LapSpeedMph = row.LapSpeedMph,
+                        LapTime = row.LapTime,
+                        TotalTime = row.TotalTime,
+                    };
+                    list.Add(lap);
+                }
+
+                list.Sort(
+                    delegate (RideRecapLap p1, RideRecapLap p2)
+                    {
+                        return p1.LapNumber.CompareTo(p2.LapNumber);
+                    }
+                );
+
+                return list.ToArray();
+            }
+
             #region Detail Grid initialization
 
             private void InitializeDetailDataGrid()
@@ -648,6 +679,12 @@ namespace ZwiftActivityMonitorV2
         }
 
         #endregion
+
+        public RideRecapLap[] GetRideRecapLaps()
+        {
+            return this.ViewManager.GetRideRecapLaps();
+        }
+
 
         #region LapsManager event handling
 

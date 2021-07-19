@@ -709,6 +709,12 @@ namespace ZwiftActivityMonitorV2
                 mNormalizedPower.MetricsChangedEvent += NormalizedPower_MetricsChangedEvent;
             }
 
+            public RideRecapMetrics GetRideRecapMetrics()
+            {
+                return this.mNormalizedPower.GetRideRecapMetrics();
+            }
+
+
             public void AddCollector(DurationType durationType, string label, DetailRow detailRow)
             {
                 mCollectorAttributes.Add(durationType, new CollectorAttribute(durationType, label, detailRow));
@@ -763,6 +769,11 @@ namespace ZwiftActivityMonitorV2
             Logger = ZAMsettings.LoggerFactory.CreateLogger<ActivityViewerControl>();
 
             mMovingAverageManager = new();
+        }
+
+        public RideRecapMetrics GetRideRecapMetrics()
+        {
+            return this.mMovingAverageManager.GetRideRecapMetrics();
         }
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)

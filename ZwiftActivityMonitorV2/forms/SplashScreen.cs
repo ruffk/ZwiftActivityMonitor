@@ -7,8 +7,10 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
+using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -20,12 +22,16 @@ namespace ZwiftActivityMonitorV2
         private Color ZAMguy2Color = Color.FromArgb(25, 255, 243);
         private Color ZAMguy3Color = Color.FromArgb(255, 0, 255);
         private Color ZAMguy4Color = Color.FromArgb(4, 255, 0);
+        private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
+        private readonly ILogger<SplashScreen> Logger;
 
         private MainForm mMainForm = new();
 
         public SplashScreen()
         {
             InitializeComponent();
+
+            this.Logger = ZAMsettings.LoggerFactory.CreateLogger<SplashScreen>();
 
             this.mStartTime = DateTime.Now;
 
@@ -35,6 +41,9 @@ namespace ZwiftActivityMonitorV2
 
         private void SplashScreen_Load(object sender, EventArgs e)
         {
+            // for handling UI events
+            mDispatcher = Dispatcher.CurrentDispatcher;
+
             this.pbZamCyclist.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Tron1;
 
             if (ZAMsettings.Settings.SplashScreenDurationSecs > 0)
@@ -44,17 +53,21 @@ namespace ZwiftActivityMonitorV2
             }
             else
             {
-                this.LaunchMainForm();
+                //this.LaunchMainForm();
+                this.Hide();
+                this.mDispatcher.BeginInvoke(new Action(LaunchMainForm));
             }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Debug.WriteLine($"{this.GetType()}::timer1_Tick - {(DateTime.Now - mStartTime).TotalSeconds}");
+            Debug.WriteLine($"{this.GetType()}::timer1_Tick - {(DateTime.Now - mStartTime).TotalSeconds}, Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             if ((DateTime.Now - mStartTime).TotalSeconds >= ZAMsettings.Settings.SplashScreenDurationSecs)
             {
-                this.LaunchMainForm();
+                //this.LaunchMainForm();
+
+                this.mDispatcher.BeginInvoke(new Action(LaunchMainForm));
             }
             else
             {
@@ -62,17 +75,27 @@ namespace ZwiftActivityMonitorV2
                 mtickCount++;
                 mtickCount %= 4;
             }
+            Debug.WriteLine($"{this.GetType()}::timer1_Tick exiting");
         }
 
         private void LaunchMainForm()
         {
-            Debug.WriteLine($"{this.GetType()}::LaunchMainForm");
+            Debug.WriteLine($"{this.GetType()}::LaunchMainForm - Thread: {Thread.CurrentThread.ManagedThreadId}");
             this.timer1.Enabled = false;
 
             // Hide this window, then show the MainForm as a modal window.  Once it closes, close this one and program ends.
             this.Hide();
-            mMainForm.ShowDialog(); // This will block until closed.
-            this.Close();
+            try
+            {
+
+                mMainForm.ShowDialog(this); // This will block until closed.
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Caught in {this.GetType()}::LaunchMainForm");
+                Application.Exit();
+            }
         }
 
         private void UpdateImage()

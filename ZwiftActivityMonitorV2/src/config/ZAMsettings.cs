@@ -72,6 +72,9 @@ namespace ZwiftActivityMonitorV2
         public SplitsV2 SplitsV2 { get; }
         public ZAMappearance Appearance { get; }
 
+        [JsonConverter(typeof(EncryptingJsonConverter), "#my*S3cr3t")]
+        public string EmailPassword { get; set; }
+
         #endregion
 
         [JsonIgnore]
@@ -121,6 +124,12 @@ namespace ZwiftActivityMonitorV2
             if (!this.StatusViewerDurationSecs.HasValue)
             {
                 this.StatusViewerDurationSecs = 5;
+                count++;
+            }
+
+            if (this.EmailPassword == null || this.EmailPassword.Length == 0)
+            {
+                this.EmailPassword = "kfnggjsetsfxghky"; // encrypted password
                 count++;
             }
 

@@ -16,13 +16,15 @@ namespace ZwiftActivityMonitorV2
 {
     public partial class RideRecap : Syncfusion.WinForms.Controls.SfForm
     {
-        private RideRecapMetrics m_rideRecapMetrics;
-        //private bool m_hasEmailAddress;
+        private RideRecapMetrics mRideRecapMetrics;
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
+        private string mRideRecapHtml;
+
         private readonly ILogger<RideRecap> Logger;
 
-        public RideRecap()
+        public RideRecap(RideRecapMetrics rideRecapMetrics)
         {
-            //m_rideRecapMetrics = rideRecapMetrics;
+            mRideRecapMetrics = rideRecapMetrics;
 
             InitializeComponent();
 
@@ -67,31 +69,152 @@ namespace ZwiftActivityMonitorV2
             styleSheet = styleSheet.Replace("000003", $"{colorTable.FormTextColor.R:X2}{ colorTable.FormTextColor.G:X2}{ colorTable.FormTextColor.B:X2}");
             styleSheet = styleSheet.Replace("000004", $"{colorTable.ActiveTitleGradientEnd.R:X2}{ colorTable.ActiveTitleGradientEnd.G:X2}{ colorTable.ActiveTitleGradientEnd.B:X2}");
 
-            string rideRecap = Properties.Resources.RideRecap;
+            mRideRecapHtml = Properties.Resources.RideRecap;
 
-            Logger.LogDebug($"{this.GetType()}::RideRecap_Load - \n{rideRecap}");
+            //public TimeSpan Duration { get; set; }
+            //public double DistanceKm { get; set; }
+            //public double DistanceMi { get; set; }
+            //public double AverageKph { get; set; }
+            //public double AverageMph { get; set; }
+            //public int APwatts { get; set; }
+            //public double? APwattsPerKg { get; set; }
+            //public int NPwatts { get; set; }
+            //public double? NPwattsPerKg { get; set; }
+            //public double? IntensityFactor { get; set; } // null if FTP not set
+            //public int? TrainingStressScore { get; set; } // null if FTP not set
 
-            this.webBrowser.BrowserControl.DocumentText = styleSheet + rideRecap;
+            mRideRecapHtml = mRideRecapHtml.Replace("Duration", $"{this.mRideRecapMetrics.Duration.ToString("hh\\:mm\\:ss")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("DistanceKm", $"{this.mRideRecapMetrics.DistanceKm:0.0}");
+            mRideRecapHtml = mRideRecapHtml.Replace("DistanceMi", $"{this.mRideRecapMetrics.DistanceMi:0.0}");
+            mRideRecapHtml = mRideRecapHtml.Replace("AverageKph", $"{this.mRideRecapMetrics.AverageKph:0.0}");
+            mRideRecapHtml = mRideRecapHtml.Replace("AverageMph", $"{this.mRideRecapMetrics.AverageMph:0.0}");
+            mRideRecapHtml = mRideRecapHtml.Replace("APwattsPerKg", $"{(this.mRideRecapMetrics.APwattsPerKg.HasValue ? this.mRideRecapMetrics.APwattsPerKg.Value.ToString("0.00") : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("APwatts", $"{this.mRideRecapMetrics.APwatts}");
+            mRideRecapHtml = mRideRecapHtml.Replace("NPwattsPerKg", $"{(this.mRideRecapMetrics.NPwattsPerKg.HasValue ? this.mRideRecapMetrics.NPwattsPerKg.Value.ToString("0.00") : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("NPwatts", $"{this.mRideRecapMetrics.NPwatts}");
+            mRideRecapHtml = mRideRecapHtml.Replace("IntensityFactor", $"{(this.mRideRecapMetrics.IntensityFactor.HasValue ? this.mRideRecapMetrics.IntensityFactor.Value.ToString(".00") : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("TrainingStressScore", $"{(this.mRideRecapMetrics.TrainingStressScore.HasValue ? this.mRideRecapMetrics.TrainingStressScore.Value : "")}");
 
-            //if (lblEmailAddr.Text.Length > 0)
-            //{
-            //    lblEmailAddr.Text = ZAMsettings.Settings.CurrentUser.EmailAddress;
-            //    m_hasEmailAddress = true;
-            //}
-            //else
-            //{
-            //    lblEmailAddr.Text = "Please set email address in your user profile to use this feature.";
-            //}
+            /*
+            <tr>
+                <td>1</td>
+                <td>1:45:43</td>
+                <td>34.5 km/h (25.3 mi/h)</td>
+                <td>21.0 km (18.3 mi)</td>
+                <td>245 (3.2 w/kg)</td>
+                <td>05:45:43</td>
+            </tr>
+            */
+
+            StringBuilder lapStr = new StringBuilder("");
+            foreach (var lap in this.mRideRecapMetrics.Laps)
+            {
+                lapStr.AppendLine("<tr>");
+                lapStr.AppendLine($"<td>{lap.LapNumber}</td>");
+                lapStr.AppendLine($"<td>{lap.LapTime.ToString("hh\\:mm\\:ss")}</td>");
+                lapStr.AppendLine($"<td>{lap.LapSpeedKph:0.0} km/h ({lap.LapSpeedMph:0.0} mi/h)</td>");
+                lapStr.AppendLine($"<td>{lap.LapDistanceKm:0.0} km ({lap.LapDistanceMi:0.0} mi)</td>");
+                lapStr.AppendLine($"<td>{lap.LapAPwatts} w{(lap.LapAPwattsPerKg.HasValue ? " (" + lap.LapAPwattsPerKg.Value.ToString("0.00") + " w/kg)" : "")}</td>");
+                lapStr.AppendLine($"<td>{lap.TotalTime.ToString("hh\\:mm\\:ss")}</td>");
+                lapStr.AppendLine("</tr>");
+            }
+
+            mRideRecapHtml = mRideRecapHtml.Replace("RideRecapLaps", lapStr.ToString());
+
+            /*
+            <tr>
+                <td>1</td>
+                <td>1:45:43</td>
+                <td>34.5 km/h (25.3 mi/h)</td>
+                <td>21.0 km (18.3 mi)</td>
+                <td>05:45:43</td>
+                <td>-01:43</td>
+            </tr>
+            */
+
+            StringBuilder splitStr = new StringBuilder("");
+            foreach (var split in this.mRideRecapMetrics.Splits)
+            {
+                string delta;
+                //string deltaColorCode;
+                if (split.DeltaTime.HasValue)
+                {
+                    TimeSpan std = (TimeSpan)split.DeltaTime;
+                    bool negated = false;
+
+                    if (std.TotalSeconds < 0)
+                    {
+                        std = std.Negate();
+                        negated = true;
+                    }
+
+                    delta = $"{(negated ? "-" : "+")}{(std.Minutes > 0 ? std.ToString("m'@QT's'\"'").Replace("@QT", "\'") : std.ToString("s'\"'"))}";
+                    //deltaColorCode = negated ? "00C000" : "C00000";
+
+                }
+                else
+                {
+                    delta = "No Goal";
+                }
+
+                splitStr.AppendLine("<tr>");
+                splitStr.AppendLine($"<td>{split.SplitNumber}</td>");
+                splitStr.AppendLine($"<td>{split.SplitTime.ToString("hh\\:mm\\:ss")}</td>");
+                splitStr.AppendLine($"<td>{split.SplitSpeedKph:0.0} km/h ({split.SplitSpeedMph:0.0} mi/h)</td>");
+                splitStr.AppendLine($"<td>{split.SplitDistanceKm:0.0} km ({split.SplitDistanceMi:0.0} mi)</td>");
+                splitStr.AppendLine($"<td>{split.TotalTime.ToString("hh\\:mm\\:ss")}</td>");
+                splitStr.AppendLine($"<td>{delta}</td>");
+                splitStr.AppendLine("</tr>");
+            }
+
+            mRideRecapHtml = mRideRecapHtml.Replace("RideRecapSplits", splitStr.ToString());
+
+            //Logger.LogDebug($"{this.GetType()}::RideRecap_Load - \n{mRideRecapHtml}");
+
+            this.webBrowser.BrowserControl.DocumentText = styleSheet + mRideRecapHtml;
+
+            tsbEmail.ToolTipText = this.CurrentUserProfile.EmailAddress.Length > 0 ? "MailTo:" + this.CurrentUserProfile.EmailAddress : "Please set email address in your user profile to use this feature.";
         }
 
         private void tsbEmail_Click(object sender, EventArgs e)
         {
+            if (this.CurrentUserProfile.EmailAddress.Length > 0)
+            {
+                try
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    MailMessage mail = new MailMessage();
+                    SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+
+                    mail.From = new MailAddress("ZwiftActivityMonitor@gmail.com");
+                    mail.To.Add(ZAMsettings.Settings.CurrentUser.EmailAddress);
+                    mail.Subject = "Zwift Activity Monitor Ride Recap";
+                    mail.IsBodyHtml = true;
+                    SmtpServer.Port = 587;
+                    SmtpServer.Credentials = new System.Net.NetworkCredential("ZwiftActivityMonitor@gmail.com", ZAMsettings.Settings.EmailPassword);
+                    SmtpServer.EnableSsl = true;
+
+                    mail.Body = this.webBrowser.BrowserControl.DocumentText;
+
+                    SmtpServer.Send(mail);
+
+                    MessageBox.Show($"Ride recap email sent to {ZAMsettings.Settings.CurrentUser.EmailAddress}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ride recap email failed. Reason: {ex.Message}", "Exception Occurred", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
+                }
+            }
 
         }
 
         private void tsbPrint_Click(object sender, EventArgs e)
         {
-
+            this.webBrowser.BrowserControl.ShowPrintPreviewDialog();
         }
 
         //private void Launch_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
