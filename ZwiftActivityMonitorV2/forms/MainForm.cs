@@ -17,6 +17,7 @@ using Syncfusion.WinForms.Controls;
 using Syncfusion.Windows.Forms.Tools;
 //using Syncfusion.Windows.Forms.Grid;
 using System.Drawing.Drawing2D;
+using WK.Libraries.HotkeyListenerNS;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -116,6 +117,13 @@ namespace ZwiftActivityMonitorV2
             this.ucSplitView.SplitCompletedEvent += SplitView_SplitCompletedEvent;
             this.ucSplitView.SplitGoalCompletedEvent += SplitView_SplitCompletedEvent;
 
+            // This event is used to listen to any hotkey presses.
+            ZAMsettings.HotkeyListener.HotkeyPressed += HotkeyListener_HotkeyPressed;
+            ZAMsettings.HotkeyListener.HotkeyUpdated += HotkeyListener_HotkeyUpdated;
+
+            // Add user defined hotkeys and suspend usage.  They will only be active when collecting.
+            ZAMsettings.Settings.Hotkeys.AddHotkeys();
+            ZAMsettings.HotkeyListener.Suspend();
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
             this.SetupDisplayForCurrentUserProfile();
@@ -123,6 +131,28 @@ namespace ZwiftActivityMonitorV2
             this.SetControlColors();
         }
 
+        private void HotkeyListener_HotkeyPressed(object sender, HotkeyEventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::HotkeyListener_HotkeyPressed - Hotkey: {e.Hotkey}");
+            
+            if (e.Hotkey == Hotkeys.ActivityViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpActivity;
+            }
+            else if (e.Hotkey == Hotkeys.SplitViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpSplit;
+            }
+            else if (e.Hotkey == Hotkeys.LapViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpLap;
+            }
+        }
+
+        private void HotkeyListener_HotkeyUpdated(object sender, HotkeyListener.HotkeyUpdatedEventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::HotkeyListener_HotkeyUpdated - Hotkey: {e.UpdatedHotkey} updated to: {e.NewHotkey}");
+        }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -152,6 +182,7 @@ namespace ZwiftActivityMonitorV2
 
             ZAMsettings.ZPMonitorService.StopCollection();
             ZAMsettings.ZPMonitorService.StopMonitor();
+            ZAMsettings.HotkeyListener.RemoveAll();
         }
 
 
@@ -584,6 +615,9 @@ namespace ZwiftActivityMonitorV2
                 {
                     statusLabel.Text = ZAMsettings.ZPMonitorService.IsCollectionPaused ? "Paused" : "Started";
                 }
+
+                // Allow hotkeys to function
+                ZAMsettings.HotkeyListener.Resume();
             }
             else
             {
@@ -611,6 +645,9 @@ namespace ZwiftActivityMonitorV2
                 {
                     statusLabel.Text = "ZPM Service Not Running";
                 }
+
+                // Don't allow hotkeys to function
+                ZAMsettings.HotkeyListener.Suspend();
             }
         }
 
@@ -654,7 +691,7 @@ namespace ZwiftActivityMonitorV2
 
         private void tsmiAutoPause_CheckedChanged(object sender, EventArgs e)
         {
-            if (ZAMsettings.Settings.CurrentUser != null)
+            if (ZAMsettings.Settings.CurrentUser != null && ZAMsettings.Settings.CurrentUser.AutoPause != tsmiAutoPause.Checked)
             {
                 ZAMsettings.BeginCachedConfiguration();
                 ZAMsettings.Settings.CurrentUser.AutoPause = tsmiAutoPause.Checked;

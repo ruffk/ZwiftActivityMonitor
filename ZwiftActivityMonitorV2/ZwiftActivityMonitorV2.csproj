@@ -4,9 +4,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.0.4.0</AssemblyVersion>
-    <FileVersion>2.0.4.0</FileVersion>
-    <Version>2.0.4</Version>
+    <AssemblyVersion>2.0.5.0</AssemblyVersion>
+    <FileVersion>2.0.5.0</FileVersion>
+    <Version>2.0.5</Version>
     <ApplicationIcon>resources\ZAMicon.ico</ApplicationIcon>
     <Win32Resource></Win32Resource>
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>
@@ -40,6 +40,8 @@
 
 <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.WinForms" Version="0.5.5" />
 
+<PackageReference Include="HotkeyListener" Version="1.9.0" />
+
 <PackageReference Include="Karambolo.Extensions.Logging.File" Version="3.2.0" />
 
 <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -68,6 +70,9 @@
     </Compile>
     <Compile Update="forms\SplashScreen.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="usercontrols\config\GeneralConfigControl.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="usercontrols\viewer\SplitStatusViewerControl.cs">
       <SubType>UserControl</SubType>

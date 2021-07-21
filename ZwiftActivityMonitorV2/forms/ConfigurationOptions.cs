@@ -47,6 +47,8 @@ namespace ZwiftActivityMonitorV2
             this.tpSplits.ForeColor = Color.AliceBlue;
             this.tpUserProfiles.BackColor = Color.AliceBlue;
             this.tpUserProfiles.ForeColor = Color.AliceBlue;
+            this.tpGeneral.BackColor = Color.AliceBlue;
+            this.tpGeneral.ForeColor = Color.AliceBlue;
 
             this.tpSystem.BackColor = colorTable.FormBackground;
             this.tpSystem.ForeColor = colorTable.FormTextColor;
@@ -59,6 +61,9 @@ namespace ZwiftActivityMonitorV2
 
             this.tpUserProfiles.BackColor = colorTable.FormBackground;
             this.tpUserProfiles.ForeColor = colorTable.FormTextColor;
+
+            this.tpGeneral.BackColor = colorTable.FormBackground;
+            this.tpGeneral.ForeColor = colorTable.FormTextColor;
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)
@@ -119,78 +124,6 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        //private void tabOptions_Selecting(object sender, TabControlCancelEventArgs e)
-        //{
-        //    if (DesignMode)
-        //        return;
-
-        //    if (e.TabPageIndex == -1)
-        //        return;
-
-        //    m_logger.LogDebug($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
-
-        //    if (e.Action == TabControlAction.Selecting)
-        //    {
-        //        switch (e.TabPage.Name)
-        //        {
-        //            case "tpSystem":
-        //                ucSystem.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpUserProfiles":
-        //                ucUserProfiles.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpCollectors":
-        //                ucStatistics.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpSplits":
-        //                ucSplits.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpLaps":
-        //                ucLaps.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpTest":
-        //                break;
-
-        //        }
-        //    }
-
-        //    if (e.Action == TabControlAction.Deselecting)
-        //    {
-        //        switch (e.TabPage.Name)
-        //        {
-        //            case "tpSystem":
-        //                ucSystem.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpUserProfiles":
-        //                ucUserProfiles.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpCollectors":
-        //                ucStatistics.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpSplits":
-        //                ucSplits.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpLaps":
-        //                ucLaps.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpTest":
-        //                break;
-        //        }
-        //    }
-        //}
-
-
-
         /// <summary>
         /// This event handles TabPage Selected / Deselected events
         /// </summary>
@@ -218,8 +151,8 @@ namespace ZwiftActivityMonitorV2
                 case "tpUserProfiles":
                     break;
 
-                //case "tpCollectors":
-                //    break;
+                case "tpGeneral":
+                    break;
 
                 case "tpSplits":
                     break;
@@ -247,16 +180,16 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlLosingFocus(sender, args);
                     break;
 
-                //case "tpCollectors":
-                //    this.ucStatistics.ControlLosingFocus(sender, args);
-                //    break;
-
                 case "tpSplits":
                     this.ucSplits.ControlLosingFocus(sender, args);
                     break;
 
                 case "tpLaps":
                     this.ucLaps.ControlLosingFocus(sender, args);
+                    break;
+
+                case "tpGeneral":
+                    this.ucGeneral.ControlLosingFocus(sender, args);
                     break;
             }
 
@@ -278,16 +211,16 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlGainingFocus(sender, e);
                     break;
 
-                //case "tpCollectors":
-                //    this.ucStatistics.ControlGainingFocus(sender, e);
-                //    break;
-
                 case "tpSplits":
                     this.ucSplits.ControlGainingFocus(sender, e);
                     break;
 
                 case "tpLaps":
                     this.ucLaps.ControlGainingFocus(sender, e);
+                    break;
+
+                case "tpGeneral":
+                    this.ucGeneral.ControlGainingFocus(sender, e);
                     break;
             }
         }

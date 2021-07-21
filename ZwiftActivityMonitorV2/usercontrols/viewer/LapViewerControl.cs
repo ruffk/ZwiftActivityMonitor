@@ -639,6 +639,10 @@ namespace ZwiftActivityMonitorV2
             LapsManager.LapUpdatedEvent += this.LapEventHandler;
             LapsManager.LapStartedEvent += this.LapStartedEventHandler;
 
+            // This event is used to listen to any hotkey presses.
+            ZAMsettings.HotkeyListener.HotkeyPressed += HotkeyListener_HotkeyPressed;
+
+
             // Subscribe to any SystemConfig or SplitsConfig changes
             ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;  // get notified if current user possibly changes
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
@@ -653,6 +657,20 @@ namespace ZwiftActivityMonitorV2
 
             // Trigger a resize so the the last column (Blank) can be shown/hidden if necessary
             this.OnResize(new EventArgs());
+        }
+
+        private void HotkeyListener_HotkeyPressed(object sender, WK.Libraries.HotkeyListenerNS.HotkeyEventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::HotkeyListener_HotkeyPressed - Hotkey: {e.Hotkey}");
+
+            if (e.Hotkey == Hotkeys.NewLapHotkey)
+            {
+                this.tsbLap.PerformClick();
+            }
+            else if (e.Hotkey == Hotkeys.ResetLapsHotkey)
+            {
+                this.tsbReset.PerformClick();
+            }
         }
 
         public override void ControlGainingFocus(object sender, EventArgs e)
@@ -846,6 +864,7 @@ namespace ZwiftActivityMonitorV2
 
             this.SetupDisplayForCurrentUserProfile();
         }
+
         private void tsbReset_Click(object sender, EventArgs e)
         {
             LapsManager.Reset();
