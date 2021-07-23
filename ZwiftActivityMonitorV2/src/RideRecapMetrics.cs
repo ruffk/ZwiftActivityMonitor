@@ -22,9 +22,23 @@ namespace ZwiftActivityMonitorV2
 
         public RideRecapLap[] Laps { get; set; }
         public RideRecapSplit[] Splits { get; set; }
+        public RideRecapPower[] Power { get; set; }
 
         public RideRecapMetrics()
         {
+        }
+    }
+
+    public class RideRecapPower
+    {
+        public DurationType DurationType { get; }
+        public int APwattsMax { get; }
+        public double? APwattsKgMax { get; }
+        public RideRecapPower(DurationType durationType, int apWattsMax, double? apWattsKgMax)
+        {
+            this.DurationType = durationType;
+            this.APwattsMax = apWattsMax;
+            this.APwattsKgMax = apWattsKgMax;
         }
     }
 

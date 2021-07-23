@@ -1,5 +1,9 @@
-<HTML>
-<BODY>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+</head>
+<body>
     <!--
     public TimeSpan Duration { get; set; }
     public double DistanceKm { get; set; }
@@ -12,6 +16,27 @@
     public double? NPwattsPerKg { get; set; }
     public double? IntensityFactor { get; set; } // null if FTP not set
     public int? TrainingStressScore { get; set; } // null if FTP not set
+
+    #000001 BackColor
+    #000002 ActiveFormBorderColor
+    #000003 ForeColor
+    #000004 ActiveTitleGradientEnd
+
+    public enum DurationType
+    {
+        FiveSeconds = 5,
+        FifteenSeconds = 15,
+        ThirtySeconds = 30,
+        OneMinute = 60,
+        TwoMinutes = 120,
+        FiveMinutes = 300,
+        SixMinutes = 360,
+        TenMinutes = 600,
+        TwentyMinutes = 1200,
+        ThirtyMinutes = 1800,
+        SixtyMinutes = 3600,
+        NinetyMinutes = 5400
+    }
     -->
     <table class="freeformTable">
         <tr>
@@ -49,6 +74,94 @@
             <td>TrainingStressScore</td>
             <td></td>
         </tr>
+    </table>
+    <br />
+    <br />
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <canvas id="myChart" style="width:100%"></canvas>--> <!--;max-width:600px-->
+    <!--<script>
+        //var xValues = [5, 15, 30, 60, 120, 300, 360, 600, 1200, 1800, 3600, 5400];
+        //var yValues = [620, 595, 400, 375, 365, 325, 300, 292, 280, 260, 245, 231];
+        //Chart.defaults.global.defaultFontFamily = 'Segoe UI, sans-serif';
+        //Chart.defaults.global.defaultFontColor = '#000003';
+
+        new Chart("myChart",
+            {
+                type: "line",
+                data: {
+                    labels: [5, 15, 30, 60, 120, 300, 360, 600, 1200, 1800, 3600, 5400],
+                    datasets: [{
+                        fill: true,
+                        lineTension: 0,
+                        backgroundColor: "#000004",
+                        borderColor: "#000002",
+                        data: [620, 595, 400, 375, 365, 325, 300, 292, 280, 260, 245, 231],
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: "Peak Power",
+                        fontSize: 20,
+                        fontFamily: "Segoe UI, sans-serif", fontColor: "#000003"
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: { fontFamily: "Segoe UI, sans-serif", fontColor: "#000003" },
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Watts",
+                                fontSize: 16,
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                fontFamily: "Segoe UI, sans-serif", fontColor: "#000003"
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Time (Seconds)",
+                                fontSize: 16,
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                    }
+                }
+            }
+        );
+    </script>
+    <br />
+    <br />-->
+    <img style="width: 100%" src="https://quickchart.io/chart?width=800&height=400&devicePixelRatio=1.0&c=EncodedChartUrl" />
+    <br />
+    <br />
+    <table class="customTable" style="width: 50%; margin-left: auto; margin-right: auto;">
+        <thead>
+            <tr>
+                <th colspan="3">Power Numbers</th>
+            </tr>
+            <tr>
+                <th>Period</th>
+                <th>Watts</th>
+                <th>Watts/Kg</th>
+            </tr>
+        </thead>
+        <!--<tfoot>
+            <tr>
+                <td colspan="2">
+                    <div class="links"><a href="#">&laquo;</a> <a class="active" href="#">1</a> <a href="#">2</a> <a href="#">3</a> <a href="#">4</a> <a href="#">&raquo;</a></div>
+                </td>
+            </tr>
+        </tfoot>-->
+        <tbody>
+            RideRecapPower
+        </tbody>
     </table>
     <br />
     <br />
@@ -104,5 +217,5 @@
             RideRecapSplits
         </tbody>
     </table>
-</BODY>
-</HTML>
+</body>
+</html>

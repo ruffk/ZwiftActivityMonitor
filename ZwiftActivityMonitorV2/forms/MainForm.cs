@@ -231,13 +231,15 @@ namespace ZwiftActivityMonitorV2
         {
             //this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 300, 4.0, TimeSpan.Zero, 88.8, 88.8));
             //this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
-            
+
             // Gather the ride recap info
             RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
             rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
             rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
 
             new RideRecap(rideRecapMetrics).ShowDialog(this);
+
+            //new AboutForm().ShowDialog(this);
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
@@ -605,24 +607,29 @@ namespace ZwiftActivityMonitorV2
 
                 tsmiConfiguration.Enabled = false;
                 tsmiAdvanced.Enabled = false;
+                tsmiAbout.Enabled = false;
                 tsmiAutoPause.Enabled = !ZAMsettings.ZPMonitorService.IsCollectionPaused;
 
                 if (ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
                 {
                     statusLabel.Text = "Waiting on Event clock...";
+
+                    // Don't allow hotkeys to function
+                    ZAMsettings.HotkeyListener.Suspend();
                 }
                 else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
                 {
                     statusLabel.Text = ZAMsettings.ZPMonitorService.IsCollectionPaused ? "Paused" : "Started";
-                }
 
-                // Allow hotkeys to function
-                ZAMsettings.HotkeyListener.Resume();
+                    // Allow hotkeys to function
+                    ZAMsettings.HotkeyListener.Resume();
+                }
             }
             else
             {
                 tsmiStop.Enabled = false;
                 tsmiStart.Enabled = ZAMsettings.ZPMonitorService.IsZPMonitorStarted;
+                tsmiAbout.Enabled = true;
 
                 if (ucTimerSetupView.IsTimerRunning)
                 {

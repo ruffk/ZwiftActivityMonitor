@@ -648,7 +648,7 @@ namespace ZwiftActivityMonitorV2
                 public DurationType DurationType { get; }
                 public string Label { get; }
                 public MovingAverage MAcollector { get; }
-                private DetailRow DetailDataRow { get; set; } = null;
+                public DetailRow DetailDataRow { get; set; } = null;
 
                 public CollectorAttribute(DurationType durationType, string label, DetailRow detailRow)
                 {
@@ -711,7 +711,20 @@ namespace ZwiftActivityMonitorV2
 
             public RideRecapMetrics GetRideRecapMetrics()
             {
-                return this.mNormalizedPower.GetRideRecapMetrics();
+                List<RideRecapPower> list = new();
+
+                foreach(var attr in this.mCollectorAttributes.Values)
+                {
+                    if (attr.DetailDataRow.APwattsMax > 0)
+                    {
+                        list.Add(new RideRecapPower(attr.DurationType, attr.DetailDataRow.APwattsMax, attr.DetailDataRow.APwattsPerKgMax));
+                    }
+                }
+
+                RideRecapMetrics metrics = this.mNormalizedPower.GetRideRecapMetrics();
+                metrics.Power = list.ToArray();
+
+                return metrics;
             }
 
 

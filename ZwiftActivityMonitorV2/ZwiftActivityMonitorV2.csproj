@@ -40,8 +40,6 @@
 
 <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.WinForms" Version="0.5.5" />
 
-<PackageReference Include="HotkeyListener" Version="1.9.0" />
-
 <PackageReference Include="Karambolo.Extensions.Logging.File" Version="3.2.0" />
 
 <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -59,6 +57,15 @@
 </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="HotkeyListenerCore">
+      <HintPath>..\..\bin\HotkeyListenerCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="forms\AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="forms\AdvancedOptions.cs">
       <SubType>Form</SubType>
     </Compile>

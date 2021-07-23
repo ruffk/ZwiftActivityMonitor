@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Mail;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -71,6 +72,43 @@ namespace ZwiftActivityMonitorV2
 
             mRideRecapHtml = Properties.Resources.RideRecap;
 
+            StringBuilder xAxis = new StringBuilder("");
+            StringBuilder yAxis = new StringBuilder("");
+
+            if (this.mRideRecapMetrics.Power.Length > 0)
+            {
+                foreach (var power in this.mRideRecapMetrics.Power)
+                {
+                    xAxis.Append($"'{DurationEnum.Instance.GetText(power.DurationType)}',");
+                    yAxis.Append($"{power.APwattsMax},");
+                }
+            }
+            else
+            {
+                // no power values, build an empty chart
+                foreach(var item in DurationEnum.Instance.GetValues())
+                {
+                    xAxis.Append($"'{item}',");
+                }
+            }
+
+            string chartDef = "{type:'line',data:{labels:[xAxisValues],datasets:[{fill:true,lineTension:0,backgroundColor:'#000004',borderColor:'#000002',data:[yAxisValues],}]},options:{legend:{display:false},title:{display:true,text:'Peak Power',fontSize:20,fontFamily:'Segoe UI, sans-serif',fontColor:'#000003',},scales:{yAxes:[{ticks:{fontFamily:'Segoe UI, sans-serif',fontColor: '#000003'},scaleLabel:{display:true,labelString:'Watts',fontSize:16,fontFamily:'Segoe UI, sans-serif',fontColor:'#000003',},gridLines:{display:false,}}],xAxes:[{ticks:{fontFamily:'Segoe UI, sans-serif',fontColor: '#000003'},scaleLabel:{display:false,labelString:'Time',fontSize:16,fontFamily:'Segoe UI, sans-serif',fontColor:'#000003',},gridLines:{display:false,}}],}}}";
+            chartDef = chartDef.Replace("xAxisValues", xAxis.ToString());
+            chartDef = chartDef.Replace("yAxisValues", yAxis.ToString());
+
+            // Define and encode the chart URL
+            string urlStr = WebUtility.UrlEncode(chartDef);
+
+            Debug.WriteLine(urlStr);
+
+            mRideRecapHtml = mRideRecapHtml.Replace("EncodedChartUrl", urlStr);
+
+
+            mRideRecapHtml = mRideRecapHtml.Replace("000001", $"{colorTable.FormBackground.R:X2}{ colorTable.FormBackground.G:X2}{ colorTable.FormBackground.B:X2}");
+            mRideRecapHtml = mRideRecapHtml.Replace("000002", $"{colorTable.ActiveFormBorderColor.R:X2}{ colorTable.ActiveFormBorderColor.G:X2}{ colorTable.ActiveFormBorderColor.B:X2}");
+            mRideRecapHtml = mRideRecapHtml.Replace("000003", $"{colorTable.FormTextColor.R:X2}{ colorTable.FormTextColor.G:X2}{ colorTable.FormTextColor.B:X2}");
+            mRideRecapHtml = mRideRecapHtml.Replace("000004", $"{colorTable.ActiveTitleGradientEnd.R:X2}{ colorTable.ActiveTitleGradientEnd.G:X2}{ colorTable.ActiveTitleGradientEnd.B:X2}");
+
             //public TimeSpan Duration { get; set; }
             //public double DistanceKm { get; set; }
             //public double DistanceMi { get; set; }
@@ -94,6 +132,19 @@ namespace ZwiftActivityMonitorV2
             mRideRecapHtml = mRideRecapHtml.Replace("NPwatts", $"{this.mRideRecapMetrics.NPwatts}");
             mRideRecapHtml = mRideRecapHtml.Replace("IntensityFactor", $"{(this.mRideRecapMetrics.IntensityFactor.HasValue ? this.mRideRecapMetrics.IntensityFactor.Value.ToString(".00") : "")}");
             mRideRecapHtml = mRideRecapHtml.Replace("TrainingStressScore", $"{(this.mRideRecapMetrics.TrainingStressScore.HasValue ? this.mRideRecapMetrics.TrainingStressScore.Value : "")}");
+
+            StringBuilder powerStr = new StringBuilder("");
+            foreach (var power in this.mRideRecapMetrics.Power)
+            {
+                powerStr.AppendLine("<tr>");
+                powerStr.AppendLine($"<td>{DurationEnum.Instance.GetText(power.DurationType)}</td>");
+                powerStr.AppendLine($"<td>{power.APwattsMax}</td>");
+                powerStr.AppendLine($"<td>{(power.APwattsKgMax.HasValue ? power.APwattsKgMax.Value.ToString("0.00") : "")}</td>");
+                powerStr.AppendLine("</tr>");
+            }
+
+            mRideRecapHtml = mRideRecapHtml.Replace("RideRecapPower", powerStr.ToString());
+
 
             /*
             <tr>
@@ -169,7 +220,7 @@ namespace ZwiftActivityMonitorV2
 
             mRideRecapHtml = mRideRecapHtml.Replace("RideRecapSplits", splitStr.ToString());
 
-            //Logger.LogDebug($"{this.GetType()}::RideRecap_Load - \n{mRideRecapHtml}");
+            Logger.LogDebug($"{this.GetType()}::RideRecap_Load - \n{mRideRecapHtml}");
 
             this.webBrowser.BrowserControl.DocumentText = styleSheet + mRideRecapHtml;
 

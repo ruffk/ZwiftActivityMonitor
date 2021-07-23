@@ -103,6 +103,16 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Enjoy_Fitness_Logo_red {
+            get {
+                object obj = ResourceManager.GetObject("Enjoy_Fitness_Logo_red", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Enjoy_Fitness_Logo_Short {
             get {
                 object obj = ResourceManager.GetObject("Enjoy_Fitness_Logo_Short", resourceCulture);
@@ -203,24 +213,18 @@ namespace ZwiftActivityMonitorV2.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;HTML&gt;
         ///&lt;BODY&gt;
-        ///    &lt;table class=&quot;freeformTable&quot;&gt;
-        ///        &lt;tr&gt;
-        ///            &lt;td class=&quot;td-right&quot;&gt;Ride Time:&lt;/td&gt;
-        ///            &lt;td width=&quot;90px&quot;&gt;00:00:00&lt;/td&gt;
-        ///            &lt;td&gt;&lt;/td&gt;
-        ///        &lt;/tr&gt;
-        ///        &lt;tr&gt;
-        ///            &lt;td class=&quot;td-right&quot;&gt;Distance:&lt;/td&gt;
-        ///            &lt;td&gt;888.8 km&lt;/td&gt;
-        ///            &lt;td&gt;888.8 mi&lt;/td&gt;
-        ///        &lt;/tr&gt;
-        ///        &lt;tr&gt;
-        ///            &lt;td class=&quot;td-right&quot;&gt;Speed:&lt;/td&gt;
-        ///            &lt;td&gt;888.8 km/h&lt;/td&gt;
-        ///            &lt;td&gt;888.8 mi/h&lt;/td&gt;
-        ///        &lt;/tr&gt;
-        ///        &lt;tr&gt;
-        ///            &lt;td clas [rest of string was truncated]&quot;;.
+        ///    &lt;!--
+        ///    public TimeSpan Duration { get; set; }
+        ///    public double DistanceKm { get; set; }
+        ///    public double DistanceMi { get; set; }
+        ///    public double AverageKph { get; set; }
+        ///    public double AverageMph { get; set; }
+        ///    public int APwatts { get; set; }
+        ///    public double? APwattsPerKg { get; set; }
+        ///    public int NPwatts { get; set; }
+        ///    public double? NPwattsPerKg { get; set; }
+        ///    public double? IntensityFactor { get; set; } // null if FTP not set
+        ///    public int? Trainin [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RideRecap {
             get {
