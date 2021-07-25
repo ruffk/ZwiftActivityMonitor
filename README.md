@@ -173,17 +173,33 @@ Timer behavior settings:
 
 ### Customizing Your Experience
 
+### Column Selection
+
+The Activity, Split and Lap views in ZAM allow the user to select which columns they would like to see in the grid.  The Column pop-up menu can be viewed by right-clicking any existing grid column.  Check an item to display, un-check to hide.  One to N columns can be selected and are saved per user profile.
+
+![columns](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ColumnSelection.png)
+
 ### Period (Moving Average Collector) Selection
 
-ZAM uses moving average collectors to present statistics on the screen in real-time.  The collector pop-up can be viewed by right-clicking any existing time period.  Check an item to display, un-check to hide.  One to N collectors can be selected and are saved per user profile.
+ZAM uses moving average collectors to present statistics on the screen in real-time.  The Collector pop-up menu can be viewed by right-clicking any existing time period.  Check an item to display, un-check to hide.  One to N collectors can be selected and are saved per user profile.
 
 ![periods](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/PeriodSelection.png)
 
-### Column Selection
+### Power Selection
 
-The Activity, Split and Lap views in ZAM allow the user to select which columns they would like to see in the grid.  The column pop-up can be viewed by right-clicking any existing grid column.  Check an item to display, un-check to hide.  One to N columns can be selected and are saved per user profile.
+Within the views, the user is free to select how they wish to display their power numbers.  Available options are:
 
-![columns](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ColumnSelection.png)
+* Watts - Rounded to nearest whole number.
+* Watts/Kilo - Shown as #.## (i.e 4.12)
+* Both - The system will alternate between Watts and Watts/Kg within the column
+* Hidden - Not shown.
+
+The Power pop-up menu can be viewed by:
+
+* Activity View - Right click on the AP, AP (Max), or %95 column for the Collector you wish to set.
+* Activity Summary - Right click on the NP,  
+
+![power](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/PowerSelection.png)
 
 * Time Duration - The period for which a collector retains data.
 * Average Power display format - Moving average for all values currently in the collector.
