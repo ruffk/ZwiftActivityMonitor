@@ -7,13 +7,16 @@ This application allows Zwift users to monitor their moving average power and FT
 
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png)
-#### Example of Main View window
+#### Example of Activity View
 
 ![split_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SplitView.png)
-#### Example of Split View window
+#### Example of Split View
 
 ![lap_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/LapView.png)
-#### Example of Lap View window
+#### Example of Lap View
+
+![color_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/FontAndColorView.png)
+#### Example of Font and Color View
 
 ## How It Works
 
@@ -48,7 +51,7 @@ When you launch ZAM for the first time, you will be presented with the configura
 
 ### Configuration
 
-ZAM is easily configured via a set of configuration tab pages in the <b>Analyze->Options</b> dialog.
+ZAM is easily configured via a set of configuration tab pages in the <b>Menu->Configuration</b> dialog.
 
 #### Options -> System Configuration Tab
 
@@ -61,7 +64,7 @@ in order to use ZAM.  This can either be done manually each time you run ZAM (by
 * Auto-Start - Whether to start the Zwift Packet Monitoring service automatically when ZAM starts.
 * Window Position - Once you find where you like the ZAM window to sit, enter those coordinates and it will open there each time.
 
-![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SystemOptions.png)
+![system_options](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SystemConfig.png)
 
 #### Options -> User Configuration Tab
 
@@ -72,27 +75,10 @@ A default profile is provided for you, but you should configure it properly befo
 * Weight - In Kilos or Pounds.
 * FTP - From your last FTP test or the value that Zwift has.
 * Email Address - This allows you to email yourself the rider recap sheet.
-* Default moving average collector selection.
-
-The moving average collectors selected will be shown by default for this user.  However, you can select different collectors from the main ZAM window. 
 
 Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  These are used to calculate Watts/Kilo and Intensity Factor.
 
-![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserProfiles.png)
-
-#### Options -> Collector Configuration Tab
-
-ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
-
-* Time Duration - The period for which a collector retains data.
-* Average Power display format - Moving average for all values currently in the collector.
-* Maximum Power display format - The maximum value attained from the moving average.
-* FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
-  * Watts - Rounded to nearest whole number.
-  * Watts/Kilo - Shown as #.## (i.e 4.12)
-  * Hidden - Not shown.
-
-![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
+![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/UserConfig.png)
 
 #### Options -> Splits Configuration Tab 
 
@@ -110,7 +96,7 @@ ZAM allows you to configure distance based splits to review your progress while 
 
 An example of the Splits View window is shown at the beginning of this readme file.
 
-![splits](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Splits.png)
+![splits](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SplitConfig.png)
 
 #### Options -> Laps Configuration Tab
 
@@ -129,7 +115,7 @@ ZAM allows you to perform lap and/or segment timing while riding.  Similar to Ga
     * Start and Lap button press - A waypoint occurs at the start and on each lap button press.
     * Lap button press only - A waypoint occurs only on lap button press.
 
-![lapbuttons](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapViewControlButtons.png)
+![lapbuttons](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/LapViewButtons.png)
 Use the control buttons on the Laps View window to:
 
 * Lap - Completes current lap and starts a new lap.
@@ -139,7 +125,7 @@ Use the control buttons on the Laps View window to:
 
 An example of the Laps View window is shown at the beginning of this readme file.
 
-![laps](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/LapConfig.png)
+![laps](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/LapConfig.png)
 
 ### Using While Zwifting
 
@@ -167,7 +153,22 @@ Timer behavior settings:
 * Monitoring starts when countdown completes.
   * Note: This is when the WTRL begins its TTT timing.
 
-![setup_timer](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/SetupTimer.png)
+![setup_timer](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/TimerView.png)
+
+#### Options -> Collector Configuration Tab
+
+ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
+
+* Time Duration - The period for which a collector retains data.
+* Average Power display format - Moving average for all values currently in the collector.
+* Maximum Power display format - The maximum value attained from the moving average.
+* FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
+  * Watts - Rounded to nearest whole number.
+  * Watts/Kilo - Shown as #.## (i.e 4.12)
+  * Hidden - Not shown.
+
+![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
+
 
 ## Contributing to Zwift Activity Monitor
 
