@@ -234,13 +234,13 @@ namespace ZwiftActivityMonitorV2
             //this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
 
             // Gather the ride recap info
-            RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
-            rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
-            rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
+            //RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
+            //rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
+            //rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
 
-            new RideRecap(rideRecapMetrics).ShowDialog(this);
+            //new RideRecap(rideRecapMetrics).ShowDialog(this);
 
-            //new AboutForm().ShowDialog(this);
+            new AboutForm().ShowDialog(this);
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
