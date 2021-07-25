@@ -191,25 +191,33 @@ Within the views, the user is free to select how they wish to display their powe
 
 * Watts - Rounded to nearest whole number.
 * Watts/Kilo - Shown as #.## (i.e 4.12)
-* Both - The system will alternate between Watts and Watts/Kg within the column
-* Hidden - Not shown.
+* Both - The system will alternate between Watts and Watts/Kg within the column.
+* None - Not shown.
 
 The Power pop-up menu can be viewed by:
 
-* Activity View - Right click on the AP, AP (Max), or %95 column for the Collector you wish to set.
-* Activity Summary - Right click on the NP,  
+* Activity View - Right-click on the AP, AP (Max), or %95 column (data area) for the Collector you wish to set.  You can also right-click on the AP or NP columns in the summary portion.
+* Lap View - Right click on the AP column.  
 
 ![power](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/PowerSelection.png)
 
-* Time Duration - The period for which a collector retains data.
-* Average Power display format - Moving average for all values currently in the collector.
-* Maximum Power display format - The maximum value attained from the moving average.
-* FTP (95%) display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
-  * Watts - Rounded to nearest whole number.
-  * Watts/Kilo - Shown as #.## (i.e 4.12)
-  * Hidden - Not shown.
+### Speed and Distance Selection
 
+Within the views, the user is free to select how they wish to display their speed and distance numbers.  Available options are:
 
+* Speed
+  * Kilometers per Hour.
+  * Miles per Hour.
+  * Both - The system will alternate between KPH and MPH within the column.
+  * None - Not shown.
+
+* Distance
+  * Kilometers
+  * Miles
+  * Both - The system will alternate between KM and MI within the column.
+  * None - Not shown.
+
+![power](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/PowerSelection.png)
 
 ## Contributing to Zwift Activity Monitor
 
