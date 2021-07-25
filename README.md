@@ -7,13 +7,16 @@ This application allows Zwift users to monitor their moving average power and FT
 
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png)
-#### Example of Main View window
+#### Example of Activity View
 
 ![split_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SplitView.png)
-#### Example of Split View window
+#### Example of Split View
 
 ![lap_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/LapView.png)
-#### Example of Lap View window
+#### Example of Lap View
+
+![color_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/FontAndColorView.png)
+#### Example of Font and Color View
 
 ## How It Works
 
@@ -48,7 +51,7 @@ When you launch ZAM for the first time, you will be presented with the configura
 
 ### Configuration
 
-ZAM is easily configured via a set of configuration tab pages in the <b>Analyze->Options</b> dialog.
+ZAM is easily configured via a set of configuration tab pages in the <b>Menu->Configuration</b> dialog.
 
 #### Options -> System Configuration Tab
 
@@ -76,20 +79,6 @@ A default profile is provided for you, but you should configure it properly befo
 Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  These are used to calculate Watts/Kilo and Intensity Factor.
 
 ![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserConfig.png)
-
-#### Options -> Collector Configuration Tab
-
-ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
-
-* Time Duration - The period for which a collector retains data.
-* Average Power display format - Moving average for all values currently in the collector.
-* Maximum Power display format - The maximum value attained from the moving average.
-* FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
-  * Watts - Rounded to nearest whole number.
-  * Watts/Kilo - Shown as #.## (i.e 4.12)
-  * Hidden - Not shown.
-
-![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
 
 #### Options -> Splits Configuration Tab 
 
@@ -165,6 +154,21 @@ Timer behavior settings:
   * Note: This is when the WTRL begins its TTT timing.
 
 ![setup_timer](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/TimerView.png)
+
+#### Options -> Collector Configuration Tab
+
+ZAM uses moving average collectors to present statistics on the screen in real-time.  A collector has the following attributes:
+
+* Time Duration - The period for which a collector retains data.
+* Average Power display format - Moving average for all values currently in the collector.
+* Maximum Power display format - The maximum value attained from the moving average.
+* FTP display format - Maximum power value * 0.95 (Most applicable to the 20 minute collector).
+  * Watts - Rounded to nearest whole number.
+  * Watts/Kilo - Shown as #.## (i.e 4.12)
+  * Hidden - Not shown.
+
+![collectors](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Collectors.png)
+
 
 ## Contributing to Zwift Activity Monitor
 
