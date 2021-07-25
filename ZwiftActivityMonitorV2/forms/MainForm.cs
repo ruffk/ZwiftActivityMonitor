@@ -68,6 +68,7 @@ namespace ZwiftActivityMonitorV2
             //this.Style.TitleBar.Font = new System.Drawing.Font("Franklin Gothic Demi Cond", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             //this.Style.TitleBar.IconBackColor = System.Drawing.Color.Transparent;
 
+
             //this.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
             //this.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
             //this.Style.ShadowOpacity = 0;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,10 +6,8 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SharpPcap.LibPcap;
 using System.Runtime.InteropServices;
 using WK.Libraries.HotkeyListenerNS;
-using System.Windows.Forms;
 
 namespace ZwiftActivityMonitorV2
 {
@@ -56,113 +53,6 @@ namespace ZwiftActivityMonitorV2
 
     #endregion
 
-    public class Hotkeys : ConfigItemBase
-    {
-        public string ActivityViewHotKeySequence { get; set; }
-        public string SplitViewHotkeySequence { get; set; }
-        public string LapViewHotkeySequence { get; set; }
-        public string NewLapHotkeySequence { get; set; }
-        public string ResetLapsHotkeySequence { get; set; }
-
-        public static Hotkey ActivityViewHotkey = new();
-        public static Hotkey SplitViewHotkey = new();
-        public static Hotkey LapViewHotkey = new();
-        public static Hotkey NewLapHotkey = new();
-        public static Hotkey ResetLapsHotkey = new();
-
-        public Hotkeys()
-        {
-        }
-
-        /// <summary>
-        /// Update all hotkeys based upon their text representation.  Keys are automatically added if new.
-        /// </summary>
-        public void UpdateHotkeys()
-        {
-            this.UpdateHotkey(ref ActivityViewHotkey, new Hotkey(this.ActivityViewHotKeySequence));
-            this.UpdateHotkey(ref SplitViewHotkey, new Hotkey(this.SplitViewHotkeySequence));
-            this.UpdateHotkey(ref LapViewHotkey, new Hotkey(this.LapViewHotkeySequence));
-            this.UpdateHotkey(ref NewLapHotkey, new Hotkey(this.NewLapHotkeySequence));
-            this.UpdateHotkey(ref ResetLapsHotkey, new Hotkey(this.ResetLapsHotkeySequence));
-        }
-
-        /// <summary>
-        /// The author's Update method has a bug when currentHotKey is passed by reference.
-        /// This replaces that method by calling the non-ref method first, and then assigning newHotkey to curHotkey
-        /// </summary>
-        /// <param name="currentHotkey"></param>
-        /// <param name="newHotkey"></param>
-        private void UpdateHotkey(ref Hotkey currentHotkey, Hotkey newHotkey)
-        {
-            ZAMsettings.HotkeyListener.Update(currentHotkey, newHotkey);
-
-            currentHotkey = newHotkey;
-        }
-
-        public void AddHotkeys()
-        {
-            if (ActivityViewHotkey.KeyCode != Keys.None)
-                ZAMsettings.HotkeyListener.Add(ActivityViewHotkey);
-
-            if (SplitViewHotkey.KeyCode != Keys.None)
-                ZAMsettings.HotkeyListener.Add(SplitViewHotkey);
-
-            if (LapViewHotkey.KeyCode != Keys.None)
-                ZAMsettings.HotkeyListener.Add(LapViewHotkey);
-
-            if (NewLapHotkey.KeyCode != Keys.None)
-                ZAMsettings.HotkeyListener.Add(NewLapHotkey);
-
-            if (ResetLapsHotkey.KeyCode != Keys.None)
-                ZAMsettings.HotkeyListener.Add(ResetLapsHotkey);
-        }
-
-
-        public override int InitializeDefaultValues()
-        {
-            int count = 0;
-
-            if (string.IsNullOrEmpty(this.ActivityViewHotKeySequence))
-            {
-                this.ActivityViewHotKeySequence = new Hotkey().ToString();
-                count++;
-            }
-
-            if (string.IsNullOrEmpty(this.SplitViewHotkeySequence))
-            {
-                this.SplitViewHotkeySequence = new Hotkey().ToString();
-                count++;
-            }
-
-            if (string.IsNullOrEmpty(this.LapViewHotkeySequence))
-            {
-                this.LapViewHotkeySequence = new Hotkey().ToString();
-                count++;
-            }
-
-            if (string.IsNullOrEmpty(this.NewLapHotkeySequence))
-            {
-                this.NewLapHotkeySequence = new Hotkey().ToString();
-                count++;
-            }
-
-            if (string.IsNullOrEmpty(this.ResetLapsHotkeySequence))
-            {
-                this.ResetLapsHotkeySequence = new Hotkey().ToString();
-                count++;
-            }
-
-            ActivityViewHotkey = HotkeyListener.Convert(this.ActivityViewHotKeySequence); ;
-            SplitViewHotkey = HotkeyListener.Convert(this.SplitViewHotkeySequence);
-            LapViewHotkey = HotkeyListener.Convert(this.LapViewHotkeySequence);
-            NewLapHotkey = HotkeyListener.Convert(this.NewLapHotkeySequence);
-            ResetLapsHotkey = HotkeyListener.Convert(this.ResetLapsHotkeySequence);
-
-
-            return count;
-        }
-
-    }
 
     public class ZAMsettings : ConfigItemBase
     {
@@ -177,7 +67,7 @@ namespace ZwiftActivityMonitorV2
         public int? StatusViewerDurationSecs { get; set; }
 
         public SortedList<string, UserProfile> UserProfiles { get; }
-        public SortedList<string, Collector> Collectors { get; }
+        //public SortedList<string, Collector> Collectors { get; }
         public Lap Laps { get; }
         public SplitsV2 SplitsV2 { get; }
         public ZAMappearance Appearance { get; }
@@ -218,7 +108,7 @@ namespace ZwiftActivityMonitorV2
         private ZAMsettings()
         {
             UserProfiles    = new SortedList<string, UserProfile>();
-            Collectors      = new SortedList<string, Collector>();
+            //Collectors      = new SortedList<string, Collector>();
             Laps            = new Lap();
             SplitsV2        = new SplitsV2();
             Appearance      = new ZAMappearance();
@@ -294,27 +184,27 @@ namespace ZwiftActivityMonitorV2
             _logger.LogDebug($"User {user.Name} deleted.");
         }
 
-        public void UpsertCollector(Collector collector)
-        {
-            Debug.Assert(!this.m_readOnly, "Configuration in use is read-only.  Did you forget BeginCachedConfiguration?");
+        //public void UpsertCollector(Collector collector)
+        //{
+        //    Debug.Assert(!this.m_readOnly, "Configuration in use is read-only.  Did you forget BeginCachedConfiguration?");
 
-            if (!Collectors.ContainsKey(collector.Name))
-            {
-                // Clone the collector and add to the configuration's Collector dictionary
-                Collectors.Add(collector.Name, (Collector)collector.Clone());
+        //    if (!Collectors.ContainsKey(collector.Name))
+        //    {
+        //        // Clone the collector and add to the configuration's Collector dictionary
+        //        Collectors.Add(collector.Name, (Collector)collector.Clone());
 
-                _logger.LogDebug($"Collector {collector.Name} added.");
-            }
-            else
-            {
-                Debug.Assert(Collectors.ContainsKey(collector.Name), "Collector not found in dictionary.  Cannot update.");
+        //        _logger.LogDebug($"Collector {collector.Name} added.");
+        //    }
+        //    else
+        //    {
+        //        Debug.Assert(Collectors.ContainsKey(collector.Name), "Collector not found in dictionary.  Cannot update.");
 
-                // Clone the user and update the configuration's UserProfile dictionary
-                Collectors[collector.Name] = (Collector)collector.Clone();
+        //        // Clone the user and update the configuration's UserProfile dictionary
+        //        Collectors[collector.Name] = (Collector)collector.Clone();
 
-                _logger.LogDebug($"Collector {collector.Name} updated.");
-            }
-        }
+        //        _logger.LogDebug($"Collector {collector.Name} updated.");
+        //    }
+        //}
 
         [JsonIgnore]
         public List<UserProfile> GetUsers
@@ -353,25 +243,25 @@ namespace ZwiftActivityMonitorV2
             }
         }
         
-        /// <summary>
-        /// Get a sorted list of all known Collectors by DurationSecs asc
-        /// </summary>
-        [JsonIgnore]
-        public List<Collector> GetCollectors
-        {
-            get
-            {
-                List<Collector> collectors = Collectors.Values.ToList<Collector>();
-                collectors.Sort(
-                    delegate (Collector p1, Collector p2)
-                    {
-                        return p1.DurationSecs.CompareTo(p2.DurationSecs);
-                    }
-                );
+        ///// <summary>
+        ///// Get a sorted list of all known Collectors by DurationSecs asc
+        ///// </summary>
+        //[JsonIgnore]
+        //public List<Collector> GetCollectors
+        //{
+        //    get
+        //    {
+        //        List<Collector> collectors = Collectors.Values.ToList<Collector>();
+        //        collectors.Sort(
+        //            delegate (Collector p1, Collector p2)
+        //            {
+        //                return p1.DurationSecs.CompareTo(p2.DurationSecs);
+        //            }
+        //        );
 
-                return collectors.ToList<Collector>();
-            }
-        }
+        //        return collectors.ToList<Collector>();
+        //    }
+        //}
 
 
         static ZAMsettings()
@@ -455,8 +345,8 @@ namespace ZwiftActivityMonitorV2
                 initCount += Settings.Appearance.InitializeDefaultValues();
 
                 // If a Collector or UserProfile needs to be added manually for some reason, that will need to be coded separately
-                foreach (Collector c in Settings.Collectors.Values)
-                    initCount += c.InitializeDefaultValues();
+                //foreach (Collector c in Settings.Collectors.Values)
+                //    initCount += c.InitializeDefaultValues();
                 foreach (UserProfile p in Settings.UserProfiles.Values)
                     initCount += p.InitializeDefaultValues();
                 

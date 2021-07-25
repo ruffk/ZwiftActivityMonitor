@@ -4,101 +4,415 @@
   "DefaultUserProfile": "789765a5-23a9-4537-b5bb-47af8091f3d3",
   "WindowPositionX": 311,
   "WindowPositionY": 48,
+  "SplashScreenDurationSecs": 4,
+  "StatusViewerDurationSecs": 5,
   "UserProfiles": {
     "789765a5-23a9-4537-b5bb-47af8091f3d3": {
       "UniqueId": "789765a5-23a9-4537-b5bb-47af8091f3d3",
       "PowerThreshold": 150,
-      "DefaultCollectors": {
-        "1 min": true,
-        "20 min": true,
-        "5 min": true
+      "ActivityViewDetailRowSettings": {
+        "FiveSeconds": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 5,
+            "Value": "5 sec"
+          },
+          "IsVisible": false
+        },
+        "FifteenSeconds": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 15,
+            "Value": "15 sec"
+          },
+          "IsVisible": false
+        },
+        "ThirtySeconds": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 30,
+            "Value": "30 sec"
+          },
+          "IsVisible": false
+        },
+        "OneMinute": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 60,
+            "Value": "1 min"
+          },
+          "IsVisible": true
+        },
+        "TwoMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 120,
+            "Value": "2 min"
+          },
+          "IsVisible": false
+        },
+        "FiveMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 300,
+            "Value": "5 min"
+          },
+          "IsVisible": true
+        },
+        "SixMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 360,
+            "Value": "6 min"
+          },
+          "IsVisible": false
+        },
+        "TenMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 600,
+            "Value": "10 min"
+          },
+          "IsVisible": false
+        },
+        "TwentyMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 1,
+              "Value": "W/Kg"
+            }
+          },
+          "Duration": {
+            "Key": 1200,
+            "Value": "20 min"
+          },
+          "IsVisible": true
+        },
+        "ThirtyMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 1800,
+            "Value": "30 min"
+          },
+          "IsVisible": false
+        },
+        "SixtyMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 3600,
+            "Value": "60 min"
+          },
+          "IsVisible": false
+        },
+        "NinetyMinutes": {
+          "PowerValues": {
+            "DetailAP": {
+              "Key": 0,
+              "Value": "Watts"
+            },
+            "DetailAPmax": {
+              "Key": 1,
+              "Value": "W/Kg"
+            },
+            "DetailFTP": {
+              "Key": 3,
+              "Value": "None"
+            }
+          },
+          "Duration": {
+            "Key": 5400,
+            "Value": "90 min"
+          },
+          "IsVisible": false
+        }
       },
+      "ActivityViewColumnSettings": {
+        "DetailAP": {
+          "Metric": {
+            "Key": 0,
+            "Value": "AP"
+          },
+          "IsVisible": true
+        },
+        "DetailAPmax": {
+          "Metric": {
+            "Key": 1,
+            "Value": "AP (Max)"
+          },
+          "IsVisible": true
+        },
+        "DetailFTP": {
+          "Metric": {
+            "Key": 2,
+            "Value": "95%"
+          },
+          "IsVisible": true
+        },
+        "DetailHR": {
+          "Metric": {
+            "Key": 3,
+            "Value": "HR"
+          },
+          "IsVisible": true
+        },
+        "SummaryAS": {
+          "Metric": {
+            "Key": 4,
+            "Value": "AS"
+          },
+          "IsVisible": true
+        },
+        "SummaryAP": {
+          "Metric": {
+            "Key": 5,
+            "Value": "AP"
+          },
+          "IsVisible": true
+        },
+        "SummaryNP": {
+          "Metric": {
+            "Key": 6,
+            "Value": "NP"
+          },
+          "IsVisible": true
+        },
+        "SummaryIF": {
+          "Metric": {
+            "Key": 7,
+            "Value": "IF"
+          },
+          "IsVisible": true
+        },
+        "SummaryTSS": {
+          "Metric": {
+            "Key": 8,
+            "Value": "TSS"
+          },
+          "IsVisible": true
+        }
+      },
+      "ActivityViewSummaryRowSettings": {
+        "PowerValues": {
+          "SummaryAP": {
+            "Key": 0,
+            "Value": "Watts"
+          },
+          "SummaryNP": {
+            "Key": 2,
+            "Value": "Both Watts and W/Kg"
+          }
+        },
+        "SpeedValues": {
+          "SummaryAS": {
+            "Key": 2,
+            "Value": "Both KPH and MPH"
+          }
+        }
+      },
+      "SplitViewColumnSettings": {
+        "Visibility": {
+          "DetailSplitNumber": true,
+          "DetailSplitTime": true,
+          "DetailSplitSpeed": true,
+          "DetailSplitDistance": true,
+          "DetailTotalTime": true,
+          "DetailDeltaTime": true,
+          "SummaryGoalSpeed": true,
+          "SummaryGoalDistance": true,
+          "SummaryGoalTime": true
+        },
+        "SpeedValues": {
+          "DetailSplitSpeed": {
+            "Key": 2,
+            "Value": "Both KPH and MPH"
+          },
+          "SummaryGoalSpeed": {
+            "Key": 2,
+            "Value": "Both KPH and MPH"
+          }
+        },
+        "DistanceValues": {
+          "DetailSplitDistance": {
+            "Key": 2,
+            "Value": "Both Kilometers and Miles"
+          },
+          "SummaryGoalDistance": {
+            "Key": 2,
+            "Value": "Both Kilometers and Miles"
+          }
+        }
+      },
+      "LapViewColumnSettings": {
+        "Visibility": {
+          "DetailLapNumber": true,
+          "DetailLapTime": true,
+          "DetailLapSpeed": true,
+          "DetailLapDistance": true,
+          "DetailLapAP": true,
+          "DetailTotalTime": true
+        },
+        "SpeedValues": {
+          "DetailLapSpeed": {
+            "Key": 2,
+            "Value": "Both KPH and MPH"
+          }
+        },
+        "DistanceValues": {
+          "DetailLapDistance": {
+            "Key": 2,
+            "Value": "Both Kilometers and Miles"
+          }
+        },
+        "PowerValues": {
+          "DetailLapAP": {
+            "Key": 2,
+            "Value": "Both Watts and W/Kg"
+          }
+        }
+      },
+      "AutoPause": true,
       "WeightInKgs": false,
       "Name": "Default User",
       "EmailAddress": "",
       "Weight": 165.0
-    }
-  },
-  "Collectors": {
-    "1 min": {
-      "Name": "1 min",
-      "DurationDesc": "OneMinute",
-      "DurationSecs": 60,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "10 min": {
-      "Name": "10 min",
-      "DurationDesc": "TenMinutes",
-      "DurationSecs": 600,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "20 min": {
-      "Name": "20 min",
-      "DurationDesc": "TwentyMinutes",
-      "DurationSecs": 1200,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Wkg"
-    },
-    "30 min": {
-      "Name": "30 min",
-      "DurationDesc": "ThirtyMinutes",
-      "DurationSecs": 1800,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "30 sec": {
-      "Name": "30 sec",
-      "DurationDesc": "ThirtySeconds",
-      "DurationSecs": 30,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "5 min": {
-      "Name": "5 min",
-      "DurationDesc": "FiveMinutes",
-      "DurationSecs": 300,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "5 sec": {
-      "Name": "5 sec",
-      "DurationDesc": "FiveSeconds",
-      "DurationSecs": 5,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "6 min": {
-      "Name": "6 min",
-      "DurationDesc": "SixMinutes",
-      "DurationSecs": 360,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "60 min": {
-      "Name": "60 min",
-      "DurationDesc": "SixtyMinutes",
-      "DurationSecs": 3600,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
-    },
-    "90 min": {
-      "Name": "90 min",
-      "DurationDesc": "NinetyMinutes",
-      "DurationSecs": 5400,
-      "FieldAvgDesc": "Watts",
-      "FieldAvgMaxDesc": "Wkg",
-      "FieldFtpDesc": "Hidden"
     }
   },
   "Laps": {
@@ -140,5 +454,29 @@
     "SplitDistance": 5,
     "GoalTime": "00:45:00",
     "GoalDistance": 25.0
+  },
+  "Appearance": {
+    "Theme": {
+      "Key": 4,
+      "Value": "Zwifty Orange"
+    },
+    "Transparency": {
+      "Key": 2,
+      "Value": "TP w/White Text"
+    },
+    "ManagedColor": "Control",
+    "WindowSize": "359, 212",
+    "FontFamily": "Franklin Gothic Demi Cond",
+    "FontSize": 13.0,
+    "IsFontBold": false,
+    "IsFontItalic": false
+  },
+  "EmailPassword": "Gza4klN+nEGPtUznBv/ISHw5Owai0tn3g5loj53QvAS41/I1NJ8IwEBd/c3hHC07",
+  "Hotkeys": {
+    "ActivityViewHotKeySequence": "Control + D1",
+    "SplitViewHotkeySequence": "Control + D2",
+    "LapViewHotkeySequence": "Control + D3",
+    "NewLapHotkeySequence": "Control + L",
+    "ResetLapsHotkeySequence": "Control + R"
   }
 }

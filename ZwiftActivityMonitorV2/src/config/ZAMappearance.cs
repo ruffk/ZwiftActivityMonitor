@@ -232,6 +232,8 @@ namespace ZwiftActivityMonitorV2
             form.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
             form.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
             form.Style.ShadowOpacity = 0;
+            form.Style.InactiveShadowOpacity = 0;
+            form.Style.TitleBar.Padding = new System.Windows.Forms.Padding(0);
 
             form.ForeColor = colorTable.FormTextColor;
             form.BackColor = colorTable.FormBackground;
