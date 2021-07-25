@@ -36,7 +36,7 @@ The network packets that ZAM consumes contain some important values.  Some of th
 
 Before you begin, ensure you have met the following requirements:
 * Latest version of Npcap: Packet capture library for Windows. (https://nmap.org/npcap/#download)
-* .NET5 Framework (Desktop, not Console)!
+* .NET5 Framework (Desktop, not Console)! (https://dotnet.microsoft.com/download/dotnet/5.0)
 
 ## Installing Zwift Activity Monitor (Windows Only)
 
