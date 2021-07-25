@@ -32,13 +32,13 @@ namespace ZwiftActivityMonitorV2
         {
             if (property == null || !property.Equals(valueToSet))
             {
-                //Debug.WriteLine($"SetProperty<T> NOT EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
+                //Logger.LogDebug($"SetProperty<T> NOT EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
 
                 property = valueToSet;
                 this.NotifyPropertyChanged(propertyName);
                 return true;
             }
-            //else Debug.WriteLine($"SetProperty<T> EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
+            //else Logger.LogDebug($"SetProperty<T> EQUAL - Name: {propertyName}, Type: {typeof(T)} Current: {property}, New: {valueToSet}");
             return false;
         }
     }

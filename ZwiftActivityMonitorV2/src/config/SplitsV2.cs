@@ -34,6 +34,9 @@ namespace ZwiftActivityMonitorV2
 
         public SplitsV2()
         {
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<SplitsV2>();
 
             // ComboBox will display these items
@@ -51,7 +54,7 @@ namespace ZwiftActivityMonitorV2
 
             if (SplitDistanceUom == null)
             {
-                Logger.LogInformation($"Initializing SplitDistanceUom");
+                Logger.LogDebug($"Initializing SplitDistanceUom");
                 SplitDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
                 count++;
             }

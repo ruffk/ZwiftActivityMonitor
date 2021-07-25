@@ -8,7 +8,7 @@ using System.Drawing.Drawing2D;
 
 namespace ZwiftActivityMonitorV2
 {
-    public class ViewerUserControlEx : UserControl
+    public class ViewerControlEx : UserControl
     {
         // A height of 19 is minimum when using Segoe UI 9pt font
         protected const int DataGridRowMinimumHeight = 19;
@@ -176,11 +176,11 @@ namespace ZwiftActivityMonitorV2
 
         public virtual void ControlLosingFocus(object sender, Syncfusion.Windows.Forms.Tools.SelectedIndexChangingEventArgs e)
         {
-            //Debug.WriteLine($"ControlLosingFocus - {this.Name}");
+            //Logger.LogDebug($"ControlLosingFocus - {this.Name}");
         }
         public virtual void ControlGainingFocus(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"ControlGainingFocus - {this.Name}");
+            //Logger.LogDebug($"ControlGainingFocus - {this.Name}");
         }
 
         protected UserProfile CurrentUserProfile

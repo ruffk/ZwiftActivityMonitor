@@ -7,6 +7,8 @@ using System.Drawing.Text;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+
 
 using Syncfusion.Windows.Forms;
 
@@ -15,16 +17,27 @@ using System.Linq;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class ColorAndFontViewerControl : ViewerUserControlEx
+    public partial class ColorAndFontViewerControl : ViewerControlEx
     {
         private bool InitializingControls { get; set; } = false;
+        private readonly ILogger<ColorAndFontViewerControl> Logger;
+
 
         public event EventHandler<ColorsAndFontChangedEventArgs> ColorsAndFontChanged;
 
         public ColorAndFontViewerControl()
         {
             InitializeComponent();
-            
+
+            if (DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<ColorAndFontViewerControl>();
+
+
             this.cbFonts.Fill();
 
             this.btnColor.ColorGroups = ((Syncfusion.Windows.Forms.ColorUIGroups)
@@ -37,7 +50,7 @@ namespace ZwiftActivityMonitorV2
             if (this.DesignMode)
                 return;
 
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
+            Logger.LogDebug($"{this.GetType()}.ViewControl_Load");
 
             ZAMappearance settings = ZAMsettings.Settings.Appearance;
 
@@ -115,9 +128,9 @@ namespace ZwiftActivityMonitorV2
             if (this.cbTheme.SelectedItem == null)
                 return;
 
-            //Debug.WriteLine($"AdjustFont - cbFonts.SelectedItem: {this.cbFonts.SelectedItem}");
+            //Logger.LogDebug($"AdjustFont - cbFonts.SelectedItem: {this.cbFonts.SelectedItem}");
 
-            //Debug.WriteLine($"AdjustFont - cbTheme.SelectedItem: {this.cbTheme.SelectedItem}");
+            //Logger.LogDebug($"AdjustFont - cbTheme.SelectedItem: {this.cbTheme.SelectedItem}");
 
             FontStyle style = 0;
 
@@ -130,28 +143,52 @@ namespace ZwiftActivityMonitorV2
 
             var selection = (KeyValuePair<ThemeType, string>)cbTheme.SelectedItem;
 
-            Office2010FormEx hidden = new Office2010FormEx();
-            hidden.UseOffice2010SchemeBackColor = true;
+            //Office2010FormEx hidden = new Office2010FormEx();
+            //hidden.UseOffice2010SchemeBackColor = true;
+
+            //if (selection.Key != ThemeType.Custom)
+            //{
+            //    hidden.ColorScheme = ZAMsettings.Settings.Appearance.GetOfficeColorScheme(selection.Key, out Color? managedColor);
+
+            //    if (hidden.ColorScheme == Office2010Theme.Managed)
+            //    {
+            //        Office2010Colors.ApplyManagedColors(hidden, managedColor.Value);
+            //    }
+            //}
+            //else
+            //{
+            //    hidden.ColorScheme = Office2010Theme.Managed;
+            //    Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
+            //}
+
+            //Office2010Colors colorTable = Office2010Colors.GetColorTable(hidden.ColorScheme);
+
+            MSoffice2010ColorManager colorTable;
 
             if (selection.Key != ThemeType.Custom)
             {
-                hidden.ColorScheme = ZAMsettings.Settings.Appearance.GetOfficeColorScheme(selection.Key, out Color? managedColor);
+                MSoffice2010Theme theme = ZAMsettings.Settings.Appearance.GetMSoffice2010Theme(selection.Key, out Color? managedColor);
 
-                if (hidden.ColorScheme == Office2010Theme.Managed)
+                if (theme == MSoffice2010Theme.Managed)
                 {
-                    Office2010Colors.ApplyManagedColors(hidden, managedColor.Value);
+                    // store managed colors in the static object
+                    MSoffice2010ColorManager.ApplyManagedColors(managedColor.Value);
+                    colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
+                }
+                else
+                {
+                    colorTable = MSoffice2010ColorManager.GetColorTable(theme);
                 }
             }
             else
             {
-                hidden.ColorScheme = Office2010Theme.Managed;
-                Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
+                // store managed colors in the static object
+                MSoffice2010ColorManager.ApplyManagedColors(btnColor.SelectedColor);
+                colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
             }
 
-            Office2010Colors colors = Office2010Colors.GetColorTable(hidden.ColorScheme);
-            //Office2010Colors colors = hidden.GetColorTable();
-            this.panel1.BackColor = colors.FormBackground;
-            this.panel1.ForeColor = colors.FormTextColor;
+            this.panel1.BackColor = colorTable.FormBackground;
+            this.panel1.ForeColor = colorTable.FormTextColor;
         }
 
         private void nudFontSize_ValueChanged(object sender, EventArgs e)
@@ -169,7 +206,7 @@ namespace ZwiftActivityMonitorV2
             if (this.cbTheme.SelectedItem == null)
                 return;
 
-            //Debug.WriteLine($"cbTheme_SelectedIndexChanged - cbTheme.SelectedItem: {this.cbTheme.SelectedItem}");
+            //Logger.LogDebug($"cbTheme_SelectedIndexChanged - cbTheme.SelectedItem: {this.cbTheme.SelectedItem}");
 
             var selection = (KeyValuePair<ThemeType, string>)cbTheme.SelectedItem;
 
@@ -183,14 +220,14 @@ namespace ZwiftActivityMonitorV2
             if (this.cbTransparency.SelectedItem == null)
                 return;
 
-            //Debug.WriteLine($"cbTransparency_SelectedIndexChanged - cbTransparency.SelectedItem: {this.cbTransparency.SelectedItem}");
+            //Logger.LogDebug($"cbTransparency_SelectedIndexChanged - cbTransparency.SelectedItem: {this.cbTransparency.SelectedItem}");
 
             AdjustFont();
         }
 
         private void btnColor_ColorSelected(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"btnColor_ColorSelected - {btnColor.SelectedColor}");
+            //Logger.LogDebug($"btnColor_ColorSelected - {btnColor.SelectedColor}");
 
             if (btnColor.SelectedColor == Color.Transparent)
             {
@@ -249,7 +286,7 @@ namespace ZwiftActivityMonitorV2
 
         private void btnAccept_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine($"Theme: {cbTheme.SelectedValue}, ManagedColor: {btnColor.SelectedColor}, Font: {cbFonts.SelectedItem} Transparency: {cbTransparency.SelectedValue}");
+            Logger.LogDebug($"Theme: {cbTheme.SelectedValue}, ManagedColor: {btnColor.SelectedColor}, Font: {cbFonts.SelectedItem} Transparency: {cbTransparency.SelectedValue}");
 
             ZAMsettings.BeginCachedConfiguration();
 
@@ -282,9 +319,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnColorsAndFontChanged)");
                 }
             }
         }

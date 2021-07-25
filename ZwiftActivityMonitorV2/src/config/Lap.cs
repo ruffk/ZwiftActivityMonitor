@@ -42,9 +42,12 @@ namespace ZwiftActivityMonitorV2
 
         public Lap()
         {
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<Lap>();
 
-            //Logger.LogInformation("CTOR");
+            //Logger.LogDebug("CTOR");
 
             // define all the valid choices for the UI
 
@@ -80,35 +83,35 @@ namespace ZwiftActivityMonitorV2
 
             if (TriggerDistanceUom == null)
             {
-                Logger.LogInformation($"Initializing TriggerDistanceUom");
+                Logger.LogDebug($"Initializing TriggerDistanceUom");
                 TriggerDistanceUom = m_uomItemList[DistanceUomType.Kilometers]; // default
                 count++;
             }
 
             if (TriggerPosition == null)
             {
-                Logger.LogInformation($"Initializing TriggerPosition");
+                Logger.LogDebug($"Initializing TriggerPosition");
                 TriggerPosition = m_positionItemList[TriggerPositionType.StartAndLapButton]; // default
                 count++;
             }
 
             if (MeasurementSystem == null)
             {
-                Logger.LogInformation($"Initializing MeasurementSystem");
+                Logger.LogDebug($"Initializing MeasurementSystem");
                 MeasurementSystem = m_measurementSystemList[MeasurementSystemType.Metric]; // default
                 count++;
             }
 
             if (LapStyle == null)
             {
-                Logger.LogInformation($"Initializing LapStyle");
+                Logger.LogDebug($"Initializing LapStyle");
                 LapStyle = m_lapStyleList[LapStyleType.Automatic]; // default
                 count++;
             }
 
             if (LapTrigger == null)
             {
-                Logger.LogInformation($"Initializing LapTrigger");
+                Logger.LogDebug($"Initializing LapTrigger");
                 LapTrigger = m_lapTriggerList[LapTriggerType.Position]; // default
                 count++;
             }

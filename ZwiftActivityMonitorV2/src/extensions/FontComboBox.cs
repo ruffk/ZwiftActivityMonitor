@@ -94,7 +94,7 @@ namespace ZwiftActivityMonitorV2
         private void FontComboBox_SelectionChangeCommitted(object sender, EventArgs e)
         {
             this.Font = new Font((string)this.SelectedItem, this.Font.Size, FontStyle.Regular);
-            //Debug.WriteLine($"FontComboBox_SelectionChangeCommitted {(string)this.SelectedItem}");
+            //Logger.LogDebug($"FontComboBox_SelectionChangeCommitted {(string)this.SelectedItem}");
         }
 
         public Color DropDownBorderColor { get; set; } = SystemColors.ActiveBorder;

@@ -8,48 +8,62 @@ using System.Diagnostics;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class ConfigurationOptions : Syncfusion.Windows.Forms.Office2010Form
+    public partial class ConfigurationOptions : Syncfusion.WinForms.Controls.SfForm //Syncfusion.Windows.Forms.Office2010Form
     {
-        private readonly ILogger<ConfigurationOptions> m_logger;
+        private readonly ILogger<ConfigurationOptions> Logger;
 
         public ConfigurationOptions(Point ZAMWindowPos)
         {
-            m_logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
-
             InitializeComponent();
 
-            //ucStatistics.Logger = ZAMsettings.LoggerFactory.CreateLogger<StatisticsControl>();
-            ucUserProfiles.Logger = ZAMsettings.LoggerFactory.CreateLogger<UserProfileControl>();
-            ucSystem.Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
-            //SystemControl.PacketMonitor = ZAMsettings.ZPMonitorService;
+            if (DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<ConfigurationOptions>();
+
             SystemControl.ZAMWindowPos = ZAMWindowPos;
 
+            MSoffice2010ColorManager colorTable = ZAMappearance.ApplyColorTable(this);
             this.Icon = Properties.Resources.ZAMicon;
 
-            ZAMappearance.ApplyColorScheme(this);
+            //ZAMappearance.ApplyColorScheme(this);
 
-            tabOptions.TabPanelBackColor = this.ColorTable.ActiveFormBorderColor;
-            tabOptions.ActiveTabColor = this.ColorTable.ActiveFormBorderColor;
-            tabOptions.ActiveTabForeColor = this.ColorTable.FormTextColor;
+            tabOptions.TabPanelBackColor = colorTable.ActiveFormBorderColor;
+            tabOptions.ActiveTabColor = colorTable.ActiveFormBorderColor;
+            tabOptions.ActiveTabForeColor = colorTable.FormTextColor;
 
-            tabOptions.InactiveTabColor = this.ColorTable.InactiveFormBorderColor; ;
-            tabOptions.InActiveTabForeColor = this.ColorTable.FormTextColor;
+            tabOptions.InactiveTabColor = colorTable.InactiveFormBorderColor; ;
+            tabOptions.InActiveTabForeColor = colorTable.FormTextColor;
 
             // the user controls will receive notifications that their parent's (the tabpages) colors have changed
-            this.tpSystem.BackColor = this.ColorTable.FormBackground;
-            this.tpSystem.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSystem.BackColor = Color.AliceBlue;
+            this.tpSystem.ForeColor = Color.AliceBlue;
+            this.tpLaps.BackColor = Color.AliceBlue;
+            this.tpLaps.ForeColor = Color.AliceBlue;
+            this.tpSplits.BackColor = Color.AliceBlue;
+            this.tpSplits.ForeColor = Color.AliceBlue;
+            this.tpUserProfiles.BackColor = Color.AliceBlue;
+            this.tpUserProfiles.ForeColor = Color.AliceBlue;
+            this.tpGeneral.BackColor = Color.AliceBlue;
+            this.tpGeneral.ForeColor = Color.AliceBlue;
 
-            //this.tpCollectors.BackColor = this.ColorTable.FormBackground;
-            //this.tpCollectors.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSystem.BackColor = colorTable.FormBackground;
+            this.tpSystem.ForeColor = colorTable.FormTextColor;
 
-            this.tpLaps.BackColor = this.ColorTable.FormBackground;
-            this.tpLaps.ForeColor = this.ColorTable.FormTextColor;
+            this.tpLaps.BackColor = colorTable.FormBackground;
+            this.tpLaps.ForeColor = colorTable.FormTextColor;
 
-            this.tpSplits.BackColor = this.ColorTable.FormBackground;
-            this.tpSplits.ForeColor = this.ColorTable.FormTextColor;
+            this.tpSplits.BackColor = colorTable.FormBackground;
+            this.tpSplits.ForeColor = colorTable.FormTextColor;
 
-            this.tpUserProfiles.BackColor = this.ColorTable.FormBackground;
-            this.tpUserProfiles.ForeColor = this.ColorTable.FormTextColor;
+            this.tpUserProfiles.BackColor = colorTable.FormBackground;
+            this.tpUserProfiles.ForeColor = colorTable.FormTextColor;
+
+            this.tpGeneral.BackColor = colorTable.FormBackground;
+            this.tpGeneral.ForeColor = colorTable.FormTextColor;
         }
 
         private void ConfigurationOptions_Load(object sender, EventArgs e)
@@ -110,78 +124,6 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
-        //private void tabOptions_Selecting(object sender, TabControlCancelEventArgs e)
-        //{
-        //    if (DesignMode)
-        //        return;
-
-        //    if (e.TabPageIndex == -1)
-        //        return;
-
-        //    m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
-
-        //    if (e.Action == TabControlAction.Selecting)
-        //    {
-        //        switch (e.TabPage.Name)
-        //        {
-        //            case "tpSystem":
-        //                ucSystem.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpUserProfiles":
-        //                ucUserProfiles.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpCollectors":
-        //                ucStatistics.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpSplits":
-        //                ucSplits.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpLaps":
-        //                ucLaps.ControlGainingFocus(sender, e);
-        //                break;
-
-        //            case "tpTest":
-        //                break;
-
-        //        }
-        //    }
-
-        //    if (e.Action == TabControlAction.Deselecting)
-        //    {
-        //        switch (e.TabPage.Name)
-        //        {
-        //            case "tpSystem":
-        //                ucSystem.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpUserProfiles":
-        //                ucUserProfiles.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpCollectors":
-        //                ucStatistics.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpSplits":
-        //                ucSplits.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpLaps":
-        //                ucLaps.ControlLosingFocus(sender, e);
-        //                break;
-
-        //            case "tpTest":
-        //                break;
-        //        }
-        //    }
-        //}
-
-
-
         /// <summary>
         /// This event handles TabPage Selected / Deselected events
         /// </summary>
@@ -195,7 +137,7 @@ namespace ZwiftActivityMonitorV2
             if (e.TabPageIndex == -1)
                 return;
 
-            m_logger.LogInformation($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
+            Logger.LogDebug($"TabPageName: {e.TabPage.Name} Action: {e.Action.ToString()}");
 
             // we're only interested in Selected events
             if (e.Action != TabControlAction.Selected)
@@ -209,8 +151,8 @@ namespace ZwiftActivityMonitorV2
                 case "tpUserProfiles":
                     break;
 
-                //case "tpCollectors":
-                //    break;
+                case "tpGeneral":
+                    break;
 
                 case "tpSplits":
                     break;
@@ -226,7 +168,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabOptions.SelectedTab == null)
                 return;
 
-            Debug.WriteLine($"tabOptions_SelectedIndexChanging - TabPageName: {this.tabOptions.SelectedTab.Name}");
+            Logger.LogDebug($"tabOptions_SelectedIndexChanging - TabPageName: {this.tabOptions.SelectedTab.Name}");
 
             switch (this.tabOptions.SelectedTab.Name)
             {
@@ -238,16 +180,16 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlLosingFocus(sender, args);
                     break;
 
-                //case "tpCollectors":
-                //    this.ucStatistics.ControlLosingFocus(sender, args);
-                //    break;
-
                 case "tpSplits":
                     this.ucSplits.ControlLosingFocus(sender, args);
                     break;
 
                 case "tpLaps":
                     this.ucLaps.ControlLosingFocus(sender, args);
+                    break;
+
+                case "tpGeneral":
+                    this.ucGeneral.ControlLosingFocus(sender, args);
                     break;
             }
 
@@ -257,7 +199,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabOptions.SelectedTab == null)
                 return;
 
-            Debug.WriteLine($"tabOptions_SelectedIndexChanged - TabPageName: {this.tabOptions.SelectedTab.Name}");
+            Logger.LogDebug($"tabOptions_SelectedIndexChanged - TabPageName: {this.tabOptions.SelectedTab.Name}");
 
             switch (this.tabOptions.SelectedTab.Name)
             {
@@ -269,16 +211,16 @@ namespace ZwiftActivityMonitorV2
                     this.ucUserProfiles.ControlGainingFocus(sender, e);
                     break;
 
-                //case "tpCollectors":
-                //    this.ucStatistics.ControlGainingFocus(sender, e);
-                //    break;
-
                 case "tpSplits":
                     this.ucSplits.ControlGainingFocus(sender, e);
                     break;
 
                 case "tpLaps":
                     this.ucLaps.ControlGainingFocus(sender, e);
+                    break;
+
+                case "tpGeneral":
+                    this.ucGeneral.ControlGainingFocus(sender, e);
                     break;
             }
         }

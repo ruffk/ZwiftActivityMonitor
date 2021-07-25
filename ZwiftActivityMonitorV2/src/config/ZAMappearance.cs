@@ -63,14 +63,14 @@ namespace ZwiftActivityMonitorV2
 
             if (Theme == null)
             {
-                //Debug.WriteLine($"Initializing Theme");
+                //Logger.LogDebug($"Initializing Theme");
                 Theme = new KeyValuePair<ThemeType, string>(ThemeType.ZwiftyOrange, m_themeList[ThemeType.ZwiftyOrange]); // default
                 count++;
             }
 
             if (Transparency == null)
             {
-                //Debug.WriteLine($"Initializing Transparency");
+                //Logger.LogDebug($"Initializing Transparency");
                 Transparency = new KeyValuePair<TransparencyType, string>(TransparencyType.TransparentWhiteText, m_transparencyList[TransparencyType.TransparentWhiteText]); // default
                 count++;
             }
@@ -157,6 +157,30 @@ namespace ZwiftActivityMonitorV2
                     return Office2010Theme.Managed;
             }
         }
+        public MSoffice2010Theme GetMSoffice2010Theme(ThemeType themeType, out Color? managedColor)
+        {
+            managedColor = null;
+
+            switch (themeType)
+            {
+                case ThemeType.Office2010Black:
+                    return MSoffice2010Theme.Black;
+
+                case ThemeType.Office2010Blue:
+                    return MSoffice2010Theme.Blue;
+
+                case ThemeType.Office2010Silver:
+                    return MSoffice2010Theme.Silver;
+
+                case ThemeType.ZwiftyOrange:
+                    managedColor = ZwiftyOrange;
+                    return MSoffice2010Theme.Managed;
+
+                default:
+                    managedColor = ManagedColor;
+                    return MSoffice2010Theme.Managed;
+            }
+        }
 
         public static void ApplyColorScheme(Office2010Form form)
         {
@@ -184,6 +208,69 @@ namespace ZwiftActivityMonitorV2
             //    Office2010Colors.ApplyManagedColors(form, settings.ManagedColor);
             //}
 
+        }
+
+        /// <summary>
+        /// Standard color setup for SfForm based forms
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        public static MSoffice2010ColorManager ApplyColorTable(Syncfusion.WinForms.Controls.SfForm form)
+        {
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            form.Style.TitleBar.BackColor = colorTable.ActiveTitleGradientEnd;
+            form.Style.TitleBar.ForeColor = colorTable.FormTextColor;
+            form.Style.TitleBar.CloseButtonForeColor = colorTable.FormTextColor;
+            form.Style.TitleBar.CloseButtonHoverBackColor = colorTable.XPTaskBarBoxBackColor;
+            form.Style.TitleBar.CloseButtonHoverForeColor = colorTable.XPTaskBarBoxForeColor;
+            form.Style.TitleBar.TextHorizontalAlignment = HorizontalAlignment.Center;
+            form.Style.TitleBar.CloseButtonSize = new Size(32, 32);
+            form.Style.TitleBar.Font = new System.Drawing.Font("Franklin Gothic Demi Cond", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            form.Style.TitleBar.IconBackColor = System.Drawing.Color.Transparent;
+            
+            form.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
+            form.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
+            form.Style.ShadowOpacity = 0;
+            form.Style.InactiveShadowOpacity = 0;
+            form.Style.TitleBar.Padding = new System.Windows.Forms.Padding(0);
+
+            form.ForeColor = colorTable.FormTextColor;
+            form.BackColor = colorTable.FormBackground;
+
+
+            return colorTable;
+        }
+
+        public static MSoffice2010ColorManager GetColorTable()
+        {
+            ZAMappearance settings = ZAMsettings.Settings.Appearance;
+
+            MSoffice2010ColorManager colorTable;
+
+            if (settings.ThemeSetting != ThemeType.Custom)
+            {
+                MSoffice2010Theme theme = settings.GetMSoffice2010Theme(settings.ThemeSetting, out Color? managedColor);
+
+                if (theme == MSoffice2010Theme.Managed)
+                {
+                    // store managed colors in the static object
+                    MSoffice2010ColorManager.ApplyManagedColors(managedColor.Value);
+                    colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
+                }
+                else
+                {
+                    colorTable = MSoffice2010ColorManager.GetColorTable(theme);
+                }
+            }
+            else
+            {
+                // store managed colors in the static object
+                MSoffice2010ColorManager.ApplyManagedColors(settings.ManagedColor);
+                colorTable = MSoffice2010ColorManager.GetColorTable(MSoffice2010Theme.Managed);
+            }
+
+            return colorTable;
         }
     }
     #endregion

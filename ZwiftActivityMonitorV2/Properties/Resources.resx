@@ -124,8 +124,17 @@
   <data name="palette" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\palette.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="clock" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\clock.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tron4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="stopwatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\stopwatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tron2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="split" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\split.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -133,25 +142,61 @@
   <data name="ZAMicon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\ZAMicon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Tron3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Tron3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="analytics" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\analytics.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="clock" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\clock.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Enjoy_Fitness_Logo_Short" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Enjoy-Fitness-Logo-Short.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Tron1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\Tron1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Tron2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Enjoy_Fitness_Logo_Short" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Enjoy-Fitness-Logo-Short.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Tron3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Status_RedRed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Status_RedRed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Tron4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\Tron4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Status_GreenGreen" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Status_GreenGreen.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Status_GreenRed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Status_GreenRed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Status_GreenBlank" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Status_GreenBlank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LapStatus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\LapStatus.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="StyleSheet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\StyleSheet.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="reset" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\reset.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SplitStatus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\SplitStatus.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LapStatusFreeform" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\LapStatusFreeform.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="SplitStatusFreeform" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\SplitStatusFreeform.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Enjoy_Fitness_Logo_Short_25pct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Enjoy-Fitness-Logo-Short-25pct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RideRecap" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\RideRecap.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="email_color" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\email-color.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="print_color" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\print-color.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Enjoy_Fitness_Logo_red" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Enjoy-Fitness-Logo-red.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

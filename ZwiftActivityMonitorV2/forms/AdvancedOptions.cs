@@ -13,22 +13,31 @@ using System.Drawing;
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class AdvancedOptions : Syncfusion.Windows.Forms.Office2010Form
+    public partial class AdvancedOptions : Syncfusion.WinForms.Controls.SfForm
     {
         private readonly ILogger<AdvancedOptions> Logger;
         private Dispatcher m_dispatcher;
 
         public AdvancedOptions()
         {
-            Logger = ZAMsettings.LoggerFactory.CreateLogger<AdvancedOptions>();
-
             InitializeComponent();
 
-            ZAMappearance.ApplyColorScheme(this);
+            if (DesignMode)
+                return;
 
-            // this will force a property changed event on the form
-            this.BackColor = this.ColorTable.FormBackground;
-            this.ForeColor = this.ColorTable.FormTextColor;
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<AdvancedOptions>();
+
+            this.BackColor = Color.AliceBlue;
+            this.ForeColor = Color.AliceBlue;
+
+            MSoffice2010ColorManager colorTable = ZAMappearance.ApplyColorTable(this);
+
+            // SfForm is not firing the property changed events so doing it manually here.
+            this.AdvancedOptions_BackColorChanged(this, null);
+            this.AdvancedOptions_ForeColorChanged(this, null);
 
             this.Icon = Properties.Resources.ZAMicon;
 
@@ -119,25 +128,25 @@ namespace ZwiftActivityMonitorV2
 
         private void AdvancedOptions_Load(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Load event");
+            Logger.LogDebug($"Load event");
             m_dispatcher = Dispatcher.CurrentDispatcher;
         }
 
         private void AdvancedOptions_VisibleChanged(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Visible event");
+            Logger.LogDebug($"Visible event");
         }
 
         private void AdvancedOptions_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Logger.LogInformation($"FormClosed event");
+            Logger.LogDebug($"FormClosed event");
 
             ZAMsettings.ZPMonitorService.RiderStateEvent -= ProcessedRiderStateEventHandler;
         }
 
         private void AdvancedOptions_Shown(object sender, EventArgs e)
         {
-            Logger.LogInformation($"Shown event");
+            Logger.LogDebug($"Shown event");
 
             lblEventsProcessed.Text = ZAMsettings.ZPMonitorService.EventsProcessed.ToString();
             lblEthernetDevice.Text = ZAMsettings.Settings.Network;
@@ -227,16 +236,43 @@ namespace ZwiftActivityMonitorV2
 
         }
 
+        protected override void OnBackColorChanged(EventArgs e)
+        {
+            //Debug.WriteLine($"{this.GetType()}::OnBackColorChanged");
+            //base.OnBackColorChanged(e);
+
+            //this.btnClose.BackColor = this.BackColor;
+            //this.btnStart.BackColor = this.BackColor;
+            //this.btnStop.BackColor = this.BackColor;
+        }
+
+        protected override void OnForeColorChanged(EventArgs e)
+        {
+            //Debug.WriteLine($"{this.GetType()}::OnForeColorChanged");
+            //base.OnForeColorChanged(e);
+
+            //this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
+            //this.btnClose.ForeColor = this.ForeColor;
+            //this.btnStart.ForeColor = this.ForeColor;
+            //this.btnStop.ForeColor = this.ForeColor;
+        }
+
         private void AdvancedOptions_BackColorChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"AdvancedOptions_BackColorChanged");
+            //Debug.WriteLine($"AdvancedOptions_BackColorChanged");
+            this.btnClose.BackColor = this.BackColor;
+            this.btnStart.BackColor = this.BackColor;
+            this.btnStop.BackColor = this.BackColor;
         }
 
         private void AdvancedOptions_ForeColorChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine($"AdvancedOptions_ForeColorChanged");
+            //Debug.WriteLine($"AdvancedOptions_ForeColorChanged");
 
             this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
+            this.btnClose.ForeColor = this.ForeColor;
+            this.btnStart.ForeColor = this.ForeColor;
+            this.btnStop.ForeColor = this.ForeColor;
         }
 
         private void cbMonitorOthers_CheckedChanged(object sender, EventArgs e)

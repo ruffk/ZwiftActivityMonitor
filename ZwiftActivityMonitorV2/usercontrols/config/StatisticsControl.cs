@@ -232,7 +232,7 @@ namespace ZwiftActivityMonitorV2
                 m_editMode = value;
 
                 if (Logger != null)
-                    Logger.LogInformation($"EditingCollectors: {value}, SelectedItemsCount: {lvCollectors.SelectedItems.Count}");
+                    Logger.LogDebug($"EditingCollectors: {value}, SelectedItemsCount: {lvCollectors.SelectedItems.Count}");
             }
 
             get { return m_editMode; }
@@ -245,11 +245,11 @@ namespace ZwiftActivityMonitorV2
 
                 Collectors_LoadFields(collector);
 
-                Logger.LogInformation($"SelectedIndexChanged {collector.Name} selected.");
+                Logger.LogDebug($"SelectedIndexChanged {collector.Name} selected.");
             }
             else
             {
-                Logger.LogInformation($"SelectedIndexChanged nothing selected.");
+                Logger.LogDebug($"SelectedIndexChanged nothing selected.");
             }
 
             EditingCollectors = false;

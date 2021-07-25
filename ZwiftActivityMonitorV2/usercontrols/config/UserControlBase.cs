@@ -23,7 +23,7 @@ namespace ZwiftActivityMonitorV2
         protected virtual void UserControlBase_Load(object sender, EventArgs e)
         {
             if (Logger != null)
-                Logger.LogInformation($"UserControlBase_Load");
+                Logger.LogDebug($"UserControlBase_Load");
         }
 
         protected virtual void SkipControl_Enter(object sender, EventArgs e)
@@ -34,7 +34,7 @@ namespace ZwiftActivityMonitorV2
                 c.Parent.SelectNextControl(c, true, true, true, true);
 
                 if (Logger != null)
-                    Logger.LogInformation($"SkipControl_Enter, Control: {c.Name}");
+                    Logger.LogDebug($"SkipControl_Enter, Control: {c.Name}");
             }
         }
 
@@ -46,13 +46,13 @@ namespace ZwiftActivityMonitorV2
         public virtual void ControlLosingFocus(object sender, Syncfusion.Windows.Forms.Tools.SelectedIndexChangingEventArgs e)
         {
             if (Logger != null)
-                Logger.LogInformation($"ControlLosingFocus");
+                Logger.LogDebug($"ControlLosingFocus");
         }
 
         public virtual void ControlGainingFocus(object sender, EventArgs e)
         {
             if (Logger != null)
-                Logger.LogInformation($"ControlGainingFocus");
+                Logger.LogDebug($"ControlGainingFocus");
         }
 
         #region ListView helpers
@@ -87,7 +87,7 @@ namespace ZwiftActivityMonitorV2
         public static void SetListViewHeaderColor(ref ListView list, Color backColor, Color foreColor)
         {
             //ILogger logger = ZAMsettings.LoggerFactory.CreateLogger("SetListViewHeaderColor");
-            //logger.LogInformation($"ListView {list.Name}");
+            //logger.LogDebug($"ListView {list.Name}");
 
             list.OwnerDraw = true;
             list.DrawColumnHeader +=
@@ -169,7 +169,7 @@ namespace ZwiftActivityMonitorV2
             UserControlBase.HideHorizontalScrollBar(lv);
 
             if (Logger != null)
-                Logger.LogInformation($"ListView_Resize_HideHorizontalScrollBar {lv.Name}");
+                Logger.LogDebug($"ListView_Resize_HideHorizontalScrollBar {lv.Name}");
 
         }
 

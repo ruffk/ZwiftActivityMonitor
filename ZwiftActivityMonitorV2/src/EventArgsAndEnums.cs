@@ -188,8 +188,10 @@ namespace ZwiftActivityMonitorV2
     public enum DurationType
     {
         FiveSeconds = 5,
+        FifteenSeconds = 15,
         ThirtySeconds = 30,
         OneMinute = 60,
+        TwoMinutes = 120,
         FiveMinutes = 300,
         SixMinutes = 360,
         TenMinutes = 600,
@@ -212,8 +214,10 @@ namespace ZwiftActivityMonitorV2
             EnumList = new Dictionary<DurationType, EnumListItem>();
 
             EnumList.Add(DurationType.FiveSeconds, new EnumListItem("5 sec"));
+            EnumList.Add(DurationType.FifteenSeconds, new EnumListItem("15 sec"));
             EnumList.Add(DurationType.ThirtySeconds, new EnumListItem("30 sec"));
             EnumList.Add(DurationType.OneMinute, new EnumListItem("1 min"));
+            EnumList.Add(DurationType.TwoMinutes, new EnumListItem("2 min"));
             EnumList.Add(DurationType.FiveMinutes, new EnumListItem("5 min"));
             EnumList.Add(DurationType.SixMinutes, new EnumListItem("6 min"));
             EnumList.Add(DurationType.TenMinutes, new EnumListItem("10 min"));
@@ -330,9 +334,9 @@ namespace ZwiftActivityMonitorV2
         {
             EnumList = new Dictionary<SpeedDisplayType, EnumListItem>();
 
-            EnumList.Add(SpeedDisplayType.KilometersPerHour, new EnumListItem("Kilometers per Hour", columnHeaderText: "Km/h"));
-            EnumList.Add(SpeedDisplayType.MilesPerHour, new EnumListItem("Miles per Hour", columnHeaderText: "Mi/h"));
-            EnumList.Add(SpeedDisplayType.Both, new EnumListItem("Both Km/h and Mi/h"));
+            EnumList.Add(SpeedDisplayType.KilometersPerHour, new EnumListItem("Kilometers per Hour", columnHeaderText: "KPH"));
+            EnumList.Add(SpeedDisplayType.MilesPerHour, new EnumListItem("Miles per Hour", columnHeaderText: "MPH"));
+            EnumList.Add(SpeedDisplayType.Both, new EnumListItem("Both KPH and MPH"));
             EnumList.Add(SpeedDisplayType.None, new EnumListItem("None"));
         }
 
@@ -467,8 +471,10 @@ namespace ZwiftActivityMonitorV2
         public int LapAPwatts { get; }
         public double? LapAPwattsPerKg { get; }
         public TimeSpan TotalTime { get; }
+        public double LapSpeedKph { get; }
+        public double LapSpeedMph { get; }
 
-        public LapEventArgs(int lapNumber, TimeSpan lapTime, double lapDistanceKm, double lapDistanceMi, int lapAPwatts, double? lapAPwattsPerKg, TimeSpan totalTime)
+        public LapEventArgs(int lapNumber, TimeSpan lapTime, double lapDistanceKm, double lapDistanceMi, int lapAPwatts, double? lapAPwattsPerKg, TimeSpan totalTime, double lapSpeedKph, double lapSpeedMph)
         {
             this.LapNumber = lapNumber;
             this.LapTime = lapTime;
@@ -477,6 +483,8 @@ namespace ZwiftActivityMonitorV2
             this.LapAPwatts = lapAPwatts;
             this.LapAPwattsPerKg = lapAPwattsPerKg;
             this.TotalTime = totalTime;
+            this.LapSpeedKph = lapSpeedKph;
+            this.LapSpeedMph = lapSpeedMph;
         }
     }
     public class LapStartedEventArgs : EventArgs
@@ -602,48 +610,90 @@ namespace ZwiftActivityMonitorV2
     }
 
 
-    public class RiderStateEventArgs : EventArgs
+    public class RiderStateEventArgs : EventArgs, ICloneable
     {
         public int Id { get; set; }
         public int Power { get; set; }
         public int Heartrate { get; set; }
         public int Distance { get; set; }
-        //public int Time { get; set; }
-        //public long WorldTime { get; set; }
+        public int ElapsedTimeSecs { get; set; }
+        public TimeSpan ElapsedTime
+        {
+            get { return new TimeSpan(0, 0, this.ElapsedTimeSecs); }
+        }
         public int RoadId { get; set; }
         public bool IsForward { get; set; }
         public int Course { get; set; }
-        public int RoadTime { get; set; }
-        //public int WatchingRiderId { get; set; }
-        public DateTime? CollectionStartTime { get; }
-        public TimeSpan? ElapsedTime { get; }
+        public bool IsPaused { get; set; }
+        public TimeSpan PauseDuration { get; set; }
 
-        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e, DateTime? collectionStart)
+        /// <summary>
+        /// The value from PlayerState.RoadTime
+        /// </summary>
+        public int RoadLocation { get; set; }
+
+        /// <summary>
+        /// The time captured when the collectors began running
+        /// </summary>
+        public DateTime? CollectionStartTime { get; }
+
+        /// <summary>
+        /// Elapsed time since collection started.
+        /// </summary>
+        public TimeSpan? CollectionTime { get; }
+
+        /// <summary>
+        /// Elapsed time since collection started, minus time spent paused.
+        /// </summary>
+        public TimeSpan? AdjustedCollectionTime { get; }
+
+
+        //public long WorldTime { get; set; }
+        //public int WatchingRiderId { get; set; }
+
+        public RiderStateEventArgs(ZwiftPacketMonitor.PlayerStateEventArgs e, DateTime? collectionStart, bool isPaused, TimeSpan pauseDuration)
         {
             this.Id = e.PlayerState.Id;
             this.Power = e.PlayerState.Power;
             this.Heartrate = e.PlayerState.Heartrate;
             this.Distance = e.PlayerState.Distance;
-            //this.Time = e.PlayerState.Time;
+            this.ElapsedTimeSecs = e.PlayerState.Time;
             //this.WorldTime = e.PlayerState.WorldTime;
-            this.RoadTime = e.PlayerState.RoadTime;
+            this.RoadLocation = e.PlayerState.RoadTime;
             //this.WatchingRiderId = e.PlayerState.WatchingRiderId;
 
             // credit for decoding these goes to zoffline/zwift-offline/standalone.py
             this.RoadId = (e.PlayerState.F20 & 0xFF00) >> 8;
             this.IsForward = (e.PlayerState.F19 & 0x04) != 0;
             this.Course = (e.PlayerState.F19 & 0xFF0000) >> 16;
+            
+            this.IsPaused = isPaused;
+            this.PauseDuration = pauseDuration;
 
             this.CollectionStartTime = collectionStart;
             if (collectionStart != null)
-                this.ElapsedTime = DateTime.Now - collectionStart;
+            {
+                this.CollectionTime = DateTime.Now - collectionStart;
+                this.AdjustedCollectionTime = this.CollectionTime - this.PauseDuration;
+            }
         }
 
-        public RiderStateEventArgs(DateTime? collectionStart)
+        /// <summary>
+        /// Constructor used when simulating power.
+        /// </summary>
+        /// <param name="collectionStart"></param>
+        public RiderStateEventArgs(DateTime? collectionStart, bool isPaused, TimeSpan pauseDuration)
         {
+            this.IsPaused = isPaused;
+            this.PauseDuration = pauseDuration;
+
             this.CollectionStartTime = collectionStart;
             if (collectionStart != null)
-                this.ElapsedTime = DateTime.Now - collectionStart;
+            {
+                this.CollectionTime = DateTime.Now - collectionStart;
+                this.AdjustedCollectionTime = this.CollectionTime - this.PauseDuration;
+                this.ElapsedTimeSecs = (int)this.AdjustedCollectionTime.Value.TotalSeconds;
+            }
         }
 
         public override string ToString()
@@ -653,19 +703,26 @@ namespace ZwiftActivityMonitorV2
             str += $"Power: {this.Power}, ";
             str += $"Heartrate: {this.Heartrate}, ";
             str += $"Distance: {this.Distance}, ";
-            //str += $"Time: {this.Time}, ";
+            str += $"ElapsedTime: {this.ElapsedTime}, ";
             //str += $"WorldTime: {this.WorldTime}, ";
-            str += $"RoadTime: {this.RoadTime}, ";
+            str += $"RoadLocation: {this.RoadLocation}, ";
             //str += $"WatchingRiderId: {this.WatchingRiderId}, ";
             str += $"RoadId: {this.RoadId}, ";
             str += $"IsForward: {this.IsForward}, ";
             str += $"Course: {this.Course}, ";
             str += $"CollectionStartTime: {(this.CollectionStartTime ?? DateTime.MinValue)}, ";
-            str += $"ElapsedTime: {(this.ElapsedTime ?? TimeSpan.Zero)}";
+            str += $"CollectionTime: {(this.CollectionTime ?? TimeSpan.Zero)}, ";
+            str += $"IsPaused: {this.IsPaused}, ";
+            str += $"PauseDuration: {this.PauseDuration}, ";
+            str += $"AdjustedCollectionTime: {(this.AdjustedCollectionTime ?? TimeSpan.Zero)}, ";
 
             return str;
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 
     public class SpeedDisplayTypeChangedEventArgs : EventArgs
@@ -772,14 +829,25 @@ namespace ZwiftActivityMonitorV2
             Started,
             Waiting,
             Stopped,
-            Cancelled
+            Cancelled,
+            Paused,
+            Resumed,
         }
         public ActionType Action { get; }
+        /// <summary>
+        /// For ActionType.Resumed, elapsed time between Paused and Resumed events
+        /// </summary>
+        public TimeSpan? PauseDuration { get; }
 
         public CollectionStatusChangedEventArgs(ActionType action)
         {
             this.Action = action;
 
+        }
+        public CollectionStatusChangedEventArgs(ActionType action, TimeSpan pauseDuration)
+        {
+            this.Action = action;
+            this.PauseDuration = pauseDuration;
         }
     }
 

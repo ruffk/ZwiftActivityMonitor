@@ -9,10 +9,12 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
+
 
 namespace ZwiftActivityMonitorV2
 {
-    public partial class TimerSetupViewerControl : ViewerUserControlEx
+    public partial class TimerSetupViewerControl : ViewerControlEx
     {
         private TimeSpan TimeRemaining { get; set; }
         public bool IsTimerRunning { get; set; }
@@ -23,6 +25,7 @@ namespace ZwiftActivityMonitorV2
 
         public event EventHandler<CountdownTimerTickEventArgs> CountdownTimerTickEvent;
         //private SynchronizationContext UISyncContext;
+        private ILogger<TimerSetupViewerControl> Logger;
 
         private Dispatcher mDispatcher;
 
@@ -30,6 +33,14 @@ namespace ZwiftActivityMonitorV2
         public TimerSetupViewerControl()
         {
             InitializeComponent();
+
+            if (this.DesignMode)
+                return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<TimerSetupViewerControl>();
 
             this.autoStartTimer = new(OnAutoStartTimerCallback);
 
@@ -43,8 +54,6 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.DesignMode)
                 return;
-
-            Debug.WriteLine($"{this.GetType()}.ViewControl_Load");
 
             //this.UISyncContext = WindowsFormsSynchronizationContext.Current;
             mDispatcher = Dispatcher.CurrentDispatcher;
@@ -81,7 +90,7 @@ namespace ZwiftActivityMonitorV2
             int seconds = (int)Math.Round((this.TimerEndTime - DateTime.Now).TotalSeconds, 0);
             this.TimeRemaining = new TimeSpan(0, 0, seconds);
 
-            Debug.WriteLine($"OnAutoStartTimerCallback1 - ID: {Thread.CurrentThread.ManagedThreadId}, TimeRemaining: {this.TimeRemaining.Seconds}, Seconds: {seconds}");
+            //Logger.LogDebug($"OnAutoStartTimerCallback1 - ID: {Thread.CurrentThread.ManagedThreadId}, TimeRemaining: {this.TimeRemaining.Seconds}, Seconds: {seconds}");
 
             if (seconds <= 0)
             {
@@ -99,7 +108,7 @@ namespace ZwiftActivityMonitorV2
             {
                 this.SetViewDisplayStatus();
             }
-            Debug.WriteLine($"OnAutoStartTimerCallback2 - ID: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"OnAutoStartTimerCallback2 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
         }
 
@@ -117,21 +126,29 @@ namespace ZwiftActivityMonitorV2
                 {
                     handler(this, e);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnCountdownTimerTickEvent)");
                 }
             }
         }
 
         private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            if (e.Action == CollectionStatusChangedEventArgs.ActionType.Started && this.IsTimerRunning)
+            switch(e.Action)
             {
-                // make sure timer is stopped
-                this.StopTimer();
-                OnCountdownTimerTickEvent(new CountdownTimerTickEventArgs() { IsCanceled = true });
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                case CollectionStatusChangedEventArgs.ActionType.Started:
+                    if (this.IsTimerRunning)
+                    {
+                        // make sure timer is stopped
+                        this.StopTimer();
+                        OnCountdownTimerTickEvent(new CountdownTimerTickEventArgs() { IsCanceled = true });
+                    }
+                    break;
             }
+
             this.SetViewDisplayStatus();
         }
 
@@ -157,7 +174,7 @@ namespace ZwiftActivityMonitorV2
                 return;
             }
 
-            if (!ZAMsettings.ZPMonitorService.IsZPMonitorStarted || ZAMsettings.ZPMonitorService.IsCollectionStarted)
+            if (!ZAMsettings.ZPMonitorService.IsZPMonitorStarted || ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
             {
                 this.dtpTimeRemaining.Enabled = false;
                 this.btnStart.Enabled = false;
@@ -168,7 +185,7 @@ namespace ZwiftActivityMonitorV2
                 {
                     lblSettingsDisabled.Text = "Timer disabled until ZPM is started";
                 }
-                else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
+                else if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
                 {
                     lblSettingsDisabled.Text = "Timer disabled while monitoring is in progress";
                 }

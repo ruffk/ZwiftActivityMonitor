@@ -15,39 +15,66 @@ using System.Threading;
 using Syncfusion.Windows.Forms;
 using Syncfusion.WinForms.Controls;
 using Syncfusion.Windows.Forms.Tools;
-using Syncfusion.Windows.Forms.Grid;
+//using Syncfusion.Windows.Forms.Grid;
 using System.Drawing.Drawing2D;
+using WK.Libraries.HotkeyListenerNS;
 
 namespace ZwiftActivityMonitorV2
 {
 
-    public partial class MainForm : Syncfusion.Windows.Forms.Office2010Form, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
+    public partial class MainForm : Syncfusion.WinForms.Controls.SfForm//, Dapplo.Microsoft.Extensions.Hosting.WinForms.IWinFormsShell
     {
 
         private Dispatcher mDispatcher;                            // Current UI thread dispatcher, for marshalling UI calls
 
         private readonly ILogger<MainForm> Logger;
-        private readonly IServiceProvider ServiceProvider;
 
         private string HomeTitle = "Zwift Activity Monitor";
 
         private int mSyncFormTimerTickCount;
         private bool mOneTimeInitializationsCompleted;
+        private UserProfile CurrentUserProfile { get { return ZAMsettings.Settings.CurrentUser; } }
+
+        private Queue<StatusViewerControlEx> mStatusViewerQueue = new();
 
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncOneSecondTimerTickEvent;
         public event EventHandler<FormSyncTimerTickEventArgs> FormSyncFiveSecondTimerTickEvent;
 
 
-        public MainForm(IServiceProvider serviceProvider)
+        public MainForm()
         {
+            Debug.WriteLine($"{this.GetType()}::MainForm cctor");
 
             string[] proSuperScript = { "\u1D3E", "\u1D3F", "\u1D3C" };
             this.HomeTitle += $" {proSuperScript[0]}{proSuperScript[1]}{proSuperScript[2]}";
             
-            this.ServiceProvider = serviceProvider;
             this.Logger = ZAMsettings.LoggerFactory.CreateLogger<MainForm>();
 
             InitializeComponent();
+
+            this.BeginUpdate();
+            
+            ZAMappearance.ApplyColorTable(this);
+            
+            this.Icon = Properties.Resources.ZAMicon;
+
+            //this.Style.TitleBar.BackColor = colorTable.ActiveTitleGradientEnd;
+            //this.Style.TitleBar.ForeColor = colorTable.FormTextColor;
+            //this.Style.TitleBar.CloseButtonForeColor = colorTable.FormTextColor;
+            //this.Style.TitleBar.CloseButtonHoverBackColor = colorTable.XPTaskBarBoxBackColor;
+            //this.Style.TitleBar.CloseButtonHoverForeColor = colorTable.XPTaskBarBoxForeColor;
+            //this.Style.TitleBar.TextHorizontalAlignment = HorizontalAlignment.Center;
+            //this.Style.TitleBar.CloseButtonSize = new Size(32, 32);
+            //this.Style.TitleBar.Font = new System.Drawing.Font("Franklin Gothic Demi Cond", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            //this.Style.TitleBar.IconBackColor = System.Drawing.Color.Transparent;
+
+
+            //this.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
+            //this.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
+            //this.Style.ShadowOpacity = 0;
+
+            //this.ForeColor = colorTable.FormTextColor;
+            //this.BackColor = colorTable.FormBackground;
 
             // Determine window position
             if (ZAMsettings.Settings.WindowPositionX != 0 && ZAMsettings.Settings.WindowPositionY != 0)
@@ -56,45 +83,178 @@ namespace ZwiftActivityMonitorV2
                 this.Location = new System.Drawing.Point(ZAMsettings.Settings.WindowPositionX, ZAMsettings.Settings.WindowPositionY);
             }
 
-            this.Icon = Properties.Resources.ZAMicon;
+            // Determine window size
+            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
-            ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
-            ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent; 
+            this.EndUpdate();
+
+            this.ucColorView.ColorsAndFontChanged += ucColorView_ColorsAndFontChanged;
+            this.ucTimerSetupView.CountdownTimerTickEvent += UcTimerSetupView_CountdownTimerTickEvent;
             ZAMsettings.ZPMonitorService.CollectionStatusChanged += ZPMonitorService_CollectionStatusChanged;
             ZAMsettings.ZPMonitorService.ZPMonitorServiceStatusChanged += ZPMonitorService_ZPMonitorServiceStatusChanged;
             ZAMsettings.ZPMonitorService.RiderStateEvent += ZPMonitorService_RiderStateEvent;
+            ZAMsettings.SystemConfigChanged += ZAMsettings_SystemConfigChanged;
+            this.FormSyncOneSecondTimerTickEvent += MainForm_FormSyncOneSecondTimerTickEvent;
         }
+
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            var form = new SplashScreen();
-            DialogResult result = form.ShowDialog(this);
+            Logger.LogDebug($"{this.GetType()}::MainForm_Load");
 
             // for handling UI events
             mDispatcher = Dispatcher.CurrentDispatcher;
 
             // Determine window size
-            this.Size = ZAMsettings.Settings.Appearance.WindowSize;
+            //this.Size = ZAMsettings.Settings.Appearance.WindowSize;
 
-            // toggle the tabs so the first tab gets initialized
+            // Toggle the tabs so that all UCs have their load event called.  This is important so they can receive and process events.
+            this.BeginUpdate();
             for (int i = this.tabControl.TabPages.Count - 1; i >= 0; i--)
                 tabControl.SelectedIndex = i;
-            //tabControl.SelectedIndex = 1;
-            //tabControl.SelectedIndex = 0;
+            this.EndUpdate();
+
+            this.ucLapView.LapCompletedEvent += LapView_LapCompletedEvent;
+            this.ucSplitView.SplitCompletedEvent += SplitView_SplitCompletedEvent;
+            this.ucSplitView.SplitGoalCompletedEvent += SplitView_SplitCompletedEvent;
+
+            // This event is used to listen to any hotkey presses.
+            ZAMsettings.HotkeyListener.HotkeyPressed += HotkeyListener_HotkeyPressed;
+            ZAMsettings.HotkeyListener.HotkeyUpdated += HotkeyListener_HotkeyUpdated;
+
+            // Add user defined hotkeys and suspend usage.  They will only be active when collecting.
+            ZAMsettings.Settings.Hotkeys.AddHotkeys();
+            ZAMsettings.HotkeyListener.Suspend();
 
             this.OnCollectionStatusChanged();  // setup menu items and status labels
+            this.SetupDisplayForCurrentUserProfile();
 
             this.SetControlColors();
+        }
 
+        private void HotkeyListener_HotkeyPressed(object sender, HotkeyEventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::HotkeyListener_HotkeyPressed - Hotkey: {e.Hotkey}");
+            
+            if (e.Hotkey == Hotkeys.ActivityViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpActivity;
+            }
+            else if (e.Hotkey == Hotkeys.SplitViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpSplit;
+            }
+            else if (e.Hotkey == Hotkeys.LapViewHotkey)
+            {
+                this.tabControl.SelectedTab = tpLap;
+            }
+        }
 
+        private void HotkeyListener_HotkeyUpdated(object sender, HotkeyListener.HotkeyUpdatedEventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::HotkeyListener_HotkeyUpdated - Hotkey: {e.UpdatedHotkey} updated to: {e.NewHotkey}");
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
+            Logger.LogDebug($"{this.GetType()}::MainForm_Shown");
+
             // start general syncronization timer (needs to be done last)
             this.formSyncTimer.Interval = 1000;
             this.formSyncTimer.Enabled = true;
         }
+        private void MainForm_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Logger.LogDebug("MainForm_FormClosing");
+
+            if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
+            {
+                if (MessageBox.Show("Are you sure you wish to stop monitoring and close the application?",
+                    "Activity Monitor Running", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            ZAMsettings.ZPMonitorService.StopCollection();
+            ZAMsettings.ZPMonitorService.StopMonitor();
+            ZAMsettings.HotkeyListener.RemoveAll();
+        }
+
+
+        /// <summary>
+        /// A delegate used solely by the LapView_LapCompletedEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void LapView_LapCompletedEventDelegate(object sender, LapEventArgs e);
+
+        private void LapView_LapCompletedEvent(object sender, LapEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new LapView_LapCompletedEventDelegate(LapView_LapCompletedEvent), new object[] { sender, e });
+                return;
+            }
+            Logger.LogDebug($"{this.GetType()}::LapView_LapCompletedEvent");
+
+            this.mStatusViewerQueue.Enqueue(new LapStatusViewerControl(e));
+        }
+
+        /// <summary>
+        /// A delegate used solely by the SplitView_SplitCompletedEvent
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private delegate void SplitView_SplitCompletedEventDelegate(object sender, SplitEventArgs e);
+
+        private void SplitView_SplitCompletedEvent(object sender, SplitEventArgs e)
+        {
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new SplitView_SplitCompletedEventDelegate(SplitView_SplitCompletedEvent), new object[] { sender, e });
+                return;
+            }
+            Logger.LogDebug($"{this.GetType()}::SplitView_SplitCompletedEvent");
+
+            this.mStatusViewerQueue.Enqueue(new SplitStatusViewerControl(e));
+        }
+
+
+        private void tsmiAbout_Click(object sender, EventArgs e)
+        {
+            //this.LapView_LapCompletedEvent(this, new LapEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 300, 4.0, TimeSpan.Zero, 88.8, 88.8));
+            //this.SplitView_SplitCompletedEvent(this, new SplitEventArgs(1, TimeSpan.Zero, 88.8, 88.8, 888.8, 888.8, TimeSpan.Zero, false, TimeSpan.Zero));
+
+            // Gather the ride recap info
+            RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
+            rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
+            rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
+
+            new RideRecap(rideRecapMetrics).ShowDialog(this);
+
+            //new AboutForm().ShowDialog(this);
+        }
+
+        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::ZAMsettings_SystemConfigChanged");
+
+            this.SetupDisplayForCurrentUserProfile();
+        }
+
+        private void SetupDisplayForCurrentUserProfile()
+        {
+            this.tsmiAutoPause.Checked = this.CurrentUserProfile.AutoPause;
+        }
+
 
         private void ucColorView_ColorsAndFontChanged(object sender, ColorsAndFontChangedEventArgs e)
         {
@@ -103,104 +263,101 @@ namespace ZwiftActivityMonitorV2
 
         private void SetControlColors()
         {
-            Debug.WriteLine($"MainForm - SetControlColors");
-            ZAMappearance settings = ZAMsettings.Settings.Appearance;
+            Logger.LogDebug($"MainForm - SetControlColors");
 
-            ZAMappearance.ApplyColorScheme(this);
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
 
-            //Office2010Colors.GetColorTable();
+            this.Style.TitleBar.BackColor = colorTable.ActiveTitleGradientEnd;
+            this.Style.TitleBar.ForeColor = colorTable.FormTextColor;
+            this.Style.TitleBar.CloseButtonForeColor = colorTable.FormTextColor;
+            this.Style.TitleBar.CloseButtonHoverBackColor = colorTable.XPTaskBarBoxBackColor;
+            this.Style.TitleBar.CloseButtonHoverForeColor = colorTable.XPTaskBarBoxForeColor;
 
-            //this.UseOffice2010SchemeBackColor = true;
+            this.Style.Border = new Pen(colorTable.ActiveFormBorderColor, 2);
+            this.Style.InactiveBorder = new Pen(colorTable.InactiveFormBorderColor, 2);
+            this.Style.ShadowOpacity = 0;
 
-            //if (settings.ThemeSetting != ThemeType.Custom)
-            //{
-            //    this.ColorScheme = settings.GetOfficeColorScheme(settings.ThemeSetting, out Color? managedColor);
+            this.ForeColor = colorTable.FormTextColor;
 
-            //    if (this.ColorScheme == Office2010Theme.Managed)
-            //    {
-            //        Office2010Colors.ApplyManagedColors(this, managedColor.Value);
-            //    }
-            //}
-            //else
-            //{
-            //    this.ColorScheme = Office2010Theme.Managed;
-            //    Office2010Colors.ApplyManagedColors(this, settings.ManagedColor);
-            //}
+            Color dynamicForeColor = colorTable.FormTextColor;
+            Color dynamicBackColor = colorTable.FormBackground;
 
-            Color foreColor = this.ColorTable.FormTextColor;
-            Color backColor = this.ColorTable.FormBackground;
+            Debug.WriteLine($"ForeColor: {dynamicForeColor.R:x2}{dynamicForeColor.G:x2}{dynamicForeColor.B:x2}");
+            Debug.WriteLine($"BackColor: {dynamicBackColor.R:x2}{dynamicBackColor.G:x2}{dynamicBackColor.B:x2}");
+            Debug.WriteLine($"ActiveTitleGradientEnd: {colorTable.ActiveTitleGradientEnd.R:x2}{colorTable.ActiveTitleGradientEnd.G:x2}{colorTable.ActiveTitleGradientEnd.B:x2}");
+            Debug.WriteLine($"ActiveFormBorderColor: {colorTable.ActiveFormBorderColor.R:x2}{colorTable.ActiveFormBorderColor.G:x2}{colorTable.ActiveFormBorderColor.B:x2}");
 
-            if (settings.TransparencySetting != TransparencyType.NotTransparent)
+            if (ZAMsettings.Settings.Appearance.TransparencySetting != TransparencyType.NotTransparent)
             {
-                foreColor = (settings.TransparencySetting == TransparencyType.TransparentBlackText ? Color.Black : Color.White);
+                dynamicForeColor = (ZAMsettings.Settings.Appearance.TransparencySetting == TransparencyType.TransparentBlackText ? Color.Black : Color.White);
                 
-                backColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
-                this.TransparencyKey = backColor;
+                dynamicBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(146)))), ((int)(((byte)(204)))));
+                this.TransparencyKey = dynamicBackColor;
             }
             else
             {
                 this.TransparencyKey = Color.Empty;
             }
 
-            this.BackColor = backColor;
+            this.BackColor = dynamicBackColor;
 
-            tpActivity.BackColor = backColor;
-            tpSplit.BackColor = backColor;
-            tpLap.BackColor = backColor;
-            tpColor.BackColor = this.ColorTable.FormBackground;
-            tpTimer.BackColor = this.ColorTable.FormBackground;
+            tpActivity.BackColor = dynamicBackColor;
+            tpSplit.BackColor = dynamicBackColor;
+            tpLap.BackColor = dynamicBackColor;
+            tpColor.BackColor = colorTable.FormBackground;
+            tpTimer.BackColor = colorTable.FormBackground;
 
-            tabControl.TabPanelBackColor = this.ColorTable.ActiveFormBorderColor;
-            tabControl.InactiveTabColor = this.ColorTable.ActiveFormBorderColor;
-            tabControl.ActiveTabColor = this.ColorTable.ActiveFormBorderColor;
+            tabControl.TabPanelBackColor = colorTable.ActiveFormBorderColor;
+            tabControl.InactiveTabColor = colorTable.ActiveFormBorderColor;
+            tabControl.ActiveTabColor = colorTable.ActiveFormBorderColor;
 
-            pnBottom.BackColor = this.ColorTable.ActiveFormBorderColor;
-            statusStrip.BackColor = this.ColorTable.ActiveFormBorderColor;
-            tssbMenu.ForeColor = this.ColorTable.FormTextColor;
-            statusLabel.ForeColor = this.ColorTable.FormTextColor;
+            pBottom.BackColor = colorTable.ActiveFormBorderColor;
+            statusStrip.BackColor = colorTable.ActiveFormBorderColor;
+            tssbMenu.ForeColor = colorTable.FormTextColor;
+            statusLabel.ForeColor = colorTable.FormTextColor;
 
-            tpActivity.ForeColor = foreColor;
-            tpSplit.ForeColor = foreColor;
-            tpLap.ForeColor = foreColor;
-            tpColor.ForeColor = this.ColorTable.FormTextColor;
-            tpTimer.ForeColor = this.ColorTable.FormTextColor;
+            tpActivity.ForeColor = dynamicForeColor;
+            tpSplit.ForeColor = dynamicForeColor;
+            tpLap.ForeColor = dynamicForeColor;
+            tpColor.ForeColor = colorTable.FormTextColor;
+            tpTimer.ForeColor = colorTable.FormTextColor;
 
-            ucActivityView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucActivityView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucActivityView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucActivityView.RowBackColor = backColor;
-            ucActivityView.RowForeColor = foreColor;
+            ucActivityView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucActivityView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucActivityView.HeaderForeColor = colorTable.FormTextColor;
+            ucActivityView.RowBackColor = dynamicBackColor;
+            ucActivityView.RowForeColor = dynamicForeColor;
 
-            ucSplitView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucSplitView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucSplitView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucSplitView.RowBackColor = backColor;
-            ucSplitView.RowForeColor = foreColor;
+            ucSplitView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucSplitView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucSplitView.HeaderForeColor = colorTable.FormTextColor;
+            ucSplitView.RowBackColor = dynamicBackColor;
+            ucSplitView.RowForeColor = dynamicForeColor;
 
-            ucLapView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucLapView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucLapView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucLapView.RowBackColor = backColor;
-            ucLapView.RowForeColor = foreColor;
+            ucLapView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucLapView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucLapView.HeaderForeColor = colorTable.FormTextColor;
+            ucLapView.RowBackColor = dynamicBackColor;
+            ucLapView.RowForeColor = dynamicForeColor;
 
-            ucColorView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucColorView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucColorView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucColorView.RowBackColor = backColor;
-            ucColorView.RowForeColor = foreColor;
+            ucColorView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucColorView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucColorView.HeaderForeColor = colorTable.FormTextColor;
+            ucColorView.RowBackColor = dynamicBackColor;
+            ucColorView.RowForeColor = dynamicForeColor;
             
-            ucTimerSetupView.HeaderGradientBeginColor = this.ColorTable.ActiveTitleGradientBegin;
-            ucTimerSetupView.HeaderGradientEndColor = this.ColorTable.ActiveTitleGradientEnd;
-            ucTimerSetupView.HeaderForeColor = this.ColorTable.FormTextColor;
-            ucTimerSetupView.RowBackColor = backColor;
-            ucTimerSetupView.RowForeColor = foreColor;
+            ucTimerSetupView.HeaderGradientBeginColor = colorTable.ActiveTitleGradientBegin;
+            ucTimerSetupView.HeaderGradientEndColor = colorTable.ActiveTitleGradientEnd;
+            ucTimerSetupView.HeaderForeColor = colorTable.FormTextColor;
+            ucTimerSetupView.RowBackColor = dynamicBackColor;
+            ucTimerSetupView.RowForeColor = dynamicForeColor;
 
             FontStyle style = 0;
 
-            style |= settings.IsFontBold ? FontStyle.Bold : 0;
-            style |= settings.IsFontItalic ? FontStyle.Italic : 0;
+            style |= ZAMsettings.Settings.Appearance.IsFontBold ? FontStyle.Bold : 0;
+            style |= ZAMsettings.Settings.Appearance.IsFontItalic ? FontStyle.Italic : 0;
 
-            Font font = new Font(settings.FontFamily, settings.FontSize, style);
+            Font font = new Font(ZAMsettings.Settings.Appearance.FontFamily, ZAMsettings.Settings.Appearance.FontSize, style);
 
             ucActivityView.RowFont  = font;
             ucSplitView.RowFont     = font;
@@ -215,7 +372,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabControl.SelectedTab == null)
                 return;
             
-            //Debug.WriteLine($"tabControl_SelectedIndexChanging - TabPageName: {this.tabControl.SelectedTab.Name}");
+            //Logger.LogDebug($"tabControl_SelectedIndexChanging - TabPageName: {this.tabControl.SelectedTab.Name}");
 
             switch (this.tabControl.SelectedTab.Name)
             {
@@ -251,7 +408,7 @@ namespace ZwiftActivityMonitorV2
             if (this.tabControl.SelectedTab == null)
                 return;
 
-            //Debug.WriteLine($"tabControl_SelectedIndexChanged - TabPageName: {this.tabControl.SelectedTab.Name}");
+            //Logger.LogDebug($"tabControl_SelectedIndexChanged - TabPageName: {this.tabControl.SelectedTab.Name}");
 
             switch (this.tabControl.SelectedTab.Name)
             {
@@ -295,7 +452,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void tabControl_MouseClick(object sender, MouseEventArgs e)
         {
-            //Debug.WriteLine($"tabControl_MouseClick - Location: {e.Location}, Button: {e.Button}");
+            //Logger.LogDebug($"tabControl_MouseClick - Location: {e.Location}, Button: {e.Button}");
 
             if (e.Button != MouseButtons.Right)
                 return;
@@ -338,7 +495,7 @@ namespace ZwiftActivityMonitorV2
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"MainForm_Resize - Size: {this.Size}");
+            //Logger.LogDebug($"MainForm_Resize - Size: {this.Size}");
         }
 
         private void MainForm_ResizeEnd(object sender, EventArgs e)
@@ -349,7 +506,7 @@ namespace ZwiftActivityMonitorV2
                 ZAMsettings.Settings.Appearance.WindowSize = this.Size;
                 ZAMsettings.CommitCachedConfiguration();
 
-                Debug.WriteLine($"MainForm_ResizeEnd - New window size saved, Size: {this.Size}");
+                Logger.LogDebug($"MainForm_ResizeEnd - New window size saved, Size: {this.Size}");
             }
         }
 
@@ -369,7 +526,7 @@ namespace ZwiftActivityMonitorV2
                 mDispatcher.BeginInvoke(new ZPMonitorService_CollectionStatusChangedDelegate(ZPMonitorService_CollectionStatusChanged), new object[] { sender, e });
                 return;
             }
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
             this.OnCollectionStatusChanged();
         }
@@ -389,7 +546,16 @@ namespace ZwiftActivityMonitorV2
                 mDispatcher.BeginInvoke(new ZPMonitorService_ServiceStatusChangedDelegate(ZPMonitorService_ZPMonitorServiceStatusChanged), new object[] { sender, e });
                 return;
             }
-            Debug.WriteLine($"{this.GetType()}.ZPMonitorService_ZPMonitorServiceStatusChanged - {e.Action}");
+            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_ZPMonitorServiceStatusChanged - {e.Action}");
+
+            if (e.Action == ZPMonitorServiceStatusChangedEventArgs.ActionType.Started)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenRed;
+            }
+            else if (e.Action == ZPMonitorServiceStatusChangedEventArgs.ActionType.Stopped)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_RedRed;
+            }
 
             this.OnCollectionStatusChanged();
         }
@@ -402,34 +568,38 @@ namespace ZwiftActivityMonitorV2
         private delegate void ZPMonitorService_RiderStateEventDelegate(object sender, RiderStateEventArgs e);
         private void ZPMonitorService_RiderStateEvent(object sender, RiderStateEventArgs e)
         {
-            // ElapsedTime will be null if Monitoring but not Collecting
-            if (e.ElapsedTime == null)
+            if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
+            {
+                // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
+                mDispatcher.BeginInvoke(new ZPMonitorService_RiderStateEventDelegate(ZPMonitorService_RiderStateEvent), new object[] { sender, e });
                 return;
+            }
 
-            TimeSpan elapsedTime = e.ElapsedTime.Value;
+            if (ZAMsettings.ZPMonitorService.EventsProcessed % 2 == 0)
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenBlank;
+            }
+            else
+            {
+                this.pbStatus.Image = global::ZwiftActivityMonitorV2.Properties.Resources.Status_GreenGreen;
+            }
 
-            SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
+            // AdjustedCollectionTime will be null if Monitoring but not Collecting
+            if (e.AdjustedCollectionTime == null)
+            {
+                return;
+            }
 
-            //this.UISyncContext.Post(x =>
-            //{
-            //    statusLabel.Text = $"Running time: {(e.ElapsedTime.TotalMinutes > 60 ? e.ElapsedTime.Hours.ToString() + " hr " : "")}{(e.ElapsedTime.TotalSeconds > 60 ? e.ElapsedTime.Minutes.ToString() + " min " : "")}{e.ElapsedTime.Seconds.ToString() + " sec"}";
-
-            //}, null);
-
-            //if (!mDispatcher.CheckAccess()) // are we currently on the UI thread?
-            //{
-            //    // We're not in the UI thread, ask the dispatcher to call this same method in the UI thread, then exit
-            //    mDispatcher.BeginInvoke(new ZPMonitorService_RiderStateEventDelegate(ZPMonitorService_RiderStateEvent), new object[] { sender, e });
-            //    return;
-            //}
-            //Debug.WriteLine($"{this.GetType()}.ZPMonitorService_RiderStateEvent");
-
-            statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours.ToString() + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes.ToString() + " min " : "")}{elapsedTime.Seconds.ToString() + " sec"}";
+            if (ZAMsettings.ZPMonitorService.IsCollectionStarted && !ZAMsettings.ZPMonitorService.IsCollectionPaused)
+            {
+                TimeSpan elapsedTime = e.AdjustedCollectionTime.Value;
+                statusLabel.Text = $"Running time: {(elapsedTime.TotalMinutes > 60 ? elapsedTime.Hours + " hr " : "")}{(elapsedTime.TotalSeconds > 60 ? elapsedTime.Minutes + " min " : "")}{elapsedTime.Seconds + " sec"}";
+            }
         }
 
         private void OnCollectionStatusChanged()
         {
-            Debug.WriteLine($"OnCollectionStatusChanged - {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, {ZAMsettings.ZPMonitorService.IsCollectionStarted}");
+            Logger.LogDebug($"OnCollectionStatusChanged - waiting: {ZAMsettings.ZPMonitorService.IsCollectionStartWaiting}, started: {ZAMsettings.ZPMonitorService.IsCollectionStarted}, paused: {ZAMsettings.ZPMonitorService.IsCollectionPaused}");
 
             if (ZAMsettings.ZPMonitorService.IsCollectionStarted || ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
             {
@@ -438,20 +608,29 @@ namespace ZwiftActivityMonitorV2
 
                 tsmiConfiguration.Enabled = false;
                 tsmiAdvanced.Enabled = false;
+                tsmiAbout.Enabled = false;
+                tsmiAutoPause.Enabled = !ZAMsettings.ZPMonitorService.IsCollectionPaused;
 
                 if (ZAMsettings.ZPMonitorService.IsCollectionStartWaiting)
                 {
                     statusLabel.Text = "Waiting on Event clock...";
+
+                    // Don't allow hotkeys to function
+                    ZAMsettings.HotkeyListener.Suspend();
                 }
                 else if (ZAMsettings.ZPMonitorService.IsCollectionStarted)
                 {
-                    statusLabel.Text = "Started";
+                    statusLabel.Text = ZAMsettings.ZPMonitorService.IsCollectionPaused ? "Paused" : "Started";
+
+                    // Allow hotkeys to function
+                    ZAMsettings.HotkeyListener.Resume();
                 }
             }
             else
             {
                 tsmiStop.Enabled = false;
                 tsmiStart.Enabled = ZAMsettings.ZPMonitorService.IsZPMonitorStarted;
+                tsmiAbout.Enabled = true;
 
                 if (ucTimerSetupView.IsTimerRunning)
                 {
@@ -464,6 +643,8 @@ namespace ZwiftActivityMonitorV2
                     tsmiAdvanced.Enabled = true;
                 }
 
+                tsmiAutoPause.Enabled = true;
+
                 if (ZAMsettings.ZPMonitorService.IsZPMonitorStarted)
                 {
                     statusLabel.Text = "Select Menu->Start to begin";
@@ -472,14 +653,12 @@ namespace ZwiftActivityMonitorV2
                 {
                     statusLabel.Text = "ZPM Service Not Running";
                 }
+
+                // Don't allow hotkeys to function
+                ZAMsettings.HotkeyListener.Suspend();
             }
         }
 
-        private void tsmiAbout_Click(object sender, EventArgs e)
-        {
-            Debug.WriteLine($"{this.ColorScheme.ToString()}");
-            Debug.WriteLine($"{this.ColorTable.ToString()}");
-        }
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
         {
@@ -506,17 +685,38 @@ namespace ZwiftActivityMonitorV2
         private void tsmiStop_Click(object sender, EventArgs e)
         {
             ZAMsettings.ZPMonitorService.StopCollection();
+
+            // Gather the ride recap info
+            RideRecapMetrics rideRecapMetrics = this.ucActivityView.GetRideRecapMetrics();
+            rideRecapMetrics.Laps = this.ucLapView.GetRideRecapLaps();
+            rideRecapMetrics.Splits = this.ucSplitView.GetRideRecapSplits();
+
+            if (rideRecapMetrics.Duration.TotalSeconds > 0)
+            {
+                new RideRecap(rideRecapMetrics).ShowDialog(this);
+            }
         }
+
+        private void tsmiAutoPause_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ZAMsettings.Settings.CurrentUser != null && ZAMsettings.Settings.CurrentUser.AutoPause != tsmiAutoPause.Checked)
+            {
+                ZAMsettings.BeginCachedConfiguration();
+                ZAMsettings.Settings.CurrentUser.AutoPause = tsmiAutoPause.Checked;
+                ZAMsettings.CommitCachedConfiguration();
+            }
+        }
+
 
         private void UcTimerSetupView_CountdownTimerTickEvent(object sender, CountdownTimerTickEventArgs e)
         {
-            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
             SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
 
-            //Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
-            Debug.WriteLine($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
+            Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
 
             if (e.IsCompleted)
             {
@@ -555,6 +755,30 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        private void MainForm_FormSyncOneSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
+        {
+            if (!this.mOneTimeInitializationsCompleted)
+            {
+                // We invoke a delegate so this gets posted and doesn't block
+                mDispatcher.BeginInvoke(new MainForm_OneTimeInitializationsDelegate(MainForm_OneTimeInitializations), new object[] { });
+
+                this.mOneTimeInitializationsCompleted = true;
+            }
+
+            if (!StatusViewerControlEx.IsVisible && this.mStatusViewerQueue.Count > 0)
+            {
+                StatusViewerControlEx v = this.mStatusViewerQueue.Dequeue();
+
+                // don't show lap status announcement if already sitting on lap tab
+                if (!(v is LapStatusViewerControl && this.tabControl.SelectedTab.Name == "tpLap") &&
+                    !(v is SplitStatusViewerControl && this.tabControl.SelectedTab.Name == "tpSplit"))
+                {
+                    v.InitializeStatus(this);
+                    v.ShowStatus();
+                }
+            }
+        }
+
         /// <summary>
         /// General use timer set for one second intervals
         /// </summary>
@@ -563,14 +787,6 @@ namespace ZwiftActivityMonitorV2
         private void formSyncTimer_Tick(object sender, EventArgs e)
         {
             mSyncFormTimerTickCount++;
-
-            if (!this.mOneTimeInitializationsCompleted)
-            {
-                // We invoke a delegate so this gets posted and doesn't block
-                mDispatcher.BeginInvoke(new MainForm_OneTimeInitializationsDelegate(MainForm_OneTimeInitializations), new object[] { });
-
-                this.mOneTimeInitializationsCompleted = true;
-            }
 
             // The one second timer gets the actual tick count in it's event args
             OnFormSyncOneSecondTimerTickEvent(new FormSyncTimerTickEventArgs(mSyncFormTimerTickCount));
@@ -596,7 +812,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnFormSyncOneSecondTimerTickEvent)");
                 }
             }
         }
@@ -613,7 +829,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogWarning(ex, ex.ToString());
+                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnFormSyncFiveSecondTimerTickEvent)");
                 }
             }
         }

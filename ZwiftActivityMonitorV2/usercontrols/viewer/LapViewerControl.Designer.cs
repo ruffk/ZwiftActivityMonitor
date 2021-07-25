@@ -163,7 +163,7 @@ namespace ZwiftActivityMonitorV2
             // 
             this.tsbReset.AutoSize = false;
             this.tsbReset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbReset.Image = global::ZwiftActivityMonitorV2.Properties.Resources.split;
+            this.tsbReset.Image = global::ZwiftActivityMonitorV2.Properties.Resources.reset;
             this.tsbReset.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbReset.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
             this.tsbReset.Name = "tsbReset";

@@ -398,8 +398,6 @@ namespace ZwiftActivityMonitorV2
     }
     #endregion
 
-
-
     public class UserProfile : ConfigItemBase, ICloneable
     {
         public string UniqueId { get; set; } = "";
@@ -413,6 +411,8 @@ namespace ZwiftActivityMonitorV2
         public UserSplitViewColumnSettings SplitViewColumnSettings { get; set; } = new();
         
         public UserLapViewColumnSettings LapViewColumnSettings { get; set; } = new();
+
+        public bool AutoPause { get; set; } = true;
 
         private string m_name = "";
         private string m_email = "";

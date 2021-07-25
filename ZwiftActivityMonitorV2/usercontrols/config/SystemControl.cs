@@ -6,13 +6,13 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace ZwiftActivityMonitorV2
 {
     public partial class SystemControl : UserControlWithStatusBase
     {
 
-        //public static ZPMonitorService PacketMonitor { get; set; }
         public static Point ZAMWindowPos { get;  set; }
 
         private Dispatcher m_dispatcher;
@@ -24,6 +24,11 @@ namespace ZwiftActivityMonitorV2
 
             if (DesignMode)
                 return;
+
+            if (ZAMsettings.LoggerFactory == null)
+                return;
+
+            Logger = ZAMsettings.LoggerFactory.CreateLogger<SystemControl>();
 
             UserControlBase.SetListViewHeaderColor(ref this.lvTrace, SystemColors.Control, SystemColors.ControlText);
         }
@@ -459,12 +464,16 @@ namespace ZwiftActivityMonitorV2
         {
             base.Parent_BackColorChanged(sender, e);
 
+            //Debug.WriteLine($"SystemControl setting BackColor: {this.BackColor.R},{this.BackColor.G},{this.BackColor.B}");
+
             this.tbDescSystem.BackColor = this.BackColor;
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)
         {
             base.Parent_ForeColorChanged(sender, e);
+
+            //Debug.WriteLine($"SystemControl setting ForeColor: {this.ForeColor.R},{this.ForeColor.G},{this.ForeColor.B}");
 
             this.tbDescSystem.ForeColor = this.ForeColor;
             this.gbSystemSettings.ForeColor = this.ForeColor;
