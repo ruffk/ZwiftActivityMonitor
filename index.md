@@ -22,6 +22,8 @@
 
 The readme file contains detailed information on each view and feature.
 
+**Note: The Pro release installs side-by-side with the original ZAM.  Current users will need to set your network and configure your user profile.**
+
 ### Please join the Zwift Activity Monitor Users FB group to keep in touch with us and other ZAM users!
 
 
