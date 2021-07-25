@@ -1,6 +1,6 @@
 ## Zwift Activity Monitor
 
-![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/MainView.png)
+![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png)
 
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
 
