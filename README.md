@@ -78,7 +78,7 @@ A default profile is provided for you, but you should configure it properly befo
 
 Note: <b>It is VERY important to set the weight and FTP fields properly!</b>  These are used to calculate Watts/Kilo and Intensity Factor.
 
-![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/UserConfig.png)
+![user_profiles](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/UserConfig.png)
 
 #### Options -> Splits Configuration Tab 
 
