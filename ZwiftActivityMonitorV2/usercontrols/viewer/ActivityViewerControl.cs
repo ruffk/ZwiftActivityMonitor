@@ -459,6 +459,10 @@ namespace ZwiftActivityMonitorV2
                         case PowerDisplayType.WattsPerKg:
                             this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
+
+                        case PowerDisplayType.None:
+                            this.AP = "";
+                            break;
                     }
                 }
                 else if (preferredType == PowerDisplayType.None)
@@ -486,6 +490,10 @@ namespace ZwiftActivityMonitorV2
                         case PowerDisplayType.WattsPerKg:
                             this.NP = this.NPwattsPerKg.HasValue ? this.NPwattsPerKg.Value.ToString("#.00") : "";
                             break;
+
+                        case PowerDisplayType.None:
+                            this.NP = "";
+                            break;
                     }
                 }
                 else if (preferredType == PowerDisplayType.None)
@@ -512,6 +520,10 @@ namespace ZwiftActivityMonitorV2
 
                         case SpeedDisplayType.MilesPerHour:
                             this.AS = this.SpeedMph > 0 ? this.SpeedMph.ToString("#.0") : "";
+                            break;
+
+                        case SpeedDisplayType.None:
+                            this.AS = "";
                             break;
                     }
                 }

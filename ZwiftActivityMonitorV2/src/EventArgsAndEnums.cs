@@ -54,12 +54,12 @@ namespace ZwiftActivityMonitorV2
         public string MenuItemText { get; }
         public string ColumnHeaderText { get; }
 
-        public EnumListItem(string text, string menuItemText = "", string columnHeaderText = "")
+        public EnumListItem(string text, string menuItemText = null, string columnHeaderText = null)
         {
             this.Text = text;
 
-            this.MenuItemText = String.IsNullOrEmpty(menuItemText) ? text : menuItemText;
-            this.ColumnHeaderText = String.IsNullOrEmpty(columnHeaderText) ? text : columnHeaderText;
+            this.MenuItemText = menuItemText ?? text;
+            this.ColumnHeaderText = columnHeaderText ?? text;
         }
     }
 
@@ -337,7 +337,7 @@ namespace ZwiftActivityMonitorV2
             EnumList.Add(SpeedDisplayType.KilometersPerHour, new EnumListItem("Kilometers per Hour", columnHeaderText: "KPH"));
             EnumList.Add(SpeedDisplayType.MilesPerHour, new EnumListItem("Miles per Hour", columnHeaderText: "MPH"));
             EnumList.Add(SpeedDisplayType.Both, new EnumListItem("Both KPH and MPH"));
-            EnumList.Add(SpeedDisplayType.None, new EnumListItem("None"));
+            EnumList.Add(SpeedDisplayType.None, new EnumListItem("None", columnHeaderText: ""));
         }
 
         public static SpeedDisplayEnum Instance { get { return _InstanceLock.Value; } }
@@ -363,10 +363,10 @@ namespace ZwiftActivityMonitorV2
         {
             EnumList = new Dictionary<DistanceDisplayType, EnumListItem>();
 
-            EnumList.Add(DistanceDisplayType.Kilometers, new EnumListItem("Kilometers", columnHeaderText: "Km"));
-            EnumList.Add(DistanceDisplayType.Miles, new EnumListItem("Miles", columnHeaderText: "Mi"));
+            EnumList.Add(DistanceDisplayType.Kilometers, new EnumListItem("Kilometers", columnHeaderText: "KM"));
+            EnumList.Add(DistanceDisplayType.Miles, new EnumListItem("Miles", columnHeaderText: "MI"));
             EnumList.Add(DistanceDisplayType.Both, new EnumListItem("Both Kilometers and Miles"));
-            EnumList.Add(DistanceDisplayType.None, new EnumListItem("None"));
+            EnumList.Add(DistanceDisplayType.None, new EnumListItem("None", columnHeaderText: ""));
         }
 
         public static DistanceDisplayEnum Instance { get { return _InstanceLock.Value; } }

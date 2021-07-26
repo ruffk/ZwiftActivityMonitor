@@ -334,9 +334,13 @@ namespace ZwiftActivityMonitorV2
                 this.GoalSpeed_PreferredDisplayType = this.GoalSpeed_SelectedDisplayType == SpeedDisplayType.Both ? mAutoToggleSpeedDisplayType : this.GoalSpeed_SelectedDisplayType;
                 this.GoalDistance_PreferredDisplayType = this.GoalDistance_SelectedDisplayType == DistanceDisplayType.Both ? mAutoToggleDistanceDisplayType : this.GoalDistance_SelectedDisplayType;
 
-                if (this.SummaryRows[0].GoalDistance != "" || forceUpdate)
+                if (this.SummaryRows[0].GoalSpeed != "" || forceUpdate)
                 {
                     OnSpeedDisplayTypeChangedEvent(new SpeedDisplayTypeChangedEventArgs(SummaryColumn.GoalSpeed.ToString(), this.GoalSpeed_PreferredDisplayType, this.SummaryGrid));
+                }
+
+                if (this.SummaryRows[0].GoalDistance != "" || forceUpdate)
+                {
                     OnDistanceDisplayTypeChangedEvent(new DistanceDisplayTypeChangedEventArgs(SummaryColumn.GoalDistance.ToString(), this.GoalDistance_PreferredDisplayType, this.SummaryGrid));
                 }
 
@@ -627,6 +631,10 @@ namespace ZwiftActivityMonitorV2
                         case SpeedDisplayType.MilesPerHour:
                             this.GoalSpeed = this.GoalSpeedMph >= 0 ? this.GoalSpeedMph.Value.ToString("0.0") : "";
                             break;
+
+                        case SpeedDisplayType.None:
+                            this.GoalSpeed = "";
+                            break;
                     }
                 }
                 else if (preferredType == SpeedDisplayType.None)
@@ -659,6 +667,10 @@ namespace ZwiftActivityMonitorV2
 
                         case DistanceDisplayType.Miles:
                             this.GoalDistance = this.GoalDistanceMi >= 0 ? this.GoalDistanceMi.Value.ToString("0.0") : "";
+                            break;
+
+                        case DistanceDisplayType.None:
+                            this.GoalDistance = "";
                             break;
                     }
                 }
@@ -1180,7 +1192,7 @@ namespace ZwiftActivityMonitorV2
                             {
                                 CheckOnClick = true,
                                 Tag = new object[] { kvp.Key, metricType, dataGridView }, // pass required values to the handler event
-                                Checked = ViewManager.SplitDistance_SelectedDisplayType == kvp.Key,
+                                Checked = ViewManager.GoalDistance_SelectedDisplayType == kvp.Key,
                             };
                             mi.CheckedChanged += UOM_ContextMenu_CheckChanged;
                             menuStrip.Items.Add(mi);
@@ -1199,7 +1211,7 @@ namespace ZwiftActivityMonitorV2
                             {
                                 CheckOnClick = true,
                                 Tag = new object[] { kvp.Key, metricType, dataGridView }, // pass required values to the handler event
-                                Checked = ViewManager.SplitSpeed_SelectedDisplayType == kvp.Key,
+                                Checked = ViewManager.GoalSpeed_SelectedDisplayType == kvp.Key,
                             };
                             mi.CheckedChanged += UOM_ContextMenu_CheckChanged;
                             menuStrip.Items.Add(mi);
