@@ -40,12 +40,3 @@ The readme file contains detailed information on each view and feature.
 
 ![enjoy_fitness](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Enjoy-Fitness-Logo-red.png)
 [Visit EnJoy Fitness](https://www.EnJoyFitnessJax.com)
-
-<ul>
-  {% for post in site.posts %}
-    <li>
-      <a href="/ZwiftActivityMonitor{{ post.url }}">{{ post.title }}</a>
-    </li>
-  {% endfor %}
-</ul>
-
