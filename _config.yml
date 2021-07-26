@@ -1,1 +1,7 @@
+# Site wide configuration
+
+title: Zwift Activity Monitor Pro
+locale: en_US
+logo: ActivityViewGithubRepo.png
+
 theme: jekyll-theme-tactile
