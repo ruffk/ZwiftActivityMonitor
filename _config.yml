@@ -1,7 +1,11 @@
 # Site wide configuration
 
 title: Zwift Activity Monitor Pro
+email: ruff.kevin@outlook.com
 locale: en_US
 logo: ActivityViewGithubRepo.png
+baseurl: "/ZwiftActivityMonitor"
+url: "localhost:4000"
+github_username: ruffk
 
 theme: jekyll-theme-tactile
