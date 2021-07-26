@@ -9,7 +9,7 @@ This application allows Zwift users to monitor their moving average power and FT
 <iframe width="560" height="315" src="https://www.youtube.com/embed/q8fEHyL6wLo" frameborder="0" allowfullscreen></iframe>
 <br>  
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
-</br>
+<br>
 [Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
 
 ![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
