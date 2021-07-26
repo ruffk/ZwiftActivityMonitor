@@ -2,8 +2,6 @@
 <meta property="og:image" content="https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png">
 </head>
 
-## Zwift Activity Monitor Pro
-
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png)
 
 [View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
