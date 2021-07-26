@@ -18,3 +18,19 @@ categories:
   * Hotkeys (shortcuts) for view selection and lap operation
   * Comprehensive ride recap.  Now with graphs, power numbers, splits, and laps.  Can be emailed or printed.
 
+The [readme](https://github.com/ruffk/ZwiftActivityMonitor#readme) file contains detailed information on each view and feature.
+[View Readme](https://github.com/ruffk/ZwiftActivityMonitor#readme)
+
+**Note: The Pro release installs side-by-side with the original ZAM.  Current users will need to set your network and configure your user profile.**
+
+### Please join the Zwift Activity Monitor Users FB group to keep in touch with us and other ZAM users!
+
+[Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
+
+![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
+<br>**Certified safe download**
+
+## Developed in collaboration with:
+
+![enjoy_fitness](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Enjoy-Fitness-Logo-red.png)
+[Visit EnJoy Fitness](https://www.EnJoyFitnessJax.com)
