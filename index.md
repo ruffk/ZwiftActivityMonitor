@@ -1,11 +1,3 @@
-<head>
-    <meta name="twitter:card" content="summary">
-    <meta property="og:title" content="Zwift Activity Monitor Pro">
-    <meta property="og:description" content="Version 2.1">
-    <meta property="og:image" content="https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png">
-    <meta property="og:url" content="https://ruffk.github.io/">
-</head>
-    
 ## Zwift Activity Monitor Pro
 
 ![main_view](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/ActivityView.png)
