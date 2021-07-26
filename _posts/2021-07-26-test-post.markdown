@@ -6,7 +6,7 @@ categories:
 ---
 [Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
 
-* Zwift Activity Monitor Pro is a complete rewrite of the original program.  
+* Zwift Activity Monitor *Pro* is a complete rewrite of the original program.  
   * Resizable main window
   * Color themes or custom colors with optional transparent background
   * Custom fonts and font sizing
@@ -22,9 +22,9 @@ categories:
 
 The [readme](https://github.com/ruffk/ZwiftActivityMonitor#readme) file contains detailed information on each view and feature.
 
-**Note:** The **Pro** release installs side-by-side with the original ZAM.  Current users will need to set your network and configure your user profile.
+**Please Note:** The *Pro* release installs side-by-side with the original ZAM.  Current users will need to set your network and configure your user profile.
 
-**Please join the Zwift Activity Monitor Users FB group to keep in touch with us and other ZAM users!**
+Please join the **Zwift Activity Monitor Users** FB group to keep in touch with us and other ZAM users!
 
 [Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
 
