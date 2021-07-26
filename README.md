@@ -36,7 +36,7 @@ The network packets that ZAM consumes contain some important values.  Some of th
 
 Before you begin, ensure you have met the following requirements:
 * Latest version of Npcap: Packet capture library for Windows. (https://nmap.org/npcap/#download)
-* .NET5 Framework (Desktop, not Console)!
+* .NET5 Framework (Desktop, not Console)! (https://dotnet.microsoft.com/download/dotnet/5.0)
 
 ## Installing Zwift Activity Monitor (Windows Only)
 
@@ -211,13 +211,15 @@ Within the views, the user is free to select how they wish to display their spee
   * Both - The system will alternate between KPH and MPH within the column.
   * None - Not shown.
 
+![speed](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/SpeedSelection.png)
+
 * Distance
   * Kilometers
   * Miles
   * Both - The system will alternate between KM and MI within the column.
   * None - Not shown.
 
-![power](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/PowerSelection.png)
+![distance](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitorV2/images/DistanceSelection.png)
 
 ## Contributing to Zwift Activity Monitor
 
