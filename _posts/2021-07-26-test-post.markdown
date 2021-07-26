@@ -1,7 +1,20 @@
 ---
 layout: post
-title:  "A Test Post"
+title:  "Release 2.1.0 now available"
 date:   2021-07-26 11:00:00 -0500
 categories: 
 ---
-### This is a test post as this website is under construction.  Please ignore.
+* Zwift Activity Monitor Pro is a complete rewrite of the original program.  
+  * Resizable main window
+  * Color themes or custom colors with optional transparent background
+  * Custom fonts and font sizing
+  * Two additional collectors (15s and 2m)
+  * Hide / Show collectors
+  * Hide / Show columns in grids
+  * Configuration of units for power, speed, and distance.  Can simultaneously display metric and imperial values
+  * Tabs can be moved to top/bottom/left/right
+  * 3x larger buttons on Lap View
+  * Auto-Pause when Zwift clock stops (user selectable)
+  * Hotkeys (shortcuts) for view selection and lap operation
+  * Comprehensive ride recap.  Now with graphs, power numbers, splits, and laps.  Can be emailed or printed.
+
