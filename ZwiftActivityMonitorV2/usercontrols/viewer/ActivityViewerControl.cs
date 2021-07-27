@@ -16,6 +16,7 @@ namespace ZwiftActivityMonitorV2
 
     public partial class ActivityViewerControl : ViewerControlEx
     {
+        #region DetailRow class
         protected enum DetailColumn
         {
             Period = 0,
@@ -29,22 +30,6 @@ namespace ZwiftActivityMonitorV2
             APmax_PowerDisplayType,
             FTP_PowerDisplayType,
         }
-
-        protected enum SummaryColumn
-        {
-            AS = 0,
-            AP,
-            NP,
-            IF,
-            TSS,
-            Blank,
-            AP_PowerDisplayType,
-            NP_PowerDisplayType,
-            AS_SpeedDisplayType,
-        }
-
-
-        #region DetailRow class
 
         /// <summary>
         /// The class determines the columns available in the Detail DataGridView
@@ -106,6 +91,29 @@ namespace ZwiftActivityMonitorV2
             private int mHRbpm;
             private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
 
+            private static Dictionary<int, int> _PowerDisplayColumnMap = new();
+
+            static DetailRow()
+            {
+                _PowerDisplayColumnMap.Add((int)DetailColumn.AP, (int)DetailColumn.AP_PowerDisplayType);
+                _PowerDisplayColumnMap.Add((int)DetailColumn.APmax, (int)DetailColumn.APmax_PowerDisplayType);
+                _PowerDisplayColumnMap.Add((int)DetailColumn.FTP, (int)DetailColumn.FTP_PowerDisplayType);
+            }
+
+            /// <summary>
+            /// Returns the column index where the power display type is held for the given power display column
+            /// </summary>
+            /// <param name="powerDisplayColumn"></param>
+            /// <returns></returns>
+            public static int GetPowerDisplayTypeColumnIndex(int powerDisplayColumn)
+            {
+                return _PowerDisplayColumnMap[powerDisplayColumn];
+            }
+
+            public DetailRow()
+            {
+            }
+
             public void ResetValues()
             {
                 this.APwatts = 0;
@@ -159,6 +167,10 @@ namespace ZwiftActivityMonitorV2
                         case PowerDisplayType.WattsPerKg:
                             this.AP = this.APwattsPerKg.HasValue ? this.APwattsPerKg.Value.ToString("#.00") : "";
                             break;
+
+                        case PowerDisplayType.None:
+                            this.AP = "";
+                            break;
                     }
                 }
                 else if (preferredType == PowerDisplayType.None)
@@ -186,6 +198,10 @@ namespace ZwiftActivityMonitorV2
                         case PowerDisplayType.WattsPerKg:
                             this.APmax = this.APwattsPerKgMax.HasValue ? this.APwattsPerKgMax.Value.ToString("#.00") : "";
                             break;
+
+                        case PowerDisplayType.None:
+                            this.APmax = "";
+                            break;
                     }
                 }
                 else if (preferredType == PowerDisplayType.None)
@@ -212,6 +228,10 @@ namespace ZwiftActivityMonitorV2
 
                         case PowerDisplayType.WattsPerKg:
                             this.FTP = this.FTPwattsPerKg.HasValue ? this.FTPwattsPerKg.Value.ToString("#.00") : "";
+                            break;
+
+                        case PowerDisplayType.None:
+                            this.FTP = "";
                             break;
                     }
                 }
@@ -334,6 +354,19 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         #region SummaryRow class
+        protected enum SummaryColumn
+        {
+            AS = 0,
+            AP,
+            NP,
+            IF,
+            TSS,
+            Blank,
+            AP_PowerDisplayType,
+            NP_PowerDisplayType,
+            AS_SpeedDisplayType,
+        }
+
         /// <summary>
         /// The class determines the columns available in the Summary DataGridView
         /// </summary>
@@ -346,7 +379,6 @@ namespace ZwiftActivityMonitorV2
             public string TSS { get { return this.mTSS; } set { this.SetProperty<string>(ref this.mTSS, value); } }
             public string Blank { get; set; }
 
-
             public PowerDisplayType AP_PowerDisplayType
             {
                 get { return this.mAP_PowerDisplayType; }
@@ -356,6 +388,7 @@ namespace ZwiftActivityMonitorV2
                     UpdateAP(value);
                 }
             }
+
             public PowerDisplayType NP_PowerDisplayType
             {
                 get { return this.mNP_PowerDisplayType; }
@@ -365,6 +398,7 @@ namespace ZwiftActivityMonitorV2
                     UpdateNP(value);
                 }
             }
+
             public SpeedDisplayType AS_SpeedDisplayType
             {
                 get { return this.mAS_SpeedDisplayType; }
@@ -644,14 +678,7 @@ namespace ZwiftActivityMonitorV2
 
         #endregion
 
-
-        private BindingList<DetailRow> DetailRows = new();
-        private BindingList<SummaryRow> SummaryRows = new();
-        private SyncBindingSource DetailBindingSource { get; set; }
-        private SyncBindingSource SummaryBindingSource { get; set; }
-
         #region MovingAverageManager class
-
         private class MovingAverageManager
         {
             #region CollectorAttribute class
@@ -777,9 +804,14 @@ namespace ZwiftActivityMonitorV2
         }
         #endregion
 
-        private MovingAverageManager mMovingAverageManager;
+        private readonly ILogger<ActivityViewerControl> Logger;
+
+        private readonly BindingList<DetailRow> mDetailRows;
+        private readonly BindingList<SummaryRow> mSummaryRows;
+        private readonly MovingAverageManager mMovingAverageManager;
+        private SyncBindingSource mDetailBindingSource;
+        private SyncBindingSource mSummaryBindingSource;
         private bool mInitialControlGainedFocus;
-        private ILogger<ActivityViewerControl> Logger;
 
         public ActivityViewerControl()
         {
@@ -793,36 +825,12 @@ namespace ZwiftActivityMonitorV2
 
             Logger = ZAMsettings.LoggerFactory.CreateLogger<ActivityViewerControl>();
 
-            mMovingAverageManager = new();
+            this.mDetailRows = new();
+            this.mSummaryRows = new();
+            this.mMovingAverageManager = new();
         }
 
-        public RideRecapMetrics GetRideRecapMetrics()
-        {
-            return this.mMovingAverageManager.GetRideRecapMetrics();
-        }
-
-        private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
-        {
-            Logger.LogDebug($"{this.GetType()}.ZPMonitorService_CollectionStatusChanged - {e.Action}");
-            
-            switch (e.Action)
-            {
-                case CollectionStatusChangedEventArgs.ActionType.Waiting:
-                    this.ClearDisplayValues();
-                    break;
-
-                case CollectionStatusChangedEventArgs.ActionType.Started:
-                    this.ClearDisplayValues();
-                    break;
-            }
-        }
-
-        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
-        {
-            Logger.LogDebug($"ZAMsettings_SystemConfigChanged - {this.GetType()}");
-
-            this.SetupDisplayForCurrentUserProfile();
-        }
+        #region Control Event Handlers
 
         private void ViewControl_Load(object sender, EventArgs e)
         {
@@ -844,32 +852,43 @@ namespace ZwiftActivityMonitorV2
             {
                 (this.ParentForm as MainForm).FormSyncFiveSecondTimerTickEvent += MainForm_FormSyncFiveSecondTimerTickEvent;
             }
-
-            //Logger.LogDebug($"{this.GetType()}.ViewControl_Load2");
         }
-
-        public override void ControlGainingFocus(object sender, EventArgs e)
+        private void ViewControl_Resize(object sender, EventArgs e)
         {
-            Logger.LogDebug($"{this.GetType()}.ControlGainingFocus");
+            //Logger.LogDebug($"{this.GetType()}::ViewControl_Resize");
 
-            if (!mInitialControlGainedFocus)
-            {
-                Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+            // TableLayoutPanel tlPanel helps keep things organized when resizing.
+            //
+            // tlPanel has been set up in designer with the following:
+            // tlPanel.RowStyles[0].SizeType = SizeType.Percent;
+            // tlPanel.RowStyles[0].Height = 100; // 100%
+            // tlPanel.RowStyles[1].SizeType = SizeType.Absolute;
+            // tlPanel.RowStyles[1].Height = 50; // default size
 
-                //int sumWidth = 0;
-                //foreach (DataGridViewColumn c in this.dgDetail.Columns)
-                //{
-                //    if (c.HeaderText == "") continue;
 
-                //    sumWidth += c.Width;
-                //    Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Column: {c.Name}, Width: {c.Width} ({sumWidth})");
-                //}
+            // Calculate the height required to show all of dgSummary
+            int dgSummaryHeight = dgSummary.Rows.GetRowsHeight(DataGridViewElementStates.None) + dgSummary.ColumnHeadersHeight;
+            dgSummaryHeight += (dgSummary.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
 
-                this.SetupDisplayForCurrentUserProfile();
-                mInitialControlGainedFocus = true;
-            }
+            // Set the height of the lower row for dgSummary, the upper row will automatically adjust
+            tlPanel.RowStyles[1].Height = dgSummaryHeight;
+
+            // The following is not needed but just shown for completeness
+            //int dgDetailHeight = dgDetail.Rows.GetRowsHeight(states) + dgDetail.ColumnHeadersHeight;
+            //dgDetailHeight += (dgDetail.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
         }
 
+        #endregion
+
+        #region Public Methods
+        public RideRecapMetrics GetRideRecapMetrics()
+        {
+            return this.mMovingAverageManager.GetRideRecapMetrics();
+        }
+
+        #endregion
+
+        #region MainForm event handlers
 
         /// <summary>
         /// A timer event generated by MainForm to allow UserControls to syncronize data updates
@@ -885,10 +904,12 @@ namespace ZwiftActivityMonitorV2
             mMovingAverageManager.SetCurrentMeasurementSystemType(type);
         }
 
+        #endregion
+
         #region Initialize DataGridViews
         private void InitializeDetailDataGrid()
         {
-            Logger.LogDebug($"InitializeDetailDataGrid1");
+            Logger.LogDebug($"{this.GetType()}::InitializeDetailDataGrid");
 
             // set in designer
             //dgDetail.ReadOnly = true;
@@ -901,15 +922,15 @@ namespace ZwiftActivityMonitorV2
                     Period = kvp.Value,
                     PeriodSecs = (int)kvp.Key,
                 };
-                this.DetailRows.Add(row);
+                this.mDetailRows.Add(row);
                 mMovingAverageManager.AddCollector(kvp.Key, kvp.Value, row);
             }
 
             // Note: anytime rows are added to the List, the BindingSource must be recreated (or maybe just a reset on the BindingSource)
-            this.DetailBindingSource = new SyncBindingSource();
-            this.DetailBindingSource.DataSource = this.DetailRows;
+            this.mDetailBindingSource = new SyncBindingSource();
+            this.mDetailBindingSource.DataSource = this.mDetailRows;
 
-            this.dgDetail.DataSource = this.DetailBindingSource;
+            this.dgDetail.DataSource = this.mDetailBindingSource;
 
 
             for (int i = 0; i < dgDetail.Rows.Count; i++)
@@ -986,12 +1007,8 @@ namespace ZwiftActivityMonitorV2
             // set in designer
             //this.dgDetail.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
-            //Logger.LogDebug($"ColumnHeadersHeight: {this.dgDetail.ColumnHeadersHeight}");
-
             this.dgDetail.ShowFocus = false;
-            Logger.LogDebug($"InitializeDetailDataGrid2");
         }
-
 
         private void InitializeSummaryDataGrid()
         {
@@ -1003,13 +1020,13 @@ namespace ZwiftActivityMonitorV2
             };
             row.PropertyChanged += SummaryRow_PropertyChanged;
 
-            this.SummaryRows.Add(row);
+            this.mSummaryRows.Add(row);
 
             this.mMovingAverageManager.SummaryDataRow = row;
 
-            this.SummaryBindingSource = new SyncBindingSource();
-            this.SummaryBindingSource.DataSource = this.SummaryRows;
-            this.dgSummary.DataSource = this.SummaryBindingSource;
+            this.mSummaryBindingSource = new SyncBindingSource();
+            this.mSummaryBindingSource.DataSource = this.mSummaryRows;
+            this.dgSummary.DataSource = this.mSummaryBindingSource;
 
             // A height of 19 is minimum when using Segoe UI 9pt font
             this.dgSummary.Rows[0].MinimumHeight = DataGridRowMinimumHeight;
@@ -1076,7 +1093,70 @@ namespace ZwiftActivityMonitorV2
 
             this.dgSummary.ShowFocus = false;
         }
+
+        private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            //if (e.ListChangedType == ListChangedType.Reset)
+            //    Logger.LogDebug($"{this.GetType()}::dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
+        }
+
+        private void SetupDisplayForCurrentUserProfile()
+        {
+            Logger.LogDebug($"{this.GetType()}::SetupDisplayForCurrentUserProfile");
+
+            this.ClearDisplayValues();
+
+            this.dgDetail.Columns[(int)DetailColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAP].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.APmax].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAPmax].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.FTP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailFTP].IsVisible.Value;
+            this.dgDetail.Columns[(int)DetailColumn.HR].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailHR].IsVisible.Value;
+
+            this.dgSummary.Columns[(int)SummaryColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAP].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.AS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAS].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.IF].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryIF].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.NP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryNP].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.TSS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryTSS].IsVisible.Value;
+
+            mSummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryAP].Key;
+            mSummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryNP].Key;
+            mSummaryRows[0].AS_SpeedDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[ActivityViewMetricType.SummaryAS].Key;
+
+            mDetailBindingSource.SuspendBinding();
+            dgDetail.CurrentCell = null;
+            for (int rowIndex = 0; rowIndex < dgDetail.Rows.Count; rowIndex++)
+            {
+                DataGridViewRow r = dgDetail.Rows[rowIndex];
+                DurationType durationType = (DurationType)dgDetail[(int)DetailColumn.PeriodSecs, rowIndex].Value;
+
+                if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType))
+                {
+                    r.Visible = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].IsVisible.Value;
+                }
+
+                mDetailRows[rowIndex].AP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAP].Key;
+                mDetailRows[rowIndex].APmax_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAPmax].Key;
+                mDetailRows[rowIndex].FTP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailFTP].Key;
+            }
+            mDetailBindingSource.ResumeBinding();
+            dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
+        }
+
+        /// <summary>
+        /// Clears Detail and Summary row values
+        /// </summary>
+        private void ClearDisplayValues()
+        {
+            foreach (DetailRow row in mDetailRows)
+            {
+                row.ResetValues();
+            }
+
+            mSummaryRows[0].ResetValues();
+        }
+
         #endregion
+
+        #region SummaryRow Event Handlers
 
         /// <summary>
         /// Occurs whenever a property value changes.
@@ -1086,7 +1166,7 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void SummaryRow_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //Logger.LogDebug($"{this.GetType()}.SummaryRow_PropertyChanged - {e.PropertyName}");
+            //Logger.LogDebug($"{this.GetType()}::SummaryRow_PropertyChanged - {e.PropertyName}");
 
             SummaryRow row = sender as SummaryRow;
 
@@ -1101,6 +1181,7 @@ namespace ZwiftActivityMonitorV2
                 {
                     case SpeedDisplayType.KilometersPerHour:
                     case SpeedDisplayType.MilesPerHour:
+                    case SpeedDisplayType.None:
                         this.SetSummaryHeaderText(SummaryColumn.AS, SpeedDisplayEnum.Instance.GetColumnHeaderText(preferredType)); ;
                         break;
 
@@ -1117,102 +1198,38 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Columns[(int)columnIndex].HeaderText = headerText;
         }
 
-        private void dgDetail_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        #endregion
+
+        #region ZPMonitorService Event Handlers
+
+        private void ZPMonitorService_CollectionStatusChanged(object sender, CollectionStatusChangedEventArgs e)
         {
-            //if (e.ListChangedType == ListChangedType.Reset)
-            //    Logger.LogDebug($"{this.GetType()}.dgDetail_DataBindingComplete - ListChangedType: {e.ListChangedType}");
-        }
+            //Logger.LogDebug($"{this.GetType()}::ZPMonitorService_CollectionStatusChanged - {e.Action}");
 
-        private void SetupDisplayForCurrentUserProfile()
-        {
-            Logger.LogDebug($"SetupDisplayForCurrentUserProfile1");
-
-            this.ClearDisplayValues();
-
-            this.dgDetail.Columns[(int)DetailColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAP].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.APmax].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailAPmax].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.FTP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailFTP].IsVisible.Value;
-            this.dgDetail.Columns[(int)DetailColumn.HR].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.DetailHR].IsVisible.Value;
-
-            this.dgSummary.Columns[(int)SummaryColumn.AP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAP].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.AS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryAS].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.IF].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryIF].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.NP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryNP].IsVisible.Value;
-            this.dgSummary.Columns[(int)SummaryColumn.TSS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryTSS].IsVisible.Value;
-
-            //SummaryRows[0].AP = "";
-            //SummaryRows[0].AS = "";
-            //SummaryRows[0].NP = "";
-            //SummaryRows[0].IF = "";
-            //SummaryRows[0].TSS = "";
-            SummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryAP].Key;
-            SummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryNP].Key;
-            SummaryRows[0].AS_SpeedDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[ActivityViewMetricType.SummaryAS].Key;
-
-            DetailBindingSource.SuspendBinding();
-            dgDetail.CurrentCell = null;
-            for (int rowIndex = 0; rowIndex < dgDetail.Rows.Count; rowIndex++)
+            switch (e.Action)
             {
-                DataGridViewRow r = dgDetail.Rows[rowIndex];
-                DurationType durationType = (DurationType)dgDetail[(int)DetailColumn.PeriodSecs, rowIndex].Value;
+                case CollectionStatusChangedEventArgs.ActionType.Waiting:
+                    this.ClearDisplayValues();
+                    break;
 
-                if (CurrentUserProfile.ActivityViewDetailRowSettings.ContainsKey(durationType))
-                {
-                    r.Visible = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].IsVisible.Value;
-                }
-
-                //DetailRows[rowIndex].AP = "";
-                //DetailRows[rowIndex].APmax = "";
-                //DetailRows[rowIndex].FTP = "";
-                //DetailRows[rowIndex].HR = "";
-
-                DetailRows[rowIndex].AP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAP].Key;
-                DetailRows[rowIndex].APmax_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailAPmax].Key;
-                DetailRows[rowIndex].FTP_PowerDisplayType = CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[ActivityViewMetricType.DetailFTP].Key;
+                case CollectionStatusChangedEventArgs.ActionType.Started:
+                    this.ClearDisplayValues();
+                    break;
             }
-            DetailBindingSource.ResumeBinding();
-            dgDetail.CurrentCell = dgDetail.FirstDisplayedCell; // Needs to be set after ResumeBinding
-            Logger.LogDebug($"SetupDisplayForCurrentUserProfile2");
         }
 
-        /// <summary>
-        /// Clears Detail and Summary row values
-        /// </summary>
-        private void ClearDisplayValues()
+        #endregion
+
+        #region ZAMsettings Event Handlers
+
+        private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
         {
-            foreach(DetailRow row in DetailRows)
-            {
-                row.ResetValues();
-            }
+            //Logger.LogDebug($"{this.GetType()}::ZAMsettings_SystemConfigChanged - {this.GetType()}");
 
-            SummaryRows[0].ResetValues();
+            this.SetupDisplayForCurrentUserProfile();
         }
 
-        private void ViewControl_Resize(object sender, EventArgs e)
-        {
-            //Logger.LogDebug($"{this.GetType()}.ViewControl_Resize1");
-
-            // TableLayoutPanel tlPanel helps keep things organized when resizing.
-            //
-            // tlPanel has been set up in designer with the following:
-            // tlPanel.RowStyles[0].SizeType = SizeType.Percent;
-            // tlPanel.RowStyles[0].Height = 100; // 100%
-            // tlPanel.RowStyles[1].SizeType = SizeType.Absolute;
-            // tlPanel.RowStyles[1].Height = 50; // default size
-
-
-            // Calculate the height required to show all of dgSummary
-            int dgSummaryHeight = dgSummary.Rows.GetRowsHeight(DataGridViewElementStates.None) + dgSummary.ColumnHeadersHeight;
-            dgSummaryHeight += (dgSummary.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
-
-            // Set the height of the lower row for dgSummary, the upper row will automatically adjust
-            tlPanel.RowStyles[1].Height = dgSummaryHeight;
-
-            // The following is not needed but just shown for completeness
-            //int dgDetailHeight = dgDetail.Rows.GetRowsHeight(states) + dgDetail.ColumnHeadersHeight;
-            //dgDetailHeight += (dgDetail.Controls.OfType<HScrollBar>().FirstOrDefault(c => c.Visible) != null ? SystemInformation.HorizontalScrollBarHeight : 0);
-            //Logger.LogDebug($"{this.GetType()}.ViewControl_Resize2");
-        }
+        #endregion
 
         #region Right Mouse click / Context Menu Handlers 
         /// <summary>
@@ -1247,10 +1264,10 @@ namespace ZwiftActivityMonitorV2
 
             if (dataGridView == this.dgDetail)
             {
-                Dictionary<int, int> powerDisplayColumnMap = new();
-                powerDisplayColumnMap.Add((int)DetailColumn.AP, (int)DetailColumn.AP_PowerDisplayType);
-                powerDisplayColumnMap.Add((int)DetailColumn.APmax, (int)DetailColumn.APmax_PowerDisplayType);
-                powerDisplayColumnMap.Add((int)DetailColumn.FTP, (int)DetailColumn.FTP_PowerDisplayType);
+                //Dictionary<int, int> powerDisplayColumnMap = new();
+                //powerDisplayColumnMap.Add((int)DetailColumn.AP, (int)DetailColumn.AP_PowerDisplayType);
+                //powerDisplayColumnMap.Add((int)DetailColumn.APmax, (int)DetailColumn.APmax_PowerDisplayType);
+                //powerDisplayColumnMap.Add((int)DetailColumn.FTP, (int)DetailColumn.FTP_PowerDisplayType);
 
                 switch (e.ColumnIndex)
                 {
@@ -1280,7 +1297,7 @@ namespace ZwiftActivityMonitorV2
                     case (int)DetailColumn.APmax:
                     case (int)DetailColumn.FTP:
                         // map the right-clicked column to the column that stores the type of power display
-                        int powerDisplayColumnIndex = powerDisplayColumnMap[e.ColumnIndex];
+                        int powerDisplayColumnIndex = DetailRow.GetPowerDisplayTypeColumnIndex(e.ColumnIndex);
 
                         // the durationType is stored in the row
                         DurationType durationType = (DurationType)dataGridView[(int)DetailColumn.PeriodSecs, e.RowIndex].Value;
@@ -1486,7 +1503,7 @@ namespace ZwiftActivityMonitorV2
             //Add the columns to context menu strip
             foreach (DataGridViewColumn c in dataGridView.Columns)
             {
-                if (c.HeaderText != "") // exclude filler column
+                if (c.Tag != null) // exclude filler column
                 {
                     var mi = new ToolStripMenuItem(c.HeaderText)
                     {
@@ -1500,11 +1517,99 @@ namespace ZwiftActivityMonitorV2
                 }
             }
 
+            if (dataGridView == dgDetail)
+                this.AddPowerItemsToHeaderMenu(menuStrip, dataGridView, e.ColumnIndex);
+
             if (menuStrip.Items.Count > 0)
             {
                 menuStrip.Show(Cursor.Position);
             }
         }
+
+        private void AddPowerItemsToHeaderMenu(ContextMenuStrip menuStrip, DataGridView dataGridView, int columnIndex)
+        {
+            switch(columnIndex)
+            {
+                case (int)DetailColumn.AP:
+                case (int)DetailColumn.APmax:
+                case (int)DetailColumn.FTP:
+                    // map the right-clicked column to the column that stores the type of power display
+                    //int powerDisplayColumnIndex = DetailRow.GetPowerDisplayTypeColumnIndex(columnIndex);
+
+                    // the ActivityViewMetricType is stored in the column header tag
+                    //int metricType = (int)dataGridView.Columns[columnIndex].Tag;
+
+                    menuStrip.Items.Add(new ToolStripSeparator());
+
+                    foreach (var kvp in PowerDisplayEnum.Instance.GetItems())
+                    {
+                        var mi = new ToolStripMenuItem("Set Power Display: " + kvp.Value)
+                        {
+                            Tag = new object[] { kvp.Key, columnIndex }, // pass required values to the handler event
+                        };
+                        mi.Click += dataGridView_ColumnHeaderPower_Click;
+                        menuStrip.Items.Add(mi);
+                    }
+                    break;
+            }
+        }
+
+        private void dataGridView_ColumnHeaderPower_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+            object[] tag = item.Tag as object[];
+
+            PowerDisplayType powerDisplayType = (PowerDisplayType)tag[0];
+            int columnIndex = (int)tag[1];
+
+            // the ActivityViewMetricType is stored in the column header tag
+            ActivityViewMetricType metricType = (ActivityViewMetricType)dgDetail.Columns[columnIndex].Tag;
+
+            ZAMsettings.BeginCachedConfiguration();
+            
+            foreach (DetailRow row in this.mDetailRows)
+            {
+                DurationType durationType = (DurationType)row.PeriodSecs;
+
+                switch (columnIndex)
+                {
+                    case (int)DetailColumn.AP:
+                        row.AP_PowerDisplayType = powerDisplayType;
+                        break;
+
+                    case (int)DetailColumn.APmax:
+                        row.APmax_PowerDisplayType = powerDisplayType;
+                        break;
+
+                    case (int)DetailColumn.FTP:
+                        row.FTP_PowerDisplayType = powerDisplayType;
+                        break;
+                }
+
+                // Update configuration
+                if (CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues.ContainsKey(metricType))
+                {
+                    CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem((PowerDisplayType)powerDisplayType);
+                }
+            }
+
+            ZAMsettings.CommitCachedConfiguration();
+
+            //for (int rowIndex = 0; rowIndex < dataGridView.Rows.Count; rowIndex++)
+            //{
+            //    DurationType durationType = (DurationType)dataGridView[(int)DetailColumn.PeriodSecs, rowIndex].Value;
+
+            //    dataGridView[powerDisplayColumnIndex, rowIndex].Value = (PowerDisplayType)powerDisplayType;
+
+            //    // Update configuration
+            //    if (CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues.ContainsKey(metricType))
+            //    {
+            //        CurrentUserProfile.ActivityViewDetailRowSettings[durationType].PowerValues[metricType] = PowerDisplayEnum.Instance.GetItem((PowerDisplayType)powerDisplayType);
+            //    }
+            //}
+        }
+
 
         /// <summary>
         /// Handle CheckedChanged event for column header visibility
@@ -1544,6 +1649,19 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         #region Base Class Overrides
+        public override void ControlGainingFocus(object sender, EventArgs e)
+        {
+            Logger.LogDebug($"{this.GetType()}::ControlGainingFocus");
+
+            if (!mInitialControlGainedFocus)
+            {
+                Logger.LogDebug($"{this.GetType()}.ControlGainingFocus - Performing initializations");
+
+                this.SetupDisplayForCurrentUserProfile();
+                mInitialControlGainedFocus = true;
+            }
+        }
+
         protected override void HeaderForeColorChanged()
         {
             base.HeaderForeColorChanged();

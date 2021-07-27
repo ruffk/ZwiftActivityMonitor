@@ -337,7 +337,7 @@ namespace ZwiftActivityMonitorV2
             EnumList.Add(SpeedDisplayType.KilometersPerHour, new EnumListItem("Kilometers per Hour", columnHeaderText: "KPH"));
             EnumList.Add(SpeedDisplayType.MilesPerHour, new EnumListItem("Miles per Hour", columnHeaderText: "MPH"));
             EnumList.Add(SpeedDisplayType.Both, new EnumListItem("Both KPH and MPH"));
-            EnumList.Add(SpeedDisplayType.None, new EnumListItem("None", columnHeaderText: ""));
+            EnumList.Add(SpeedDisplayType.None, new EnumListItem("None", columnHeaderText: "N/A"));
         }
 
         public static SpeedDisplayEnum Instance { get { return _InstanceLock.Value; } }
@@ -366,7 +366,7 @@ namespace ZwiftActivityMonitorV2
             EnumList.Add(DistanceDisplayType.Kilometers, new EnumListItem("Kilometers", columnHeaderText: "KM"));
             EnumList.Add(DistanceDisplayType.Miles, new EnumListItem("Miles", columnHeaderText: "MI"));
             EnumList.Add(DistanceDisplayType.Both, new EnumListItem("Both Kilometers and Miles"));
-            EnumList.Add(DistanceDisplayType.None, new EnumListItem("None", columnHeaderText: ""));
+            EnumList.Add(DistanceDisplayType.None, new EnumListItem("None", columnHeaderText: "N/A"));
         }
 
         public static DistanceDisplayEnum Instance { get { return _InstanceLock.Value; } }

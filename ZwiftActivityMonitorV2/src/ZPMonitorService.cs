@@ -95,7 +95,7 @@ namespace ZwiftActivityMonitorV2
 
             //mZwifters = new Dictionary<int, Zwifter>();
 
-            Logger.LogDebug($"Class {this.GetType()} constructed.");
+            //Logger.LogDebug($"Class {this.GetType()} constructed.");
         }
 
 
@@ -108,7 +108,7 @@ namespace ZwiftActivityMonitorV2
         {
             if (this.IsZPMonitorStarted)
             {
-                Logger.LogWarning($"ZwiftPacketMonitor is already running.");
+                //Logger.LogWarning($"ZwiftPacketMonitor is already running.");
                 return;
             }
 
@@ -508,11 +508,11 @@ namespace ZwiftActivityMonitorV2
             {
                 if (IsDebugMode)
                 {
-                    Logger.LogDebug($"TRACING-INCOMING: {riderState}");
+                    //Logger.LogDebug($"TRACING-INCOMING: {riderState}");
                 }
                 else
                 {
-                    Logger.LogDebug($"TRACING-OUTGOING: {riderState}");
+                    //Logger.LogDebug($"TRACING-OUTGOING: {riderState}");
                 }
 
                 EventsProcessed++;
@@ -684,7 +684,7 @@ namespace ZwiftActivityMonitorV2
 
         private async Task StartMonitorAsync(CancellationToken cancellationToken = default)
         {
-            Logger.LogDebug($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"StartMonitorAsync, Before StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             try
             {
@@ -697,16 +697,16 @@ namespace ZwiftActivityMonitorV2
             }
 
 
-            Logger.LogDebug($"StartMonitorAsync, After StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"StartMonitorAsync, After StartCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
         private async Task StopMonitorAsync(CancellationToken cancellationToken = default)
         {
-            Logger.LogDebug($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"StopMonitorAsync, Before StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
 
             await ZPMonitor.StopCaptureAsync(cancellationToken);
 
-            Logger.LogDebug($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
+            //Logger.LogDebug($"StopMonitorAsync, After StopCaptureAsync on Thread: {Thread.CurrentThread.ManagedThreadId}");
         }
 
         //private void PlayerEnteredWorldEventHandler(object sender, PlayerEnteredWorldEventArgs e)
