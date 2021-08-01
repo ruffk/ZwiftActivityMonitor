@@ -9,6 +9,7 @@ categories:
 * Release 2.2.0 notes
   * Added calories (kJ) to the summary portion of the Activity View.  By default it is a hidden column.  To add it to the display, right-click on the summary column heading area and select the kJ column.  Calories will also be displayed on the ride recap.
   * Minor UI bug fixes.
+<br>
 
 * Release 2.1.0 - Initial release of Pro version  
   * Resizable main window
