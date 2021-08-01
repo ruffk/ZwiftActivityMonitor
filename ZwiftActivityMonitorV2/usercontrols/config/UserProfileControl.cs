@@ -638,10 +638,10 @@ namespace ZwiftActivityMonitorV2
             base.Parent_BackColorChanged(sender, e);
 
             this.tbDescUsers.BackColor = this.BackColor;
-            //this.lvUserProfiles.BackColor = this.BackColor;
-            //this.clbCollectors.BackColor = this.BackColor;
 
-            //UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, this.BackColor, this.ForeColor);
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            this.gbUserProfiles.BorderColor = colorTable.ActiveFormBorderColor;
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)
@@ -649,11 +649,7 @@ namespace ZwiftActivityMonitorV2
             base.Parent_ForeColorChanged(sender, e);
 
             this.tbDescUsers.ForeColor = this.ForeColor;
-            //this.lvUserProfiles.ForeColor = this.ForeColor;
-            //this.clbCollectors.ForeColor = this.ForeColor;
             this.gbUserProfiles.ForeColor = this.ForeColor;
-
-            //UserControlBase.SetListViewHeaderColor(ref this.lvUserProfiles, this.BackColor, this.ForeColor);
         }
 
     }

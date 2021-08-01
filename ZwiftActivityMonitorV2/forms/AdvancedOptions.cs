@@ -259,16 +259,17 @@ namespace ZwiftActivityMonitorV2
 
         private void AdvancedOptions_BackColorChanged(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"AdvancedOptions_BackColorChanged");
             this.btnClose.BackColor = this.BackColor;
             this.btnStart.BackColor = this.BackColor;
             this.btnStop.BackColor = this.BackColor;
+
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            this.gbZwiftPacketMonitor.BorderColor = colorTable.ActiveFormBorderColor;
         }
 
         private void AdvancedOptions_ForeColorChanged(object sender, EventArgs e)
         {
-            //Debug.WriteLine($"AdvancedOptions_ForeColorChanged");
-
             this.gbZwiftPacketMonitor.ForeColor = this.ForeColor;
             this.btnClose.ForeColor = this.ForeColor;
             this.btnStart.ForeColor = this.ForeColor;

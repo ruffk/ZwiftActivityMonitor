@@ -19,6 +19,7 @@ namespace ZwiftActivityMonitorV2
         public double? NPwattsPerKg { get; set; }
         public double? IntensityFactor { get; set; } // null if FTP not set
         public int? TrainingStressScore { get; set; } // null if FTP not set
+        public int KiloJoules { get; set; }
 
         public RideRecapLap[] Laps { get; set; }
         public RideRecapSplit[] Splits { get; set; }

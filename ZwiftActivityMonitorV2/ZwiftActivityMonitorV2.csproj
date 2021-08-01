@@ -4,15 +4,18 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
-    <Version>2.1.0</Version>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
+    <Version>2.2.0</Version>
     <ApplicationIcon>resources\ZAMicon.ico</ApplicationIcon>
     <Win32Resource></Win32Resource>
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>
-    <Authors>ZwiftActivityMonitor</Authors>
+    <Authors>ruffk</Authors>
     <Product>ZwiftActivityMonitor Pro</Product>
     <PackageId>ZwiftActivityMonitor Pro</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Company>ruffk</Company>
+    <RepositoryUrl>https://github.com/ruffk/ZwiftActivityMonitor</RepositoryUrl>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,31 +39,31 @@
   
   <ItemGroup>
 
-<PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.AppServices" Version="0.5.5" />
+<PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.AppServices" Version="0.6.3" />
 
-<PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.WinForms" Version="0.5.5" />
+<PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.WinForms" Version="0.6.3" />
+
+<PackageReference Include="Google.Protobuf" Version="3.17.3" />
 
 <PackageReference Include="Karambolo.Extensions.Logging.File" Version="3.2.0" />
 
 <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 
-<PackageReference Include="SharpPcap" Version="5.4.0" />
+<PackageReference Include="PacketDotNet" Version="1.3.0" />
 
-<PackageReference Include="Syncfusion.Core.WinForms" Version="19.2.0.46" />
+<PackageReference Include="ruffk.HotkeyListenerCore" Version="1.3.0" />
 
-<PackageReference Include="Syncfusion.Shared.Base" Version="19.2.0.46" />
-<PackageReference Include="Syncfusion.Tools.Base" Version="19.2.0.46" />
-<!--<PackageReference Include="Syncfusion.Grid.Windows" Version="19.2.0.46" />-->
-<PackageReference Include="Syncfusion.Shared.Windows" Version="19.2.0.46" />
-<PackageReference Include="Syncfusion.Tools.Windows" Version="19.2.0.46" />
-<PackageReference Include="ZwiftPacketMonitor" Version="1.2.8" />
+<PackageReference Include="ruffk.ZwiftPacketMonitor" Version="1.2.9.1" />
+
+<PackageReference Include="SharpPcap" Version="6.0.0" />
+
+<PackageReference Include="Syncfusion.Core.WinForms" Version="19.2.0.49" />
+
+<PackageReference Include="Syncfusion.Shared.Base" Version="19.2.0.49" />
+<PackageReference Include="Syncfusion.Tools.Base" Version="19.2.0.49" />
+<PackageReference Include="Syncfusion.Shared.Windows" Version="19.2.0.49" />
+<PackageReference Include="Syncfusion.Tools.Windows" Version="19.2.0.49" />
 </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="HotkeyListenerCore">
-      <HintPath>..\..\bin\HotkeyListenerCore.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   
   <ItemGroup>
     <Compile Update="forms\AboutForm.cs">

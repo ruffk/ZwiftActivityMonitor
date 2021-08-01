@@ -29,7 +29,7 @@ namespace ZwiftActivityMonitorV2
         /// </summary>
         private void InitializeComponent()
         {
-            this.gbZwiftPacketMonitor = new System.Windows.Forms.GroupBox();
+            this.gbZwiftPacketMonitor = new GroupBoxEx();
             this.rbSimulation = new System.Windows.Forms.RadioButton();
             this.tbPlayerId = new System.Windows.Forms.TextBox();
             this.lblPlayerId = new System.Windows.Forms.Label();
@@ -360,7 +360,7 @@ namespace ZwiftActivityMonitorV2
 
         #endregion
 
-        private System.Windows.Forms.GroupBox gbZwiftPacketMonitor;
+        private GroupBoxEx gbZwiftPacketMonitor;
         private System.Windows.Forms.CheckBox cbMonitorOthers;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnStart;

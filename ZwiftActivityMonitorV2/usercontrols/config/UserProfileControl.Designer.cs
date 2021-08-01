@@ -31,7 +31,7 @@ namespace ZwiftActivityMonitorV2
         {
             this.pControl = new System.Windows.Forms.Panel();
             this.tbDescUsers = new System.Windows.Forms.TextBox();
-            this.gbUserProfiles = new System.Windows.Forms.GroupBox();
+            this.gbUserProfiles = new GroupBoxEx();
             this.pUserProfiles = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.tbEmailAddr = new System.Windows.Forms.TextBox();
@@ -415,7 +415,7 @@ namespace ZwiftActivityMonitorV2
 
         private System.Windows.Forms.Panel pControl;
         private System.Windows.Forms.TextBox tbDescUsers;
-        private System.Windows.Forms.GroupBox gbUserProfiles;
+        private GroupBoxEx gbUserProfiles;
         private System.Windows.Forms.Panel pUserProfiles;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Panel pWeightUomGroup;

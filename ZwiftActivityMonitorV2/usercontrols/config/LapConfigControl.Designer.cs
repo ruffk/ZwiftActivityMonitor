@@ -30,11 +30,11 @@ namespace ZwiftActivityMonitorV2
         private void InitializeComponent()
         {
             this.tbDescSystem = new System.Windows.Forms.TextBox();
-            this.gbLaps = new System.Windows.Forms.GroupBox();
+            this.gbLaps = new GroupBoxEx();
             this.pLaps = new System.Windows.Forms.Panel();
             this.cbMeasurementSystem = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.gbTriggers = new System.Windows.Forms.GroupBox();
+            this.gbTriggers = new GroupBoxEx();
             this.cbPosition = new System.Windows.Forms.ComboBox();
             this.rbPosition = new System.Windows.Forms.RadioButton();
             this.rbTime = new System.Windows.Forms.RadioButton();
@@ -379,7 +379,7 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         private System.Windows.Forms.TextBox tbDescSystem;
-        private System.Windows.Forms.GroupBox gbLaps;
+        private GroupBoxEx gbLaps;
         private System.Windows.Forms.Panel pLaps;
         private System.Windows.Forms.TextBox tbDistance;
         private System.Windows.Forms.Label lblGoalTimeSec;
@@ -395,7 +395,7 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton rbAutomatic;
         private System.Windows.Forms.RadioButton rbManual;
-        private System.Windows.Forms.GroupBox gbTriggers;
+        private GroupBoxEx gbTriggers;
         private System.Windows.Forms.RadioButton rbPosition;
         private System.Windows.Forms.RadioButton rbTime;
         private System.Windows.Forms.RadioButton rbDistance;

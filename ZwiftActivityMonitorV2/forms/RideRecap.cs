@@ -126,12 +126,13 @@ namespace ZwiftActivityMonitorV2
             mRideRecapHtml = mRideRecapHtml.Replace("DistanceMi", $"{this.mRideRecapMetrics.DistanceMi:0.0}");
             mRideRecapHtml = mRideRecapHtml.Replace("AverageKph", $"{this.mRideRecapMetrics.AverageKph:0.0}");
             mRideRecapHtml = mRideRecapHtml.Replace("AverageMph", $"{this.mRideRecapMetrics.AverageMph:0.0}");
-            mRideRecapHtml = mRideRecapHtml.Replace("APwattsPerKg", $"{(this.mRideRecapMetrics.APwattsPerKg.HasValue ? this.mRideRecapMetrics.APwattsPerKg.Value.ToString("0.00") : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("APwattsPerKg", $"{(this.mRideRecapMetrics.APwattsPerKg.HasValue ? this.mRideRecapMetrics.APwattsPerKg.Value.ToString("0.00") + " w/kg" : "")}");
             mRideRecapHtml = mRideRecapHtml.Replace("APwatts", $"{this.mRideRecapMetrics.APwatts}");
-            mRideRecapHtml = mRideRecapHtml.Replace("NPwattsPerKg", $"{(this.mRideRecapMetrics.NPwattsPerKg.HasValue ? this.mRideRecapMetrics.NPwattsPerKg.Value.ToString("0.00") : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("NPwattsPerKg", $"{(this.mRideRecapMetrics.NPwattsPerKg.HasValue ? this.mRideRecapMetrics.NPwattsPerKg.Value.ToString("0.00") + " w/kg" : "")}");
             mRideRecapHtml = mRideRecapHtml.Replace("NPwatts", $"{this.mRideRecapMetrics.NPwatts}");
             mRideRecapHtml = mRideRecapHtml.Replace("IntensityFactor", $"{(this.mRideRecapMetrics.IntensityFactor.HasValue ? this.mRideRecapMetrics.IntensityFactor.Value.ToString(".00") : "")}");
             mRideRecapHtml = mRideRecapHtml.Replace("TrainingStressScore", $"{(this.mRideRecapMetrics.TrainingStressScore.HasValue ? this.mRideRecapMetrics.TrainingStressScore.Value : "")}");
+            mRideRecapHtml = mRideRecapHtml.Replace("WorkKiloJoules", $"{this.mRideRecapMetrics.KiloJoules}");
 
             StringBuilder powerStr = new StringBuilder("");
             foreach (var power in this.mRideRecapMetrics.Power)

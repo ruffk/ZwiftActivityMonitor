@@ -361,6 +361,7 @@ namespace ZwiftActivityMonitorV2
             NP,
             IF,
             TSS,
+            KJ,
             Blank,
             AP_PowerDisplayType,
             NP_PowerDisplayType,
@@ -377,6 +378,7 @@ namespace ZwiftActivityMonitorV2
             public string NP { get { return this.mNP; } set { this.SetProperty<string>(ref this.mNP, value); } }
             public string IF { get { return this.mIF; } set { this.SetProperty<string>(ref this.mIF, value); } }
             public string TSS { get { return this.mTSS; } set { this.SetProperty<string>(ref this.mTSS, value); } }
+            public string KJ { get { return this.mKJ; } set { this.SetProperty<string>(ref this.mKJ, value); } }
             public string Blank { get; set; }
 
             public PowerDisplayType AP_PowerDisplayType
@@ -417,6 +419,7 @@ namespace ZwiftActivityMonitorV2
             private string mNP;
             private string mIF;
             private string mTSS;
+            private string mKJ;
 
             private int mAPwatts;
             private double? mAPwattsPerKg;
@@ -426,6 +429,7 @@ namespace ZwiftActivityMonitorV2
             private double mSpeedMph;
             private double? mIFvalue;
             private int? mTSSvalue;
+            private int mKJvalue;
             //private MeasurementSystemType mCurrentMeasurementSystemType = MeasurementSystemType.Imperial;
             private PowerDisplayType mCurrentPowerDisplayType = PowerDisplayType.Watts;
             private SpeedDisplayType mCurrentSpeedDisplayType = SpeedDisplayType.MilesPerHour;
@@ -439,6 +443,8 @@ namespace ZwiftActivityMonitorV2
                 this.SpeedKph = 0;
                 this.SpeedMph = 0;
                 this.IFvalue = null;
+                this.TSSvalue = null;
+                this.KJvalue = 0;
             }
 
             public void SetCurrentMeasurementSystemType(MeasurementSystemType type)
@@ -579,6 +585,7 @@ namespace ZwiftActivityMonitorV2
                     this.IF = this.mIFvalue.HasValue ? mIFvalue.Value.ToString("#.00") : "";
                 }
             }
+
             [Browsable(false)]
             public int? TSSvalue
             {
@@ -588,6 +595,18 @@ namespace ZwiftActivityMonitorV2
                     this.mTSSvalue = value;
 
                     this.TSS = this.mTSSvalue.HasValue ? mTSSvalue.Value.ToString() : "";
+                }
+            }
+
+            [Browsable(false)]
+            public int KJvalue
+            {
+                get { return this.mKJvalue; }
+                set
+                {
+                    this.mKJvalue = value;
+
+                    this.KJ = mKJvalue > 0 ? mKJvalue.ToString() : "";
                 }
             }
 
@@ -792,6 +811,7 @@ namespace ZwiftActivityMonitorV2
                 this.SummaryDataRow.APwattsPerKg = e.APwattsPerKg;
                 this.SummaryDataRow.SpeedKph = e.SpeedKph;
                 this.SummaryDataRow.SpeedMph = e.SpeedMph;
+                this.SummaryDataRow.KJvalue = e.KiloJoules;
             }
 
             private void NormalizedPower_NormalizedPowerChangedEvent(object sender, NormalizedPowerChangedEventArgs e)
@@ -1051,6 +1071,10 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Columns[(int)SummaryColumn.TSS].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryTSS);
             this.dgSummary.Columns[(int)SummaryColumn.TSS].Tag = ActivityViewMetricType.SummaryTSS;
 
+            this.dgSummary.Columns[(int)SummaryColumn.KJ].Width = 55; // minimum 54
+            this.dgSummary.Columns[(int)SummaryColumn.KJ].HeaderText = ActivityViewMetricEnum.Instance.GetColumnHeaderText(ActivityViewMetricType.SummaryKJ);
+            this.dgSummary.Columns[(int)SummaryColumn.KJ].Tag = ActivityViewMetricType.SummaryKJ;
+
             // Use the last blank column to fill the gap if user resizes
             this.dgSummary.Columns[(int)SummaryColumn.Blank].Width = 5; // Five seems to be minimum size, even if set to zero
             this.dgSummary.Columns[(int)SummaryColumn.Blank].HeaderText = "";
@@ -1116,6 +1140,7 @@ namespace ZwiftActivityMonitorV2
             this.dgSummary.Columns[(int)SummaryColumn.IF].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryIF].IsVisible.Value;
             this.dgSummary.Columns[(int)SummaryColumn.NP].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryNP].IsVisible.Value;
             this.dgSummary.Columns[(int)SummaryColumn.TSS].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryTSS].IsVisible.Value;
+            this.dgSummary.Columns[(int)SummaryColumn.KJ].Visible = CurrentUserProfile.ActivityViewColumnSettings[ActivityViewMetricType.SummaryKJ].IsVisible.Value;
 
             mSummaryRows[0].AP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryAP].Key;
             mSummaryRows[0].NP_PowerDisplayType = CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues[ActivityViewMetricType.SummaryNP].Key;

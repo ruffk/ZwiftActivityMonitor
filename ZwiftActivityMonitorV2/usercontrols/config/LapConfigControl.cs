@@ -494,6 +494,12 @@ namespace ZwiftActivityMonitorV2
             base.Parent_BackColorChanged(sender, e);
 
             this.tbDescSystem.BackColor = this.BackColor;
+
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            this.gbLaps.BorderColor = colorTable.ActiveFormBorderColor;
+            this.gbTriggers.BorderColor = colorTable.ActiveFormBorderColor;
+
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)

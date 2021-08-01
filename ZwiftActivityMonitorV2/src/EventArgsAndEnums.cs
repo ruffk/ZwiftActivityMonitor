@@ -156,6 +156,7 @@ namespace ZwiftActivityMonitorV2
         SummaryNP,
         SummaryIF,
         SummaryTSS,
+        SummaryKJ,
     }
 
     public sealed class ActivityViewMetricEnum : EnumBase<ActivityViewMetricType> // sealed which ensures that the class cannot be inherited and object instantiation is restricted
@@ -176,6 +177,7 @@ namespace ZwiftActivityMonitorV2
             EnumList.Add(ActivityViewMetricType.SummaryNP, new EnumListItem("NP"));
             EnumList.Add(ActivityViewMetricType.SummaryIF, new EnumListItem("IF"));
             EnumList.Add(ActivityViewMetricType.SummaryTSS, new EnumListItem("TSS"));
+            EnumList.Add(ActivityViewMetricType.SummaryKJ, new EnumListItem("kJ"));
         }
 
         public static ActivityViewMetricEnum Instance { get { return _InstanceLock.Value; } }
@@ -599,13 +601,15 @@ namespace ZwiftActivityMonitorV2
         public double SpeedMph { get; }
         public int APwatts { get; }
         public double? APwattsPerKg { get; }
+        public int KiloJoules { get; }
 
-        public MetricsChangedEventArgs(double speedKph, double speedMph, int apWatts, double? apWattsPerKg)
+        public MetricsChangedEventArgs(double speedKph, double speedMph, int apWatts, double? apWattsPerKg, int kiloJoules)
         {
             this.SpeedKph = speedKph;
             this.SpeedMph = speedMph;
             this.APwatts = apWatts;
             this.APwattsPerKg = apWattsPerKg;
+            this.KiloJoules = kiloJoules;
         }
     }
 

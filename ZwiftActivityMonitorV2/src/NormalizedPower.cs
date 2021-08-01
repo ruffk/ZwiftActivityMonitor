@@ -33,6 +33,7 @@ namespace ZwiftActivityMonitorV2
         private TimeSpan mCurDuration;
         private double mCurDistanceKm;
         private double mCurDistanceMi;
+        private int mCurKiloJoules;
 
         //private DateTime m_collectionStartTime; // Time when collection started
 
@@ -95,6 +96,7 @@ namespace ZwiftActivityMonitorV2
                 mCurDuration = TimeSpan.Zero;
                 mCurDistanceKm = 0;
                 mCurDistanceMi = 0;
+                mCurKiloJoules = 0;
 
                 //m_collectionStartTime = DateTime.Now;
 
@@ -125,6 +127,7 @@ namespace ZwiftActivityMonitorV2
                 IntensityFactor = mCurIntensityFactor,
                 NPwatts = mCurNPwatts,
                 NPwattsPerKg = mCurNPwattsPerKg,
+                KiloJoules = mCurKiloJoules,
             };
         }
 
@@ -189,14 +192,18 @@ namespace ZwiftActivityMonitorV2
             mCurDistanceKm = e.DistanceKm;
             mCurDistanceMi = e.DistanceMi;
 
-            if (e.SpeedKph != this.mCurAvgKph || e.SpeedMph != this.mCurAvgMph || e.APwatts != this.mCurAPwatts)
+            // calculate kiloJoules (calories) burned
+            int kiloJoules = (int)Math.Round((e.APwatts * e.ElapsedTime.TotalSeconds) / 1000.0, 0);
+
+            if (e.SpeedKph != this.mCurAvgKph || e.SpeedMph != this.mCurAvgMph || e.APwatts != this.mCurAPwatts || kiloJoules != this.mCurKiloJoules)
             {
                 this.mCurAvgKph = e.SpeedKph;
                 this.mCurAvgMph = e.SpeedMph;
                 this.mCurAPwatts = e.APwatts;
                 this.mCurAPwattsPerKg = e.APwattsPerKg;
+                this.mCurKiloJoules = kiloJoules;
 
-                OnMetricsChangedEvent(new MetricsChangedEventArgs(e.SpeedKph, e.SpeedMph, e.APwatts, e.APwattsPerKg));
+                OnMetricsChangedEvent(new MetricsChangedEventArgs(e.SpeedKph, e.SpeedMph, e.APwatts, e.APwattsPerKg, kiloJoules));
             }
         }
 
@@ -213,7 +220,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnNormalizedPowerChangedEvent)");
+                    Logger.LogError(ex, $"Caught in {this.GetType()}::OnNormalizedPowerChangedEvent");
                 }
             }
         }
@@ -230,7 +237,7 @@ namespace ZwiftActivityMonitorV2
                 catch (Exception ex)
                 {
                     // Don't let downstream exceptions bubble up
-                    Logger.LogError(ex, $"Caught in {this.GetType()} (OnMetricsChangedEvent)");
+                    Logger.LogError(ex, $"Caught in {this.GetType()}::OnMetricsChangedEvent");
                 }
             }
         }

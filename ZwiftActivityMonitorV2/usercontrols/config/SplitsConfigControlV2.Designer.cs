@@ -35,10 +35,10 @@ namespace ZwiftActivityMonitorV2
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tbDescSystem = new System.Windows.Forms.TextBox();
-            this.gbSplits = new System.Windows.Forms.GroupBox();
+            this.gbSplits = new GroupBoxEx();
             this.pSplits = new System.Windows.Forms.Panel();
             this.btnSplitEdit = new System.Windows.Forms.Button();
-            this.gbSplitGoals = new System.Windows.Forms.GroupBox();
+            this.gbSplitGoals = new GroupBoxEx();
             this.ckbCustomized = new System.Windows.Forms.CheckBox();
             this.lblDeleteInstructions = new System.Windows.Forms.Label();
             this.dgvSplits = new ZwiftActivityMonitorV2.SplitsConfigControlV2.DataGridViewExtended();
@@ -424,7 +424,7 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         private System.Windows.Forms.TextBox tbDescSystem;
-        private System.Windows.Forms.GroupBox gbSplits;
+        private GroupBoxEx gbSplits;
         private System.Windows.Forms.Panel pSplits;
         private System.Windows.Forms.Label lblSplitsEvery;
         private System.Windows.Forms.CheckBox ckbShowSplits;
@@ -442,7 +442,7 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Label lblGoalDistance;
         private System.Windows.Forms.DateTimePicker dtpGoalTime;
         private System.Windows.Forms.Button btnSplitEdit;
-        private System.Windows.Forms.GroupBox gbSplitGoals;
+        private GroupBoxEx gbSplitGoals;
         private DataGridViewExtended dgvSplits;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem tsmiDeleteRow;

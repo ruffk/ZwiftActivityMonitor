@@ -1117,6 +1117,12 @@ namespace ZwiftActivityMonitorV2
             this.dgvSplits.RowBackColor = this.BackColor;
             this.dgvSplits.BackgroundColor = this.BackColor;
             this.dgvSplits.RowHeadersDefaultCellStyle.BackColor = this.BackColor;
+
+            MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();
+
+            this.gbSplitGoals.BorderColor = colorTable.ActiveFormBorderColor;
+            this.gbSplits.BorderColor = colorTable.ActiveFormBorderColor;
+
         }
 
         protected override void Parent_ForeColorChanged(object sender, EventArgs e)

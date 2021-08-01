@@ -53,7 +53,16 @@ namespace ZwiftActivityMonitorV2
 
             if (this.IsVisible == null)
             {
-                this.IsVisible = true;
+                switch(this.MetricSetting)
+                {
+                    case ActivityViewMetricType.SummaryKJ:
+                        this.IsVisible = false;
+                        break;
+
+                    default:
+                        this.IsVisible = true;
+                        break;
+                }
                 count++;
             }
 

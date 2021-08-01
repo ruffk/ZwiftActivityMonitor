@@ -293,8 +293,6 @@ namespace ZwiftActivityMonitorV2
         {
             base.Parent_BackColorChanged(sender, e);
 
-            //Debug.WriteLine($"SystemControl setting BackColor: {this.BackColor.R},{this.BackColor.G},{this.BackColor.B}");
-
             this.tbDescSystem.BackColor = this.BackColor;
 
             MSoffice2010ColorManager colorTable = ZAMappearance.GetColorTable();

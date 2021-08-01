@@ -30,7 +30,7 @@ namespace ZwiftActivityMonitorV2
         private void InitializeComponent()
         {
             this.pControl = new System.Windows.Forms.Panel();
-            this.gbSystemZpm = new System.Windows.Forms.GroupBox();
+            this.gbSystemZpm = new GroupBoxEx();
             this.pZpm = new System.Windows.Forms.Panel();
             this.lblEventCount = new System.Windows.Forms.Label();
             this.lblEvents = new System.Windows.Forms.Label();
@@ -45,7 +45,7 @@ namespace ZwiftActivityMonitorV2
             this.lblStatus = new System.Windows.Forms.Label();
             this.ckbRunning = new System.Windows.Forms.CheckBox();
             this.tbDescSystem = new System.Windows.Forms.TextBox();
-            this.gbSystemSettings = new System.Windows.Forms.GroupBox();
+            this.gbSystemSettings = new GroupBoxEx();
             this.pSystemSettings = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
@@ -485,7 +485,7 @@ namespace ZwiftActivityMonitorV2
         #endregion
 
         private System.Windows.Forms.Panel pControl;
-        private System.Windows.Forms.GroupBox gbSystemZpm;
+        private GroupBoxEx gbSystemZpm;
         private System.Windows.Forms.Panel pZpm;
         private System.Windows.Forms.Label lblEventCount;
         private System.Windows.Forms.Label lblEvents;
@@ -500,7 +500,7 @@ namespace ZwiftActivityMonitorV2
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.CheckBox ckbRunning;
         private System.Windows.Forms.TextBox tbDescSystem;
-        private System.Windows.Forms.GroupBox gbSystemSettings;
+        private GroupBoxEx gbSystemSettings;
         private System.Windows.Forms.Panel pSystemSettings;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
