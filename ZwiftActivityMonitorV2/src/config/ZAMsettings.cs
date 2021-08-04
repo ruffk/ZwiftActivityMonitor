@@ -81,9 +81,11 @@ namespace ZwiftActivityMonitorV2
 
         [JsonIgnore]
         public string CurrentUserProfile { get; set; } = "";
-
+        
         private bool m_readOnly; // Is the current configuration mutable
 
+        private const string FileNameDefault = "ZAMsettings.Default.json";
+        private const string FileName = "ZAMsettings.json";
 
         private static string       _committedJsonStr;      // The clean (disk hardened) version of the .json settings
         private static ZAMsettings  _committedZAMsettings;  // The deserialized settings matching _committedJsonStr 
@@ -91,14 +93,12 @@ namespace ZwiftActivityMonitorV2
 
         private static ILogger<ZAMsettings> _logger;
         private static ILoggerFactory _loggerFactory;
-        public static ZPMonitorService ZPMonitorService { get; set; }
-        public static HotkeyListener HotkeyListener { get; } = new();
-
         private static bool _initialized;
 
+        public static ZPMonitorService ZPMonitorService { get; set; }
+        public static HotkeyListener HotkeyListener { get; } = new();
+        public static bool IsDialogOpen { get; set; } = false; // MainForm sets this true when it opens any dialog.  Allows viewers to check status.
 
-        private const string FileNameDefault = "ZAMsettings.Default.json";
-        private const string FileName = "ZAMsettings.json";
 
         public static event EventHandler<EventArgs> SystemConfigChanged;
         public static event EventHandler<EventArgs> SplitsConfigChanged;
@@ -108,7 +108,6 @@ namespace ZwiftActivityMonitorV2
         private ZAMsettings()
         {
             UserProfiles    = new SortedList<string, UserProfile>();
-            //Collectors      = new SortedList<string, Collector>();
             Laps            = new Lap();
             SplitsV2        = new SplitsV2();
             Appearance      = new ZAMappearance();
@@ -183,28 +182,6 @@ namespace ZwiftActivityMonitorV2
 
             _logger.LogDebug($"User {user.Name} deleted.");
         }
-
-        //public void UpsertCollector(Collector collector)
-        //{
-        //    Debug.Assert(!this.m_readOnly, "Configuration in use is read-only.  Did you forget BeginCachedConfiguration?");
-
-        //    if (!Collectors.ContainsKey(collector.Name))
-        //    {
-        //        // Clone the collector and add to the configuration's Collector dictionary
-        //        Collectors.Add(collector.Name, (Collector)collector.Clone());
-
-        //        _logger.LogDebug($"Collector {collector.Name} added.");
-        //    }
-        //    else
-        //    {
-        //        Debug.Assert(Collectors.ContainsKey(collector.Name), "Collector not found in dictionary.  Cannot update.");
-
-        //        // Clone the user and update the configuration's UserProfile dictionary
-        //        Collectors[collector.Name] = (Collector)collector.Clone();
-
-        //        _logger.LogDebug($"Collector {collector.Name} updated.");
-        //    }
-        //}
 
         [JsonIgnore]
         public List<UserProfile> GetUsers
@@ -459,6 +436,12 @@ namespace ZwiftActivityMonitorV2
                 _committedZAMsettings.m_readOnly = true;
 
                 _uncommittedZAMsettings = null;
+
+                // If the user set as current user gets deleted, set current user to default.
+                if (ZAMsettings.Settings.CurrentUser == null)
+                {
+                    ZAMsettings.Settings.CurrentUserProfile = ZAMsettings.Settings.DefaultUserProfile;
+                }
 
                 _logger.LogDebug($"Cached configuration saved to file: {FileName}");
             }

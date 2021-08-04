@@ -60,7 +60,7 @@ namespace ZwiftActivityMonitorV2
                     {
                         ProcessStartInfo psInfo = new ProcessStartInfo
                         {
-                            FileName = "https://nmap.org/npcap/dist/npcap-1.20.exe",
+                            FileName = "https://nmap.org/npcap/dist/npcap-1.50.exe",
                             UseShellExecute = true
                         };
                         Process.Start(psInfo);

@@ -113,12 +113,14 @@ namespace ZwiftActivityMonitorV2
             this.cbTheme.TabIndex = 50;
             this.cbTheme.ValueMember = "Value";
             this.cbTheme.SelectedIndexChanged += new System.EventHandler(this.cbTheme_SelectedIndexChanged);
+            this.cbTheme.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ComboBox_KeyDown);
             // 
             // cbFonts
             // 
             this.cbFonts.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.cbFonts.DropDownBackColor = System.Drawing.SystemColors.Window;
             this.cbFonts.DropDownBorderColor = System.Drawing.SystemColors.ActiveBorder;
+            this.cbFonts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbFonts.FormattingEnabled = true;
             this.cbFonts.Location = new System.Drawing.Point(17, 20);
             this.cbFonts.Name = "cbFonts";
@@ -216,6 +218,7 @@ namespace ZwiftActivityMonitorV2
             this.cbTransparency.TabIndex = 70;
             this.cbTransparency.ValueMember = "Value";
             this.cbTransparency.SelectedIndexChanged += new System.EventHandler(this.cbTransparency_SelectedIndexChanged);
+            this.cbTransparency.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ComboBox_KeyDown);
             // 
             // ColorAndFontViewerControl
             // 

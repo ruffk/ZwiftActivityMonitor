@@ -27,10 +27,10 @@ namespace ZwiftActivityMonitorV2
 
         public Color ManagedColor { get; set; } = SystemColors.Control;
         public Size WindowSize { get; set; } = new Size(359, 208);
-        public string FontFamily { get; set; } = "Franklin Gothic Demi Cond";
-        public float FontSize { get; set; } = 13;
-        public bool IsFontBold { get; set; } = false;
-        public bool IsFontItalic { get; set; } = false;
+        public string FontFamily { get; set; }
+        public float FontSize { get; set; }
+        public bool IsFontBold { get; set; }
+        public bool IsFontItalic { get; set; }
 
         //private readonly Dictionary<ThemeType, KeyValuePair<ThemeType, string>> m_themeList = new();
         private readonly Dictionary<ThemeType, string> m_themeList = new();
@@ -72,6 +72,31 @@ namespace ZwiftActivityMonitorV2
             {
                 //Logger.LogDebug($"Initializing Transparency");
                 Transparency = new KeyValuePair<TransparencyType, string>(TransparencyType.TransparentWhiteText, m_transparencyList[TransparencyType.TransparentWhiteText]); // default
+                count++;
+            }
+
+            if (string.IsNullOrEmpty(FontFamily) || this.FontSize < 7.0)
+            {
+                Dictionary<string, FontFamily> fonts = new InstalledFontCollection().Families.ToDictionary(n => n.Name);
+
+                if (fonts.ContainsKey("Franklin Gothic Demi Cond"))
+                {
+                    this.FontFamily = "Franklin Gothic Demi Cond";
+                    this.FontSize = 13;
+                    this.IsFontBold = false;
+                }
+                else if (fonts.ContainsKey("Segoe UI"))
+                {
+                    this.FontFamily = "Segoe UI";
+                    this.FontSize = 12;
+                    this.IsFontBold = true;
+                }
+                else
+                {
+                    this.FontFamily = "Arial";
+                    this.FontSize = 12;
+                    this.IsFontBold = true;
+                }
                 count++;
             }
 

@@ -18,7 +18,13 @@ namespace ZwiftActivityMonitorV2
             this.DrawMode = DrawMode.OwnerDrawVariable;
             this.DrawItem += this.FontComboBox_DrawItem;
             this.SelectionChangeCommitted += this.FontComboBox_SelectionChangeCommitted;
+            //this.KeyDown += FontComboBox_KeyDown;
             this.MeasureItem += this.FontComboBox_MeasureItem;
+        }
+
+        private void FontComboBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.SuppressKeyPress = true;
         }
 
         public void Fill()
@@ -106,15 +112,18 @@ namespace ZwiftActivityMonitorV2
             if (e.Index < 0)
                 return;
 
-            if ((e.State & DrawItemState.ComboBoxEdit) == DrawItemState.ComboBoxEdit)
-                return;
+            //if ((e.State & DrawItemState.ComboBoxEdit) == DrawItemState.ComboBoxEdit)
+            //    return;
+
+
+            //if (
+            //    ((e.State & DrawItemState.Focus) == DrawItemState.Focus) ||
+            //    ((e.State & DrawItemState.Selected) == DrawItemState.Selected) ||
+            //    ((e.State & DrawItemState.HotLight) == DrawItemState.HotLight)
+            //   )
 
             // Draw the background of the item
-            if (
-                ((e.State & DrawItemState.Focus) == DrawItemState.Focus) ||
-                ((e.State & DrawItemState.Selected) == DrawItemState.Selected) ||
-                ((e.State & DrawItemState.HotLight) == DrawItemState.HotLight)
-               )
+            if (e.State.HasFlag(DrawItemState.Focus) || e.State.HasFlag(DrawItemState.Selected) || e.State.HasFlag(DrawItemState.HotLight))
             {
                 e.DrawBackground();
             }
@@ -126,10 +135,11 @@ namespace ZwiftActivityMonitorV2
                 }
             }
 
+            // Draw item text
             using (Font f = new Font(Items[e.Index].ToString(), this.Font.Size, FontStyle.Regular))
             {
-                // Draw item text
-                e.Graphics.DrawString(Items[e.Index].ToString(), f, Brushes.Black, new RectangleF(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height));
+                Brush foreColor = e.State.HasFlag(DrawItemState.Selected) ? SystemBrushes.HighlightText : SystemBrushes.WindowText;
+                e.Graphics.DrawString(Items[e.Index].ToString(), f, foreColor, new RectangleF(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height));
             }
 
             // Draw the focus rectangle if the mouse hovers over an item

@@ -22,6 +22,9 @@ namespace ZwiftActivityMonitorV2
             {
                 m_userProfile = new UserProfile();
 
+                // Allow the profile object to initialize itself
+                m_userProfile.InitializeDefaultValues();
+
                 this.SubItems.Add(new ListViewSubItem());
                 this.SubItems.Add(new ListViewSubItem());
                 this.SubItems.Add(new ListViewSubItem());
@@ -208,18 +211,20 @@ namespace ZwiftActivityMonitorV2
 
                     // Don't enable the Remove button if default user is selected.
                     btnRemoveProfile.Enabled = (user.Default ? false : !value);
+                    ckbDefault.Enabled = (user.Default ? false : value);
                 }
                 else
                 {
                     btnEditProfile.Enabled = false;
                     btnRemoveProfile.Enabled = false;
+                    ckbDefault.Enabled = value;
                 }
 
                 // when editing, you can't change the selection
                 lvUserProfiles.Enabled = !value;
 
                 tbName.Enabled = value;
-                ckbDefault.Enabled = value;
+                //ckbDefault.Enabled = value;
                 tbWeight.Enabled = value;
                 rbKgs.Enabled = value;
                 rbLbs.Enabled = value;

@@ -821,6 +821,10 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void MainForm_FormSyncOneSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
         {
+            // Skip updates if another dialog is open
+            if (ZAMsettings.IsDialogOpen)
+                return;
+
             if (this.mStatusLabelSeconds > 0)
             {
                 if (--this.mStatusLabelSeconds == 0)
@@ -836,6 +840,10 @@ namespace ZwiftActivityMonitorV2
         /// <param name="e"></param>
         private void MainForm_FormSyncFiveSecondTimerTickEvent(object sender, FormSyncTimerTickEventArgs e)
         {
+            // Skip updates if another dialog is open
+            if (ZAMsettings.IsDialogOpen)
+                return;
+
             // determine type of units to display, alternate every 5 seconds
             MeasurementSystemType type = e.TickCount % 2 == 0 ? MeasurementSystemType.Imperial : MeasurementSystemType.Metric;
 

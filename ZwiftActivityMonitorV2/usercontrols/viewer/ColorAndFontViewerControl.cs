@@ -79,6 +79,7 @@ namespace ZwiftActivityMonitorV2
 
             this.BeginInitializingControls();
 
+            nudFontSize.Value = nudFontSize.Minimum;
             nudFontSize.Value = (int)settings.FontSize;
 
             if (settings.Theme.HasValue)
@@ -89,7 +90,9 @@ namespace ZwiftActivityMonitorV2
 
             this.btnColor.SelectedColor = settings.ManagedColor;
 
-            this.cbFonts.SelectedItem = settings.FontFamily;
+            this.cbFonts.SelectedIndex = cbFonts.Items.IndexOf(settings.FontFamily);
+            //this.cbFonts.SelectedItem = settings.FontFamily;
+
             cbBold.Checked = settings.IsFontBold;
             cbItalic.Checked = settings.IsFontItalic;
 
@@ -128,10 +131,6 @@ namespace ZwiftActivityMonitorV2
             if (this.cbTheme.SelectedItem == null)
                 return;
 
-            //Logger.LogDebug($"AdjustFont - cbFonts.SelectedItem: {this.cbFonts.SelectedItem}");
-
-            //Logger.LogDebug($"AdjustFont - cbTheme.SelectedItem: {this.cbTheme.SelectedItem}");
-
             FontStyle style = 0;
 
             style |= cbBold.Checked ? FontStyle.Bold : 0;
@@ -142,26 +141,6 @@ namespace ZwiftActivityMonitorV2
 
 
             var selection = (KeyValuePair<ThemeType, string>)cbTheme.SelectedItem;
-
-            //Office2010FormEx hidden = new Office2010FormEx();
-            //hidden.UseOffice2010SchemeBackColor = true;
-
-            //if (selection.Key != ThemeType.Custom)
-            //{
-            //    hidden.ColorScheme = ZAMsettings.Settings.Appearance.GetOfficeColorScheme(selection.Key, out Color? managedColor);
-
-            //    if (hidden.ColorScheme == Office2010Theme.Managed)
-            //    {
-            //        Office2010Colors.ApplyManagedColors(hidden, managedColor.Value);
-            //    }
-            //}
-            //else
-            //{
-            //    hidden.ColorScheme = Office2010Theme.Managed;
-            //    Office2010Colors.ApplyManagedColors(hidden, btnColor.SelectedColor);
-            //}
-
-            //Office2010Colors colorTable = Office2010Colors.GetColorTable(hidden.ColorScheme);
 
             MSoffice2010ColorManager colorTable;
 
@@ -286,6 +265,12 @@ namespace ZwiftActivityMonitorV2
 
         private void btnAccept_Click(object sender, EventArgs e)
         {
+            if (cbTheme.SelectedItem == null || cbTransparency.SelectedItem == null || cbFonts.SelectedItem == null)
+            {
+                MessageBox.Show(this.ParentForm, "Please make sure to select a valid theme, transparency, and font before saving.", "Unable to save", MessageBoxButtons.OK);
+                return;
+            }
+
             Logger.LogDebug($"Theme: {cbTheme.SelectedValue}, ManagedColor: {btnColor.SelectedColor}, Font: {cbFonts.SelectedItem} Transparency: {cbTransparency.SelectedValue}");
 
             ZAMsettings.BeginCachedConfiguration();
@@ -327,6 +312,11 @@ namespace ZwiftActivityMonitorV2
             }
         }
 
+        private void ComboBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
+                e.SuppressKeyPress = true;
+        }
 
     }
 }

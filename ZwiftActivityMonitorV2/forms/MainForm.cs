@@ -240,7 +240,9 @@ namespace ZwiftActivityMonitorV2
 
             //new RideRecap(rideRecapMetrics).ShowDialog(this);
 
+            ZAMsettings.IsDialogOpen = true;
             new AboutForm().ShowDialog(this);
+            ZAMsettings.IsDialogOpen = false;
         }
 
         private void ZAMsettings_SystemConfigChanged(object sender, EventArgs e)
@@ -662,12 +664,16 @@ namespace ZwiftActivityMonitorV2
 
         private void tsmiAdvanced_Click(object sender, EventArgs e)
         {
+            ZAMsettings.IsDialogOpen = true;
             new AdvancedOptions().ShowDialog(this);
+            ZAMsettings.IsDialogOpen = false;
         }
 
         private void tsmiConfiguration_Click(object sender, EventArgs e)
         {
+            ZAMsettings.IsDialogOpen = true;
             new ConfigurationOptions(this.Location).ShowDialog(this);
+            ZAMsettings.IsDialogOpen = false;
         }
 
         private void tsmiStart_Click(object sender, EventArgs e)
