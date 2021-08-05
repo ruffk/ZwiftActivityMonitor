@@ -4,9 +4,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.2.0.0</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
-    <Version>2.2.0</Version>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
+    <Version>2.3.0</Version>
     <ApplicationIcon>resources\ZAMicon.ico</ApplicationIcon>
     <Win32Resource></Win32Resource>
     <PackageProjectUrl>https://github.com/ruffk/ZwiftActivityMonitor</PackageProjectUrl>

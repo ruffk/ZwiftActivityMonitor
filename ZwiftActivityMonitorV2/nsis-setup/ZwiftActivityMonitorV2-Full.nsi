@@ -2,12 +2,18 @@
 Unicode True
 
 !define PRODUCT_NAME "Zwift Activity Monitor Pro"
-!define PRODUCT_VERSION "2.2.0"
+!define PRODUCT_VERSION "2.3.0"
 !define PRODUCT_PUBLISHER "Kevin Ruff p/b EnJoy Fitness"
 !define PRODUCT_WEB_SITE "https://github.com/ruffk/ZwiftActivityMonitor"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\ZwiftActivityMonitorV2.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+
+!define NPCAP_INSTALLER "npcap-1.50.exe"
+!define NPCAP_INSTALLER_VERSION "1.50"
+
+!define DOTNET_INSTALLER "windowsdesktop-runtime-5.0.8-win-x64.exe"
+!define DOTNET_INSTALLER_VERSION "5.0.8"
 
 !include "MUI2.nsh"
 
@@ -18,18 +24,20 @@ Unicode True
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
-; License page
-;!insertmacro MUI_PAGE_LICENSE "https://github.com/ruffk/ZwiftActivityMonitor/blob/master/LICENSE"
+
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
+
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
+
 ; Finish page
 !define MUI_FINISHPAGE_TEXT "Please take a moment to view the application's README file.  It contains important setup instructions."
 !define MUI_FINISHPAGE_RUN "$INSTDIR\ZwiftActivityMonitorV2.exe"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 !define MUI_FINISHPAGE_SHOWREADME "https://github.com/ruffk/ZwiftActivityMonitor#readme"
 ;!define MUI_FINISHPAGE_SHOWREADME_TEXT ""
+
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -55,7 +63,7 @@ Section "MainSection" SEC01
   File \
       /x "appsettings.json" \
       /x "appsettings.Production.json" \
-      "C:\Users\kevin\Documents\GitHub\ZwiftActivityMonitor\ZwiftActivityMonitorV2\bin\Release\net5.0-windows\*.*"
+      "..\bin\Release\net5.0-windows\*.*"
 
   ; don't overwrite the two .json config file
   SetOverwrite off
@@ -67,6 +75,29 @@ Section "MainSection" SEC01
   CreateShortCut "$DESKTOP\Zwift Activity Monitor Pro.lnk" "$INSTDIR\ZwiftActivityMonitorV2.exe"
 
   SetAutoClose true
+SectionEnd
+
+Section "Prerequisites" SEC02
+  SetOutPath "$INSTDIR\Prerequisites"
+  SetOverwrite ifnewer
+  File \
+      ".\Prerequisites\${NPCAP_INSTALLER}" \
+      ".\Prerequisites\${DOTNET_INSTALLER}"
+
+  
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\WOW6432Node\Npcap" ""
+  IfErrors 0 SkipNpcap 
+    MessageBox MB_YESNO|MB_ICONQUESTION "The pre-requisite application Npcap ${NPCAP_INSTALLER_VERSION} needs to be installed.  Select Yes to install it now." IDNO SkipNpcap
+    MessageBox MB_OKCANCEL "During the Npcap installation, please accept all installation default settings.  Select OK to continue." IDCANCEL SkipNpcap
+    ExecWait "$INSTDIR\Prerequisites\${NPCAP_INSTALLER}" $0
+  SkipNpcap:
+
+  ReadRegDWORD $0 HKLM "Software\WOW6432Node\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App" "${DOTNET_INSTALLER_VERSION}"
+  IfErrors 0 SkipDotNet 
+    MessageBox MB_YESNO|MB_ICONQUESTION "The pre-requisite Microsoft .NET ${DOTNET_INSTALLER_VERSION} Desktop Runtime needs to be installed.  Select Yes to install it now." IDNO SkipDotNet
+    ExecWait "$INSTDIR\Prerequisites\${DOTNET_INSTALLER}" $0
+  SkipDotNet:
 SectionEnd
 
 Section -AdditionalIcons
