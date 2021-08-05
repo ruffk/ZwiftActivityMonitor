@@ -74,6 +74,17 @@ namespace ZwiftActivityMonitorV2
             // toggle the tabpage selection to get the Selecting / Selected events to fire for the initial tabpage
             tabOptions.SelectedIndex = 1;
             tabOptions.SelectedIndex = 0;
+
+            if (string.IsNullOrEmpty(ZAMsettings.Settings.Network))
+            {
+                string msgText = "Quick start instructions:\n\n"
+                    + "1) System tab - Select your network, save, and then start the Zwift Packet Monitor.\n\n"
+                    + "2) User Profiles tab - Set the correct weight, FTP, and email address for the default user profile.\n\n"
+                    + "3) Close this configuration window, select Menu->Start, and start Zwifting!\n\n\n"
+                    + "Once your comfortable with ZAM, come back and set up Splits and Laps.";
+
+                MessageBox.Show(this, msgText, "Initial Setup Guidance", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
 

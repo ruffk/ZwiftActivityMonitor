@@ -718,24 +718,27 @@ namespace ZwiftActivityMonitorV2
         {
             //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent1 - ID: {Thread.CurrentThread.ManagedThreadId}");
 
-            SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
-
-            //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
-
-            Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
-
-            if (e.IsCompleted)
+            //SynchronizationContext.SetSynchronizationContext(WindowsFormsSynchronizationContext.Current);
+            
+            mDispatcher.InvokeAsync(() =>
             {
-                ZAMsettings.ZPMonitorService.StartCollection(e.StartWithEventTimer);
-            }
-            else if (e.IsCanceled)
-            {
-                this.OnCollectionStatusChanged();
-            }
-            else
-            {
-                statusLabel.Text = $"Time Remaining: {(e.TimeRemaining.TotalMinutes > 60 ? e.TimeRemaining.Hours.ToString() + " hr " : "")}{(e.TimeRemaining.TotalSeconds > 60 ? e.TimeRemaining.Minutes.ToString() + " min " : "")}{e.TimeRemaining.Seconds.ToString() + " sec"}";
-            }
+                //Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent2 - ID: {Thread.CurrentThread.ManagedThreadId}");
+
+                Logger.LogDebug($"UcTimerSetupView_CountdownTimerTickEvent - startWithEventTimer: {e.StartWithEventTimer}");
+
+                if (e.IsCompleted)
+                {
+                    ZAMsettings.ZPMonitorService.StartCollection(e.StartWithEventTimer);
+                }
+                else if (e.IsCanceled || e.IsStarting)
+                {
+                    this.OnCollectionStatusChanged();
+                }
+                else
+                {
+                    statusLabel.Text = $"Time Remaining: {(e.TimeRemaining.TotalMinutes > 60 ? e.TimeRemaining.Hours.ToString() + " hr " : "")}{(e.TimeRemaining.TotalSeconds > 60 ? e.TimeRemaining.Minutes.ToString() + " min " : "")}{e.TimeRemaining.Seconds.ToString() + " sec"}";
+                }
+            });
         }
 
         /// <summary>

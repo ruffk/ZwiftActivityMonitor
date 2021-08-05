@@ -454,6 +454,7 @@ namespace ZwiftActivityMonitorV2
         public TimeSpan TimeRemaining { get; }
         public bool IsCompleted { get; set; }
         public bool IsCanceled { get; set; }
+        public bool IsStarting { get; set; }
         public bool StartWithEventTimer { get; set; }
 
         public CountdownTimerTickEventArgs(TimeSpan timeRemaining)

@@ -218,6 +218,7 @@ namespace ZwiftActivityMonitorV2
             {
                 this.TimerEndTime = DateTime.Now + dtpTimeRemaining.Value.TimeOfDay;
                 this.StartTimer();
+                OnCountdownTimerTickEvent(new CountdownTimerTickEventArgs() { IsStarting = true });
             }
             else
             {
