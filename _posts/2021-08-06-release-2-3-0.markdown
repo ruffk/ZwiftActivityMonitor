@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "Release 2.3.0"
+date:   2021-08-06 14:27:00 -0500
+categories: 
+---
+[Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
+
+* Release 2.3.0 notes
+  * New installer process.  Allows pre-requisites to be installed directly from ZAM installer.
+  * Created new ZAM installation video.
+  * Minor UI bug fixes.
+<br>
+
+The [readme](https://github.com/ruffk/ZwiftActivityMonitor#readme) file contains detailed information on each view and feature.
+
+**Please Note:** The *Pro* release installs side-by-side with the original ZAM.  Current users will need to set your network and configure your user profile.
+
+Please join the **Zwift Activity Monitor Users** FB group to keep in touch with us and other ZAM users!
+
+[Download Latest Release](https://github.com/ruffk/ZwiftActivityMonitor/releases/latest/download/Setup-ZAM.exe)
+
+![sectigo](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/sectigo.jpg)
+<br>**Certified safe download**
+
+## Developed in collaboration with:
+
+![enjoy_fitness](https://github.com/ruffk/ZwiftActivityMonitor/raw/master/ZwiftActivityMonitor/images/Enjoy-Fitness-Logo-red.png)
+[Visit EnJoy Fitness](https://www.EnJoyFitnessJax.com)
+
+* Release 2.2.0 notes
+  * Added calories (kJ) to the summary portion of the Activity View.  By default it is a hidden column.  To add it to the display, right-click on the summary column heading area and select the kJ column.  Calories will also be displayed on the ride recap.
+  * Minor UI bug fixes.
+<br>
+
+* Release 2.1.0 - Initial release of Pro version  
+  * Resizable main window
+  * Color themes or custom colors with optional transparent background
+  * Custom fonts and font sizing
+  * Two additional collectors (15s and 2m)
+  * Hide / Show collectors
+  * Hide / Show columns in grids
+  * Configuration of units for power, speed, and distance.  Can simultaneously display metric and imperial values
+  * Tabs can be moved to top/bottom/left/right
+  * 3x larger buttons on Lap View
+  * Auto-Pause when Zwift clock stops (user selectable)
+  * Hotkeys (shortcuts) for view selection and lap operation
+  * Comprehensive ride recap.  Now with graphs, power numbers, splits, and laps.  Can be emailed or printed.
