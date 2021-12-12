@@ -135,7 +135,7 @@ namespace ZwiftActivityMonitorV2
                     try
                     {
                         await StartMonitorAsync();//.ConfigureAwait(false);
-                }
+                    }
                     catch
                     {
                         throw;
