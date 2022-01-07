@@ -135,7 +135,7 @@ namespace ZwiftActivityMonitorV2
                     try
                     {
                         await StartMonitorAsync();//.ConfigureAwait(false);
-                }
+                    }
                     catch
                     {
                         throw;
@@ -150,8 +150,10 @@ namespace ZwiftActivityMonitorV2
                 {
                     t.Exception.Handle((ex) =>
                         {
-                            throw (ex);
+                            Logger.LogError(ex, "Failed to start ZwiftPacketMonitor.");
+                            return true;
                         });
+                    return;
                 }
                 
                 // Debug mode will operate a little differently than the regular game mode.
