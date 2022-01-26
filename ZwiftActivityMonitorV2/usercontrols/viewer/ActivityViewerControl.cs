@@ -1510,7 +1510,7 @@ namespace ZwiftActivityMonitorV2
                 dataGridView[speedDisplayColumnIndex, rowIndex].Value = (SpeedDisplayType)speedDisplayType;
 
                 // Update configuration
-                if (CurrentUserProfile.ActivityViewSummaryRowSettings.PowerValues.ContainsKey(metricType))
+                if (CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues.ContainsKey(metricType))
                 {
                     ZAMsettings.BeginCachedConfiguration();
                     CurrentUserProfile.ActivityViewSummaryRowSettings.SpeedValues[metricType] = SpeedDisplayEnum.Instance.GetItem(speedDisplayType);
