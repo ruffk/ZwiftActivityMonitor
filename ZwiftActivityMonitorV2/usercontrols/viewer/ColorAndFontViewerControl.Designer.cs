@@ -79,7 +79,7 @@ namespace ZwiftActivityMonitorV2
             this.nudFontSize.ColorScheme = Syncfusion.Windows.Forms.Office2007Theme.Managed;
             this.nudFontSize.Location = new System.Drawing.Point(17, 47);
             this.nudFontSize.Maximum = new decimal(new int[] {
-            15,
+            64,
             0,
             0,
             0});
