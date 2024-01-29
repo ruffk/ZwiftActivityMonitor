@@ -1,6 +1,8 @@
 Zwift Activity Monitor
 ======================
 
+## This project is no longer support due to Zwift switching to packet level encryption!
+
 ## The Power is Within You
 
 This application allows Zwift users to monitor their moving average power and FTP in real-time.  It also provides valuable metrics to the rider such as average and normalized power (NP), intensity factor (IF), and training stress score (TSS).  For the racer and time-trialist, there's also the ability to configure distance based splits with optional goals.  And finally, you can time your own laps and segments (like Alpe De Zwift) using the laps feature.
