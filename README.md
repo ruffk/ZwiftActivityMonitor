@@ -1,7 +1,7 @@
 Zwift Activity Monitor
 ======================
 
-## This project is no longer support due to Zwift switching to packet level encryption!
+## This project is no longer supported due to Zwift switching to packet level encryption!  Try Sauce for Zwift.
 
 ## The Power is Within You
 
